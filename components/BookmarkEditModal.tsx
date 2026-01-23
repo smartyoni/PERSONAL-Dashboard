@@ -55,8 +55,14 @@ const BookmarkEditModal: React.FC<BookmarkEditModalProps> = ({ isOpen, bookmark,
   const isHexColor = (color: string) => color.startsWith('#');
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/30 backdrop-blur-[2px]">
-      <div className="bg-[#F7F6F3] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/30 backdrop-blur-[2px]"
+      onClick={onClose}
+    >
+      <div
+        className="bg-[#F7F6F3] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="bg-white px-6 py-4 flex items-center justify-between border-b border-slate-200">
           <h2 className="text-lg font-bold text-slate-800">북마크 수정</h2>
