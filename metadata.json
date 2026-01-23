@@ -1,0 +1,7 @@
+{
+  "name": "PERSONAL Dashboard",
+  "description": "A highly customizable workspace management application with sections, checklists, drag-and-drop reordering, and local persistence.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
