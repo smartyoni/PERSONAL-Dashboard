@@ -49,7 +49,7 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setEditingIndex(null)}>
           <div className="bg-white w-full max-w-3xl h-[70vh] rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Header: Title Input instead of static text */}
-            <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-4 bg-white shrink-0">
+            <div className="px-8 py-5 border-b border-slate-300 flex items-center gap-4 bg-white shrink-0">
               <div className="flex-1 flex items-center gap-2">
                 <span className="text-xl">📝</span>
                 <input
@@ -82,7 +82,7 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
             </div>
 
             {/* Footer */}
-            <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 shrink-0">
+            <div className="px-6 py-2 bg-slate-50 border-t border-slate-300 flex justify-end gap-3 shrink-0">
               <button
                 onClick={() => setEditingIndex(null)}
                 className="px-6 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-all"
