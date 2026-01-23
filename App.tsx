@@ -13,21 +13,21 @@ import { useFirestoreSync } from './hooks/useFirestoreSync';
 const STORAGE_KEY = 'custom_workspace_v4_final_persistent';
 
 const DEFAULT_BOOKMARKS: Bookmark[] = [
-  { id: 'b1', label: '호실관리', url: '', color: 'bg-[#FBF3DB]' },
-  { id: 'b2', label: '호실수정', url: '', color: 'bg-[#FBF3DB]' },
-  { id: 'b3', label: '호실시트', url: '', color: 'bg-[#FBF3DB]' },
-  { id: 'b4', label: '북클립바', url: '', color: 'bg-[#FBF3DB]' },
-  { id: 'b5', label: '등기소', url: '', color: 'bg-[#E7F3F8]' },
-  { id: 'b6', label: '정부24', url: '', color: 'bg-[#E7F3F8]' },
-  { id: 'b7', label: '토지이음', url: '', color: 'bg-[#E7F3F8]' },
-  { id: 'b8', label: '정보광장', url: '', color: 'bg-[#E7F3F8]' },
-  { id: 'b9', label: '원부장님계약', url: '', color: 'bg-[#F3F0F5]' },
-  { id: 'b10', label: '건강보험', url: '', color: 'bg-[#F3F0F5]' },
-  { id: 'b11', label: '네이버메일', url: '', color: 'bg-[#F3F0F5]' },
-  { id: 'b12', label: '공제가입(협회)', url: '', color: 'bg-[#F3F0F5]' },
-  { id: 'b13', label: '깃허브', url: '', color: 'bg-[#EDF3EC]' },
-  { id: 'b14', label: 'AI스튜디오', url: '', color: 'bg-[#EDF3EC]' },
-  { id: 'b15', label: '구글시트', url: '', color: 'bg-[#EDF3EC]' },
+  { id: 'b1', label: '호실관리', url: '', color: 'bg-[#F5E6A8]' },
+  { id: 'b2', label: '호실수정', url: '', color: 'bg-[#F5E6A8]' },
+  { id: 'b3', label: '호실시트', url: '', color: 'bg-[#F5E6A8]' },
+  { id: 'b4', label: '북클립바', url: '', color: 'bg-[#F5E6A8]' },
+  { id: 'b5', label: '등기소', url: '', color: 'bg-[#88D1F2]' },
+  { id: 'b6', label: '정부24', url: '', color: 'bg-[#88D1F2]' },
+  { id: 'b7', label: '토지이음', url: '', color: 'bg-[#88D1F2]' },
+  { id: 'b8', label: '정보광장', url: '', color: 'bg-[#88D1F2]' },
+  { id: 'b9', label: '원부장님계약', url: '', color: 'bg-[#D9BFDF]' },
+  { id: 'b10', label: '건강보험', url: '', color: 'bg-[#D9BFDF]' },
+  { id: 'b11', label: '네이버메일', url: '', color: 'bg-[#D9BFDF]' },
+  { id: 'b12', label: '공제가입(협회)', url: '', color: 'bg-[#D9BFDF]' },
+  { id: 'b13', label: '깃허브', url: '', color: 'bg-[#A8DEB0]' },
+  { id: 'b14', label: 'AI스튜디오', url: '', color: 'bg-[#A8DEB0]' },
+  { id: 'b15', label: '구글시트', url: '', color: 'bg-[#A8DEB0]' },
 ];
 
 const App: React.FC = () => {
