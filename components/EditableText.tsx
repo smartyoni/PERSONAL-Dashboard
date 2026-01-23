@@ -48,7 +48,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
         onChange={(e) => setTempValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className={`w-full ${compact ? 'p-0 text-lg leading-tight' : 'p-1'} border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white ${className}`}
+        className={`w-full ${compact ? 'p-0 text-lg leading-normal' : 'p-1'} border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white ${className}`}
       />
     );
   }

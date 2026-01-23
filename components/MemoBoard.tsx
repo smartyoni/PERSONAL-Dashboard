@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SideNote } from '../types';
 
@@ -47,8 +46,8 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
 
       {/* Memo Edit Modal - 70% Height & Bezel-less UI */}
       {editingIndex !== null && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-3xl h-[70vh] rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in duration-200 flex flex-col">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setEditingIndex(null)}>
+          <div className="bg-white w-full max-w-3xl h-[70vh] rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Header: Title Input instead of static text */}
             <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-4 bg-white shrink-0">
               <div className="flex-1 flex items-center gap-2">
@@ -62,8 +61,8 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
                   className="w-full text-lg font-extrabold text-slate-800 placeholder:text-slate-300 focus:outline-none bg-transparent"
                 />
               </div>
-              <button 
-                onClick={() => setEditingIndex(null)} 
+              <button
+                onClick={() => setEditingIndex(null)}
                 className="text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
