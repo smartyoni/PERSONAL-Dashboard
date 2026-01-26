@@ -15,17 +15,18 @@ interface FooterTabsProps {
   onToggleLockTab: (id: string) => void;
 }
 
-const TableIcon = () => (
-  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-  </svg>
-);
+const TAB_COLORS = [
+  { bg: 'bg-[#F59E0B]', bgLight: 'bg-[#FEF3C7]', text: 'text-[#92400E]', textLight: 'text-[#D97706]', border: 'border-[#F59E0B]' },
+  { bg: 'bg-[#3B82F6]', bgLight: 'bg-[#DBEAFE]', text: 'text-[#1E3A8A]', textLight: 'text-[#3B82F6]', border: 'border-[#3B82F6]' },
+  { bg: 'bg-[#9333EA]', bgLight: 'bg-[#F3E8FF]', text: 'text-[#581C87]', textLight: 'text-[#9333EA]', border: 'border-[#9333EA]' },
+  { bg: 'bg-[#10B981]', bgLight: 'bg-[#D1FAE5]', text: 'text-[#065F46]', textLight: 'text-[#10B981]', border: 'border-[#10B981]' },
+  { bg: 'bg-[#F43F5E]', bgLight: 'bg-[#FFE4E6]', text: 'text-[#881337]', textLight: 'text-[#F43F5E]', border: 'border-[#F43F5E]' },
+  { bg: 'bg-[#06B6D4]', bgLight: 'bg-[#CFFAFE]', text: 'text-[#164E63]', textLight: 'text-[#06B6D4]', border: 'border-[#06B6D4]' },
+  { bg: 'bg-[#8B5CF6]', bgLight: 'bg-[#EDE9FE]', text: 'text-[#4C1D95]', textLight: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]' },
+  { bg: 'bg-[#F97316]', bgLight: 'bg-[#FFEDD5]', text: 'text-[#7C2D12]', textLight: 'text-[#F97316]', border: 'border-[#F97316]' },
+];
 
-const ArrowIcon = ({ direction }: { direction: 'left' | 'right' }) => (
-  <svg className="w-3 h-3 text-slate-300 mx-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={direction === 'left' ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"} />
-  </svg>
-);
+const getTabColor = (index: number) => TAB_COLORS[index % TAB_COLORS.length];
 
 const TabMenuItem: React.FC<{
   tab: Tab;
@@ -33,7 +34,8 @@ const TabMenuItem: React.FC<{
   onToggleLock: (id: string) => void;
   canDelete: boolean;
   isActive: boolean;
-}> = ({ tab, onDelete, onToggleLock, canDelete, isActive }) => {
+  tabColor: { text: string; textLight: string };
+}> = ({ tab, onDelete, onToggleLock, canDelete, isActive, tabColor }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -61,9 +63,9 @@ const TabMenuItem: React.FC<{
         ref={triggerRef}
         onClick={toggleMenu}
         className={`p-1 rounded-full transition-all flex items-center justify-center ${
-          isActive 
-            ? 'opacity-100 text-blue-500 hover:bg-blue-100' 
-            : 'opacity-40 group-hover:opacity-100 text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+          isActive
+            ? `opacity-100 ${tabColor.text} hover:bg-black/5`
+            : `opacity-40 group-hover:opacity-100 ${tabColor.textLight} hover:bg-black/5`
         }`}
         title="페이지 메뉴"
       >
@@ -130,43 +132,38 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
 }) => {
   return (
     <div className="bg-white border-t border-slate-200 z-[100] h-12 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
-      <div className="w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap px-6 gap-0">
-        {tabs.map((tab, index) => (
-          <React.Fragment key={tab.id}>
+      <div className="w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap px-6 gap-1">
+        {tabs.map((tab, index) => {
+          const tabColor = getTabColor(index);
+          const isActive = activeTabId === tab.id;
+
+          return (
             <div
+              key={tab.id}
               onClick={() => onSelectTab(tab.id)}
-              className={`tab-item-container group flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer transition-all border border-transparent flex-shrink-0 ${
-                activeTabId === tab.id
-                  ? 'bg-blue-50 text-blue-600 border-blue-100'
-                  : 'text-slate-500 hover:bg-slate-50'
+              className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 ${
+                isActive
+                  ? `${tabColor.bg} ${tabColor.text} ${tabColor.border} shadow-sm`
+                  : `${tabColor.bgLight} ${tabColor.textLight} border-transparent hover:${tabColor.border}`
               }`}
             >
-              <span className={`transition-colors ${activeTabId === tab.id ? 'text-blue-500' : 'text-slate-400'}`}>
-                {tab.isLocked ? '🔒' : <TableIcon />}
-              </span>
               <EditableText
                 value={tab.name}
                 onChange={(newName) => onRenameTab(tab.id, newName)}
-                className={`text-xs min-w-[50px] text-center ${activeTabId === tab.id ? 'font-bold' : 'font-medium'}`}
+                className={`text-xs min-w-[40px] text-center ${isActive ? 'font-bold' : 'font-medium'}`}
                 placeholder="페이지 이름"
               />
-              <TabMenuItem 
+              <TabMenuItem
                 tab={tab}
                 onDelete={onDeleteTab}
                 onToggleLock={onToggleLockTab}
                 canDelete={tabs.length > 1}
-                isActive={activeTabId === tab.id}
+                isActive={isActive}
+                tabColor={tabColor}
               />
             </div>
-            
-            {index < tabs.length - 1 && (
-              <div className="flex items-center">
-                <ArrowIcon direction="right" />
-                <ArrowIcon direction="left" />
-              </div>
-            )}
-          </React.Fragment>
-        ))}
+          );
+        })}
 
         <div className="flex items-center ml-2 border-l border-slate-200 pl-4 flex-shrink-0 h-8">
           <button
