@@ -9,6 +9,7 @@ import FooterTabs from './components/FooterTabs';
 import BookmarkBar from './components/BookmarkBar';
 import MemoBoard from './components/MemoBoard';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
+import { useSwipeGesture } from './hooks/useSwipeGesture';
 
 const STORAGE_KEY = 'custom_workspace_v4_final_persistent';
 
@@ -85,6 +86,10 @@ const App: React.FC = () => {
     return found || safeData.tabs[0];
   }, [safeData.tabs, safeData.activeTabId]);
 
+  const currentTabIndex = useMemo(() => {
+    return safeData.tabs.findIndex(t => t.id === safeData.activeTabId);
+  }, [safeData.tabs, safeData.activeTabId]);
+
   const handleUpdateBookmarks = (newBookmarks: Bookmark[]) => {
     updateData({ ...safeData, bookmarks: newBookmarks });
   };
@@ -146,6 +151,28 @@ const App: React.FC = () => {
   const handleSelectTab = (id: string) => {
     updateData({ ...safeData, activeTabId: id });
   };
+
+  const handleSwipeLeft = () => {
+    const nextIndex = currentTabIndex + 1;
+    if (nextIndex < safeData.tabs.length) {
+      handleSelectTab(safeData.tabs[nextIndex].id);
+    }
+  };
+
+  const handleSwipeRight = () => {
+    const prevIndex = currentTabIndex - 1;
+    if (prevIndex >= 0) {
+      handleSelectTab(safeData.tabs[prevIndex].id);
+    }
+  };
+
+  const mainRef = useSwipeGesture({
+    onSwipeLeft: memoEditor.id || modal.isOpen ? undefined : handleSwipeLeft,
+    onSwipeRight: memoEditor.id || modal.isOpen ? undefined : handleSwipeRight,
+    minSwipeDistance: 50,
+    minSwipeVelocity: 0.3,
+    maxVerticalMovement: 80
+  });
 
   const handleParkingChange = (newInfo: ParkingInfo) => {
     updateData({
@@ -317,7 +344,7 @@ const App: React.FC = () => {
           </div>
 
           {/* 3. 스크롤 가능한 메인 그리드 영역 (주차위치 + 섹션 카드들) */}
-          <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-20">
+          <main ref={mainRef} className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-20">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {isMainTab && (
                 <div className="h-full">
