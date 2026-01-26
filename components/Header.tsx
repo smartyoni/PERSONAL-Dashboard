@@ -1,17 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, ResetIcon } from './Icons';
+import { PlusIcon, ResetIcon, MapIcon } from './Icons';
 
 interface HeaderProps {
   onClearAll: () => void;
   onAddSection: () => void;
   hasAnyCompletedItems: boolean;
+  onOpenNavigationMap: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   onClearAll,
   onAddSection,
-  hasAnyCompletedItems
+  hasAnyCompletedItems,
+  onOpenNavigationMap
 }) => {
   const [dateTime, setDateTime] = useState('');
 
@@ -46,6 +48,14 @@ const Header: React.FC<HeaderProps> = ({
           <p className="text-red-600 font-medium whitespace-nowrap text-sm">{dateTime}</p>
           
           <div className="flex items-center gap-2 ml-2">
+            <button
+              onClick={onOpenNavigationMap}
+              className="text-slate-900 hover:text-black p-1.5 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm"
+              title="전체 구조 보기"
+            >
+              <MapIcon />
+            </button>
+
             <button
               onClick={onClearAll}
               disabled={!hasAnyCompletedItems}

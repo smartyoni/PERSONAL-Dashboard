@@ -8,6 +8,7 @@ import ParkingWidget from './components/ParkingWidget';
 import FooterTabs from './components/FooterTabs';
 import BookmarkBar from './components/BookmarkBar';
 import MemoBoard from './components/MemoBoard';
+import NavigationMapModal from './components/NavigationMapModal';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 
@@ -80,6 +81,8 @@ const App: React.FC = () => {
     id: string | null;
     value: string;
   }>({ id: null, value: '' });
+
+  const [navigationMapOpen, setNavigationMapOpen] = useState(false);
 
   const activeTab = useMemo(() => {
     const found = safeData.tabs.find(t => t.id === safeData.activeTabId);
@@ -305,6 +308,30 @@ const App: React.FC = () => {
     setMemoEditor({ id: null, value: '' });
   };
 
+  const handleNavigateFromMap = (tabId: string, sectionId?: string) => {
+    // 1. 탭 전환 (다른 탭인 경우)
+    if (tabId !== safeData.activeTabId) {
+      handleSelectTab(tabId);
+    }
+
+    // 2. 섹션으로 스크롤 (sectionId가 있는 경우)
+    if (sectionId) {
+      setTimeout(() => {
+        const el = document.querySelector(`[data-section-id="${sectionId}"]`);
+        if (el) {
+          el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+          });
+        }
+      }, 100);
+    }
+
+    // 3. 모달 닫기
+    setNavigationMapOpen(false);
+  };
+
   const hasAnyCompletedItems = activeTab.sections.some(s => s.items.some(i => i.completed));
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
@@ -344,10 +371,11 @@ const App: React.FC = () => {
         <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
           {/* 2. 대시보드 헤더 (틀고정 영역) */}
           <div className="flex-none bg-[#F8FAFC]">
-            <Header 
+            <Header
               onClearAll={handleClearAll}
               onAddSection={handleAddSection}
               hasAnyCompletedItems={hasAnyCompletedItems}
+              onOpenNavigationMap={() => setNavigationMapOpen(true)}
             />
           </div>
 
@@ -463,6 +491,14 @@ const App: React.FC = () => {
         message={modal.message}
         onConfirm={modal.onConfirm}
         onCancel={() => setModal(prev => ({ ...prev, isOpen: false }))}
+      />
+
+      <NavigationMapModal
+        isOpen={navigationMapOpen}
+        tabs={safeData.tabs}
+        activeTabId={safeData.activeTabId}
+        onClose={() => setNavigationMapOpen(false)}
+        onNavigate={handleNavigateFromMap}
       />
     </div>
   );

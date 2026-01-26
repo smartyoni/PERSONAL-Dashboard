@@ -114,13 +114,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
   return (
     <section
+      data-section-id={section.id}
       draggable
       onDragStart={onSectionDragStart}
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
       className={`bg-white px-4 py-4 rounded-2xl shadow-sm border transition-all flex flex-col h-[350px] cursor-default ${
-        isDraggingSection ? 'opacity-40 border-slate-500' : 
+        isDraggingSection ? 'opacity-40 border-slate-500' :
         isDragOverSection ? 'border-blue-500 border-2 scale-[1.01]' : 'border-slate-400'
       }`}
     >
