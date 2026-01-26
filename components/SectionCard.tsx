@@ -172,7 +172,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
       <div className="border-t border-slate-200 mb-3 -mx-4"></div>
 
       <div className="space-y-0.5 custom-scrollbar overflow-y-auto flex-1 pr-1">
-        {section.items.map(item => (
+        {[...section.items].sort((a, b) => {
+          if (a.completed === b.completed) return 0;
+          return a.completed ? 1 : -1;
+        }).map(item => (
           <ItemRow
             key={item.id}
             item={item}
