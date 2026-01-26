@@ -83,6 +83,7 @@ const App: React.FC = () => {
   }>({ id: null, value: '' });
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
+  const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
 
   const activeTab = useMemo(() => {
     const found = safeData.tabs.find(t => t.id === safeData.activeTabId);
@@ -326,6 +327,12 @@ const App: React.FC = () => {
           });
         }
       }, 100);
+
+      // 섹션 강조 효과
+      setHighlightedSectionId(sectionId);
+      setTimeout(() => {
+        setHighlightedSectionId(null);
+      }, 3000); // 3초 후 강조 제거
     }
 
     // 3. 모달 닫기
@@ -402,6 +409,7 @@ const App: React.FC = () => {
                   onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
                   onSectionDrop={(e) => onSectionDrop(e, section.id)}
                   onSectionDragEnd={onSectionDragEnd}
+                  isHighlighted={section.id === highlightedSectionId}
                 />
               ))}
 

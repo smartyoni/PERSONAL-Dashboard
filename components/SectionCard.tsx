@@ -17,6 +17,7 @@ interface SectionCardProps {
   onSectionDragOver: (e: React.DragEvent) => void;
   onSectionDrop: (e: React.DragEvent) => void;
   onSectionDragEnd: () => void;
+  isHighlighted?: boolean;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -30,7 +31,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onSectionDragStart,
   onSectionDragOver,
   onSectionDrop,
-  onSectionDragEnd
+  onSectionDragEnd,
+  isHighlighted = false
 }) => {
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
@@ -120,9 +122,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-4 py-4 rounded-2xl shadow-sm border transition-all flex flex-col h-[350px] cursor-default ${
-        isDraggingSection ? 'opacity-40 border-slate-500' :
-        isDragOverSection ? 'border-blue-500 border-2 scale-[1.01]' : 'border-slate-400'
+      className={`bg-white px-4 py-4 rounded-2xl border transition-all flex flex-col h-[350px] cursor-default ${
+        isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
+        isDraggingSection ? 'opacity-40 border-slate-500 shadow-sm' :
+        isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-slate-400 shadow-sm'
       }`}
     >
       <div className="flex items-center justify-between mb-2 gap-2 cursor-move flex-shrink-0" title="드래그하여 순서 변경">
