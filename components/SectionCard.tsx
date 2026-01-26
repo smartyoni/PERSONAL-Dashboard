@@ -2,15 +2,15 @@
 import React from 'react';
 import { Section, DragState } from '../types';
 import EditableText from './EditableText';
-import { ResetIcon, PlusIcon, TrashIcon, MemoIcon } from './Icons';
+import { ResetIcon, PlusIcon, TrashIcon } from './Icons';
 import ItemRow from './ItemRow';
 
 interface SectionCardProps {
   section: Section;
-  memos: { [key: string]: string };
+  itemMemos: { [key: string]: string };
   onUpdateSection: (updated: Section) => void;
   onDeleteSection: (id: string) => void;
-  onShowMemo: (id: string) => void;
+  onShowItemMemo: (id: string) => void;
   dragState: DragState;
   setDragState: (state: DragState) => void;
   onSectionDragStart: () => void;
@@ -21,10 +21,10 @@ interface SectionCardProps {
 
 const SectionCard: React.FC<SectionCardProps> = ({
   section,
-  memos,
+  itemMemos,
   onUpdateSection,
   onDeleteSection,
-  onShowMemo,
+  onShowItemMemo,
   dragState,
   setDragState,
   onSectionDragStart,
@@ -128,24 +128,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
             className="text-sm font-bold text-slate-800"
             placeholder="섹션 이름"
           />
-          {memos[section.id] && (
-            <div 
-              onClick={(e) => { e.stopPropagation(); onShowMemo(section.id); }}
-              className="text-[10px] text-green-600 truncate cursor-pointer pl-1 mt-0 font-medium"
-            >
-              {memos[section.id]}
-            </div>
-          )}
         </div>
 
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => onShowMemo(section.id)}
-            className="text-slate-400 hover:text-slate-700 transition-colors p-1"
-            title="섹션 메모"
-          >
-            <MemoIcon />
-          </button>
           <button
             disabled={!hasCompletedItems}
             onClick={handleClearSection}
@@ -180,11 +165,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
             key={item.id}
             item={item}
             sectionId={section.id}
-            memo={memos[item.id]}
+            memo={itemMemos[item.id]}
             onToggle={() => handleToggleItem(item.id)}
             onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
             onDelete={() => handleDeleteItem(item.id)}
-            onAddMemo={() => onShowMemo(item.id)}
+            onAddMemo={() => onShowItemMemo(item.id)}
             dragState={dragState}
             onDragStart={(e) => onItemDragStart(e, item.id)}
             onDragOver={(e) => onItemDragOver(e, item.id)}

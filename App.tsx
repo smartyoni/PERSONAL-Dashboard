@@ -356,10 +356,10 @@ const App: React.FC = () => {
                 <SectionCard
                   key={section.id}
                   section={section}
-                  memos={activeTab.memos}
+                  itemMemos={activeTab.memos}
                   onUpdateSection={handleUpdateSection}
                   onDeleteSection={handleDeleteSection}
-                  onShowMemo={handleShowMemo}
+                  onShowItemMemo={handleShowMemo}
                   dragState={dragState}
                   setDragState={setDragState}
                   onSectionDragStart={() => onSectionDragStart(section.id)}
