@@ -333,7 +333,7 @@ const App: React.FC = () => {
       
       <div className="flex-1 flex flex-row overflow-hidden">
         {/* 중앙 컨텐츠 컬럼 */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
           {/* 2. 대시보드 헤더 (틀고정 영역) */}
           <div className="flex-none bg-[#F8FAFC]">
             <Header 
@@ -344,7 +344,7 @@ const App: React.FC = () => {
           </div>
 
           {/* 3. 스크롤 가능한 메인 그리드 영역 (주차위치 + 섹션 카드들) */}
-          <main ref={mainRef} className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-20">
+          <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-20">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {isMainTab && (
                 <div className="h-full">

@@ -17,12 +17,6 @@ export function useSwipeGesture(config: SwipeConfig) {
     if (!element) return;
 
     const handleTouchStart = (e: TouchEvent) => {
-      // 드래그앤드롭 대상인 경우 무시
-      const target = e.target as HTMLElement;
-      if (target.draggable || target.closest('[draggable="true"]')) {
-        return;
-      }
-
       touchStartRef.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
@@ -32,12 +26,6 @@ export function useSwipeGesture(config: SwipeConfig) {
 
     const handleTouchEnd = (e: TouchEvent) => {
       const { x: startX, y: startY, time: startTime } = touchStartRef.current;
-
-      // 드래그앤드롭 대상인 경우 무시
-      const target = e.target as HTMLElement;
-      if (target.draggable || target.closest('[draggable="true"]')) {
-        return;
-      }
 
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
