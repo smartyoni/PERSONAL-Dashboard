@@ -106,30 +106,6 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
                           </span>
                         </div>
                       </button>
-
-                      {/* Items (read-only preview) */}
-                      {section.items.length === 0 ? (
-                        <div className="pl-12 py-1 text-xs text-slate-400 italic">
-                          항목이 없습니다
-                        </div>
-                      ) : (
-                        section.items.slice(0, 5).map((item) => (
-                          <div
-                            key={item.id}
-                            className="pl-12 py-1 text-xs text-slate-500 flex items-center gap-2"
-                          >
-                            <span>{item.completed ? '✓' : '•'}</span>
-                            <span className={item.completed ? 'line-through opacity-60' : ''}>
-                              {item.text || '(제목 없음)'}
-                            </span>
-                          </div>
-                        ))
-                      )}
-                      {section.items.length > 5 && (
-                        <div className="pl-12 py-1 text-xs text-slate-400 italic">
-                          ...외 {section.items.length - 5}개 항목
-                        </div>
-                      )}
                     </div>
                   ))
                 )}
