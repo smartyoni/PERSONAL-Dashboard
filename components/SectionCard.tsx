@@ -2,7 +2,7 @@
 import React from 'react';
 import { Section, DragState } from '../types';
 import EditableText from './EditableText';
-import { ResetIcon, PlusIcon, TrashIcon } from './Icons';
+import { ResetIcon, PlusIcon, TrashIcon, LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
 
 interface SectionCardProps {
@@ -48,6 +48,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const handleClearSection = () => {
     const clearedItems = section.items.map(item => ({ ...item, completed: false }));
     onUpdateSection({ ...section, items: clearedItems });
+  };
+
+  const handleToggleLock = () => {
+    onUpdateSection({ ...section, isLocked: !section.isLocked });
   };
 
   const handleToggleItem = (itemId: string) => {
@@ -130,7 +134,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             disabled={!hasCompletedItems}
             onClick={handleClearSection}
@@ -140,6 +144,13 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <ResetIcon />
           </button>
           <button
+            onClick={handleToggleLock}
+            className="text-slate-500 hover:text-amber-600 p-0.5 rounded-full transition-colors"
+            title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
+          >
+            {section.isLocked ? <LockIcon /> : <UnlockIcon />}
+          </button>
+          <button
             onClick={handleAddItem}
             className="text-slate-500 hover:text-slate-800 p-0.5 rounded-full transition-colors"
             title="추가"
@@ -147,9 +158,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <PlusIcon />
           </button>
           <button
+            disabled={section.isLocked}
             onClick={() => onDeleteSection(section.id)}
-            className="text-slate-400 hover:text-red-500 transition-colors p-1"
-            title="섹션 삭제"
+            className="text-slate-400 hover:text-red-500 transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-slate-400"
+            title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
           >
             <TrashIcon />
           </button>

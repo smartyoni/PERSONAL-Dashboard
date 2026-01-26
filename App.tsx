@@ -193,7 +193,8 @@ const App: React.FC = () => {
       id: Math.random().toString(36).substr(2, 9),
       title: '새 섹션',
       items: [],
-      color: 'slate'
+      color: 'slate',
+      isLocked: false
     };
 
     updateData({
@@ -216,6 +217,13 @@ const App: React.FC = () => {
   };
 
   const handleDeleteSection = (id: string) => {
+    const sectionToDelete = activeTab?.sections.find(s => s.id === id);
+
+    // 잠긴 섹션은 삭제 불가
+    if (sectionToDelete?.isLocked) {
+      return;
+    }
+
     setModal({
       isOpen: true,
       title: '섹션 삭제',
