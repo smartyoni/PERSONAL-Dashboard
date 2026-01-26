@@ -138,21 +138,21 @@ const SectionCard: React.FC<SectionCardProps> = ({
           <button
             disabled={!hasCompletedItems}
             onClick={handleClearSection}
-            className="text-slate-500 hover:text-slate-800 p-0.5 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             title="전체 해제"
           >
             <ResetIcon />
           </button>
           <button
             onClick={handleToggleLock}
-            className="text-slate-500 hover:text-amber-600 p-0.5 rounded-full transition-colors"
+            className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
             title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
           >
             {section.isLocked ? <LockIcon /> : <UnlockIcon />}
           </button>
           <button
             onClick={handleAddItem}
-            className="text-slate-500 hover:text-slate-800 p-0.5 rounded-full transition-colors"
+            className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
             title="추가"
           >
             <PlusIcon />
@@ -160,7 +160,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           <button
             disabled={section.isLocked}
             onClick={() => onDeleteSection(section.id)}
-            className="text-slate-400 hover:text-red-500 transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-slate-400"
+            className="text-red-500 hover:text-red-700 transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-red-500"
             title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
           >
             <TrashIcon />
