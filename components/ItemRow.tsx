@@ -81,7 +81,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`group flex items-center gap-2 py-1.5 px-2 rounded transition-all cursor-move relative min-h-0 ${
+      className={`group flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${
         isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
       }`}
@@ -117,11 +117,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
       </div>
 
       {/* 4. Menu Button */}
-      <div className="relative">
+      <div className="relative flex-shrink-0 -mr-3">
         <button
           ref={triggerRef}
           onClick={toggleMenu}
-          className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-slate-600 transition-opacity p-1.5 rounded"
+          className="text-slate-500 hover:text-slate-700 transition-colors p-0 rounded"
           title="메뉴"
         >
           <MenuIcon />

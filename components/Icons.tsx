@@ -28,7 +28,7 @@ export const DragHandleIcon = () => (
 );
 
 export const MenuIcon = () => (
-  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 8c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2zm0 2c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2zm0 6c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2z" />
   </svg>
 );
