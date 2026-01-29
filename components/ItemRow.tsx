@@ -45,7 +45,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
   const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (triggerRef.current) {
+    const isMobile = window.innerWidth < 768; // Tailwind md breakpoint
+
+    if (triggerRef.current && !isMobile) {
+      // 데스크톱: fixed positioning으로 절대 위치 계산
       const rect = triggerRef.current.getBoundingClientRect();
       const menuHeight = 180; // 메뉴의 예상 높이
       const spaceBelow = window.innerHeight - rect.bottom;
@@ -64,6 +67,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
         });
       }
     }
+    // 모바일에서는 menuPos를 업데이트하지 않음 (absolute positioning 사용)
     setShowMenu(!showMenu);
   };
 
@@ -123,43 +127,56 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <MenuIcon />
         </button>
 
-        {showMenu && (
-          <div
-            ref={menuRef}
-            className="fixed bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in slide-in-from-left-2 duration-150"
-            style={{
-              ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
-              ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
-              left: `${menuPos.left}px`
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => { onAddMemo(); setShowMenu(false); }}
-              className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+        {showMenu && (() => {
+          const isMobile = window.innerWidth < 768;
+          return (
+            <div
+              ref={menuRef}
+              className={`${
+                isMobile ? 'absolute' : 'fixed'
+              } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${
+                isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
+              } duration-150`}
+              style={{
+                ...(isMobile ? {
+                  right: 0,
+                  top: '100%',
+                  marginTop: '4px'
+                } : {
+                  ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                  ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                  left: `${menuPos.left}px`
+                })
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              📝 메모 수정/추가
-            </button>
-            <button
-              onClick={() => { onMoveItem(); setShowMenu(false); }}
-              className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-            >
-              📦 이동
-            </button>
-            <button
-              onClick={() => { onDelete(); setShowMenu(false); }}
-              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-            >
-              🗑️ 삭제
-            </button>
-            <button
-              onClick={() => setShowMenu(false)}
-              className="w-full text-left px-4 py-2.5 text-sm text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-200"
-            >
-              취소
-            </button>
-          </div>
-        )}
+              <button
+                onClick={() => { onAddMemo(); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                📝 메모 수정/추가
+              </button>
+              <button
+                onClick={() => { onMoveItem(); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                📦 이동
+              </button>
+              <button
+                onClick={() => { onDelete(); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                🗑️ 삭제
+              </button>
+              <button
+                onClick={() => setShowMenu(false)}
+                className="w-full text-left px-4 py-2.5 text-sm text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-200"
+              >
+                취소
+              </button>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
