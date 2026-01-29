@@ -229,35 +229,44 @@ const App: React.FC = () => {
     updateData({
       ...safeData,
       tabs: safeData.tabs.map(tab => {
-        if (tab.id === sourceTabId) {
-          // 원본 탭: 섹션에서 항목 제거, 다른 탭으로 이동 시 메모 제거
+        // 같은 탭 내 이동
+        if (sourceTabId === targetTabId && tab.id === sourceTabId) {
+          const updatedSections = tab.sections.map(section => {
+            if (section.id === sourceSectionId) {
+              // 원본 섹션: 항목 제거
+              return { ...section, items: section.items.filter(i => i.id !== itemId) };
+            } else if (section.id === targetSectionId) {
+              // 대상 섹션: 항목 추가
+              return { ...section, items: [...section.items, itemToMove] };
+            }
+            return section;
+          });
+          return { ...tab, sections: updatedSections };
+        }
+        // 다른 탭으로 이동 - 원본 탭
+        else if (sourceTabId !== targetTabId && tab.id === sourceTabId) {
           const updatedSections = tab.sections.map(section =>
             section.id === sourceSectionId
               ? { ...section, items: section.items.filter(i => i.id !== itemId) }
               : section
           );
 
-          const updatedMemos =
-            sourceTabId !== targetTabId && sourceMemo
-              ? (() => {
-                  const { [itemId]: removed, ...rest } = tab.memos;
-                  return rest;
-                })()
-              : tab.memos;
-
-          return { ...tab, sections: updatedSections, memos: updatedMemos };
-        } else if (tab.id === targetTabId) {
-          // 대상 탭: 섹션에 항목 추가, 다른 탭에서 이동 시 메모 복사
+          // 메모 제거
+          const { [itemId]: removed, ...restMemos } = tab.memos;
+          return { ...tab, sections: updatedSections, memos: restMemos };
+        }
+        // 다른 탭으로 이동 - 대상 탭
+        else if (sourceTabId !== targetTabId && tab.id === targetTabId) {
           const updatedSections = tab.sections.map(section =>
             section.id === targetSectionId
               ? { ...section, items: [...section.items, itemToMove] }
               : section
           );
 
-          const updatedMemos =
-            sourceTabId !== targetTabId && sourceMemo
-              ? { ...tab.memos, [itemId]: sourceMemo }
-              : tab.memos;
+          // 메모 복사
+          const updatedMemos = sourceMemo
+            ? { ...tab.memos, [itemId]: sourceMemo }
+            : tab.memos;
 
           return { ...tab, sections: updatedSections, memos: updatedMemos };
         }

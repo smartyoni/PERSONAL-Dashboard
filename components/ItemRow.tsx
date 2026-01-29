@@ -37,9 +37,35 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onDragEnd
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(menuRef, () => setShowMenu(false));
+
+  const toggleMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const menuHeight = 180; // 메뉴의 예상 높이
+      const spaceBelow = window.innerHeight - rect.bottom;
+
+      if (spaceBelow >= menuHeight) {
+        // 아래쪽에 충분한 공간이 있으면 아래쪽에 렌더링 (메뉴의 top이 버튼의 bottom과 같음)
+        setMenuPos({
+          top: rect.bottom + 8,
+          left: rect.right + 8
+        });
+      } else {
+        // 공간이 부족하면 위쪽에 렌더링 (메뉴의 bottom이 버튼의 top과 같음)
+        setMenuPos({
+          bottom: window.innerHeight - rect.top + 8,
+          left: rect.right + 8
+        });
+      }
+    }
+    setShowMenu(!showMenu);
+  };
 
   const isDragging = dragState.draggedItemId === item.id;
   const isDragOver = dragState.dragOverItemId === item.id;
@@ -87,9 +113,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
       </div>
 
       {/* 4. Menu Button */}
-      <div className="relative" ref={menuRef}>
+      <div className="relative">
         <button
-          onClick={() => setShowMenu(!showMenu)}
+          ref={triggerRef}
+          onClick={toggleMenu}
           className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-slate-600 transition-opacity p-1.5 rounded"
           title="메뉴"
         >
@@ -97,7 +124,16 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5">
+          <div
+            ref={menuRef}
+            className="fixed bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in slide-in-from-left-2 duration-150"
+            style={{
+              ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+              ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+              left: `${menuPos.left}px`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => { onAddMemo(); setShowMenu(false); }}
               className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"

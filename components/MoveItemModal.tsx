@@ -27,14 +27,16 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
 
   useClickOutside(modalRef, onCancel);
 
-  // 탭 변경 시 첫 번째 잠기지 않은 섹션 자동 선택
+  // 탭 변경 또는 모달이 열릴 때 첫 번째 잠기지 않은 섹션 자동 선택
   useEffect(() => {
-    const selectedTab = tabs.find(t => t.id === selectedTabId);
-    if (selectedTab) {
-      const firstUnlockedSection = selectedTab.sections.find(s => !s.isLocked);
-      setSelectedSectionId(firstUnlockedSection?.id || '');
+    if (isOpen) {
+      const selectedTab = tabs.find(t => t.id === selectedTabId);
+      if (selectedTab) {
+        const firstUnlockedSection = selectedTab.sections.find(s => !s.isLocked);
+        setSelectedSectionId(firstUnlockedSection?.id || '');
+      }
     }
-  }, [selectedTabId, tabs]);
+  }, [isOpen, selectedTabId, tabs]);
 
   if (!isOpen) return null;
 
