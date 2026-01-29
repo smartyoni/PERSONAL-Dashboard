@@ -53,16 +53,28 @@
     <div id="root"></div>
   <script type="module" src="./index.tsx"></script>
 
-  <!-- Service Worker 등록 -->
+  <!-- 기존 Service Worker 제거 (일회성) -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then((registration) => {
-          console.log('[PWA] Service Worker 등록 성공:', registration);
-        }).catch((error) => {
-          console.log('[PWA] Service Worker 등록 실패:', error);
-        });
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
+          registration.unregister().then((success) => {
+            if (success) {
+              console.log('[PWA] Service Worker 제거 완료:', registration.scope);
+            }
+          });
+        }
       });
+
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            caches.delete(cacheName).then(() => {
+              console.log('[PWA] 캐시 삭제 완료:', cacheName);
+            });
+          });
+        });
+      }
     }
   </script>
 </body>

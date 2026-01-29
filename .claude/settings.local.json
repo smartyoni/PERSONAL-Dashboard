@@ -18,7 +18,9 @@
       "Bash(gh workflow list:*)",
       "Bash(npm run build:*)",
       "Bash(npm run deploy:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(cd:*)",
+      "Bash(git log:*)"
     ]
   }
 }

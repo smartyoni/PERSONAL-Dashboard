@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ListItem, DragState } from '../types';
 import { DragHandleIcon, MenuIcon } from './Icons';
 import EditableText from './EditableText';
+import LinkifiedText from './LinkifiedText';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 interface ItemRowProps {
@@ -73,12 +74,12 @@ const ItemRow: React.FC<ItemRowProps> = ({
           />
         </div>
         {memo && (
-          <div 
+          <div
             onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
             className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
             title={memo}
           >
-            {memo}
+            <LinkifiedText text={memo} />
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote } from './types';
 import SectionCard from './components/SectionCard';
@@ -56,6 +56,29 @@ const App: React.FC = () => {
 
   // data가 null이면 기본값 사용
   const safeData = data || defaultData;
+
+  // 네트워크 상태 감지
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log('[App] Network restored - Firestore will auto-sync');
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.log('[App] Network lost - app is now offline');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const [dragState, setDragState] = useState<DragState>({
     draggedItemId: null,
@@ -358,9 +381,21 @@ const App: React.FC = () => {
   if (error) {
     return (
       <div className="h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <div className="text-center text-red-500">
-          <p className="text-lg font-semibold mb-2">데이터 로드 실패</p>
-          <p className="text-sm">{error.message}</p>
+        <div className="text-center max-w-md">
+          <div className="flex justify-center mb-4">
+            <svg className="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">데이터 로드 실패</h2>
+          <p className="text-sm text-slate-600 mb-4">{error.message}</p>
+          <p className="text-xs text-slate-500 mb-6">인터넷 연결을 확인하고 페이지를 새로고침해주세요.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+          >
+            다시 시도
+          </button>
         </div>
       </div>
     );
@@ -368,6 +403,18 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
+      {/* 오프라인 배너 */}
+      {!isOnline && (
+        <div className="flex-none bg-yellow-500 text-white px-4 py-2 text-center text-sm font-medium">
+          <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>오프라인 상태 - 네트워크 연결을 확인하세요</span>
+          </div>
+        </div>
+      )}
+
       {/* 1. 상단 완전 고정: 북마크바 */}
       <div className="flex-none hidden md:block">
         <BookmarkBar bookmarks={safeData.bookmarks} onUpdateBookmarks={handleUpdateBookmarks} />

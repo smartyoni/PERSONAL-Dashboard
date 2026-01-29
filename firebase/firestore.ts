@@ -29,6 +29,7 @@ export async function fetchWorkspaceData(): Promise<AppData | null> {
 export async function saveWorkspaceData(data: AppData): Promise<void> {
   try {
     const docRef = doc(db, COLLECTION_NAME, WORKSPACE_DOC_ID);
+
     await setDoc(docRef, {
       ...data,
       updatedAt: serverTimestamp()
