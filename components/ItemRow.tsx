@@ -13,6 +13,7 @@ interface ItemRowProps {
   onUpdateText: (newText: string) => void;
   onDelete: () => void;
   onAddMemo: () => void;
+  onMoveItem: () => void;
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -28,6 +29,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onUpdateText,
   onDelete,
   onAddMemo,
+  onMoveItem,
   dragState,
   onDragStart,
   onDragOver,
@@ -101,6 +103,12 @@ const ItemRow: React.FC<ItemRowProps> = ({
               className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
             >
               📝 메모 수정/추가
+            </button>
+            <button
+              onClick={() => { onMoveItem(); setShowMenu(false); }}
+              className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              📦 이동
             </button>
             <button
               onClick={() => { onDelete(); setShowMenu(false); }}

@@ -9,6 +9,7 @@ import FooterTabs from './components/FooterTabs';
 import BookmarkBar from './components/BookmarkBar';
 import MemoBoard from './components/MemoBoard';
 import NavigationMapModal from './components/NavigationMapModal';
+import MoveItemModal from './components/MoveItemModal';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 
@@ -88,6 +89,20 @@ const App: React.FC = () => {
     dragOverSectionId: null
   });
 
+  const [moveItemModal, setMoveItemModal] = useState<{
+    isOpen: boolean;
+    itemId: string | null;
+    itemText: string;
+    sourceTabId: string;
+    sourceSectionId: string;
+  }>({
+    isOpen: false,
+    itemId: null,
+    itemText: '',
+    sourceTabId: '',
+    sourceSectionId: ''
+  });
+
   const [modal, setModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -161,6 +176,103 @@ const App: React.FC = () => {
     updateData({
       ...safeData,
       tabs: newTabs
+    });
+  };
+
+  const handleOpenMoveItemModal = (itemId: string, sectionId: string) => {
+    const section = activeTab.sections.find(s => s.id === sectionId);
+    const item = section?.items.find(i => i.id === itemId);
+
+    if (!item || !section) return;
+
+    setMoveItemModal({
+      isOpen: true,
+      itemId: item.id,
+      itemText: item.text,
+      sourceTabId: safeData.activeTabId,
+      sourceSectionId: section.id
+    });
+  };
+
+  const handleMoveItem = (targetTabId: string, targetSectionId: string) => {
+    const { itemId, sourceTabId, sourceSectionId } = moveItemModal;
+
+    if (!itemId) return;
+
+    // 같은 위치로 이동 방지
+    if (sourceTabId === targetTabId && sourceSectionId === targetSectionId) {
+      setMoveItemModal(prev => ({ ...prev, isOpen: false }));
+      return;
+    }
+
+    // 원본 탭/섹션 찾기
+    const sourceTab = safeData.tabs.find(t => t.id === sourceTabId);
+    const sourceSection = sourceTab?.sections.find(s => s.id === sourceSectionId);
+    const itemToMove = sourceSection?.items.find(i => i.id === itemId);
+
+    if (!itemToMove || !sourceSection) return;
+
+    // 대상 섹션 찾기 및 잠금 상태 확인
+    const targetTab = safeData.tabs.find(t => t.id === targetTabId);
+    const targetSection = targetTab?.sections.find(s => s.id === targetSectionId);
+
+    if (!targetSection) return;
+
+    if (targetSection.isLocked) {
+      alert('잠긴 섹션으로는 항목을 이동할 수 없습니다.');
+      return;
+    }
+
+    // 메모 데이터 처리
+    const sourceMemo = sourceTab?.memos[itemId];
+
+    updateData({
+      ...safeData,
+      tabs: safeData.tabs.map(tab => {
+        if (tab.id === sourceTabId) {
+          // 원본 탭: 섹션에서 항목 제거, 다른 탭으로 이동 시 메모 제거
+          const updatedSections = tab.sections.map(section =>
+            section.id === sourceSectionId
+              ? { ...section, items: section.items.filter(i => i.id !== itemId) }
+              : section
+          );
+
+          const updatedMemos =
+            sourceTabId !== targetTabId && sourceMemo
+              ? (() => {
+                  const { [itemId]: removed, ...rest } = tab.memos;
+                  return rest;
+                })()
+              : tab.memos;
+
+          return { ...tab, sections: updatedSections, memos: updatedMemos };
+        } else if (tab.id === targetTabId) {
+          // 대상 탭: 섹션에 항목 추가, 다른 탭에서 이동 시 메모 복사
+          const updatedSections = tab.sections.map(section =>
+            section.id === targetSectionId
+              ? { ...section, items: [...section.items, itemToMove] }
+              : section
+          );
+
+          const updatedMemos =
+            sourceTabId !== targetTabId && sourceMemo
+              ? { ...tab.memos, [itemId]: sourceMemo }
+              : tab.memos;
+
+          return { ...tab, sections: updatedSections, memos: updatedMemos };
+        }
+
+        return tab;
+      })
+    });
+
+    // 모달 닫기
+    setMoveItemModal({
+      isOpen: false,
+      itemId: null,
+      itemText: '',
+      sourceTabId: '',
+      sourceSectionId: ''
     });
   };
 
@@ -460,6 +572,7 @@ const App: React.FC = () => {
                   onUpdateSection={handleUpdateSection}
                   onDeleteSection={handleDeleteSection}
                   onShowItemMemo={handleShowMemo}
+                  onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
                   dragState={dragState}
                   setDragState={setDragState}
                   onSectionDragStart={() => onSectionDragStart(section.id)}
@@ -550,6 +663,16 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      <MoveItemModal
+        isOpen={moveItemModal.isOpen}
+        itemText={moveItemModal.itemText}
+        currentTabId={moveItemModal.sourceTabId}
+        currentSectionId={moveItemModal.sourceSectionId}
+        tabs={safeData.tabs}
+        onMove={handleMoveItem}
+        onCancel={() => setMoveItemModal(prev => ({ ...prev, isOpen: false }))}
+      />
 
       <ConfirmModal
         isOpen={modal.isOpen}

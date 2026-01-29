@@ -11,6 +11,7 @@ interface SectionCardProps {
   onUpdateSection: (updated: Section) => void;
   onDeleteSection: (id: string) => void;
   onShowItemMemo: (id: string) => void;
+  onMoveItem: (itemId: string) => void;
   dragState: DragState;
   setDragState: (state: DragState) => void;
   onSectionDragStart: () => void;
@@ -26,6 +27,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onUpdateSection,
   onDeleteSection,
   onShowItemMemo,
+  onMoveItem,
   dragState,
   setDragState,
   onSectionDragStart,
@@ -189,6 +191,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
             onDelete={() => handleDeleteItem(item.id)}
             onAddMemo={() => onShowItemMemo(item.id)}
+            onMoveItem={() => onMoveItem(item.id)}
             dragState={dragState}
             onDragStart={(e) => onItemDragStart(e, item.id)}
             onDragOver={(e) => onItemDragOver(e, item.id)}
