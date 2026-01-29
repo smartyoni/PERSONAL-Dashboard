@@ -13,6 +13,7 @@ interface FooterTabsProps {
   onRenameTab: (id: string, newName: string) => void;
   onDeleteTab: (id: string) => void;
   onToggleLockTab: (id: string) => void;
+  onReorderTabs: (fromIndex: number, toIndex: number) => void;
 }
 
 const TAB_COLORS = [
@@ -128,31 +129,83 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   onAddTab,
   onRenameTab,
   onDeleteTab,
-  onToggleLockTab
+  onToggleLockTab,
+  onReorderTabs
 }) => {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    const tab = tabs[index];
+    // 잠긴 탭은 드래그할 수 없음
+    if (tab.isLocked) {
+      e.preventDefault();
+      return;
+    }
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, toIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== toIndex) {
+      onReorderTabs(draggedIndex, toIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
   return (
     <div className="bg-white border-t border-slate-200 z-[100] h-12 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
       <div className="w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap px-6 gap-1">
         {tabs.map((tab, index) => {
           const tabColor = getTabColor(index);
           const isActive = activeTabId === tab.id;
+          const isDragged = draggedIndex === index;
+          const isDragOver = dragOverIndex === index;
 
           return (
             <div
               key={tab.id}
+              draggable={!tab.isLocked}
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
               onClick={() => onSelectTab(tab.id)}
               className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 ${
+                isDragged ? 'opacity-50' : ''
+              } ${
+                isDragOver ? 'ring-2 ring-offset-1 ring-blue-400' : ''
+              } ${
+                !tab.isLocked ? 'hover:shadow-md' : ''
+              } ${
                 isActive
                   ? `${tabColor.bg} ${tabColor.text} ${tabColor.border} shadow-sm`
                   : `${tabColor.bgLight} ${tabColor.textLight} border-transparent hover:${tabColor.border}`
+              } ${
+                tab.isLocked ? 'cursor-default' : ''
               }`}
             >
-              <EditableText
-                value={tab.name}
-                onChange={(newName) => onRenameTab(tab.id, newName)}
-                className={`text-xs min-w-[40px] text-center ${isActive ? 'font-bold' : 'font-medium'}`}
-                placeholder="페이지 이름"
-              />
+              <div draggable={false} onDragStart={(e) => e.stopPropagation()}>
+                <EditableText
+                  value={tab.name}
+                  onChange={(newName) => onRenameTab(tab.id, newName)}
+                  className={`text-xs min-w-[40px] text-center ${isActive ? 'font-bold' : 'font-medium'}`}
+                  placeholder="페이지 이름"
+                />
+              </div>
               <TabMenuItem
                 tab={tab}
                 onDelete={onDeleteTab}

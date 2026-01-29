@@ -154,6 +154,16 @@ const App: React.FC = () => {
     });
   };
 
+  const handleReorderTabs = (fromIndex: number, toIndex: number) => {
+    const newTabs = [...safeData.tabs];
+    const [movedTab] = newTabs.splice(fromIndex, 1);
+    newTabs.splice(toIndex, 0, movedTab);
+    updateData({
+      ...safeData,
+      tabs: newTabs
+    });
+  };
+
   const handleDeleteTab = (id: string) => {
     const tabToDelete = safeData.tabs.find(t => t.id === id);
     if (!tabToDelete || tabToDelete.isLocked || safeData.tabs.length <= 1) return;
@@ -483,7 +493,7 @@ const App: React.FC = () => {
 
       {/* 5. 하단 고정: 탭바 */}
       <div className="flex-none">
-        <FooterTabs 
+        <FooterTabs
           tabs={data.tabs}
           activeTabId={data.activeTabId}
           onSelectTab={handleSelectTab}
@@ -491,6 +501,7 @@ const App: React.FC = () => {
           onRenameTab={handleRenameTab}
           onDeleteTab={handleDeleteTab}
           onToggleLockTab={handleToggleLockTab}
+          onReorderTabs={handleReorderTabs}
         />
       </div>
 
