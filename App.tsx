@@ -755,7 +755,7 @@ const App: React.FC = () => {
               {isMainTab && (
                 <>
                   {/* 주차 섹션 */}
-                  <div className="h-full row-span-2">
+                  <div className="md:h-full md:row-span-2">
                     <ParkingWidget
                       info={activeTab.parkingInfo}
                       onChange={handleParkingChange}
@@ -765,7 +765,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* IN-BOX 섹션 */}
-                  <div className="h-full row-span-2">
+                  <div className="md:h-full md:row-span-2">
                     <SectionCard
                       section={activeTab.inboxSection}
                       itemMemos={activeTab.memos}
@@ -785,7 +785,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* 명언 섹션 */}
-                  <div className="h-full row-span-2">
+                  <div className="md:h-full md:row-span-2">
                     <SectionCard
                       section={activeTab.quotesSection}
                       itemMemos={activeTab.memos}
