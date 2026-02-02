@@ -19,6 +19,7 @@ interface SectionCardProps {
   onSectionDrop: (e: React.DragEvent) => void;
   onSectionDragEnd: () => void;
   isHighlighted?: boolean;
+  isInboxSection?: boolean;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -34,7 +35,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onSectionDragOver,
   onSectionDrop,
   onSectionDragEnd,
-  isHighlighted = false
+  isHighlighted = false,
+  isInboxSection = false
 }) => {
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
@@ -124,7 +126,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-4 py-4 rounded-2xl transition-all flex flex-col h-[350px] cursor-default ${
+      className={`bg-white px-4 py-4 rounded-2xl transition-all flex flex-col ${isInboxSection ? 'h-full' : 'h-[350px]'} cursor-default ${
         isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
         isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
@@ -149,13 +151,15 @@ const SectionCard: React.FC<SectionCardProps> = ({
           >
             <ResetIcon />
           </button>
-          <button
-            onClick={handleToggleLock}
-            className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
-            title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
-          >
-            {section.isLocked ? <LockIcon /> : <UnlockIcon />}
-          </button>
+          {!isInboxSection && (
+            <button
+              onClick={handleToggleLock}
+              className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
+              title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
+            >
+              {section.isLocked ? <LockIcon /> : <UnlockIcon />}
+            </button>
+          )}
           <button
             onClick={handleAddItem}
             className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
@@ -163,14 +167,16 @@ const SectionCard: React.FC<SectionCardProps> = ({
           >
             <PlusIcon />
           </button>
-          <button
-            disabled={section.isLocked}
-            onClick={() => onDeleteSection(section.id)}
-            className="text-red-500 hover:text-red-700 transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-red-500"
-            title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
-          >
-            <TrashIcon />
-          </button>
+          {!isInboxSection && (
+            <button
+              disabled={section.isLocked}
+              onClick={() => onDeleteSection(section.id)}
+              className="text-red-500 hover:text-red-700 transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-red-500"
+              title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
+            >
+              <TrashIcon />
+            </button>
+          )}
         </div>
       </div>
 

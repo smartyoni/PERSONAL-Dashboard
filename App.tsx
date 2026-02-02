@@ -747,6 +747,7 @@ const App: React.FC = () => {
                       onSectionDrop={() => {}}
                       onSectionDragEnd={() => {}}
                       isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                      isInboxSection={true}
                     />
                   </div>
                 </>
