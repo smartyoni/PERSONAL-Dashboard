@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const defaultData: AppData = useMemo(() => {
     const initialTabId = Math.random().toString(36).substr(2, 9);
     const inboxSectionId = Math.random().toString(36).substr(2, 9);
+    const quotesSectionId = Math.random().toString(36).substr(2, 9);
     return {
       tabs: [{
         id: initialTabId,
@@ -53,6 +54,13 @@ const App: React.FC = () => {
           color: 'slate',
           isLocked: false
         },
+        quotesSection: {
+          id: quotesSectionId,
+          title: '명언',
+          items: [],
+          color: 'slate',
+          isLocked: false
+        },
         isLocked: false
       }],
       activeTabId: initialTabId,
@@ -63,11 +71,11 @@ const App: React.FC = () => {
   // Firestore 동기화 훅 사용
   const { data, loading, error, updateData } = useFirestoreSync(defaultData);
 
-  // data가 null이면 기본값 사용, 기존 데이터에 inboxSection이 없으면 추가
+  // data가 null이면 기본값 사용, 기존 데이터에 inboxSection, quotesSection이 없으면 추가
   const safeData = useMemo(() => {
     if (!data) return defaultData;
 
-    // 기존 데이터에 inboxSection이 없으면 추가
+    // 기존 데이터에 inboxSection, quotesSection이 없으면 추가
     return {
       ...data,
       tabs: data.tabs.map(tab => ({
@@ -75,6 +83,13 @@ const App: React.FC = () => {
         inboxSection: tab.inboxSection || {
           id: Math.random().toString(36).substr(2, 9),
           title: 'IN-BOX',
+          items: [],
+          color: 'slate',
+          isLocked: false
+        },
+        quotesSection: tab.quotesSection || {
+          id: Math.random().toString(36).substr(2, 9),
+          title: '명언',
           items: [],
           color: 'slate',
           isLocked: false
@@ -165,6 +180,7 @@ const App: React.FC = () => {
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
     const inboxSectionId = Math.random().toString(36).substr(2, 9);
+    const quotesSectionId = Math.random().toString(36).substr(2, 9);
     const newTab: Tab = {
       id: newId,
       name: `새 페이지 ${safeData.tabs.length + 1}`,
@@ -175,6 +191,13 @@ const App: React.FC = () => {
       inboxSection: {
         id: inboxSectionId,
         title: 'IN-BOX',
+        items: [],
+        color: 'slate',
+        isLocked: false
+      },
+      quotesSection: {
+        id: quotesSectionId,
+        title: '명언',
         items: [],
         color: 'slate',
         isLocked: false
@@ -480,6 +503,16 @@ const App: React.FC = () => {
     });
   };
 
+  const handleUpdateQuotesSection = (updated: Section) => {
+    updateData({
+      ...safeData,
+      tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+        ? { ...t, quotesSection: updated }
+        : t
+      )
+    });
+  };
+
   const handleDeleteSection = (id: string) => {
     const sectionToDelete = activeTab?.sections.find(s => s.id === id);
 
@@ -747,6 +780,26 @@ const App: React.FC = () => {
                       onSectionDrop={() => {}}
                       onSectionDragEnd={() => {}}
                       isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                      isInboxSection={true}
+                    />
+                  </div>
+
+                  {/* 명언 섹션 */}
+                  <div className="h-full row-span-2">
+                    <SectionCard
+                      section={activeTab.quotesSection}
+                      itemMemos={activeTab.memos}
+                      onUpdateSection={handleUpdateQuotesSection}
+                      onDeleteSection={() => {}} // 명언은 삭제 불가
+                      onShowItemMemo={handleShowMemo}
+                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
+                      dragState={dragState}
+                      setDragState={setDragState}
+                      onSectionDragStart={() => {}} // 명언은 드래그 불가
+                      onSectionDragOver={() => {}}
+                      onSectionDrop={() => {}}
+                      onSectionDragEnd={() => {}}
+                      isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
                       isInboxSection={true}
                     />
                   </div>

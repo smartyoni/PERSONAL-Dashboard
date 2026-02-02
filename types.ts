@@ -43,6 +43,7 @@ export interface Tab {
   sideNotes: SideNote[]; // 우측 사이드바 메모들을 위한 필드 (객체 배열로 변경)
   parkingInfo: ParkingInfo;
   inboxSection: Section;  // IN-BOX 기본 섹션
+  quotesSection: Section;  // 명언 기본 섹션
   isLocked?: boolean;
 }
 
