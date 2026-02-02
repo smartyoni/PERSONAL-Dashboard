@@ -32,7 +32,10 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
     if (isOpen) {
       const selectedTab = tabs.find(t => t.id === selectedTabId);
       if (selectedTab) {
-        const firstUnlockedSection = selectedTab.sections.find(s => !s.isLocked);
+        // IN-BOX 섹션을 먼저 확인, 없으면 일반 섹션 중 첫 번째 선택
+        const firstUnlockedSection = selectedTab.inboxSection && !selectedTab.inboxSection.isLocked
+          ? selectedTab.inboxSection
+          : selectedTab.sections.find(s => !s.isLocked);
         setSelectedSectionId(firstUnlockedSection?.id || '');
       }
     }
@@ -119,49 +122,91 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
               이동할 섹션
             </label>
             <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar border border-slate-200 rounded-lg p-3">
-              {selectedTab?.sections.length === 0 ? (
+              {!selectedTab?.inboxSection && selectedTab?.sections.length === 0 ? (
                 <p className="text-sm text-slate-400 italic text-center py-4">
                   이 페이지에는 섹션이 없습니다
                 </p>
               ) : (
-                selectedTab?.sections.map((section) => (
-                  <label
-                    key={section.id}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                      section.isLocked
-                        ? 'bg-slate-100 cursor-not-allowed'
-                        : 'hover:bg-slate-50'
-                    } ${
-                      selectedSectionId === section.id
-                        ? 'bg-blue-50 border border-blue-300'
-                        : 'border border-transparent'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="targetSection"
-                      value={section.id}
-                      checked={selectedSectionId === section.id}
-                      onChange={(e) => setSelectedSectionId(e.target.value)}
-                      disabled={section.isLocked}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed flex-shrink-0"
-                    />
-                    <span
-                      className={`text-sm font-medium flex-1 ${
-                        section.isLocked
-                          ? 'text-slate-400'
-                          : 'text-slate-700'
+                <>
+                  {/* IN-BOX 섹션 */}
+                  {selectedTab?.inboxSection && (
+                    <label
+                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
+                        selectedTab.inboxSection.isLocked
+                          ? 'bg-slate-100 cursor-not-allowed'
+                          : 'hover:bg-slate-50'
+                      } ${
+                        selectedSectionId === selectedTab.inboxSection.id
+                          ? 'bg-blue-50 border border-blue-300'
+                          : 'border border-transparent'
                       }`}
                     >
-                      {section.title}
-                      {section.isLocked && (
-                        <span className="ml-2 text-xs text-slate-400">
-                          🔒 잠김
-                        </span>
-                      )}
-                    </span>
-                  </label>
-                ))
+                      <input
+                        type="radio"
+                        name="targetSection"
+                        value={selectedTab.inboxSection.id}
+                        checked={selectedSectionId === selectedTab.inboxSection.id}
+                        onChange={(e) => setSelectedSectionId(e.target.value)}
+                        disabled={selectedTab.inboxSection.isLocked}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed flex-shrink-0"
+                      />
+                      <span
+                        className={`text-sm font-medium flex-1 ${
+                          selectedTab.inboxSection.isLocked
+                            ? 'text-slate-400'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        📥 {selectedTab.inboxSection.title}
+                        {selectedTab.inboxSection.isLocked && (
+                          <span className="ml-2 text-xs text-slate-400">
+                            🔒 잠김
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  )}
+
+                  {/* 일반 섹션들 */}
+                  {selectedTab?.sections.map((section) => (
+                    <label
+                      key={section.id}
+                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
+                        section.isLocked
+                          ? 'bg-slate-100 cursor-not-allowed'
+                          : 'hover:bg-slate-50'
+                      } ${
+                        selectedSectionId === section.id
+                          ? 'bg-blue-50 border border-blue-300'
+                          : 'border border-transparent'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="targetSection"
+                        value={section.id}
+                        checked={selectedSectionId === section.id}
+                        onChange={(e) => setSelectedSectionId(e.target.value)}
+                        disabled={section.isLocked}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed flex-shrink-0"
+                      />
+                      <span
+                        className={`text-sm font-medium flex-1 ${
+                          section.isLocked
+                            ? 'text-slate-400'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        {section.title}
+                        {section.isLocked && (
+                          <span className="ml-2 text-xs text-slate-400">
+                            🔒 잠김
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                </>
               )}
             </div>
           </div>

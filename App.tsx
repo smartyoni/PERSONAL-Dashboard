@@ -37,6 +37,7 @@ const App: React.FC = () => {
   // 기본 데이터 정의
   const defaultData: AppData = useMemo(() => {
     const initialTabId = Math.random().toString(36).substr(2, 9);
+    const inboxSectionId = Math.random().toString(36).substr(2, 9);
     return {
       tabs: [{
         id: initialTabId,
@@ -45,6 +46,13 @@ const App: React.FC = () => {
         memos: {},
         sideNotes: [],
         parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
+        inboxSection: {
+          id: inboxSectionId,
+          title: 'IN-BOX',
+          items: [],
+          color: 'slate',
+          isLocked: false
+        },
         isLocked: false
       }],
       activeTabId: initialTabId,
@@ -55,8 +63,25 @@ const App: React.FC = () => {
   // Firestore 동기화 훅 사용
   const { data, loading, error, updateData } = useFirestoreSync(defaultData);
 
-  // data가 null이면 기본값 사용
-  const safeData = data || defaultData;
+  // data가 null이면 기본값 사용, 기존 데이터에 inboxSection이 없으면 추가
+  const safeData = useMemo(() => {
+    if (!data) return defaultData;
+
+    // 기존 데이터에 inboxSection이 없으면 추가
+    return {
+      ...data,
+      tabs: data.tabs.map(tab => ({
+        ...tab,
+        inboxSection: tab.inboxSection || {
+          id: Math.random().toString(36).substr(2, 9),
+          title: 'IN-BOX',
+          items: [],
+          color: 'slate',
+          isLocked: false
+        }
+      }))
+    };
+  }, [data, defaultData]);
 
   // 네트워크 상태 감지
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -139,6 +164,7 @@ const App: React.FC = () => {
 
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
+    const inboxSectionId = Math.random().toString(36).substr(2, 9);
     const newTab: Tab = {
       id: newId,
       name: `새 페이지 ${safeData.tabs.length + 1}`,
@@ -146,6 +172,13 @@ const App: React.FC = () => {
       memos: {},
       sideNotes: [],
       parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
+      inboxSection: {
+        id: inboxSectionId,
+        title: 'IN-BOX',
+        items: [],
+        color: 'slate',
+        isLocked: false
+      },
       isLocked: false
     };
 
@@ -181,7 +214,12 @@ const App: React.FC = () => {
   };
 
   const handleOpenMoveItemModal = (itemId: string, sectionId: string) => {
-    const section = activeTab.sections.find(s => s.id === sectionId);
+    // IN-BOX 섹션 또는 일반 섹션에서 아이템 찾기
+    let section = activeTab.sections.find(s => s.id === sectionId);
+    if (!section && activeTab.inboxSection?.id === sectionId) {
+      section = activeTab.inboxSection;
+    }
+
     const item = section?.items.find(i => i.id === itemId);
 
     if (!item || !section) return;
@@ -206,16 +244,28 @@ const App: React.FC = () => {
       return;
     }
 
-    // 원본 탭/섹션 찾기
+    // 원본 탭 찾기
     const sourceTab = safeData.tabs.find(t => t.id === sourceTabId);
-    const sourceSection = sourceTab?.sections.find(s => s.id === sourceSectionId);
-    const itemToMove = sourceSection?.items.find(i => i.id === itemId);
+    if (!sourceTab) return;
 
+    // 원본 섹션 찾기 (일반 섹션 또는 IN-BOX)
+    let sourceSection = sourceTab.sections.find(s => s.id === sourceSectionId);
+    if (!sourceSection && sourceTab.inboxSection?.id === sourceSectionId) {
+      sourceSection = sourceTab.inboxSection;
+    }
+
+    const itemToMove = sourceSection?.items.find(i => i.id === itemId);
     if (!itemToMove || !sourceSection) return;
 
-    // 대상 섹션 찾기 및 잠금 상태 확인
+    // 대상 탭 찾기
     const targetTab = safeData.tabs.find(t => t.id === targetTabId);
-    const targetSection = targetTab?.sections.find(s => s.id === targetSectionId);
+    if (!targetTab) return;
+
+    // 대상 섹션 찾기 (일반 섹션 또는 IN-BOX)
+    let targetSection = targetTab.sections.find(s => s.id === targetSectionId);
+    if (!targetSection && targetTab.inboxSection?.id === targetSectionId) {
+      targetSection = targetTab.inboxSection;
+    }
 
     if (!targetSection) return;
 
@@ -225,51 +275,96 @@ const App: React.FC = () => {
     }
 
     // 메모 데이터 처리
-    const sourceMemo = sourceTab?.memos[itemId];
+    const sourceMemo = sourceTab.memos[itemId];
 
     updateData({
       ...safeData,
       tabs: safeData.tabs.map(tab => {
         // 같은 탭 내 이동
         if (sourceTabId === targetTabId && tab.id === sourceTabId) {
-          const updatedSections = tab.sections.map(section => {
-            if (section.id === sourceSectionId) {
-              // 원본 섹션: 항목 제거
-              return { ...section, items: section.items.filter(i => i.id !== itemId) };
-            } else if (section.id === targetSectionId) {
-              // 대상 섹션: 항목 추가
-              return { ...section, items: [...section.items, itemToMove] };
-            }
-            return section;
-          });
-          return { ...tab, sections: updatedSections };
+          let updatedSections = tab.sections;
+          let updatedInboxSection = tab.inboxSection;
+
+          // 원본이 일반 섹션, 대상이 일반 섹션
+          if (sourceSection.id !== tab.inboxSection.id && targetSection.id !== tab.inboxSection.id) {
+            updatedSections = tab.sections.map(section => {
+              if (section.id === sourceSectionId) {
+                return { ...section, items: section.items.filter(i => i.id !== itemId) };
+              } else if (section.id === targetSectionId) {
+                return { ...section, items: [...section.items, itemToMove] };
+              }
+              return section;
+            });
+          }
+          // 원본이 일반 섹션, 대상이 IN-BOX
+          else if (sourceSection.id !== tab.inboxSection.id && targetSection.id === tab.inboxSection.id) {
+            updatedSections = tab.sections.map(section =>
+              section.id === sourceSectionId
+                ? { ...section, items: section.items.filter(i => i.id !== itemId) }
+                : section
+            );
+            updatedInboxSection = { ...tab.inboxSection, items: [...tab.inboxSection.items, itemToMove] };
+          }
+          // 원본이 IN-BOX, 대상이 일반 섹션
+          else if (sourceSection.id === tab.inboxSection.id && targetSection.id !== tab.inboxSection.id) {
+            updatedSections = tab.sections.map(section =>
+              section.id === targetSectionId
+                ? { ...section, items: [...section.items, itemToMove] }
+                : section
+            );
+            updatedInboxSection = { ...tab.inboxSection, items: tab.inboxSection.items.filter(i => i.id !== itemId) };
+          }
+          // 원본이 IN-BOX, 대상도 IN-BOX (재정렬만)
+          else if (sourceSection.id === tab.inboxSection.id && targetSection.id === tab.inboxSection.id) {
+            updatedInboxSection = tab.inboxSection; // 같은 섹션에서는 처리 없음
+          }
+
+          return { ...tab, sections: updatedSections, inboxSection: updatedInboxSection };
         }
         // 다른 탭으로 이동 - 원본 탭
         else if (sourceTabId !== targetTabId && tab.id === sourceTabId) {
-          const updatedSections = tab.sections.map(section =>
-            section.id === sourceSectionId
-              ? { ...section, items: section.items.filter(i => i.id !== itemId) }
-              : section
-          );
+          let updatedSections = tab.sections;
+          let updatedInboxSection = tab.inboxSection;
+
+          if (sourceSection.id !== tab.inboxSection.id) {
+            // 원본이 일반 섹션
+            updatedSections = tab.sections.map(section =>
+              section.id === sourceSectionId
+                ? { ...section, items: section.items.filter(i => i.id !== itemId) }
+                : section
+            );
+          } else {
+            // 원본이 IN-BOX
+            updatedInboxSection = { ...tab.inboxSection, items: tab.inboxSection.items.filter(i => i.id !== itemId) };
+          }
 
           // 메모 제거
           const { [itemId]: removed, ...restMemos } = tab.memos;
-          return { ...tab, sections: updatedSections, memos: restMemos };
+          return { ...tab, sections: updatedSections, inboxSection: updatedInboxSection, memos: restMemos };
         }
         // 다른 탭으로 이동 - 대상 탭
         else if (sourceTabId !== targetTabId && tab.id === targetTabId) {
-          const updatedSections = tab.sections.map(section =>
-            section.id === targetSectionId
-              ? { ...section, items: [...section.items, itemToMove] }
-              : section
-          );
+          let updatedSections = tab.sections;
+          let updatedInboxSection = tab.inboxSection;
+
+          if (targetSection.id !== tab.inboxSection.id) {
+            // 대상이 일반 섹션
+            updatedSections = tab.sections.map(section =>
+              section.id === targetSectionId
+                ? { ...section, items: [...section.items, itemToMove] }
+                : section
+            );
+          } else {
+            // 대상이 IN-BOX
+            updatedInboxSection = { ...tab.inboxSection, items: [...tab.inboxSection.items, itemToMove] };
+          }
 
           // 메모 복사
           const updatedMemos = sourceMemo
             ? { ...tab.memos, [itemId]: sourceMemo }
             : tab.memos;
 
-          return { ...tab, sections: updatedSections, memos: updatedMemos };
+          return { ...tab, sections: updatedSections, inboxSection: updatedInboxSection, memos: updatedMemos };
         }
 
         return tab;
@@ -370,6 +465,16 @@ const App: React.FC = () => {
       ...safeData,
       tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
         ? { ...t, sections: t.sections.map(s => s.id === updated.id ? updated : s) }
+        : t
+      )
+    });
+  };
+
+  const handleUpdateInboxSection = (updated: Section) => {
+    updateData({
+      ...safeData,
+      tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+        ? { ...t, inboxSection: updated }
         : t
       )
     });
@@ -615,14 +720,36 @@ const App: React.FC = () => {
           <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-20">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {isMainTab && (
-                <div className="h-full row-span-2">
-                  <ParkingWidget
-                    info={activeTab.parkingInfo}
-                    onChange={handleParkingChange}
-                    onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
-                    onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
-                  />
-                </div>
+                <>
+                  {/* 주차 섹션 */}
+                  <div className="h-full row-span-2">
+                    <ParkingWidget
+                      info={activeTab.parkingInfo}
+                      onChange={handleParkingChange}
+                      onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
+                      onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
+                    />
+                  </div>
+
+                  {/* IN-BOX 섹션 */}
+                  <div className="h-full row-span-2">
+                    <SectionCard
+                      section={activeTab.inboxSection}
+                      itemMemos={activeTab.memos}
+                      onUpdateSection={handleUpdateInboxSection}
+                      onDeleteSection={() => {}} // IN-BOX는 삭제 불가
+                      onShowItemMemo={handleShowMemo}
+                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
+                      dragState={dragState}
+                      setDragState={setDragState}
+                      onSectionDragStart={() => {}} // IN-BOX는 드래그 불가
+                      onSectionDragOver={() => {}}
+                      onSectionDrop={() => {}}
+                      onSectionDragEnd={() => {}}
+                      isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                    />
+                  </div>
+                </>
               )}
 
               {activeTab.sections.map(section => (
@@ -647,7 +774,7 @@ const App: React.FC = () => {
               {activeTab.sections.length === 0 && (!isMainTab || activeTab.sections.length === 0) && (
                 <div className="col-span-full text-center py-16 text-slate-400">
                   <p className="text-sm italic">
-                    {isMainTab && activeTab.sections.length === 0 ? '추가된 섹션이 없습니다. "+항목" 버튼을 눌러 섹션을 추가하세요.' : 
+                    {isMainTab && activeTab.sections.length === 0 ? '추가된 섹션이 없습니다. "+항목" 버튼을 눌러 섹션을 추가하세요.' :
                      activeTab.sections.length === 0 ? '이 페이지는 비어있습니다. 새로운 섹션을 추가해 보세요.' : ''}
                   </p>
                 </div>

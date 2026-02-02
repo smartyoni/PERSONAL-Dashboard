@@ -20,11 +20,12 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
   if (!isOpen) return null;
 
   // Helper functions
-  const getSectionCount = (tab: Tab) => tab.sections.length;
+  const getSectionCount = (tab: Tab) => tab.sections.length + 1; // +1: inboxSection
   const getItemCount = (tab: Tab) =>
-    tab.sections.reduce((sum, s) => sum + s.items.length, 0);
+    tab.sections.reduce((sum, s) => sum + s.items.length, 0) +
+    (tab.inboxSection?.items.length || 0);
   const getTotalSections = () =>
-    tabs.reduce((sum, t) => sum + t.sections.length, 0);
+    tabs.reduce((sum, t) => sum + t.sections.length + 1, 0); // +1: inboxSection
   const getTotalItems = () =>
     tabs.reduce((sum, t) => sum + getItemCount(t), 0);
 
@@ -83,9 +84,31 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
                 </button>
 
                 {/* Sections */}
+                {/* IN-BOX 섹션 (고정) */}
+                {tab.inboxSection && (
+                  <div className="mb-2">
+                    <button
+                      onClick={() => onNavigate(tab.id, tab.inboxSection.id)}
+                      className="w-full text-left pl-6 px-4 py-2 rounded-lg hover:bg-slate-100 transition-all"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📥</span>
+                        <span className="text-sm font-medium text-slate-700">
+                          {tab.inboxSection.title}
+                        </span>
+                        {tab.inboxSection.isLocked && <div className="scale-75"><LockIcon /></div>}
+                        <span className="text-xs text-slate-400 ml-auto">
+                          {tab.inboxSection.items.length}개 항목
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {/* 일반 섹션들 */}
                 {tab.sections.length === 0 ? (
                   <div className="pl-6 py-2 text-xs text-slate-400 italic">
-                    섹션이 없습니다
+                    추가 섹션이 없습니다
                   </div>
                 ) : (
                   tab.sections.map((section) => (
