@@ -15,7 +15,10 @@ export interface Section {
 
 export interface ParkingInfo {
   text: string;
-  image: string | null;
+  checklistItems: ListItem[];
+  shoppingListItems: ListItem[];
+  checklistMemos: { [key: string]: string };
+  shoppingListMemos: { [key: string]: string };
 }
 
 export interface Bookmark {

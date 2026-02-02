@@ -44,7 +44,7 @@ const App: React.FC = () => {
         sections: [],
         memos: {},
         sideNotes: [],
-        parkingInfo: { text: '', image: null },
+        parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
         isLocked: false
       }],
       activeTabId: initialTabId,
@@ -118,7 +118,8 @@ const App: React.FC = () => {
   const [memoEditor, setMemoEditor] = useState<{
     id: string | null;
     value: string;
-  }>({ id: null, value: '' });
+    type?: 'section' | 'checklist' | 'shopping';
+  }>({ id: null, value: '', type: 'section' });
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
@@ -144,7 +145,7 @@ const App: React.FC = () => {
       sections: [],
       memos: {},
       sideNotes: [],
-      parkingInfo: { text: '', image: null },
+      parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
       isLocked: false
     };
 
@@ -446,21 +447,67 @@ const App: React.FC = () => {
     });
   };
 
-  const handleShowMemo = (id: string) => {
-    setMemoEditor({ id, value: activeTab.memos[id] || '' });
+  const handleShowMemo = (id: string, type?: 'checklist' | 'shopping') => {
+    let memoValue = '';
+
+    if (type === 'checklist') {
+      memoValue = activeTab.parkingInfo.checklistMemos?.[id] || '';
+    } else if (type === 'shopping') {
+      memoValue = activeTab.parkingInfo.shoppingListMemos?.[id] || '';
+    } else {
+      memoValue = activeTab.memos[id] || '';
+    }
+
+    setMemoEditor({ id, value: memoValue, type: type || 'section' });
   };
 
   const handleSaveMemo = () => {
     if (memoEditor.id) {
-      updateData({
-        ...safeData,
-        tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
-          ? { ...t, memos: { ...t.memos, [memoEditor.id!]: memoEditor.value } }
-          : t
-        )
-      });
+      if (memoEditor.type === 'checklist') {
+        updateData({
+          ...safeData,
+          tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+            ? {
+                ...t,
+                parkingInfo: {
+                  ...t.parkingInfo,
+                  checklistMemos: {
+                    ...t.parkingInfo.checklistMemos,
+                    [memoEditor.id!]: memoEditor.value
+                  }
+                }
+              }
+            : t
+          )
+        });
+      } else if (memoEditor.type === 'shopping') {
+        updateData({
+          ...safeData,
+          tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+            ? {
+                ...t,
+                parkingInfo: {
+                  ...t.parkingInfo,
+                  shoppingListMemos: {
+                    ...t.parkingInfo.shoppingListMemos,
+                    [memoEditor.id!]: memoEditor.value
+                  }
+                }
+              }
+            : t
+          )
+        });
+      } else {
+        updateData({
+          ...safeData,
+          tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+            ? { ...t, memos: { ...t.memos, [memoEditor.id!]: memoEditor.value } }
+            : t
+          )
+        });
+      }
     }
-    setMemoEditor({ id: null, value: '' });
+    setMemoEditor({ id: null, value: '', type: 'section' });
   };
 
   const handleNavigateFromMap = (tabId: string, sectionId?: string) => {
@@ -568,8 +615,13 @@ const App: React.FC = () => {
           <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-20">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {isMainTab && (
-                <div className="h-full">
-                  <ParkingWidget info={activeTab.parkingInfo} onChange={handleParkingChange} />
+                <div className="h-full row-span-2">
+                  <ParkingWidget
+                    info={activeTab.parkingInfo}
+                    onChange={handleParkingChange}
+                    onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
+                    onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
+                  />
                 </div>
               )}
 
@@ -629,18 +681,18 @@ const App: React.FC = () => {
 
       {/* 중앙 메모용 모달 */}
       {memoEditor.id && (
-        <div 
-          onClick={() => setMemoEditor({ id: null, value: '' })}
+        <div
+          onClick={() => setMemoEditor({ id: null, value: '', type: 'section' })}
           className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
         >
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             className="bg-white w-full max-w-2xl h-[80vh] rounded-2xl shadow-2xl border border-slate-200 p-6 flex flex-col"
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-800">📝 메모 작성</h3>
-              <button 
-                onClick={() => setMemoEditor({ id: null, value: '' })}
+              <button
+                onClick={() => setMemoEditor({ id: null, value: '', type: 'section' })}
                 className="text-slate-400 hover:text-slate-600 p-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -657,7 +709,7 @@ const App: React.FC = () => {
             />
             <div className="mt-4 flex justify-end gap-3">
               <button
-                onClick={() => setMemoEditor({ id: null, value: '' })}
+                onClick={() => setMemoEditor({ id: null, value: '', type: 'section' })}
                 className="px-5 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 취소
