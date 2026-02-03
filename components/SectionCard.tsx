@@ -2,7 +2,7 @@
 import React from 'react';
 import { Section, DragState } from '../types';
 import EditableText from './EditableText';
-import { ResetIcon, TrashIcon, LockIcon, UnlockIcon } from './Icons';
+import { ResetIcon, LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
 
 interface SectionCardProps {
@@ -171,10 +171,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <button
               disabled={section.isLocked}
               onClick={() => onDeleteSection(section.id)}
-              className="text-red-500 hover:text-red-700 transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-red-500"
+              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition-colors text-sm font-medium border-2 border-black disabled:opacity-30 disabled:cursor-not-allowed"
               title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
             >
-              <TrashIcon />
+              섹션삭제
             </button>
           )}
         </div>
