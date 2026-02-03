@@ -180,8 +180,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </div>
       </div>
 
-      {/* 구분선 (Divider) - 색상을 더 짙게 하여 명확하게 구분 */}
-      <div className="border-t border-slate-200 mb-3 -mx-4"></div>
+      {/* 구분선 (Divider) - 검정색으로 명확하게 구분 */}
+      <div className="border-t border-black mb-3 -mx-4"></div>
 
       <div className="space-y-0.5 custom-scrollbar overflow-y-auto flex-1 pr-1">
         {[...section.items].sort((a, b) => {
