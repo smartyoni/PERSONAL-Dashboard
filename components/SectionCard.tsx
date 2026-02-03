@@ -2,7 +2,7 @@
 import React from 'react';
 import { Section, DragState } from '../types';
 import EditableText from './EditableText';
-import { ResetIcon, PlusIcon, TrashIcon, LockIcon, UnlockIcon } from './Icons';
+import { ResetIcon, TrashIcon, LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
 
 interface SectionCardProps {
@@ -162,10 +162,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
           )}
           <button
             onClick={handleAddItem}
-            className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
+            className="bg-yellow-400 hover:bg-yellow-500 text-slate-800 px-2 py-1 rounded-md transition-colors text-sm font-medium border-2 border-black"
             title="추가"
           >
-            <PlusIcon />
+            추가
           </button>
           {!isInboxSection && (
             <button
