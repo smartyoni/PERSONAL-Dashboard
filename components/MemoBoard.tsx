@@ -73,7 +73,7 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
       {/* Memo Edit Modal - 70% Height & Bezel-less UI */}
       {editingIndex !== null && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setEditingIndex(null)}>
-          <div className="bg-white w-full max-w-3xl h-[70vh] rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white w-full max-w-3xl h-[70vh] shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Header: Title Input instead of static text */}
             <div className="px-8 py-5 border-b border-slate-300 flex items-center gap-4 bg-white shrink-0">
               <div className="flex-1 flex items-center gap-2">
