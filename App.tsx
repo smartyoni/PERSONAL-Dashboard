@@ -5,7 +5,7 @@ import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote } fro
 import SectionCard from './components/SectionCard';
 import ConfirmModal from './components/ConfirmModal';
 import ParkingWidget from './components/ParkingWidget';
-import FooterTabs from './components/FooterTabs';
+import FooterTabs, { getTabColor } from './components/FooterTabs';
 import BookmarkBar from './components/BookmarkBar';
 import MemoBoard from './components/MemoBoard';
 import NavigationMapModal from './components/NavigationMapModal';
@@ -819,6 +819,7 @@ const App: React.FC = () => {
                   onSectionDrop={(e) => onSectionDrop(e, section.id)}
                   onSectionDragEnd={onSectionDragEnd}
                   isHighlighted={section.id === highlightedSectionId}
+                  tabColorText={getTabColor(currentTabIndex).text}
                 />
               ))}
 

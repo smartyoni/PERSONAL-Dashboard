@@ -20,6 +20,7 @@ interface SectionCardProps {
   onSectionDragEnd: () => void;
   isHighlighted?: boolean;
   isInboxSection?: boolean;
+  tabColorText?: string;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -36,7 +37,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onSectionDrop,
   onSectionDragEnd,
   isHighlighted = false,
-  isInboxSection = false
+  isInboxSection = false,
+  tabColorText = 'text-slate-800'
 }) => {
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
@@ -137,7 +139,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           <EditableText
             value={section.title}
             onChange={handleTitleChange}
-            className="text-sm font-bold text-slate-800"
+            className={`text-sm font-bold ${tabColorText}`}
             placeholder="섹션 이름"
           />
         </div>

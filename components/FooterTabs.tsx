@@ -16,7 +16,7 @@ interface FooterTabsProps {
   onReorderTabs: (fromIndex: number, toIndex: number) => void;
 }
 
-const TAB_COLORS = [
+export const TAB_COLORS = [
   { bg: 'bg-[#F59E0B]', bgLight: 'bg-[#FEF3C7]', text: 'text-[#92400E]', textLight: 'text-[#D97706]', border: 'border-[#F59E0B]' },
   { bg: 'bg-[#3B82F6]', bgLight: 'bg-[#DBEAFE]', text: 'text-[#1E3A8A]', textLight: 'text-[#3B82F6]', border: 'border-[#3B82F6]' },
   { bg: 'bg-[#9333EA]', bgLight: 'bg-[#F3E8FF]', text: 'text-[#581C87]', textLight: 'text-[#9333EA]', border: 'border-[#9333EA]' },
@@ -27,7 +27,7 @@ const TAB_COLORS = [
   { bg: 'bg-[#F97316]', bgLight: 'bg-[#FFEDD5]', text: 'text-[#7C2D12]', textLight: 'text-[#F97316]', border: 'border-[#F97316]' },
 ];
 
-const getTabColor = (index: number) => TAB_COLORS[index % TAB_COLORS.length];
+export const getTabColor = (index: number) => TAB_COLORS[index % TAB_COLORS.length];
 
 const TabMenuItem: React.FC<{
   tab: Tab;
