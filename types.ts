@@ -45,6 +45,10 @@ export interface Tab {
   inboxSection?: Section;  // IN-BOX 기본 섹션 (메인탭만)
   quotesSection: Section;  // 명언 기본 섹션
   isLocked?: boolean;
+  headerGoals?: {
+    goal1: string;
+    goal2: string;
+  };
 }
 
 export interface AppData {

@@ -61,7 +61,8 @@ const App: React.FC = () => {
           color: 'slate',
           isLocked: false
         },
-        isLocked: false
+        isLocked: false,
+        headerGoals: { goal1: '', goal2: '' }
       }],
       activeTabId: initialTabId,
       bookmarks: DEFAULT_BOOKMARKS
@@ -97,7 +98,8 @@ const App: React.FC = () => {
             items: [],
             color: 'slate',
             isLocked: false
-          }
+          },
+          headerGoals: tab.headerGoals || { goal1: '', goal2: '' }
         };
       })
     };
@@ -199,7 +201,8 @@ const App: React.FC = () => {
         color: 'slate',
         isLocked: false
       },
-      isLocked: false
+      isLocked: false,
+      headerGoals: { goal1: '', goal2: '' }
     };
 
     updateData({
@@ -774,6 +777,17 @@ const App: React.FC = () => {
               onAddSection={handleAddSection}
               hasAnyCompletedItems={hasAnyCompletedItems}
               onOpenNavigationMap={() => setNavigationMapOpen(true)}
+              headerGoals={activeTab.headerGoals}
+              onHeaderGoalsChange={(newGoals) => {
+                updateData({
+                  ...safeData,
+                  tabs: safeData.tabs.map(t =>
+                    t.id === safeData.activeTabId
+                      ? { ...t, headerGoals: newGoals }
+                      : t
+                  )
+                });
+              }}
             />
           </div>
 

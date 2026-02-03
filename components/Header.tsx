@@ -1,19 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, ResetIcon, MapIcon } from './Icons';
+import HeaderGoals from './HeaderGoals';
 
 interface HeaderProps {
   onClearAll: () => void;
   onAddSection: () => void;
   hasAnyCompletedItems: boolean;
   onOpenNavigationMap: () => void;
+  headerGoals?: {
+    goal1: string;
+    goal2: string;
+  };
+  onHeaderGoalsChange?: (goals: { goal1: string; goal2: string }) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   onClearAll,
   onAddSection,
   hasAnyCompletedItems,
-  onOpenNavigationMap
+  onOpenNavigationMap,
+  headerGoals,
+  onHeaderGoalsChange
 }) => {
   const [dateTime, setDateTime] = useState('');
 
@@ -46,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({
         </h1>
         <div className="flex items-center gap-3 mt-1">
           <p className="text-red-600 font-medium whitespace-nowrap text-sm">{dateTime}</p>
-          
+
           <div className="flex items-center gap-2 ml-2">
             <button
               onClick={onOpenNavigationMap}
@@ -76,6 +84,19 @@ const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {headerGoals && onHeaderGoalsChange && (
+        <div className="flex-1 hidden lg:flex items-end justify-end">
+          <div className="w-[90%]">
+            <HeaderGoals
+              goal1={headerGoals.goal1}
+              goal2={headerGoals.goal2}
+              onGoal1Change={(value) => onHeaderGoalsChange({ ...headerGoals, goal1: value })}
+              onGoal2Change={(value) => onHeaderGoalsChange({ ...headerGoals, goal2: value })}
+            />
+          </div>
+        </div>
+      )}
     </header>
   );
 };
