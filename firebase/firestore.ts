@@ -4,6 +4,21 @@ import { AppData } from '../types';
 
 const COLLECTION_NAME = 'workspaces';
 
+// undefined 필드를 제거하는 함수
+function cleanData(data: AppData): AppData {
+  return {
+    ...data,
+    tabs: data.tabs.map(tab => {
+      const cleanTab: any = { ...tab };
+      // inboxSection이 undefined면 제거
+      if (cleanTab.inboxSection === undefined) {
+        delete cleanTab.inboxSection;
+      }
+      return cleanTab as typeof tab;
+    })
+  };
+}
+
 // Firestore에서 데이터 가져오기 (일회성)
 export async function fetchWorkspaceData(): Promise<AppData | null> {
   try {
@@ -29,9 +44,10 @@ export async function fetchWorkspaceData(): Promise<AppData | null> {
 export async function saveWorkspaceData(data: AppData): Promise<void> {
   try {
     const docRef = doc(db, COLLECTION_NAME, WORKSPACE_DOC_ID);
+    const cleanedData = cleanData(data);
 
     await setDoc(docRef, {
-      ...data,
+      ...cleanedData,
       updatedAt: serverTimestamp()
     }, { merge: true });
   } catch (error) {

@@ -48,7 +48,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       text: '',
       completed: false
     };
-    onUpdateSection({ ...section, items: [...section.items, newItem] });
+    onUpdateSection({ ...section, items: [newItem, ...section.items] });
   };
 
   const handleClearSection = () => {

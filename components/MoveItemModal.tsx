@@ -32,8 +32,10 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
     if (isOpen) {
       const selectedTab = tabs.find(t => t.id === selectedTabId);
       if (selectedTab) {
-        // IN-BOX 섹션을 먼저 확인, 없으면 일반 섹션 중 첫 번째 선택
-        const firstSection = selectedTab.inboxSection
+        // 메인탭(첫 번째 탭) 확인
+        const isMainTab = tabs.findIndex(t => t.id === selectedTabId) === 0;
+        // 메인탭인 경우만 IN-BOX를 우선 선택, 아니면 일반 섹션 중 첫 번째 선택
+        const firstSection = (isMainTab && selectedTab.inboxSection)
           ? selectedTab.inboxSection
           : selectedTab.sections[0];
         setSelectedSectionId(firstSection?.id || '');
@@ -128,28 +130,31 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
                 </p>
               ) : (
                 <>
-                  {/* IN-BOX 섹션 */}
-                  {selectedTab?.inboxSection && (
-                    <label
-                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${
-                        selectedSectionId === selectedTab.inboxSection.id
-                          ? 'bg-blue-50 border border-blue-300'
-                          : 'border border-transparent'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="targetSection"
-                        value={selectedTab.inboxSection.id}
-                        checked={selectedSectionId === selectedTab.inboxSection.id}
-                        onChange={(e) => setSelectedSectionId(e.target.value)}
-                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 flex-shrink-0"
-                      />
-                      <span className="text-sm font-medium flex-1 text-slate-700">
-                        📥 {selectedTab.inboxSection.title}
-                      </span>
-                    </label>
-                  )}
+                  {/* IN-BOX 섹션 - 메인탭만 표시 */}
+                  {(() => {
+                    const isMainTab = tabs.findIndex(t => t.id === selectedTabId) === 0;
+                    return isMainTab && selectedTab?.inboxSection && (
+                      <label
+                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${
+                          selectedSectionId === selectedTab.inboxSection.id
+                            ? 'bg-blue-50 border border-blue-300'
+                            : 'border border-transparent'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="targetSection"
+                          value={selectedTab.inboxSection.id}
+                          checked={selectedSectionId === selectedTab.inboxSection.id}
+                          onChange={(e) => setSelectedSectionId(e.target.value)}
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                        />
+                        <span className="text-sm font-medium flex-1 text-slate-700">
+                          📥 {selectedTab.inboxSection.title}
+                        </span>
+                      </label>
+                    );
+                  })()}
 
                   {/* 일반 섹션들 */}
                   {selectedTab?.sections.map((section) => (

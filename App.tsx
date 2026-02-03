@@ -75,26 +75,31 @@ const App: React.FC = () => {
   const safeData = useMemo(() => {
     if (!data) return defaultData;
 
-    // 기존 데이터에 inboxSection, quotesSection이 없으면 추가
+    // 메인탭(첫 번째 탭)만 inboxSection을 유지, 나머지는 undefined
     return {
       ...data,
-      tabs: data.tabs.map(tab => ({
-        ...tab,
-        inboxSection: tab.inboxSection || {
-          id: Math.random().toString(36).substr(2, 9),
-          title: 'IN-BOX',
-          items: [],
-          color: 'slate',
-          isLocked: false
-        },
-        quotesSection: tab.quotesSection || {
-          id: Math.random().toString(36).substr(2, 9),
-          title: '명언',
-          items: [],
-          color: 'slate',
-          isLocked: false
-        }
-      }))
+      tabs: data.tabs.map((tab, index) => {
+        const isMainTab = index === 0;
+        return {
+          ...tab,
+          inboxSection: isMainTab
+            ? (tab.inboxSection || {
+                id: Math.random().toString(36).substr(2, 9),
+                title: 'IN-BOX',
+                items: [],
+                color: 'slate',
+                isLocked: false
+              })
+            : undefined,
+          quotesSection: tab.quotesSection || {
+            id: Math.random().toString(36).substr(2, 9),
+            title: '명언',
+            items: [],
+            color: 'slate',
+            isLocked: false
+          }
+        };
+      })
     };
   }, [data, defaultData]);
 
@@ -179,7 +184,6 @@ const App: React.FC = () => {
 
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
-    const inboxSectionId = Math.random().toString(36).substr(2, 9);
     const quotesSectionId = Math.random().toString(36).substr(2, 9);
     const newTab: Tab = {
       id: newId,
@@ -188,13 +192,6 @@ const App: React.FC = () => {
       memos: {},
       sideNotes: [],
       parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
-      inboxSection: {
-        id: inboxSectionId,
-        title: 'IN-BOX',
-        items: [],
-        color: 'slate',
-        isLocked: false
-      },
       quotesSection: {
         id: quotesSectionId,
         title: '명언',
@@ -309,7 +306,7 @@ const App: React.FC = () => {
           let updatedInboxSection = tab.inboxSection;
 
           // 원본이 일반 섹션, 대상이 일반 섹션
-          if (sourceSection.id !== tab.inboxSection.id && targetSection.id !== tab.inboxSection.id) {
+          if (sourceSection.id !== tab.inboxSection?.id && targetSection.id !== tab.inboxSection?.id) {
             updatedSections = tab.sections.map(section => {
               if (section.id === sourceSectionId) {
                 return { ...section, items: section.items.filter(i => i.id !== itemId) };
@@ -320,25 +317,25 @@ const App: React.FC = () => {
             });
           }
           // 원본이 일반 섹션, 대상이 IN-BOX
-          else if (sourceSection.id !== tab.inboxSection.id && targetSection.id === tab.inboxSection.id) {
+          else if (sourceSection.id !== tab.inboxSection?.id && targetSection.id === tab.inboxSection?.id) {
             updatedSections = tab.sections.map(section =>
               section.id === sourceSectionId
                 ? { ...section, items: section.items.filter(i => i.id !== itemId) }
                 : section
             );
-            updatedInboxSection = { ...tab.inboxSection, items: [...tab.inboxSection.items, itemToMove] };
+            updatedInboxSection = { ...tab.inboxSection!, items: [...tab.inboxSection!.items, itemToMove] };
           }
           // 원본이 IN-BOX, 대상이 일반 섹션
-          else if (sourceSection.id === tab.inboxSection.id && targetSection.id !== tab.inboxSection.id) {
+          else if (sourceSection.id === tab.inboxSection?.id && targetSection.id !== tab.inboxSection?.id) {
             updatedSections = tab.sections.map(section =>
               section.id === targetSectionId
                 ? { ...section, items: [...section.items, itemToMove] }
                 : section
             );
-            updatedInboxSection = { ...tab.inboxSection, items: tab.inboxSection.items.filter(i => i.id !== itemId) };
+            updatedInboxSection = { ...tab.inboxSection!, items: tab.inboxSection!.items.filter(i => i.id !== itemId) };
           }
           // 원본이 IN-BOX, 대상도 IN-BOX (재정렬만)
-          else if (sourceSection.id === tab.inboxSection.id && targetSection.id === tab.inboxSection.id) {
+          else if (sourceSection.id === tab.inboxSection?.id && targetSection.id === tab.inboxSection?.id) {
             updatedInboxSection = tab.inboxSection; // 같은 섹션에서는 처리 없음
           }
 
@@ -349,7 +346,7 @@ const App: React.FC = () => {
           let updatedSections = tab.sections;
           let updatedInboxSection = tab.inboxSection;
 
-          if (sourceSection.id !== tab.inboxSection.id) {
+          if (sourceSection.id !== tab.inboxSection?.id) {
             // 원본이 일반 섹션
             updatedSections = tab.sections.map(section =>
               section.id === sourceSectionId
@@ -358,7 +355,7 @@ const App: React.FC = () => {
             );
           } else {
             // 원본이 IN-BOX
-            updatedInboxSection = { ...tab.inboxSection, items: tab.inboxSection.items.filter(i => i.id !== itemId) };
+            updatedInboxSection = { ...tab.inboxSection!, items: tab.inboxSection!.items.filter(i => i.id !== itemId) };
           }
 
           // 메모 제거
@@ -370,7 +367,7 @@ const App: React.FC = () => {
           let updatedSections = tab.sections;
           let updatedInboxSection = tab.inboxSection;
 
-          if (targetSection.id !== tab.inboxSection.id) {
+          if (targetSection.id !== tab.inboxSection?.id) {
             // 대상이 일반 섹션
             updatedSections = tab.sections.map(section =>
               section.id === targetSectionId
@@ -379,7 +376,7 @@ const App: React.FC = () => {
             );
           } else {
             // 대상이 IN-BOX
-            updatedInboxSection = { ...tab.inboxSection, items: [...tab.inboxSection.items, itemToMove] };
+            updatedInboxSection = { ...tab.inboxSection!, items: [...tab.inboxSection!.items, itemToMove] };
           }
 
           // 메모 복사
