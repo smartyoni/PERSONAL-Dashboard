@@ -675,6 +675,37 @@ const App: React.FC = () => {
     setNavigationMapOpen(false);
   };
 
+  const handleNavigateToInbox = () => {
+    const mainTab = safeData.tabs[0];
+    if (!mainTab?.inboxSection) return;
+
+    const mainTabId = mainTab.id;
+    const inboxSectionId = mainTab.inboxSection.id;
+
+    // 메인탭으로 전환
+    if (mainTabId !== safeData.activeTabId) {
+      handleSelectTab(mainTabId);
+    }
+
+    // IN-BOX 섹션으로 스크롤
+    setTimeout(() => {
+      const el = document.querySelector(`[data-section-id="${inboxSectionId}"]`);
+      if (el) {
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 100);
+
+    // 섹션 강조 효과 (3초)
+    setHighlightedSectionId(inboxSectionId);
+    setTimeout(() => {
+      setHighlightedSectionId(null);
+    }, 3000);
+  };
+
   const hasAnyCompletedItems = activeTab.sections.some(s => s.items.some(i => i.completed));
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
@@ -855,6 +886,8 @@ const App: React.FC = () => {
           onDeleteTab={handleDeleteTab}
           onToggleLockTab={handleToggleLockTab}
           onReorderTabs={handleReorderTabs}
+          onNavigateToInbox={handleNavigateToInbox}
+          hasInbox={!!safeData.tabs[0]?.inboxSection}
         />
       </div>
 

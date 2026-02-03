@@ -14,6 +14,8 @@ interface FooterTabsProps {
   onDeleteTab: (id: string) => void;
   onToggleLockTab: (id: string) => void;
   onReorderTabs: (fromIndex: number, toIndex: number) => void;
+  onNavigateToInbox: () => void;
+  hasInbox: boolean;
 }
 
 export const TAB_COLORS = [
@@ -130,7 +132,9 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   onRenameTab,
   onDeleteTab,
   onToggleLockTab,
-  onReorderTabs
+  onReorderTabs,
+  onNavigateToInbox,
+  hasInbox
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -169,6 +173,17 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   return (
     <div className="bg-white border-t border-slate-200 z-[100] h-12 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
       <div className="w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap px-6 gap-1">
+        {/* IN-BOX 빠른 이동 버튼 */}
+        {hasInbox && (
+          <button
+            onClick={onNavigateToInbox}
+            className="flex items-center justify-center w-8 h-8 text-lg leading-none hover:bg-blue-50 rounded-lg transition-all active:scale-95 flex-shrink-0"
+            title="메인 페이지의 IN-BOX 섹션으로 이동"
+          >
+            📥
+          </button>
+        )}
+
         {tabs.map((tab, index) => {
           const tabColor = getTabColor(index);
           const isActive = activeTabId === tab.id;
