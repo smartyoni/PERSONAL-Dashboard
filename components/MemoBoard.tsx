@@ -32,18 +32,23 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
 
   return (
     <div className="w-full h-full flex flex-col py-2 px-2 gap-1 overflow-hidden">
-      {memoList.map((note, index) => (
-        <div key={index} className="flex-1 min-h-0 w-full">
-          <button
-            onClick={() => handleStartEdit(index)}
-            className="w-full h-full px-2 py-1 rounded-lg border border-slate-200/60 text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm text-slate-700 overflow-hidden leading-tight bg-[#FBF3DB]"
-          >
-            <span className="line-clamp-2 text-center break-all">
-              <LinkifiedText text={note.title || (note.content ? note.content.substring(0, 10) : `메모 ${index + 1}`)} />
-            </span>
-          </button>
-        </div>
-      ))}
+      {memoList.map((note, index) => {
+        const hasMemo = note.title || note.content;
+        return (
+          <div key={index} className="flex-1 min-h-0 w-full">
+            <button
+              onClick={() => handleStartEdit(index)}
+              className={`w-full h-full px-2 py-1 rounded-lg border border-slate-200/60 text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm text-slate-700 overflow-hidden leading-tight ${
+                hasMemo ? 'bg-purple-400' : 'bg-[#FBF3DB]'
+              }`}
+            >
+              <span className="line-clamp-2 text-center break-all">
+                <LinkifiedText text={note.title || (note.content ? note.content.substring(0, 10) : `메모 ${index + 1}`)} />
+              </span>
+            </button>
+          </div>
+        );
+      })}
 
       {/* Memo Edit Modal - 70% Height & Bezel-less UI */}
       {editingIndex !== null && (
