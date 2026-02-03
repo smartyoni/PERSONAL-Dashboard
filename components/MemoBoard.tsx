@@ -15,6 +15,17 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
   // 항상 16개의 메모 슬롯을 유지하도록 보장
   const memoList: SideNote[] = Array.from({ length: 16 }, (_, i) => notes[i] || { title: '', content: '' });
 
+  // 메모 유무에 따라 정렬: 메모가 있는 것을 위에, 없는 것을 아래에
+  const sortedMemoList = Array.from({ length: 16 }, (_, i) => ({
+    note: memoList[i],
+    originalIndex: i
+  })).sort((a, b) => {
+    const aHasMemo = a.note.title || a.note.content;
+    const bHasMemo = b.note.title || b.note.content;
+    if (aHasMemo === bHasMemo) return 0;
+    return aHasMemo ? -1 : 1; // 메모가 있는 것을 위로
+  });
+
   const handleStartEdit = (index: number) => {
     setEditingIndex(index);
     setTempTitle(memoList[index].title);
@@ -41,18 +52,18 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
 
   return (
     <div className="w-full h-full flex flex-col py-2 px-2 gap-1 overflow-hidden">
-      {memoList.map((note, index) => {
+      {sortedMemoList.map(({ note, originalIndex }) => {
         const hasMemo = note.title || note.content;
         return (
-          <div key={index} className="flex-1 min-h-0 w-full">
+          <div key={originalIndex} className="flex-1 min-h-0 w-full">
             <button
-              onClick={() => handleStartEdit(index)}
+              onClick={() => handleStartEdit(originalIndex)}
               className={`w-full h-full px-2 py-1 rounded-lg border border-slate-200/60 text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm text-slate-700 overflow-hidden leading-tight ${
                 hasMemo ? 'bg-purple-400' : 'bg-[#FBF3DB]'
               }`}
             >
               <span className="line-clamp-2 text-center break-all">
-                <LinkifiedText text={note.title || (note.content ? note.content.substring(0, 10) : `메모 ${index + 1}`)} />
+                <LinkifiedText text={note.title || (note.content ? note.content.substring(0, 10) : '미생성 메모장')} />
               </span>
             </button>
           </div>
