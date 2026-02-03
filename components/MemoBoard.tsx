@@ -30,6 +30,15 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
     }
   };
 
+  const handleResetMemo = () => {
+    if (editingIndex !== null) {
+      const newNotes = [...memoList];
+      newNotes[editingIndex] = { title: '', content: '' };
+      onChange(newNotes);
+      setEditingIndex(null);
+    }
+  };
+
   return (
     <div className="w-full h-full flex flex-col py-2 px-2 gap-1 overflow-hidden">
       {memoList.map((note, index) => {
@@ -88,19 +97,27 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-2 bg-slate-50 border-t border-slate-300 flex justify-end gap-3 shrink-0">
+            <div className="px-6 py-2 bg-slate-50 border-t border-slate-300 flex justify-between gap-3 shrink-0">
               <button
-                onClick={() => setEditingIndex(null)}
-                className="px-6 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-all"
+                onClick={handleResetMemo}
+                className="px-6 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-all active:scale-95"
               >
-                취소
+                초기화
               </button>
-              <button
-                onClick={handleSaveEdit}
-                className="px-10 py-2.5 text-sm font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
-              >
-                저장
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setEditingIndex(null)}
+                  className="px-6 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-all"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-10 py-2.5 text-sm font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+                >
+                  저장
+                </button>
+              </div>
             </div>
           </div>
         </div>
