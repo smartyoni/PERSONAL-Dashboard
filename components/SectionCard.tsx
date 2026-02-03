@@ -139,7 +139,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           <EditableText
             value={section.title}
             onChange={handleTitleChange}
-            className={`text-sm font-bold ${tabColorText}`}
+            className={`text-base font-bold ${tabColorText}`}
             placeholder="섹션 이름"
           />
         </div>
