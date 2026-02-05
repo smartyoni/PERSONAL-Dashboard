@@ -37,6 +37,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onDragEnd
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -116,18 +117,28 @@ const ItemRow: React.FC<ItemRowProps> = ({
         )}
       </div>
 
-      {/* 4. Menu Button */}
+      {/* 4. Menu Button or Delete Button */}
       <div className="relative flex-shrink-0 -mr-3">
-        <button
-          ref={triggerRef}
-          onClick={toggleMenu}
-          className="text-slate-500 hover:text-slate-700 transition-colors p-0 rounded"
-          title="메뉴"
-        >
-          <MenuIcon />
-        </button>
+        {item.completed ? (
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md transition-colors text-sm font-medium border-2 border-black"
+            title="삭제"
+          >
+            삭제
+          </button>
+        ) : (
+          <button
+            ref={triggerRef}
+            onClick={toggleMenu}
+            className="text-slate-500 hover:text-slate-700 transition-colors p-0 rounded"
+            title="메뉴"
+          >
+            <MenuIcon />
+          </button>
+        )}
 
-        {showMenu && (() => {
+        {showMenu && !item.completed && (() => {
           const isMobile = window.innerWidth < 768;
           return (
             <div
@@ -177,6 +188,33 @@ const ItemRow: React.FC<ItemRowProps> = ({
             </div>
           );
         })()}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm mx-4 animate-in zoom-in duration-200">
+              <h2 className="text-lg font-bold text-slate-800 mb-2">항목을 삭제하시겠습니까?</h2>
+              <p className="text-sm text-slate-600 mb-6">"<span className="font-medium line-through">{item.text}</span>"이(가) 삭제됩니다.</p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={() => {
+                    onDelete();
+                    setShowDeleteConfirm(false);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium border-2 border-black transition-colors"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

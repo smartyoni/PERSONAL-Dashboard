@@ -823,6 +823,7 @@ const App: React.FC = () => {
                       onSectionDragEnd={() => {}}
                       isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
                       isInboxSection={true}
+                      tabColorBg={getTabColor(0).bgLight}
                     />
                   </div>
 
@@ -843,29 +844,33 @@ const App: React.FC = () => {
                       onSectionDragEnd={() => {}}
                       isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
                       isInboxSection={true}
+                      tabColorBg={getTabColor(0).bgLight}
                     />
                   </div>
                 </>
               )}
 
               {activeTab.sections.map(section => (
-                <SectionCard
-                  key={section.id}
-                  section={section}
-                  itemMemos={activeTab.memos}
-                  onUpdateSection={handleUpdateSection}
-                  onDeleteSection={handleDeleteSection}
-                  onShowItemMemo={handleShowMemo}
-                  onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
-                  dragState={dragState}
-                  setDragState={setDragState}
-                  onSectionDragStart={() => onSectionDragStart(section.id)}
-                  onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
-                  onSectionDrop={(e) => onSectionDrop(e, section.id)}
-                  onSectionDragEnd={onSectionDragEnd}
-                  isHighlighted={section.id === highlightedSectionId}
-                  tabColorText={getTabColor(currentTabIndex).text}
-                />
+                <div key={section.id} className={isMainTab ? '' : 'h-screen md:h-full md:row-span-2'}>
+                  <SectionCard
+                    section={section}
+                    itemMemos={activeTab.memos}
+                    onUpdateSection={handleUpdateSection}
+                    onDeleteSection={handleDeleteSection}
+                    onShowItemMemo={handleShowMemo}
+                    onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
+                    dragState={dragState}
+                    setDragState={setDragState}
+                    onSectionDragStart={() => onSectionDragStart(section.id)}
+                    onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
+                    onSectionDrop={(e) => onSectionDrop(e, section.id)}
+                    onSectionDragEnd={onSectionDragEnd}
+                    isHighlighted={section.id === highlightedSectionId}
+                    isFullHeight={!isMainTab}
+                    tabColorText={getTabColor(currentTabIndex).text}
+                    tabColorBg={getTabColor(currentTabIndex).bgLight}
+                  />
+                </div>
               ))}
 
               {activeTab.sections.length === 0 && (!isMainTab || activeTab.sections.length === 0) && (

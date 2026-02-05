@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
-import { ResetIcon, LockIcon, UnlockIcon } from './Icons';
+import { LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
 
 interface SectionCardProps {
@@ -20,7 +20,9 @@ interface SectionCardProps {
   onSectionDragEnd: () => void;
   isHighlighted?: boolean;
   isInboxSection?: boolean;
+  isFullHeight?: boolean;
   tabColorText?: string;
+  tabColorBg?: string;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -38,7 +40,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onSectionDragEnd,
   isHighlighted = false,
   isInboxSection = false,
-  tabColorText = 'text-slate-800'
+  isFullHeight = false,
+  tabColorText = 'text-slate-800',
+  tabColorBg = ''
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
 
@@ -145,13 +149,13 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-4 py-4 rounded-2xl transition-all flex flex-col ${isInboxSection ? 'h-full' : 'h-[350px]'} cursor-default ${
+      className={`bg-white px-4 py-4 transition-all flex flex-col ${isInboxSection || isFullHeight ? 'h-full' : 'h-[350px]'} cursor-default ${
         isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
         isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
       }`}
     >
-      <div className="flex items-center justify-between mb-2 gap-2 cursor-move flex-shrink-0" title="드래그하여 순서 변경">
+      <div className={`flex items-center justify-between mb-3 gap-2 cursor-move flex-shrink-0 px-4 py-3 -mx-4 -mt-4 mb-3 border-b-2 border-black ${tabColorBg}`} title="드래그하여 순서 변경">
         <div className="flex-1 min-w-0">
           <EditableText
             value={section.title}
@@ -162,14 +166,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <button
-            disabled={!hasCompletedItems}
-            onClick={handleClearSection}
-            className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            title="전체 해제"
-          >
-            <ResetIcon />
-          </button>
           {!isInboxSection && (
             <button
               onClick={handleToggleLock}
@@ -179,13 +175,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
               {section.isLocked ? <LockIcon /> : <UnlockIcon />}
             </button>
           )}
-          <button
-            onClick={handleAddItem}
-            className="bg-yellow-400 hover:bg-yellow-500 text-slate-800 px-2 py-1 rounded-md transition-colors text-sm font-medium border-2 border-black"
-            title="추가"
-          >
-            추가
-          </button>
           {!isInboxSection && (
             <button
               disabled={section.isLocked}
@@ -199,9 +188,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </div>
       </div>
 
-      {/* 구분선 (Divider) - 검정색으로 명확하게 구분 */}
-      <div className="border-t border-black mb-3 -mx-4"></div>
-
       {/* 빠른 추가 입력창 */}
       <div className="mb-3 flex-shrink-0">
         <input
@@ -210,11 +196,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
           onChange={(e) => setQuickAddValue(e.target.value)}
           onKeyDown={handleQuickAdd}
           placeholder="새 항목 입력 후 Enter..."
-          className="w-full px-3 py-2 text-sm border-2 border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
+          className="w-full px-3 py-2 text-sm border-2 border-black rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
         />
       </div>
 
-      <div className="space-y-0.5 custom-scrollbar overflow-y-auto flex-1 pr-1">
+      <div className="space-y-0.5 overflow-y-auto overflow-x-hidden flex-1 pr-1">
         {[...section.items].sort((a, b) => {
           if (a.completed === b.completed) return 0;
           return a.completed ? 1 : -1;
