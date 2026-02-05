@@ -1,6 +1,6 @@
 {
-  "name": "TaskFlow - 개인용 대시보드",
-  "short_name": "TaskFlow",
+  "name": "최영현보드",
+  "short_name": "최영현보드",
   "description": "칠판 같은 개인용 작업 관리 대시보드",
   "start_url": "/PERSONAL-Dashboard/",
   "display": "standalone",
