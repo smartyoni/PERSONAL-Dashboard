@@ -197,7 +197,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl border-2 border-black p-4 shadow-sm">
+    <div className="flex flex-col h-full bg-white border-2 border-black p-4 shadow-sm">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <h2 className="text-sm font-bold text-slate-800">
@@ -237,7 +237,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
         <div className="border-t border-slate-200 mb-3"></div>
 
-        <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1">
+        <div className="space-y-0 overflow-y-auto overflow-x-hidden flex-1">
           {[...checklistItems]
             .sort((a, b) => {
               if (a.completed === b.completed) return 0;
@@ -375,7 +375,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
         <div className="border-t border-slate-200 mb-3"></div>
 
-        <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1">
+        <div className="space-y-0 overflow-y-auto overflow-x-hidden flex-1">
           {[...shoppingListItems]
             .sort((a, b) => {
               if (a.completed === b.completed) return 0;
