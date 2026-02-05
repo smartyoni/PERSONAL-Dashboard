@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Section, DragState } from '../types';
+import React, { useState } from 'react';
+import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
 import { ResetIcon, LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
@@ -40,8 +40,25 @@ const SectionCard: React.FC<SectionCardProps> = ({
   isInboxSection = false,
   tabColorText = 'text-slate-800'
 }) => {
+  const [quickAddValue, setQuickAddValue] = useState('');
+
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
+  };
+
+  const handleQuickAdd = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const trimmedValue = quickAddValue.trim();
+      if (trimmedValue === '') return;
+
+      const newItem: ListItem = {
+        id: Math.random().toString(36).substr(2, 9),
+        text: trimmedValue,
+        completed: false
+      };
+      onUpdateSection({ ...section, items: [newItem, ...section.items] });
+      setQuickAddValue('');
+    }
   };
 
   const handleAddItem = () => {
@@ -184,6 +201,18 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
       {/* 구분선 (Divider) - 검정색으로 명확하게 구분 */}
       <div className="border-t border-black mb-3 -mx-4"></div>
+
+      {/* 빠른 추가 입력창 */}
+      <div className="mb-3 flex-shrink-0">
+        <input
+          type="text"
+          value={quickAddValue}
+          onChange={(e) => setQuickAddValue(e.target.value)}
+          onKeyDown={handleQuickAdd}
+          placeholder="새 항목 입력 후 Enter..."
+          className="w-full px-3 py-2 text-sm border-2 border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
+        />
+      </div>
 
       <div className="space-y-0.5 custom-scrollbar overflow-y-auto flex-1 pr-1">
         {[...section.items].sort((a, b) => {
