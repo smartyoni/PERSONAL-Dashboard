@@ -47,6 +47,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   tabColorBg = ''
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
+  const [isTitleEditing, setIsTitleEditing] = useState(false);
 
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
@@ -157,7 +158,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   return (
     <section
       data-section-id={section.id}
-      draggable
+      draggable={!isTitleEditing}
       onDragStart={onSectionDragStart}
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
@@ -173,6 +174,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           <EditableText
             value={section.title}
             onChange={handleTitleChange}
+            onEditingChange={setIsTitleEditing}
             className="text-xl font-bold text-black"
             placeholder="섹션 이름"
           />

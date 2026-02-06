@@ -44,6 +44,20 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     itemText: '',
     type: 'checklist'
   });
+  const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
+
+  const handleEditingChange = (itemId: string, isEditing: boolean) => {
+    setEditingItemIds(prev => {
+      const newSet = new Set(prev);
+      if (isEditing) {
+        newSet.add(itemId);
+      } else {
+        newSet.delete(itemId);
+      }
+      return newSet;
+    });
+  };
+
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
@@ -279,7 +293,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               return (
               <div
                 key={item.id}
-                draggable
+                draggable={!editingItemIds.has(item.id)}
                 onDragStart={(e) => handleItemDragStart(e, item.id)}
                 onDragOver={(e) => handleItemDragOver(e, item.id)}
                 onDrop={(e) => handleItemDrop(e, item.id)}
@@ -300,6 +314,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     <EditableText
                       value={item.text}
                       onChange={(newText) => handleUpdateItemText(item.id, newText)}
+                      onEditingChange={(isEditing) => handleEditingChange(item.id, isEditing)}
                       placeholder="항목을 입력하세요..."
                       className="text-sm"
                       compact
@@ -440,7 +455,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               return (
               <div
                 key={item.id}
-                draggable
+                draggable={!editingItemIds.has(item.id)}
                 onDragStart={(e) => handleShoppingItemDragStart(e, item.id)}
                 onDragOver={(e) => handleShoppingItemDragOver(e, item.id)}
                 onDrop={(e) => handleShoppingItemDrop(e, item.id)}
@@ -461,6 +476,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     <EditableText
                       value={item.text}
                       onChange={(newText) => handleUpdateShoppingItemText(item.id, newText)}
+                      onEditingChange={(isEditing) => handleEditingChange(item.id, isEditing)}
                       placeholder="항목을 입력하세요..."
                       className="text-sm"
                       compact

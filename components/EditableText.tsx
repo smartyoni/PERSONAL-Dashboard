@@ -7,9 +7,10 @@ interface EditableTextProps {
   placeholder?: string;
   className?: string;
   compact?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
-const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholder, className = "", compact = false }) => {
+const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholder, className = "", compact = false, onEditingChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,16 +25,19 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
     e.stopPropagation();
     setIsEditing(true);
     setTempValue(value);
+    onEditingChange?.(true);
   };
 
   const handleSave = () => {
     onChange(tempValue);
     setIsEditing(false);
+    onEditingChange?.(false);
   };
 
   const handleCancel = () => {
     setTempValue(value);
     setIsEditing(false);
+    onEditingChange?.(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -42,6 +42,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isTextEditing, setIsTextEditing] = useState(false);
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -81,7 +82,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
   return (
     <div
-      draggable
+      draggable={!isTextEditing}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
@@ -105,6 +106,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <EditableText
             value={item.text}
             onChange={onUpdateText}
+            onEditingChange={setIsTextEditing}
             placeholder="항목을 입력하세요..."
             className="text-sm"
             compact
