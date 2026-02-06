@@ -20,7 +20,9 @@
       "Bash(npm run deploy:*)",
       "Bash(npm run:*)",
       "Bash(cd:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(move favicon.svg publicfavicon.svg)",
+      "Bash(git rm:*)"
     ]
   }
 }

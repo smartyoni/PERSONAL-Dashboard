@@ -10,13 +10,15 @@ interface ParkingWidgetProps {
   onChange: (newInfo: ParkingInfo) => void;
   onShowChecklistMemo: (itemId: string) => void;
   onShowShoppingMemo: (itemId: string) => void;
+  onAddToCalendar: (itemText: string) => void;
 }
 
 const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   info,
   onChange,
   onShowChecklistMemo,
-  onShowShoppingMemo
+  onShowShoppingMemo,
+  onAddToCalendar
 }) => {
   const checklistItems = info.checklistItems || [];
   const shoppingListItems = info.shoppingListItems || [];
@@ -47,7 +49,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
     if (triggerRefs.current[itemId] && !isMobile) {
       const rect = triggerRefs.current[itemId]!.getBoundingClientRect();
-      const menuHeight = 190;
+      const menuHeight = 240;
       const spaceBelow = window.innerHeight - rect.bottom;
 
       if (spaceBelow >= menuHeight) {
@@ -366,6 +368,15 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                         </button>
                         <button
                           onClick={() => {
+                            onAddToCalendar(item.text);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                        >
+                          📅 캘린더 추가
+                        </button>
+                        <button
+                          onClick={() => {
                             handleDeleteItem(item.id);
                             setOpenMenuId(null);
                           }}
@@ -510,6 +521,15 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                           className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
                         >
                           📋 복사
+                        </button>
+                        <button
+                          onClick={() => {
+                            onAddToCalendar(item.text);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                        >
+                          📅 캘린더 추가
                         </button>
                         <button
                           onClick={() => {

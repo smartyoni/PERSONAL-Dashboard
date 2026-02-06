@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Header from './components/Header';
 import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote } from './types';
 import SectionCard from './components/SectionCard';
@@ -10,8 +11,10 @@ import BookmarkBar from './components/BookmarkBar';
 import MemoBoard from './components/MemoBoard';
 import NavigationMapModal from './components/NavigationMapModal';
 import MoveItemModal from './components/MoveItemModal';
+import AddToCalendarModal from './components/AddToCalendarModal';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
+import { useGoogleCalendar } from './hooks/useGoogleCalendar';
 
 const STORAGE_KEY = 'custom_workspace_v4_final_persistent';
 
@@ -170,6 +173,13 @@ const App: React.FC = () => {
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
+
+  // Google Calendar 관련
+  const googleCalendar = useGoogleCalendar();
+  const [calendarModal, setCalendarModal] = useState<{
+    isOpen: boolean;
+    itemText: string;
+  }>({ isOpen: false, itemText: '' });
 
   const activeTab = useMemo(() => {
     const found = safeData.tabs.find(t => t.id === safeData.activeTabId);
@@ -399,6 +409,30 @@ const App: React.FC = () => {
       sourceTabId: '',
       sourceSectionId: ''
     });
+  };
+
+  const handleAddToCalendarClick = (itemText: string) => {
+    if (!googleCalendar.isAuthorized) {
+      googleCalendar.login();
+      return;
+    }
+    setCalendarModal({ isOpen: true, itemText });
+  };
+
+  const handleConfirmCalendar = async (startDate: string, endDate: string, isAllDay: boolean) => {
+    try {
+      await googleCalendar.createCalendarEvent({
+        summary: calendarModal.itemText,
+        start: startDate,
+        end: endDate,
+        isAllDay: isAllDay,
+      });
+      alert('캘린더에 추가되었습니다!');
+      setCalendarModal({ isOpen: false, itemText: '' });
+    } catch (error) {
+      console.error('캘린더 추가 실패:', error);
+      alert('캘린더 추가에 실패했습니다.');
+    }
   };
 
   const handleDeleteTab = (id: string) => {
@@ -746,7 +780,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
       {/* 오프라인 배너 */}
       {!isOnline && (
         <div className="flex-none bg-yellow-500 text-white px-4 py-2 text-center text-sm font-medium">
@@ -800,6 +835,7 @@ const App: React.FC = () => {
                       onChange={handleParkingChange}
                       onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
                       onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
+                      onAddToCalendar={handleAddToCalendarClick}
                     />
                   </div>
 
@@ -812,6 +848,7 @@ const App: React.FC = () => {
                       onDeleteSection={() => {}} // IN-BOX는 삭제 불가
                       onShowItemMemo={handleShowMemo}
                       onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
+                      onAddToCalendar={handleAddToCalendarClick}
                       dragState={dragState}
                       setDragState={setDragState}
                       onSectionDragStart={() => {}} // IN-BOX는 드래그 불가
@@ -833,6 +870,7 @@ const App: React.FC = () => {
                       onDeleteSection={() => {}} // 명언은 삭제 불가
                       onShowItemMemo={handleShowMemo}
                       onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
+                      onAddToCalendar={handleAddToCalendarClick}
                       dragState={dragState}
                       setDragState={setDragState}
                       onSectionDragStart={() => {}} // 명언은 드래그 불가
@@ -856,6 +894,7 @@ const App: React.FC = () => {
                     onDeleteSection={handleDeleteSection}
                     onShowItemMemo={handleShowMemo}
                     onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
+                    onAddToCalendar={handleAddToCalendarClick}
                     dragState={dragState}
                     setDragState={setDragState}
                     onSectionDragStart={() => onSectionDragStart(section.id)}
@@ -992,7 +1031,15 @@ const App: React.FC = () => {
         onClose={() => setNavigationMapOpen(false)}
         onNavigate={handleNavigateFromMap}
       />
+
+      <AddToCalendarModal
+        isOpen={calendarModal.isOpen}
+        itemText={calendarModal.itemText}
+        onClose={() => setCalendarModal({ isOpen: false, itemText: '' })}
+        onConfirm={handleConfirmCalendar}
+      />
     </div>
+    </GoogleOAuthProvider>
   );
 };
 

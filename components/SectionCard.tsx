@@ -12,6 +12,7 @@ interface SectionCardProps {
   onDeleteSection: (id: string) => void;
   onShowItemMemo: (id: string) => void;
   onMoveItem: (itemId: string) => void;
+  onAddToCalendar?: (itemText: string) => void;
   dragState: DragState;
   setDragState: (state: DragState) => void;
   onSectionDragStart: () => void;
@@ -32,6 +33,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onDeleteSection,
   onShowItemMemo,
   onMoveItem,
+  onAddToCalendar,
   dragState,
   setDragState,
   onSectionDragStart,
@@ -227,6 +229,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onAddMemo={() => onShowItemMemo(item.id)}
             onMoveItem={() => onMoveItem(item.id)}
             onCopy={() => handleCopyItem(item.id)}
+            onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
             dragState={dragState}
             onDragStart={(e) => onItemDragStart(e, item.id)}
             onDragOver={(e) => onItemDragOver(e, item.id)}
