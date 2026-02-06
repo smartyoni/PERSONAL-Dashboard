@@ -202,15 +202,33 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       {/* 빠른 추가 입력창 */}
-      <div className="mb-3 flex-shrink-0">
+      <div className="mb-3 flex-shrink-0 flex gap-2">
         <input
           type="text"
           value={quickAddValue}
           onChange={(e) => setQuickAddValue(e.target.value)}
           onKeyDown={handleQuickAdd}
           placeholder="새 항목 입력 후 Enter..."
-          className="w-full px-3 py-2 text-sm border-2 border-black rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
+          className="flex-1 px-3 py-2 text-sm border-2 border-black rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
         />
+        <button
+          onClick={() => {
+            const trimmedValue = quickAddValue.trim();
+            if (trimmedValue === '') return;
+
+            const newItem: ListItem = {
+              id: Math.random().toString(36).substr(2, 9),
+              text: trimmedValue,
+              completed: false
+            };
+            onUpdateSection({ ...section, items: [newItem, ...section.items] });
+            setQuickAddValue('');
+          }}
+          className="px-3 py-2 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white border-2 border-black rounded-lg transition-colors whitespace-nowrap"
+          title="추가"
+        >
+          추가
+        </button>
       </div>
 
       <div className="space-y-0.5 overflow-y-auto overflow-x-hidden flex-1 pr-1">
