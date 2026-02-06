@@ -47,7 +47,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
     if (triggerRefs.current[itemId] && !isMobile) {
       const rect = triggerRefs.current[itemId]!.getBoundingClientRect();
-      const menuHeight = 140;
+      const menuHeight = 190;
       const spaceBelow = window.innerHeight - rect.bottom;
 
       if (spaceBelow >= menuHeight) {
