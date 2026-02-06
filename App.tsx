@@ -292,10 +292,7 @@ const App: React.FC = () => {
 
     if (!targetSection) return;
 
-    if (targetSection.isLocked) {
-      alert('잠긴 섹션으로는 항목을 이동할 수 없습니다.');
-      return;
-    }
+    // 섹션 잠금과 관계없이 항목 이동 허용
 
     // 메모 데이터 처리
     const sourceMemo = sourceTab.memos[itemId];
