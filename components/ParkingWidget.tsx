@@ -38,6 +38,12 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   });
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; itemId: string | null; itemText: string; type: 'checklist' | 'shopping' }>({
+    isOpen: false,
+    itemId: null,
+    itemText: '',
+    type: 'checklist'
+  });
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
@@ -377,7 +383,12 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                         </button>
                         <button
                           onClick={() => {
-                            handleDeleteItem(item.id);
+                            setDeleteConfirm({
+                              isOpen: true,
+                              itemId: item.id,
+                              itemText: item.text,
+                              type: 'checklist'
+                            });
                             setOpenMenuId(null);
                           }}
                           className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-200"
@@ -533,7 +544,12 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                         </button>
                         <button
                           onClick={() => {
-                            handleDeleteShoppingItem(item.id);
+                            setDeleteConfirm({
+                              isOpen: true,
+                              itemId: item.id,
+                              itemText: item.text,
+                              type: 'shopping'
+                            });
                             setOpenMenuId(null);
                           }}
                           className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-200"
@@ -554,6 +570,42 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           )}
         </div>
       </div>
+
+      {/* 삭제 확인 모달 */}
+      {deleteConfirm.isOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm mx-4 animate-in zoom-in duration-200">
+            <h2 className="text-lg font-bold text-slate-800 mb-2">항목을 삭제하시겠습니까?</h2>
+            <p className="text-sm text-slate-600 mb-6">
+              "{deleteConfirm.itemText && deleteConfirm.itemText.length > 30
+                ? deleteConfirm.itemText.substring(0, 30) + '...'
+                : deleteConfirm.itemText}"
+              {deleteConfirm.itemText.length > 30 && ''}이(가) 삭제됩니다.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
+                className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteConfirm.type === 'checklist') {
+                    handleDeleteItem(deleteConfirm.itemId!);
+                  } else {
+                    handleDeleteShoppingItem(deleteConfirm.itemId!);
+                  }
+                  setDeleteConfirm({ isOpen: false, itemId: null, itemText: '', type: 'checklist' });
+                }}
+                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium border-2 border-black transition-colors"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
