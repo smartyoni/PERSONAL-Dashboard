@@ -1,6 +1,5 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import Header from './components/Header';
 import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote } from './types';
 import SectionCard from './components/SectionCard';
@@ -780,8 +779,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
-      <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
+    <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
       {/* 오프라인 배너 */}
       {!isOnline && (
         <div className="flex-none bg-yellow-500 text-white px-4 py-2 text-center text-sm font-medium">
@@ -1039,7 +1037,6 @@ const App: React.FC = () => {
         onConfirm={handleConfirmCalendar}
       />
     </div>
-    </GoogleOAuthProvider>
   );
 };
 
