@@ -428,9 +428,16 @@ const App: React.FC = () => {
       });
       alert('캘린더에 추가되었습니다!');
       setCalendarModal({ isOpen: false, itemText: '' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('캘린더 추가 실패:', error);
-      alert('캘린더 추가에 실패했습니다.');
+
+      // 권한 부족 오류인 경우 재로그인 유도
+      if (error.message?.includes('권한이 부족합니다')) {
+        alert('권한이 만료되었습니다. 다시 로그인해주세요.');
+        googleCalendar.login();
+      } else {
+        alert('캘린더 추가에 실패했습니다.');
+      }
     }
   };
 
