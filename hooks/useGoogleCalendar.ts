@@ -1,34 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 
-declare const gapi: any;
-
-const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar';
 
 export const useGoogleCalendar = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-
-  // Google Calendar API 초기화
-  useEffect(() => {
-    const initClient = () => {
-      const script = document.createElement('script');
-      script.src = 'https://apis.google.com/js/api.js';
-      script.async = true;
-      script.onload = () => {
-        gapi.load('client', async () => {
-          await gapi.client.init({
-            apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-            discoveryDocs: [
-              'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
-            ],
-          });
-        });
-      };
-      document.body.appendChild(script);
-    };
-    initClient();
-  }, []);
 
   // 저장된 토큰이 있는지 확인
   useEffect(() => {
@@ -56,8 +33,8 @@ export const useGoogleCalendar = () => {
   const createCalendarEvent = async (event: {
     summary: string;
     description?: string;
-    start: string; // ISO 8601 format or date string
-    end: string; // ISO 8601 format or date string
+    start: string;
+    end: string;
     isAllDay?: boolean;
   }) => {
     if (!accessToken) {
@@ -66,7 +43,7 @@ export const useGoogleCalendar = () => {
 
     const eventBody: any = {
       summary: event.summary,
-      description: event.description,
+      description: event.description || '',
     };
 
     if (event.isAllDay) {
