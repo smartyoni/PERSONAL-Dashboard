@@ -192,7 +192,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
                 </button>
               )}
               <button
-                onClick={() => { onDelete(); setShowMenu(false); }}
+                onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
                 className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
               >
                 🗑️ 삭제
