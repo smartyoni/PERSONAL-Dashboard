@@ -948,6 +948,20 @@ const App: React.FC = () => {
               >
                 저장
               </button>
+              <button
+                onClick={() => {
+                  if (memoEditor.value) {
+                    navigator.clipboard.writeText(memoEditor.value).then(() => {
+                      console.log('메모가 클립보드에 복사되었습니다');
+                    }).catch(err => {
+                      console.error('클립보드 복사 실패:', err);
+                    });
+                  }
+                }}
+                className="px-8 py-2.5 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+              >
+                📋 복사
+              </button>
             </div>
           </div>
         </div>
