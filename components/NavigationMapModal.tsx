@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tab } from '../types';
 import { MapIcon, LockIcon } from './Icons';
 
@@ -10,6 +10,15 @@ interface NavigationMapModalProps {
   onNavigate: (tabId: string, sectionId?: string) => void;
 }
 
+const ChevronIcon: React.FC<{ isExpanded: boolean }> = ({ isExpanded }) => (
+  <span
+    className="text-slate-500 font-bold transition-transform duration-200 inline-block text-xs flex-shrink-0"
+    style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+  >
+    ▶
+  </span>
+);
+
 const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
   isOpen,
   tabs,
@@ -17,17 +26,69 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
   onClose,
   onNavigate
 }) => {
+  const [expandedTabIds, setExpandedTabIds] = useState<Set<string>>(new Set([activeTabId]));
+  const [expandedSectionIds, setExpandedSectionIds] = useState<Set<string>>(new Set());
+
+  // Initialize state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setExpandedTabIds(new Set([activeTabId]));
+      setExpandedSectionIds(new Set());
+    }
+  }, [isOpen, activeTabId]);
+
   if (!isOpen) return null;
 
   // Helper functions
-  const getSectionCount = (tab: Tab) => tab.sections.length + 1; // +1: inboxSection
+  const getSectionCount = (tab: Tab) => tab.sections.length + (tab.inboxSection ? 1 : 0);
   const getItemCount = (tab: Tab) =>
     tab.sections.reduce((sum, s) => sum + s.items.length, 0) +
     (tab.inboxSection?.items.length || 0);
   const getTotalSections = () =>
-    tabs.reduce((sum, t) => sum + t.sections.length + 1, 0); // +1: inboxSection
+    tabs.reduce((sum, t) => sum + getSectionCount(t), 0);
   const getTotalItems = () =>
     tabs.reduce((sum, t) => sum + getItemCount(t), 0);
+
+  // Toggle handlers
+  const toggleTab = (tabId: string) => {
+    setExpandedTabIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(tabId)) {
+        newSet.delete(tabId);
+        // When collapsing a tab, also collapse all its sections
+        const tab = tabs.find(t => t.id === tabId);
+        if (tab) {
+          setExpandedSectionIds(prevSections => {
+            const newSections = new Set(prevSections);
+            if (tab.inboxSection) {
+              newSections.delete(tab.inboxSection.id);
+            }
+            tab.sections.forEach(s => newSections.delete(s.id));
+            return newSections;
+          });
+        }
+      } else {
+        newSet.add(tabId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSectionIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleItemClick = (tabId: string, sectionId: string) => {
+    onNavigate(tabId, sectionId);
+  };
 
   return (
     <div
@@ -64,16 +125,17 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
           ) : (
             tabs.map((tab) => (
               <div key={tab.id} className="mb-4">
-                {/* Tab Row */}
+                {/* Tab Row - Accordion Header */}
                 <button
-                  onClick={() => onNavigate(tab.id)}
+                  onClick={() => toggleTab(tab.id)}
                   className={`w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${
                     tab.id === activeTabId
-                      ? 'bg-blue-50 border-2 border-blue-400 font-bold'
+                      ? 'bg-blue-50 border-2 border-blue-400'
                       : 'hover:bg-slate-100 border border-slate-200'
                   }`}
                 >
                   <div className="flex items-center gap-2">
+                    <ChevronIcon isExpanded={expandedTabIds.has(tab.id)} />
                     <span className="text-lg">📑</span>
                     <span className="font-semibold text-slate-800">{tab.name}</span>
                     {tab.isLocked && <LockIcon />}
@@ -83,54 +145,101 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
                   </div>
                 </button>
 
-                {/* Sections */}
-                {/* IN-BOX 섹션 (고정) */}
-                {tab.inboxSection && (
-                  <div className="mb-2">
-                    <button
-                      onClick={() => onNavigate(tab.id, tab.inboxSection.id)}
-                      className="w-full text-left pl-6 px-4 py-2 rounded-lg hover:bg-slate-100 transition-all"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">📥</span>
-                        <span className="text-sm font-medium text-slate-700">
-                          {tab.inboxSection.title}
-                        </span>
-                        {tab.inboxSection.isLocked && <div className="scale-75"><LockIcon /></div>}
-                        <span className="text-xs text-slate-400 ml-auto">
-                          {tab.inboxSection.items.length}개 항목
-                        </span>
-                      </div>
-                    </button>
-                  </div>
-                )}
-
-                {/* 일반 섹션들 */}
-                {tab.sections.length === 0 ? (
-                  <div className="pl-6 py-2 text-xs text-slate-400 italic">
-                    추가 섹션이 없습니다
-                  </div>
-                ) : (
-                  tab.sections.map((section) => (
-                    <div key={section.id} className="mb-2">
-                      {/* Section Row */}
-                      <button
-                        onClick={() => onNavigate(tab.id, section.id)}
-                        className="w-full text-left pl-6 px-4 py-2 rounded-lg hover:bg-slate-100 transition-all"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-base">📋</span>
+                {/* Sections Container - Accordion Content */}
+                {expandedTabIds.has(tab.id) && (
+                  <div className="pl-6 space-y-2">
+                    {/* IN-BOX 섹션 (고정) */}
+                    {tab.inboxSection && (
+                      <div>
+                        <button
+                          onClick={() => toggleSection(tab.inboxSection!.id)}
+                          className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-100 transition-all flex items-center gap-2"
+                        >
+                          <ChevronIcon isExpanded={expandedSectionIds.has(tab.inboxSection.id)} />
+                          <span className="text-base">📥</span>
                           <span className="text-sm font-medium text-slate-700">
-                            {section.title}
+                            {tab.inboxSection.title}
                           </span>
-                          {section.isLocked && <div className="scale-75"><LockIcon /></div>}
+                          {tab.inboxSection.isLocked && <div className="scale-75"><LockIcon /></div>}
                           <span className="text-xs text-slate-400 ml-auto">
-                            {section.items.length}개 항목
+                            {tab.inboxSection.items.length}개 항목
                           </span>
+                        </button>
+
+                        {/* IN-BOX Items */}
+                        {expandedSectionIds.has(tab.inboxSection.id) && (
+                          <div className="pl-8 space-y-1 mt-1">
+                            {tab.inboxSection.items.map((item) => (
+                              <button
+                                key={item.id}
+                                onClick={() => handleItemClick(tab.id, tab.inboxSection!.id)}
+                                className="w-full text-left px-3 py-1.5 rounded hover:bg-blue-50 transition-all text-xs text-slate-600 hover:text-slate-800 flex items-center gap-2"
+                              >
+                                <span className="flex-shrink-0">
+                                  {item.completed ? '☑' : '☐'}
+                                </span>
+                                <span className={`truncate ${item.completed ? 'line-through text-slate-400' : ''}`}>
+                                  {item.text || '(빈 항목)'}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 일반 섹션들 */}
+                    {tab.sections.length === 0 && !tab.inboxSection ? (
+                      <div className="pl-10 py-2 text-xs text-slate-400 italic">
+                        추가 섹션이 없습니다
+                      </div>
+                    ) : (
+                      tab.sections.map((section) => (
+                        <div key={section.id}>
+                          {/* Section Row - Accordion Header */}
+                          <button
+                            onClick={() => toggleSection(section.id)}
+                            className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-100 transition-all flex items-center gap-2"
+                          >
+                            <ChevronIcon isExpanded={expandedSectionIds.has(section.id)} />
+                            <span className="text-base">📋</span>
+                            <span className="text-sm font-medium text-slate-700">
+                              {section.title}
+                            </span>
+                            {section.isLocked && <div className="scale-75"><LockIcon /></div>}
+                            <span className="text-xs text-slate-400 ml-auto">
+                              {section.items.length}개 항목
+                            </span>
+                          </button>
+
+                          {/* Section Items - Accordion Content */}
+                          {expandedSectionIds.has(section.id) && (
+                            <div className="pl-8 space-y-1 mt-1">
+                              {section.items.map((item) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => handleItemClick(tab.id, section.id)}
+                                  className="w-full text-left px-3 py-1.5 rounded hover:bg-blue-50 transition-all text-xs text-slate-600 hover:text-slate-800 flex items-center gap-2"
+                                >
+                                  <span className="flex-shrink-0">
+                                    {item.completed ? '☑' : '☐'}
+                                  </span>
+                                  <span className={`truncate ${item.completed ? 'line-through text-slate-400' : ''}`}>
+                                    {item.text || '(빈 항목)'}
+                                  </span>
+                                </button>
+                              ))}
+                              {section.items.length === 0 && (
+                                <div className="pl-3 py-1.5 text-xs text-slate-400 italic">
+                                  항목이 없습니다
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </button>
-                    </div>
-                  ))
+                      ))
+                    )}
+                  </div>
                 )}
               </div>
             ))
