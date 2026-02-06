@@ -168,7 +168,8 @@ const App: React.FC = () => {
     id: string | null;
     value: string;
     type?: 'section' | 'checklist' | 'shopping';
-  }>({ id: null, value: '', type: 'section' });
+    isEditing: boolean;
+  }>({ id: null, value: '', type: 'section', isEditing: false });
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
@@ -633,7 +634,13 @@ const App: React.FC = () => {
       memoValue = activeTab.memos[id] || '';
     }
 
-    setMemoEditor({ id, value: memoValue, type: type || 'section' });
+    // 메모가 없으면 편집 모드로 시작, 있으면 읽기 모드로 시작
+    setMemoEditor({
+      id,
+      value: memoValue,
+      type: type || 'section',
+      isEditing: memoValue === ''
+    });
   };
 
   const handleSaveMemo = () => {
@@ -682,7 +689,13 @@ const App: React.FC = () => {
         });
       }
     }
-    setMemoEditor({ id: null, value: '', type: 'section' });
+    // 저장 후 읽기 모드로 전환
+    if (memoEditor.value.trim()) {
+      setMemoEditor({ ...memoEditor, isEditing: false });
+    } else {
+      // 빈 메모면 모달 닫기
+      setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+    }
   };
 
   const handleNavigateFromMap = (tabId: string, sectionId?: string) => {
@@ -954,7 +967,7 @@ const App: React.FC = () => {
       {/* 중앙 메모용 모달 */}
       {memoEditor.id && (
         <div
-          onClick={() => setMemoEditor({ id: null, value: '', type: 'section' })}
+          onClick={() => setMemoEditor({ id: null, value: '', type: 'section', isEditing: false })}
           className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
         >
           <div
@@ -962,9 +975,9 @@ const App: React.FC = () => {
             className="bg-white w-full max-w-2xl h-[80vh] rounded-2xl shadow-2xl border border-slate-200 p-6 flex flex-col"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-800">📝 메모 작성</h3>
+              <h3 className="text-lg font-bold text-slate-800">📝 메모</h3>
               <button
-                onClick={() => setMemoEditor({ id: null, value: '', type: 'section' })}
+                onClick={() => setMemoEditor({ id: null, value: '', type: 'section', isEditing: false })}
                 className="text-slate-400 hover:text-slate-600 p-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -972,41 +985,94 @@ const App: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <textarea
-              autoFocus
-              value={memoEditor.value}
-              onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
-              className="flex-1 w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 text-slate-700 text-base resize-none custom-scrollbar"
-              placeholder="여기에 메모를 작성하세요..."
-            />
-            <div className="mt-4 flex justify-end gap-3">
-              <button
-                onClick={() => setMemoEditor({ id: null, value: '', type: 'section' })}
-                className="px-5 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleSaveMemo}
-                className="px-8 py-2.5 text-sm font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow-md transition-all active:scale-95"
-              >
-                저장
-              </button>
-              <button
-                onClick={() => {
-                  if (memoEditor.value) {
-                    navigator.clipboard.writeText(memoEditor.value).then(() => {
-                      console.log('메모가 클립보드에 복사되었습니다');
-                    }).catch(err => {
-                      console.error('클립보드 복사 실패:', err);
-                    });
-                  }
-                }}
-                className="px-8 py-2.5 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-              >
-                📋 복사
-              </button>
-            </div>
+
+            {/* 읽기 모드 */}
+            {!memoEditor.isEditing && (
+              <>
+                <div className="flex-1 w-full p-4 border border-slate-200 rounded-xl text-slate-700 text-base overflow-y-auto custom-scrollbar bg-slate-50 whitespace-pre-wrap break-words">
+                  {memoEditor.value ? (
+                    <div className="prose prose-sm max-w-none">
+                      {memoEditor.value}
+                    </div>
+                  ) : (
+                    <p className="text-slate-400 italic">메모가 없습니다.</p>
+                  )}
+                </div>
+                <div className="mt-4 flex justify-end gap-3">
+                  <button
+                    onClick={() => setMemoEditor({ ...memoEditor, id: null })}
+                    className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  >
+                    닫기
+                  </button>
+                  <button
+                    onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                    className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
+                  >
+                    ✏️ 수정
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(memoEditor.value);
+                    }}
+                    className="px-4 py-2 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
+                  >
+                    📋 복사
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* 편집 모드 */}
+            {memoEditor.isEditing && (
+              <>
+                <textarea
+                  autoFocus
+                  value={memoEditor.value}
+                  onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
+                  className="flex-1 w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 text-slate-700 text-base resize-none custom-scrollbar"
+                  placeholder="여기에 메모를 작성하세요..."
+                />
+                <div className="mt-4 flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      // 메모가 원래 있었으면 읽기 모드로 돌아가기, 없었으면 닫기
+                      let originalMemo = '';
+                      if (memoEditor.type === 'checklist') {
+                        originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
+                      } else if (memoEditor.type === 'shopping') {
+                        originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
+                      } else {
+                        originalMemo = activeTab.memos?.[memoEditor.id!] || '';
+                      }
+
+                      if (originalMemo) {
+                        setMemoEditor({ ...memoEditor, value: originalMemo, isEditing: false });
+                      } else {
+                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleSaveMemo}
+                    className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium border-2 border-black transition-colors"
+                  >
+                    💾 저장
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(memoEditor.value);
+                    }}
+                    className="px-4 py-2 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
+                  >
+                    📋 복사
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
