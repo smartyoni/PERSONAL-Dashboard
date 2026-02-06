@@ -224,10 +224,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onUpdateSection({ ...section, items: [newItem, ...section.items] });
             setQuickAddValue('');
           }}
-          className="px-3 py-2 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white border-2 border-black rounded-lg transition-colors whitespace-nowrap"
+          className="px-2 py-1 text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white border-2 border-black rounded-lg transition-colors whitespace-nowrap"
           title="추가"
         >
-          추가
+          +
         </button>
       </div>
 
