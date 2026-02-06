@@ -14,6 +14,7 @@ interface ItemRowProps {
   onDelete: () => void;
   onAddMemo: () => void;
   onMoveItem: () => void;
+  onCopy: () => void;
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -30,6 +31,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onDelete,
   onAddMemo,
   onMoveItem,
+  onCopy,
   dragState,
   onDragStart,
   onDragOver,
@@ -51,7 +53,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
     if (triggerRef.current && !isMobile) {
       // 데스크톱: fixed positioning으로 절대 위치 계산
       const rect = triggerRef.current.getBoundingClientRect();
-      const menuHeight = 180; // 메뉴의 예상 높이
+      const menuHeight = 230; // 메뉴의 예상 높이 (5개 버튼용)
       const spaceBelow = window.innerHeight - rect.bottom;
 
       if (spaceBelow >= menuHeight) {
@@ -172,6 +174,12 @@ const ItemRow: React.FC<ItemRowProps> = ({
                 className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 📦 이동
+              </button>
+              <button
+                onClick={() => { onCopy(); setShowMenu(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                📋 복사
               </button>
               <button
                 onClick={() => { onDelete(); setShowMenu(false); }}

@@ -102,6 +102,17 @@ const SectionCard: React.FC<SectionCardProps> = ({
     onUpdateSection({ ...section, items: newItems });
   };
 
+  const handleCopyItem = (itemId: string) => {
+    const itemToCopy = section.items.find(item => item.id === itemId);
+    if (!itemToCopy) return;
+    const newItem: ListItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      text: itemToCopy.text,
+      completed: false
+    };
+    onUpdateSection({ ...section, items: [...section.items, newItem] });
+  };
+
   const hasCompletedItems = section.items.some(item => item.completed);
 
   // Item Drag Handlers
@@ -215,6 +226,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onDelete={() => handleDeleteItem(item.id)}
             onAddMemo={() => onShowItemMemo(item.id)}
             onMoveItem={() => onMoveItem(item.id)}
+            onCopy={() => handleCopyItem(item.id)}
             dragState={dragState}
             onDragStart={(e) => onItemDragStart(e, item.id)}
             onDragOver={(e) => onItemDragOver(e, item.id)}
