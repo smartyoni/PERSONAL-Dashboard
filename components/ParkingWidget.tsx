@@ -96,6 +96,20 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     onChange({ ...info, checklistItems: updatedItems });
   };
 
+  const handleCopyChecklistItem = (itemId: string) => {
+    const itemToCopy = checklistItems.find(item => item.id === itemId);
+    if (!itemToCopy) return;
+    const newItem: ListItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      text: itemToCopy.text,
+      completed: false
+    };
+    onChange({
+      ...info,
+      checklistItems: [...checklistItems, newItem]
+    });
+  };
+
   const handleItemDragStart = (e: React.DragEvent, itemId: string) => {
     e.stopPropagation();
     setDragState({ draggedItemId: itemId, dragOverItemId: null });
@@ -160,6 +174,20 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   const handleDeleteShoppingItem = (itemId: string) => {
     const updatedItems = shoppingListItems.filter(item => item.id !== itemId);
     onChange({ ...info, shoppingListItems: updatedItems });
+  };
+
+  const handleCopyShoppingItem = (itemId: string) => {
+    const itemToCopy = shoppingListItems.find(item => item.id === itemId);
+    if (!itemToCopy) return;
+    const newItem: ListItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      text: itemToCopy.text,
+      completed: false
+    };
+    onChange({
+      ...info,
+      shoppingListItems: [...shoppingListItems, newItem]
+    });
   };
 
   const handleShoppingItemDragStart = (e: React.DragEvent, itemId: string) => {
@@ -335,6 +363,15 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                         </button>
                         <button
                           onClick={() => {
+                            handleCopyChecklistItem(item.id);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                        >
+                          📋 복사
+                        </button>
+                        <button
+                          onClick={() => {
                             handleDeleteItem(item.id);
                             setOpenMenuId(null);
                           }}
@@ -470,6 +507,15 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                           className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
                         >
                           📝 메모 수정/추가
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleCopyShoppingItem(item.id);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                        >
+                          📋 복사
                         </button>
                         <button
                           onClick={() => {
