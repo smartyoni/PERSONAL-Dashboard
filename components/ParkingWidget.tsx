@@ -99,14 +99,11 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   const handleCopyChecklistItem = (itemId: string) => {
     const itemToCopy = checklistItems.find(item => item.id === itemId);
     if (!itemToCopy) return;
-    const newItem: ListItem = {
-      id: Math.random().toString(36).substr(2, 9),
-      text: itemToCopy.text,
-      completed: false
-    };
-    onChange({
-      ...info,
-      checklistItems: [...checklistItems, newItem]
+
+    navigator.clipboard.writeText(itemToCopy.text).then(() => {
+      console.log('클립보드에 복사됨:', itemToCopy.text);
+    }).catch(err => {
+      console.error('클립보드 복사 실패:', err);
     });
   };
 
@@ -179,14 +176,11 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   const handleCopyShoppingItem = (itemId: string) => {
     const itemToCopy = shoppingListItems.find(item => item.id === itemId);
     if (!itemToCopy) return;
-    const newItem: ListItem = {
-      id: Math.random().toString(36).substr(2, 9),
-      text: itemToCopy.text,
-      completed: false
-    };
-    onChange({
-      ...info,
-      shoppingListItems: [...shoppingListItems, newItem]
+
+    navigator.clipboard.writeText(itemToCopy.text).then(() => {
+      console.log('클립보드에 복사됨:', itemToCopy.text);
+    }).catch(err => {
+      console.error('클립보드 복사 실패:', err);
     });
   };
 

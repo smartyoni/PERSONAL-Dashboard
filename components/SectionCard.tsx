@@ -105,12 +105,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const handleCopyItem = (itemId: string) => {
     const itemToCopy = section.items.find(item => item.id === itemId);
     if (!itemToCopy) return;
-    const newItem: ListItem = {
-      id: Math.random().toString(36).substr(2, 9),
-      text: itemToCopy.text,
-      completed: false
-    };
-    onUpdateSection({ ...section, items: [...section.items, newItem] });
+
+    navigator.clipboard.writeText(itemToCopy.text).then(() => {
+      console.log('클립보드에 복사됨:', itemToCopy.text);
+    }).catch(err => {
+      console.error('클립보드 복사 실패:', err);
+    });
   };
 
   const hasCompletedItems = section.items.some(item => item.completed);
