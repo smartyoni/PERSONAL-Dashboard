@@ -14,6 +14,7 @@ import AddToCalendarModal from './components/AddToCalendarModal';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { useGoogleCalendar } from './hooks/useGoogleCalendar';
+import { parseMillieText } from './utils/parseMillieText';
 
 const STORAGE_KEY = 'custom_workspace_v4_final_persistent';
 
@@ -146,7 +147,12 @@ const App: React.FC = () => {
 
     if (isShared && sharedText) {
       console.log('[App] Web Share Target - URL 파라미터 캡처:', sharedText.substring(0, 50) + '...');
-      setSharedTextForInbox(sharedText);
+
+      // 밀리의 서재 텍스트 파싱 (원문만 추출)
+      const parsedText = parseMillieText(sharedText);
+      console.log('[App] Web Share Target - 파싱 후:', parsedText.substring(0, 50) + '...');
+
+      setSharedTextForInbox(parsedText);
 
       // URL 파라미터 즉시 제거 (재처리 방지)
       window.history.replaceState({}, '', window.location.pathname);
