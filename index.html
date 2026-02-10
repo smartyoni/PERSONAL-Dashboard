@@ -48,33 +48,23 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-CcBc5ozf.js"></script>
+  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-Y0wk_mYW.js"></script>
 </head>
   <body class="bg-[#F8FAFC]">
     <div id="root"></div>
 
-  <!-- 기존 Service Worker 제거 (일회성) -->
+  <!-- Service Worker 등록 -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (let registration of registrations) {
-          registration.unregister().then((success) => {
-            if (success) {
-              console.log('[PWA] Service Worker 제거 완료:', registration.scope);
-            }
-          });
-        }
-      });
-
-      if ('caches' in window) {
-        caches.keys().then((cacheNames) => {
-          cacheNames.forEach((cacheName) => {
-            caches.delete(cacheName).then(() => {
-              console.log('[PWA] 캐시 삭제 완료:', cacheName);
-            });
-          });
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/PERSONAL-Dashboard/sw.js', {
+          scope: '/PERSONAL-Dashboard/'
+        }).then((registration) => {
+          console.log('[PWA] Service Worker 등록 완료:', registration.scope);
+        }).catch((error) => {
+          console.error('[PWA] Service Worker 등록 실패:', error);
         });
-      }
+      });
     }
   </script>
 </body>
