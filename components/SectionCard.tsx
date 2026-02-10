@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
 import { LockIcon, UnlockIcon } from './Icons';
@@ -24,6 +24,8 @@ interface SectionCardProps {
   isFullHeight?: boolean;
   tabColorText?: string;
   tabColorBg?: string;
+  initialQuickAddValue?: string;
+  onQuickAddValuePopulated?: () => void;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -44,10 +46,27 @@ const SectionCard: React.FC<SectionCardProps> = ({
   isInboxSection = false,
   isFullHeight = false,
   tabColorText = 'text-slate-800',
-  tabColorBg = ''
+  tabColorBg = '',
+  initialQuickAddValue,
+  onQuickAddValuePopulated
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
+  const quickInputRef = useRef<HTMLInputElement>(null);
+
+  // Populate quick input when shared text is received
+  useEffect(() => {
+    if (initialQuickAddValue && initialQuickAddValue.trim() !== '') {
+      setQuickAddValue(initialQuickAddValue);
+      onQuickAddValuePopulated?.();
+
+      // Focus and select text after scroll animation completes
+      setTimeout(() => {
+        quickInputRef.current?.focus();
+        quickInputRef.current?.select();
+      }, 400);
+    }
+  }, [initialQuickAddValue, onQuickAddValuePopulated]);
 
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
@@ -206,6 +225,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       {/* 빠른 추가 입력창 */}
       <div className="mb-3 flex-shrink-0 flex gap-0">
         <input
+          ref={quickInputRef}
           type="text"
           value={quickAddValue}
           onChange={(e) => setQuickAddValue(e.target.value)}

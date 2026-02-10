@@ -74,9 +74,13 @@ const App: React.FC = () => {
   // Firestore 동기화 훅 사용
   const { data, loading, error, updateData } = useFirestoreSync(defaultData);
 
-  // Web Share Target 처리를 위한 refs
-  const sharedDataRef = useRef<{ text: string } | null>(null);
-  const hasProcessedShareRef = useRef(false);
+  // 공유 텍스트를 빠른입력창에 표시하기 위한 state
+  const [sharedTextForInbox, setSharedTextForInbox] = useState<string>('');
+
+  // 공유 텍스트 초기화 콜백
+  const handleClearSharedText = () => {
+    setSharedTextForInbox('');
+  };
 
   // data가 null이면 기본값 사용, 기존 데이터에 inboxSection, quotesSection이 없으면 추가
   const safeData = useMemo(() => {
@@ -142,7 +146,7 @@ const App: React.FC = () => {
 
     if (isShared && sharedText) {
       console.log('[App] Web Share Target - URL 파라미터 캡처:', sharedText.substring(0, 50) + '...');
-      sharedDataRef.current = { text: sharedText };
+      setSharedTextForInbox(sharedText);
 
       // URL 파라미터 즉시 제거 (재처리 방지)
       window.history.replaceState({}, '', window.location.pathname);
@@ -150,58 +154,19 @@ const App: React.FC = () => {
     }
   }, []); // 빈 배열 = mount 시에만 실행
 
-  // 캡처된 공유 콘텐츠를 데이터 로드 후 처리
+  // 공유 텍스트 수신 시 IN-BOX로 스크롤 및 강조
   useEffect(() => {
-    // 스킵 조건: 캡처된 데이터 없음, 이미 처리됨, 로딩 중
-    if (!sharedDataRef.current || hasProcessedShareRef.current || loading) {
+    if (!sharedTextForInbox || loading || !safeData?.tabs?.[0]?.inboxSection) {
       return;
     }
 
-    const sharedText = sharedDataRef.current.text;
-
-    // safeData 유효성 검증
-    if (!safeData || !safeData.tabs || safeData.tabs.length === 0) {
-      console.warn('[App] Web Share Target - safeData가 아직 준비되지 않음');
-      return;
-    }
-
-    // 메인 탭 찾기
     const mainTab = safeData.tabs[0];
-    if (!mainTab?.inboxSection) {
-      console.error('[App] Web Share Target - 메인 탭 또는 IN-BOX 섹션을 찾을 수 없음');
-      return;
-    }
 
-    console.log('[App] Web Share Target - 공유 텍스트 처리 중:', sharedText.substring(0, 50) + '...');
-
-    // 처리 완료 플래그 설정 (updateData 전에 설정하여 중복 방지)
-    hasProcessedShareRef.current = true;
-
-    // 새 항목 생성
-    const newItem: ListItem = {
-      id: Math.random().toString(36).substr(2, 9),
-      text: sharedText,
-      completed: false
-    };
-
-    // IN-BOX에 항목 추가
-    const updatedInboxSection = {
-      ...mainTab.inboxSection,
-      items: [...mainTab.inboxSection.items, newItem]
-    };
-
+    // 메인 탭으로 전환
     updateData({
       ...safeData,
-      tabs: safeData.tabs.map((tab, index) =>
-        index === 0
-          ? { ...tab, inboxSection: updatedInboxSection }
-          : tab
-      ),
       activeTabId: mainTab.id
     });
-
-    // 캡처된 데이터 초기화
-    sharedDataRef.current = null;
 
     // IN-BOX로 스크롤 및 강조 효과
     setTimeout(() => {
@@ -216,9 +181,7 @@ const App: React.FC = () => {
         }, 3000);
       }
     }, 300);
-
-    console.log('[App] Web Share Target - IN-BOX 추가 완료');
-  }, [safeData, loading, updateData]);
+  }, [sharedTextForInbox, loading, safeData, updateData]);
 
   const [dragState, setDragState] = useState<DragState>({
     draggedItemId: null,
@@ -968,6 +931,8 @@ const App: React.FC = () => {
                       isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
                       isInboxSection={true}
                       tabColorBg={getTabColor(0).bgLight}
+                      initialQuickAddValue={sharedTextForInbox}
+                      onQuickAddValuePopulated={handleClearSharedText}
                     />
                   </div>
 
