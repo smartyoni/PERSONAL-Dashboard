@@ -522,12 +522,14 @@ const App: React.FC = () => {
     } catch (error: any) {
       console.error('캘린더 추가 실패:', error);
 
-      // 권한 부족 오류인 경우 재로그인 유도
-      if (error.message?.includes('권한이 부족합니다')) {
-        alert('권한이 만료되었습니다. 다시 로그인해주세요.');
+      // 인증 만료 또는 권한 부족 에러 체크
+      if (error.message?.includes('인증이 만료') || error.message?.includes('권한이 부족')) {
+        setCalendarModal({ isOpen: false, itemText: '' });
+        alert(`${error.message}\n\n확인을 누르면 다시 로그인합니다.`);
+        // 자동 재로그인
         googleCalendar.login();
       } else {
-        alert('캘린더 추가에 실패했습니다.');
+        alert(`캘린더 추가 실패: ${error.message || '알 수 없는 오류'}`);
       }
     }
   };
