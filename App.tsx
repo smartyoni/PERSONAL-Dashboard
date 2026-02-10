@@ -695,12 +695,13 @@ const App: React.FC = () => {
       memoValue = activeTab.memos[id] || '';
     }
 
-    // 메모가 없으면 편집 모드로 시작, 있으면 읽기 모드로 시작
+    // 체크리스트/쇼핑리스트는 항상 읽기 모드로 시작, 일반 메모는 없으면 편집 모드로 시작
+    const isChecklistOrShopping = type === 'checklist' || type === 'shopping';
     setMemoEditor({
       id,
       value: memoValue,
       type: type || 'section',
-      isEditing: memoValue === ''
+      isEditing: !isChecklistOrShopping && memoValue === ''
     });
   };
 
@@ -1037,43 +1038,36 @@ const App: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
             className="bg-white w-full max-w-2xl h-[80vh] rounded-2xl shadow-2xl border border-slate-200 p-6 flex flex-col"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-800">📝 메모</h3>
-              <button
-                onClick={() => setMemoEditor({ id: null, value: '', type: 'section', isEditing: false })}
-                className="text-slate-400 hover:text-slate-600 p-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
             {/* 읽기 모드 */}
             {!memoEditor.isEditing && (
               <>
-                <div className="flex-1 w-full p-4 border border-slate-200 rounded-xl text-slate-700 text-base overflow-y-auto custom-scrollbar bg-slate-50 whitespace-pre-wrap break-words">
+                <div
+                  onDoubleClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                  className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors"
+                >
                   {memoEditor.value ? (
-                    <div className="prose prose-sm max-w-none">
+                    <div className="prose prose-sm max-w-none select-text">
                       {memoEditor.value}
                     </div>
                   ) : (
                     <p className="text-slate-400 italic">메모가 없습니다.</p>
                   )}
                 </div>
-                <div className="mt-4 flex justify-end gap-3">
+                <div className="border-t border-slate-300 pt-4 mt-4 flex justify-end gap-3">
                   <button
                     onClick={() => setMemoEditor({ ...memoEditor, id: null })}
                     className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
                   >
                     닫기
                   </button>
-                  <button
-                    onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
-                    className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
-                  >
-                    ✏️ 수정
-                  </button>
+                  {memoEditor.type !== 'checklist' && memoEditor.type !== 'shopping' && (
+                    <button
+                      onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                      className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
+                    >
+                      ✏️ 수정
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(memoEditor.value);
@@ -1093,7 +1087,8 @@ const App: React.FC = () => {
                   autoFocus
                   value={memoEditor.value}
                   onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
-                  className="flex-1 w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 text-slate-700 text-base resize-none custom-scrollbar"
+                  onBlur={handleSaveMemo}
+                  className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base resize-none p-4"
                   placeholder="여기에 메모를 작성하세요..."
                 />
                 <div className="mt-4 flex justify-end gap-3">
