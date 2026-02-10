@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
-import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote } from './types';
+import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote, ListItem } from './types';
 import SectionCard from './components/SectionCard';
 import ConfirmModal from './components/ConfirmModal';
 import ParkingWidget from './components/ParkingWidget';
@@ -129,6 +129,62 @@ const App: React.FC = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // 공유된 콘텐츠 처리 (Web Share Target API)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isShared = urlParams.get('shared') === 'true';
+    const sharedText = urlParams.get('text');
+
+    // data가 로드되고 공유 데이터가 있을 때만 처리
+    if (isShared && sharedText && safeData && !loading) {
+      // 메인 탭 (첫 번째 탭) 찾기
+      const mainTab = safeData.tabs[0];
+      if (!mainTab || !mainTab.inboxSection) return;
+
+      // 새 항목 생성
+      const newItem: ListItem = {
+        id: Math.random().toString(36).substr(2, 9),
+        text: sharedText,
+        completed: false
+      };
+
+      // IN-BOX에 항목 추가 및 메인 탭으로 전환
+      const updatedInboxSection = {
+        ...mainTab.inboxSection,
+        items: [...mainTab.inboxSection.items, newItem]
+      };
+
+      updateData({
+        ...safeData,
+        tabs: safeData.tabs.map((tab, index) =>
+          index === 0
+            ? { ...tab, inboxSection: updatedInboxSection }
+            : tab
+        ),
+        activeTabId: mainTab.id
+      });
+
+      // URL 파라미터 제거
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // IN-BOX 섹션으로 스크롤 및 강조 효과
+      setTimeout(() => {
+        const inboxElement = document.querySelector('[data-section-id="' + mainTab.inboxSection!.id + '"]');
+        if (inboxElement) {
+          inboxElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+          // 강조 효과 (3초간)
+          inboxElement.classList.add('ring-2', 'ring-yellow-400', 'ring-opacity-50');
+          setTimeout(() => {
+            inboxElement.classList.remove('ring-2', 'ring-yellow-400', 'ring-opacity-50');
+          }, 3000);
+        }
+      }, 300);
+
+      console.log('[App] 공유 항목 추가됨:', sharedText);
+    }
+  }, [safeData, loading, updateData]);
 
   const [dragState, setDragState] = useState<DragState>({
     draggedItemId: null,

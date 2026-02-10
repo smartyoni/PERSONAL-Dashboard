@@ -68,5 +68,15 @@
         }
       ]
     }
-  ]
+  ],
+  "share_target": {
+    "action": "/PERSONAL-Dashboard/share-target",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
