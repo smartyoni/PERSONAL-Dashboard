@@ -74,29 +74,6 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
       {editingIndex !== null && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setEditingIndex(null)}>
           <div className="bg-white w-full max-w-3xl h-[70vh] shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in duration-200 flex flex-col" onClick={(e) => e.stopPropagation()}>
-            {/* Header: Title Input instead of static text */}
-            <div className="px-8 py-5 border-b border-black flex items-center gap-4 bg-white shrink-0">
-              <div className="flex-1 flex items-center gap-2">
-                <span className="text-xl">📝</span>
-                <input
-                  type="text"
-                  autoFocus
-                  value={tempTitle}
-                  onChange={(e) => setTempTitle(e.target.value)}
-                  placeholder="메모 제목을 입력하세요..."
-                  className="w-full text-lg font-extrabold text-slate-800 placeholder:text-slate-300 focus:outline-none bg-transparent"
-                />
-              </div>
-              <button
-                onClick={() => setEditingIndex(null)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
             {/* Body: Bezel-less TextArea */}
             <div className="flex-1 overflow-hidden">
               <textarea
