@@ -130,6 +130,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   const handleItemDragStart = (e: React.DragEvent, itemId: string) => {
+    if (editingItemIds.has(itemId)) {
+      e.preventDefault();
+      return;
+    }
     e.stopPropagation();
     setDragState({ draggedItemId: itemId, dragOverItemId: null });
   };
@@ -207,6 +211,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   const handleShoppingItemDragStart = (e: React.DragEvent, itemId: string) => {
+    if (editingItemIds.has(itemId)) {
+      e.preventDefault();
+      return;
+    }
     e.stopPropagation();
     setShoppingDragState({ draggedItemId: itemId, dragOverItemId: null });
   };
@@ -291,131 +299,128 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               const isDragging = dragState.draggedItemId === item.id;
               const isDragOver = dragState.dragOverItemId === item.id;
               return (
-              <div
-                key={item.id}
-                draggable={!editingItemIds.has(item.id)}
-                onDragStart={(e) => handleItemDragStart(e, item.id)}
-                onDragOver={(e) => handleItemDragOver(e, item.id)}
-                onDrop={(e) => handleItemDrop(e, item.id)}
-                onDragEnd={handleItemDragEnd}
-                className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${
-                  isDragging ? 'opacity-50 bg-slate-100' :
-                  isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={item.completed}
-                  onChange={() => handleToggleItem(item.id)}
-                  className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
-                    <EditableText
-                      value={item.text}
-                      onChange={(newText) => handleUpdateItemText(item.id, newText)}
-                      onEditingChange={(isEditing) => handleEditingChange(item.id, isEditing)}
-                      placeholder="항목을 입력하세요..."
-                      className="text-sm"
-                      compact
-                    />
-                  </div>
-                  {info.checklistMemos?.[item.id] && (
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onShowChecklistMemo(item.id);
-                      }}
-                      className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
-                      title={info.checklistMemos[item.id]}
-                    >
-                      <LinkifiedText text={info.checklistMemos[item.id]} />
+                <div
+                  key={item.id}
+                  draggable={!editingItemIds.has(item.id)}
+                  onDragStart={(e) => handleItemDragStart(e, item.id)}
+                  onDragOver={(e) => handleItemDragOver(e, item.id)}
+                  onDrop={(e) => handleItemDrop(e, item.id)}
+                  onDragEnd={handleItemDragEnd}
+                  className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+                    isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
+                    }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={item.completed}
+                    onChange={() => handleToggleItem(item.id)}
+                    className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                      <EditableText
+                        value={item.text}
+                        onChange={(newText) => handleUpdateItemText(item.id, newText)}
+                        onEditingChange={(isEditing) => handleEditingChange(item.id, isEditing)}
+                        placeholder="항목을 입력하세요..."
+                        className="text-sm"
+                        compact
+                      />
                     </div>
-                  )}
-                </div>
-                <div className="relative flex-shrink-0 -mr-3">
-                  <button
-                    ref={(el) => {
-                      if (el) triggerRefs.current[item.id] = el;
-                    }}
-                    onClick={(e) => toggleMenu(e, item.id)}
-                    className="text-slate-600 hover:text-slate-800 transition-colors p-1.5 rounded"
-                    title="메뉴"
-                    style={{ transform: 'scale(1.2)' }}
-                  >
-                    <MenuIcon />
-                  </button>
-
-                  {openMenuId === item.id && (() => {
-                    const isMobile = window.innerWidth < 768;
-                    return (
+                    {info.checklistMemos?.[item.id] && (
                       <div
-                        ref={menuRef}
-                        className={`${
-                          isMobile ? 'absolute' : 'fixed'
-                        } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${
-                          isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
-                        } duration-150`}
-                        style={{
-                          ...(isMobile ? {
-                            right: 0,
-                            top: '100%',
-                            marginTop: '4px'
-                          } : {
-                            ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
-                            ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
-                            left: `${menuPos.left}px`
-                          })
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onShowChecklistMemo(item.id);
                         }}
-                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
+                        title={info.checklistMemos[item.id]}
                       >
-                        <button
-                          onClick={() => {
-                            onShowChecklistMemo(item.id);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          📝 메모 수정/추가
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleCopyChecklistItem(item.id);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          📋 복사
-                        </button>
-                        <button
-                          onClick={() => {
-                            onAddToCalendar(item.text);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          📅 캘린더 추가
-                        </button>
-                        <button
-                          onClick={() => {
-                            setDeleteConfirm({
-                              isOpen: true,
-                              itemId: item.id,
-                              itemText: item.text,
-                              type: 'checklist'
-                            });
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-200"
-                        >
-                          🗑️ 삭제
-                        </button>
+                        {info.checklistMemos[item.id]}
                       </div>
-                    );
-                  })()}
+                    )}
+                  </div>
+                  <div className="relative flex-shrink-0 -mr-3">
+                    <button
+                      ref={(el) => {
+                        if (el) triggerRefs.current[item.id] = el;
+                      }}
+                      onClick={(e) => toggleMenu(e, item.id)}
+                      className="text-slate-600 hover:text-slate-800 transition-colors p-1.5 rounded"
+                      title="메뉴"
+                      style={{ transform: 'scale(1.2)' }}
+                    >
+                      <MenuIcon />
+                    </button>
+
+                    {openMenuId === item.id && (() => {
+                      const isMobile = window.innerWidth < 768;
+                      return (
+                        <div
+                          ref={menuRef}
+                          className={`${isMobile ? 'absolute' : 'fixed'
+                            } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
+                            } duration-150`}
+                          style={{
+                            ...(isMobile ? {
+                              right: 0,
+                              top: '100%',
+                              marginTop: '4px'
+                            } : {
+                              ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                              ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                              left: `${menuPos.left}px`
+                            })
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => {
+                              onShowChecklistMemo(item.id);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                          >
+                            📝 메모 수정/추가
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleCopyChecklistItem(item.id);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                          >
+                            📋 복사
+                          </button>
+                          <button
+                            onClick={() => {
+                              onAddToCalendar(item.text);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                          >
+                            📅 캘린더 추가
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeleteConfirm({
+                                isOpen: true,
+                                itemId: item.id,
+                                itemText: item.text,
+                                type: 'checklist'
+                              });
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-200"
+                          >
+                            🗑️ 삭제
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
-            );
+              );
             })}
           {checklistItems.length === 0 && (
             <div className="text-center py-4 text-slate-400 text-xs italic">
@@ -453,131 +458,128 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               const isDragging = shoppingDragState.draggedItemId === item.id;
               const isDragOver = shoppingDragState.dragOverItemId === item.id;
               return (
-              <div
-                key={item.id}
-                draggable={!editingItemIds.has(item.id)}
-                onDragStart={(e) => handleShoppingItemDragStart(e, item.id)}
-                onDragOver={(e) => handleShoppingItemDragOver(e, item.id)}
-                onDrop={(e) => handleShoppingItemDrop(e, item.id)}
-                onDragEnd={handleShoppingItemDragEnd}
-                className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${
-                  isDragging ? 'opacity-50 bg-slate-100' :
-                  isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={item.completed}
-                  onChange={() => handleToggleShoppingItem(item.id)}
-                  className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
-                    <EditableText
-                      value={item.text}
-                      onChange={(newText) => handleUpdateShoppingItemText(item.id, newText)}
-                      onEditingChange={(isEditing) => handleEditingChange(item.id, isEditing)}
-                      placeholder="항목을 입력하세요..."
-                      className="text-sm"
-                      compact
-                    />
-                  </div>
-                  {info.shoppingListMemos?.[item.id] && (
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onShowShoppingMemo(item.id);
-                      }}
-                      className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
-                      title={info.shoppingListMemos[item.id]}
-                    >
-                      <LinkifiedText text={info.shoppingListMemos[item.id]} />
+                <div
+                  key={item.id}
+                  draggable={!editingItemIds.has(item.id)}
+                  onDragStart={(e) => handleShoppingItemDragStart(e, item.id)}
+                  onDragOver={(e) => handleShoppingItemDragOver(e, item.id)}
+                  onDrop={(e) => handleShoppingItemDrop(e, item.id)}
+                  onDragEnd={handleShoppingItemDragEnd}
+                  className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+                    isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
+                    }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={item.completed}
+                    onChange={() => handleToggleShoppingItem(item.id)}
+                    className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                      <EditableText
+                        value={item.text}
+                        onChange={(newText) => handleUpdateShoppingItemText(item.id, newText)}
+                        onEditingChange={(isEditing) => handleEditingChange(item.id, isEditing)}
+                        placeholder="항목을 입력하세요..."
+                        className="text-sm"
+                        compact
+                      />
                     </div>
-                  )}
-                </div>
-                <div className="relative flex-shrink-0 -mr-3">
-                  <button
-                    ref={(el) => {
-                      if (el) triggerRefs.current[item.id] = el;
-                    }}
-                    onClick={(e) => toggleMenu(e, item.id)}
-                    className="text-slate-600 hover:text-slate-800 transition-colors p-1.5 rounded"
-                    title="메뉴"
-                    style={{ transform: 'scale(1.2)' }}
-                  >
-                    <MenuIcon />
-                  </button>
-
-                  {openMenuId === item.id && (() => {
-                    const isMobile = window.innerWidth < 768;
-                    return (
+                    {info.shoppingListMemos?.[item.id] && (
                       <div
-                        ref={menuRef}
-                        className={`${
-                          isMobile ? 'absolute' : 'fixed'
-                        } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${
-                          isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
-                        } duration-150`}
-                        style={{
-                          ...(isMobile ? {
-                            right: 0,
-                            top: '100%',
-                            marginTop: '4px'
-                          } : {
-                            ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
-                            ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
-                            left: `${menuPos.left}px`
-                          })
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onShowShoppingMemo(item.id);
                         }}
-                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
+                        title={info.shoppingListMemos[item.id]}
                       >
-                        <button
-                          onClick={() => {
-                            onShowShoppingMemo(item.id);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          📝 메모 수정/추가
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleCopyShoppingItem(item.id);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          📋 복사
-                        </button>
-                        <button
-                          onClick={() => {
-                            onAddToCalendar(item.text);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          📅 캘린더 추가
-                        </button>
-                        <button
-                          onClick={() => {
-                            setDeleteConfirm({
-                              isOpen: true,
-                              itemId: item.id,
-                              itemText: item.text,
-                              type: 'shopping'
-                            });
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-200"
-                        >
-                          🗑️ 삭제
-                        </button>
+                        {info.shoppingListMemos[item.id]}
                       </div>
-                    );
-                  })()}
+                    )}
+                  </div>
+                  <div className="relative flex-shrink-0 -mr-3">
+                    <button
+                      ref={(el) => {
+                        if (el) triggerRefs.current[item.id] = el;
+                      }}
+                      onClick={(e) => toggleMenu(e, item.id)}
+                      className="text-slate-600 hover:text-slate-800 transition-colors p-1.5 rounded"
+                      title="메뉴"
+                      style={{ transform: 'scale(1.2)' }}
+                    >
+                      <MenuIcon />
+                    </button>
+
+                    {openMenuId === item.id && (() => {
+                      const isMobile = window.innerWidth < 768;
+                      return (
+                        <div
+                          ref={menuRef}
+                          className={`${isMobile ? 'absolute' : 'fixed'
+                            } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
+                            } duration-150`}
+                          style={{
+                            ...(isMobile ? {
+                              right: 0,
+                              top: '100%',
+                              marginTop: '4px'
+                            } : {
+                              ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                              ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                              left: `${menuPos.left}px`
+                            })
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => {
+                              onShowShoppingMemo(item.id);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                          >
+                            📝 메모 수정/추가
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleCopyShoppingItem(item.id);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                          >
+                            📋 복사
+                          </button>
+                          <button
+                            onClick={() => {
+                              onAddToCalendar(item.text);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                          >
+                            📅 캘린더 추가
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeleteConfirm({
+                                isOpen: true,
+                                itemId: item.id,
+                                itemText: item.text,
+                                type: 'shopping'
+                              });
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-200"
+                          >
+                            🗑️ 삭제
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
-            );
+              );
             })}
           {shoppingListItems.length === 0 && (
             <div className="text-center py-4 text-slate-400 text-xs italic">

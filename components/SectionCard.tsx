@@ -52,7 +52,20 @@ const SectionCard: React.FC<SectionCardProps> = ({
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
+  const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
   const quickInputRef = useRef<HTMLInputElement>(null);
+
+  const handleItemEditingChange = (itemId: string, isEditing: boolean) => {
+    setEditingItemIds(prev => {
+      const newSet = new Set(prev);
+      if (isEditing) {
+        newSet.add(itemId);
+      } else {
+        newSet.delete(itemId);
+      }
+      return newSet;
+    });
+  };
 
   // Populate quick input when shared text is received
   useEffect(() => {
@@ -177,16 +190,28 @@ const SectionCard: React.FC<SectionCardProps> = ({
   return (
     <section
       data-section-id={section.id}
-      draggable={!isTitleEditing}
-      onDragStart={onSectionDragStart}
+      draggable={!isTitleEditing && editingItemIds.size === 0}
+      onDragStart={(e) => {
+        // 입력 필드나 텍스트 영역에서 드래그 시작 시 섹션 드래그 방지
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        if (editingItemIds.size > 0) {
+          e.preventDefault();
+          return;
+        }
+        onSectionDragStart();
+      }}
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-4 py-4 transition-all flex flex-col ${isInboxSection || isFullHeight ? 'h-full' : 'h-[350px]'} cursor-default ${
-        isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
+      className={`bg-white px-4 py-4 transition-all flex flex-col ${isInboxSection || isFullHeight ? 'h-full' : 'h-[350px]'} cursor-default ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
-        isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
-      }`}
+          isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
+        }`}
     >
       <div className={`flex items-center justify-between mb-3 gap-2 cursor-move flex-shrink-0 px-4 py-3 -mx-4 -mt-4 mb-3 border-b-2 border-black ${tabColorBg}`} title="드래그하여 순서 변경">
         <div className="flex-1 min-w-0">
@@ -270,6 +295,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onMoveItem={() => onMoveItem(item.id)}
             onCopy={() => handleCopyItem(item.id)}
             onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
+            onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
             dragState={dragState}
             onDragStart={(e) => onItemDragStart(e, item.id)}
             onDragOver={(e) => onItemDragOver(e, item.id)}

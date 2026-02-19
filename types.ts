@@ -44,7 +44,7 @@ export interface Tab {
   parkingInfo: ParkingInfo;
   inboxSection?: Section;  // IN-BOX 기본 섹션 (메인탭만)
   quotesSection: Section;  // 명언 기본 섹션
-  goalsSection: Section;   // 목표 기본 섹션 (NEW)
+  goalsSection: Section;   // 현안 기본 섹션 (NEW)
   isLocked?: boolean;
   headerGoals?: {
     goal1: string;

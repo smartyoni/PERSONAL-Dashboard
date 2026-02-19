@@ -15,6 +15,7 @@ import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { useGoogleCalendar } from './hooks/useGoogleCalendar';
 import { parseMillieText } from './utils/parseMillieText';
+import LinkifiedText from './components/LinkifiedText';
 
 const STORAGE_KEY = 'custom_workspace_v4_final_persistent';
 
@@ -67,7 +68,7 @@ const App: React.FC = () => {
         },
         goalsSection: {
           id: goalsSectionId,
-          title: '목표', // 사용자가 수정 가능
+          title: '현안', // 사용자가 수정 가능
           items: [],
           color: 'slate',
           isLocked: false
@@ -120,7 +121,7 @@ const App: React.FC = () => {
           },
           goalsSection: tab.goalsSection || { // 기존 데이터 마이그레이션
             id: Math.random().toString(36).substr(2, 9),
-            title: '목표',
+            title: '현안',
             items: [],
             color: 'slate',
             isLocked: false
@@ -288,7 +289,7 @@ const App: React.FC = () => {
       },
       goalsSection: {
         id: goalsSectionId,
-        title: '목표',
+        title: '현안',
         items: [],
         color: 'slate',
         isLocked: false
@@ -998,7 +999,7 @@ const App: React.FC = () => {
                     />
                   </div>
 
-                  {/* 목표 섹션 (NEW) */}
+                  {/* 현안 섹션 (NEW) */}
                   <div className="h-[600px] md:h-auto md:row-span-2">
                     <SectionCard
                       section={activeTab.goalsSection}
@@ -1091,7 +1092,7 @@ const App: React.FC = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-2xl h-[80vh] rounded-2xl shadow-2xl border border-slate-200 p-6 flex flex-col"
+            className="bg-white w-full max-w-2xl h-[80vh] shadow-2xl border border-slate-200 p-6 flex flex-col"
           >
             {/* 읽기 모드 */}
             {!memoEditor.isEditing && (
@@ -1102,7 +1103,7 @@ const App: React.FC = () => {
                 >
                   {memoEditor.value ? (
                     <div className="prose prose-sm max-w-none select-text">
-                      {memoEditor.value}
+                      <LinkifiedText text={memoEditor.value} />
                     </div>
                   ) : (
                     <p className="text-slate-400 italic">메모가 없습니다.</p>
@@ -1111,14 +1112,14 @@ const App: React.FC = () => {
                 <div className="border-t border-slate-300 pt-4 mt-4 flex justify-end gap-3">
                   <button
                     onClick={() => setMemoEditor({ ...memoEditor, id: null })}
-                    className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                    className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
                   >
                     닫기
                   </button>
                   {memoEditor.type !== 'checklist' && memoEditor.type !== 'shopping' && (
                     <button
                       onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
-                      className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
+                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
                     >
                       ✏️ 수정
                     </button>
@@ -1127,7 +1128,7 @@ const App: React.FC = () => {
                     onClick={() => {
                       navigator.clipboard.writeText(memoEditor.value);
                     }}
-                    className="px-4 py-2 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
+                    className="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
                   >
                     📋 복사
                   </button>
@@ -1165,13 +1166,13 @@ const App: React.FC = () => {
                         setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
                       }
                     }}
-                    className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                    className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
                   >
                     취소
                   </button>
                   <button
                     onClick={handleSaveMemo}
-                    className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium border-2 border-black transition-colors"
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium border-2 border-black transition-colors"
                   >
                     💾 저장
                   </button>
@@ -1179,7 +1180,7 @@ const App: React.FC = () => {
                     onClick={() => {
                       navigator.clipboard.writeText(memoEditor.value);
                     }}
-                    className="px-4 py-2 rounded-lg bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
+                    className="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
                   >
                     📋 복사
                   </button>

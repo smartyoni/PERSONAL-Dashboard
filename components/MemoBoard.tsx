@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SideNote } from '../types';
-import LinkifiedText from './LinkifiedText';
+
 
 interface MemoBoardProps {
   notes: SideNote[];
@@ -58,12 +58,11 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
           <div key={originalIndex} className="flex-1 min-h-0 w-full">
             <button
               onClick={() => handleStartEdit(originalIndex)}
-              className={`w-full h-full px-2 py-1 rounded-lg border border-slate-200/60 text-[12px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm overflow-hidden leading-tight ${
-                hasMemo ? 'bg-purple-400 text-white' : 'bg-[#FBF3DB] text-slate-700'
-              }`}
+              className={`w-full h-full px-2 py-1 rounded-lg border border-slate-200/60 text-[12px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm overflow-hidden leading-tight ${hasMemo ? 'bg-purple-400 text-white' : 'bg-[#FBF3DB] text-slate-700'
+                }`}
             >
               <span className="line-clamp-2 text-center break-all font-bold">
-                <LinkifiedText text={note.title || (note.content ? note.content.substring(0, 10) : '미생성 메모장')} />
+                {note.title || (note.content ? note.content.substring(0, 10) : '미생성 메모장')}
               </span>
             </button>
           </div>

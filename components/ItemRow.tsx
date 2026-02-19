@@ -16,6 +16,7 @@ interface ItemRowProps {
   onMoveItem: () => void;
   onCopy: () => void;
   onAddToCalendar?: () => void;
+  onEditingChange?: (isEditing: boolean) => void;
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -34,6 +35,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onMoveItem,
   onCopy,
   onAddToCalendar,
+  onEditingChange,
   dragState,
   onDragStart,
   onDragOver,
@@ -83,14 +85,19 @@ const ItemRow: React.FC<ItemRowProps> = ({
   return (
     <div
       draggable={!isTextEditing}
-      onDragStart={onDragStart}
+      onDragStart={(e) => {
+        if (isTextEditing) {
+          e.preventDefault();
+          return;
+        }
+        onDragStart(e);
+      }}
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`group flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${
-        isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
-      }`}
+        }`}
     >
       {/* 1. Checkbox - Increased size (w-5 h-5) */}
       <input
@@ -106,7 +113,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <EditableText
             value={item.text}
             onChange={onUpdateText}
-            onEditingChange={setIsTextEditing}
+            onEditingChange={(isEditing) => {
+              setIsTextEditing(isEditing);
+              onEditingChange?.(isEditing);
+            }}
             placeholder="항목을 입력하세요..."
             className="text-sm"
             compact
@@ -118,7 +128,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
             className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
             title={memo}
           >
-            <LinkifiedText text={memo} />
+            {memo}
           </div>
         )}
       </div>
@@ -149,11 +159,9 @@ const ItemRow: React.FC<ItemRowProps> = ({
           return (
             <div
               ref={menuRef}
-              className={`${
-                isMobile ? 'absolute' : 'fixed'
-              } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${
-                isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
-              } duration-150`}
+              className={`${isMobile ? 'absolute' : 'fixed'
+                } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
+                } duration-150`}
               style={{
                 ...(isMobile ? {
                   right: 0,

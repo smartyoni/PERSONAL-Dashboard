@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import LinkifiedText from './LinkifiedText';
+
 
 interface EditableTextProps {
   value: string;
@@ -53,6 +53,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
         onChange={(e) => setTempValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
+        onDragStart={(e) => e.stopPropagation()} // 텍스트 선택 중 드래그 방지
         className={`w-full ${compact ? 'p-0 text-lg leading-normal' : 'p-1'} border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white ${className}`}
       />
     );
@@ -63,7 +64,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
       onDoubleClick={handleDoubleClick}
       className={`cursor-pointer hover:bg-slate-50 transition-colors ${compact ? 'p-0 min-h-0 text-lg leading-tight' : 'p-1 min-h-[1.5rem]'} rounded break-words ${className}`}
     >
-      {value ? <LinkifiedText text={value} /> : <span className="text-slate-400 italic text-[0.8em]">{placeholder}</span>}
+      {value || <span className="text-slate-400 italic text-[0.8em]">{placeholder}</span>}
     </div>
   );
 };

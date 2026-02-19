@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import LinkifiedText from './LinkifiedText';
+
 
 interface EditableTextAreaProps {
   value: string;
@@ -83,7 +83,7 @@ const EditableTextArea: React.FC<EditableTextAreaProps> = ({
       className={`cursor-pointer hover:bg-slate-50 transition-colors p-3 min-h-[4rem] rounded-lg ${textClassName} ${className}`}
     >
       {value ? (
-        <LinkifiedText text={value} />
+        value
       ) : (
         <span className="text-slate-400 italic">{placeholder}</span>
       )}
