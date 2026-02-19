@@ -317,7 +317,18 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                    <div
+                      className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} relative`}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setMenuPos({
+                          top: e.clientY,
+                          left: e.clientX
+                        });
+                        setOpenMenuId(item.id);
+                      }}
+                    >
                       <EditableText
                         value={item.text}
                         onChange={(newText) => handleUpdateItemText(item.id, newText)}
@@ -476,7 +487,18 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                    <div
+                      className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} relative`}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setMenuPos({
+                          top: e.clientY,
+                          left: e.clientX
+                        });
+                        setOpenMenuId(item.id);
+                      }}
+                    >
                       <EditableText
                         value={item.text}
                         onChange={(newText) => handleUpdateShoppingItemText(item.id, newText)}

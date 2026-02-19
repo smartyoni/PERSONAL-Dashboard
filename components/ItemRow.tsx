@@ -122,6 +122,21 @@ const ItemRow: React.FC<ItemRowProps> = ({
             compact
           />
         </div>
+        {/* Right-click area for Desktop */}
+        <div
+          className="absolute inset-0 z-0"
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // 데스크톱 우클릭 시 메뉴 오픈
+            setMenuPos({
+              top: e.clientY,
+              left: e.clientX
+            });
+            setShowMenu(true);
+          }}
+          style={{ pointerEvents: isTextEditing ? 'none' : 'auto' }}
+        />
         {memo && (
           <div
             onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
