@@ -109,7 +109,19 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
       {/* 2. Text Area & Memo Preview - text-sm (reduced from text-base) */}
       <div className="flex-1 min-w-0">
-        <div className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+        <div
+          className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // 데스크톱 우클릭 시 메뉴 오픈
+            setMenuPos({
+              top: e.clientY,
+              left: e.clientX
+            });
+            setShowMenu(true);
+          }}
+        >
           <EditableText
             value={item.text}
             onChange={onUpdateText}
@@ -122,21 +134,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
             compact
           />
         </div>
-        {/* Right-click area for Desktop */}
-        <div
-          className="absolute inset-0 z-0"
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // 데스크톱 우클릭 시 메뉴 오픈
-            setMenuPos({
-              top: e.clientY,
-              left: e.clientX
-            });
-            setShowMenu(true);
-          }}
-          style={{ pointerEvents: isTextEditing ? 'none' : 'auto' }}
-        />
         {memo && (
           <div
             onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
