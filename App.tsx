@@ -42,6 +42,7 @@ const App: React.FC = () => {
     const initialTabId = Math.random().toString(36).substr(2, 9);
     const inboxSectionId = Math.random().toString(36).substr(2, 9);
     const quotesSectionId = Math.random().toString(36).substr(2, 9);
+    const goalsSectionId = Math.random().toString(36).substr(2, 9);
     return {
       tabs: [{
         id: initialTabId,
@@ -60,6 +61,13 @@ const App: React.FC = () => {
         quotesSection: {
           id: quotesSectionId,
           title: '명언',
+          items: [],
+          color: 'slate',
+          isLocked: false
+        },
+        goalsSection: {
+          id: goalsSectionId,
+          title: '목표', // 사용자가 수정 가능
           items: [],
           color: 'slate',
           isLocked: false
@@ -96,16 +104,23 @@ const App: React.FC = () => {
           ...tab,
           inboxSection: isMainTab
             ? (tab.inboxSection || {
-                id: Math.random().toString(36).substr(2, 9),
-                title: 'IN-BOX',
-                items: [],
-                color: 'slate',
-                isLocked: false
-              })
+              id: Math.random().toString(36).substr(2, 9),
+              title: 'IN-BOX',
+              items: [],
+              color: 'slate',
+              isLocked: false
+            })
             : undefined,
           quotesSection: tab.quotesSection || {
             id: Math.random().toString(36).substr(2, 9),
             title: '명언',
+            items: [],
+            color: 'slate',
+            isLocked: false
+          },
+          goalsSection: tab.goalsSection || { // 기존 데이터 마이그레이션
+            id: Math.random().toString(36).substr(2, 9),
+            title: '목표',
             items: [],
             color: 'slate',
             isLocked: false
@@ -220,7 +235,7 @@ const App: React.FC = () => {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {}
+    onConfirm: () => { }
   });
 
   const [memoEditor, setMemoEditor] = useState<{
@@ -256,6 +271,7 @@ const App: React.FC = () => {
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
     const quotesSectionId = Math.random().toString(36).substr(2, 9);
+    const goalsSectionId = Math.random().toString(36).substr(2, 9);
     const newTab: Tab = {
       id: newId,
       name: `새 페이지 ${safeData.tabs.length + 1}`,
@@ -266,6 +282,13 @@ const App: React.FC = () => {
       quotesSection: {
         id: quotesSectionId,
         title: '명언',
+        items: [],
+        color: 'slate',
+        isLocked: false
+      },
+      goalsSection: {
+        id: goalsSectionId,
+        title: '목표',
         items: [],
         color: 'slate',
         isLocked: false
@@ -612,6 +635,16 @@ const App: React.FC = () => {
     });
   };
 
+  const handleUpdateGoalsSection = (updated: Section) => {
+    updateData({
+      ...safeData,
+      tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+        ? { ...t, goalsSection: updated }
+        : t
+      )
+    });
+  };
+
   const handleDeleteSection = (id: string) => {
     const sectionToDelete = activeTab?.sections.find(s => s.id === id);
 
@@ -712,15 +745,15 @@ const App: React.FC = () => {
           ...safeData,
           tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
             ? {
-                ...t,
-                parkingInfo: {
-                  ...t.parkingInfo,
-                  checklistMemos: {
-                    ...t.parkingInfo.checklistMemos,
-                    [memoEditor.id!]: memoEditor.value
-                  }
+              ...t,
+              parkingInfo: {
+                ...t.parkingInfo,
+                checklistMemos: {
+                  ...t.parkingInfo.checklistMemos,
+                  [memoEditor.id!]: memoEditor.value
                 }
               }
+            }
             : t
           )
         });
@@ -729,15 +762,15 @@ const App: React.FC = () => {
           ...safeData,
           tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
             ? {
-                ...t,
-                parkingInfo: {
-                  ...t.parkingInfo,
-                  shoppingListMemos: {
-                    ...t.parkingInfo.shoppingListMemos,
-                    [memoEditor.id!]: memoEditor.value
-                  }
+              ...t,
+              parkingInfo: {
+                ...t.parkingInfo,
+                shoppingListMemos: {
+                  ...t.parkingInfo.shoppingListMemos,
+                  [memoEditor.id!]: memoEditor.value
                 }
               }
+            }
             : t
           )
         });
@@ -878,7 +911,7 @@ const App: React.FC = () => {
       <div className="flex-none hidden md:block">
         <BookmarkBar bookmarks={safeData.bookmarks} onUpdateBookmarks={handleUpdateBookmarks} />
       </div>
-      
+
       <div className="flex-1 flex flex-row overflow-hidden">
         {/* 중앙 컨텐츠 컬럼 */}
         <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
@@ -925,16 +958,16 @@ const App: React.FC = () => {
                       section={activeTab.inboxSection}
                       itemMemos={activeTab.memos}
                       onUpdateSection={handleUpdateInboxSection}
-                      onDeleteSection={() => {}} // IN-BOX는 삭제 불가
+                      onDeleteSection={() => { }} // IN-BOX는 삭제 불가
                       onShowItemMemo={handleShowMemo}
                       onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
                       onAddToCalendar={handleAddToCalendarClick}
                       dragState={dragState}
                       setDragState={setDragState}
-                      onSectionDragStart={() => {}} // IN-BOX는 드래그 불가
-                      onSectionDragOver={() => {}}
-                      onSectionDrop={() => {}}
-                      onSectionDragEnd={() => {}}
+                      onSectionDragStart={() => { }} // IN-BOX는 드래그 불가
+                      onSectionDragOver={() => { }}
+                      onSectionDrop={() => { }}
+                      onSectionDragEnd={() => { }}
                       isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
                       isInboxSection={true}
                       tabColorBg={getTabColor(0).bgLight}
@@ -949,17 +982,39 @@ const App: React.FC = () => {
                       section={activeTab.quotesSection}
                       itemMemos={activeTab.memos}
                       onUpdateSection={handleUpdateQuotesSection}
-                      onDeleteSection={() => {}} // 명언은 삭제 불가
+                      onDeleteSection={() => { }} // 명언은 삭제 불가
                       onShowItemMemo={handleShowMemo}
                       onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
                       onAddToCalendar={handleAddToCalendarClick}
                       dragState={dragState}
                       setDragState={setDragState}
-                      onSectionDragStart={() => {}} // 명언은 드래그 불가
-                      onSectionDragOver={() => {}}
-                      onSectionDrop={() => {}}
-                      onSectionDragEnd={() => {}}
+                      onSectionDragStart={() => { }} // 명언은 드래그 불가
+                      onSectionDragOver={() => { }}
+                      onSectionDrop={() => { }}
+                      onSectionDragEnd={() => { }}
                       isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
+                      isInboxSection={true}
+                      tabColorBg={getTabColor(0).bgLight}
+                    />
+                  </div>
+
+                  {/* 목표 섹션 (NEW) */}
+                  <div className="h-[600px] md:h-auto md:row-span-2">
+                    <SectionCard
+                      section={activeTab.goalsSection}
+                      itemMemos={activeTab.memos}
+                      onUpdateSection={handleUpdateGoalsSection}
+                      onDeleteSection={() => { }} // 삭제 불가
+                      onShowItemMemo={handleShowMemo}
+                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.goalsSection.id)}
+                      onAddToCalendar={handleAddToCalendarClick}
+                      dragState={dragState}
+                      setDragState={setDragState}
+                      onSectionDragStart={() => { }} // 드래그 불가
+                      onSectionDragOver={() => { }}
+                      onSectionDrop={() => { }}
+                      onSectionDragEnd={() => { }}
+                      isHighlighted={activeTab.goalsSection.id === highlightedSectionId}
                       isInboxSection={true}
                       tabColorBg={getTabColor(0).bgLight}
                     />
@@ -995,7 +1050,7 @@ const App: React.FC = () => {
                 <div className="col-span-full text-center py-16 text-slate-400">
                   <p className="text-sm italic">
                     {isMainTab && activeTab.sections.length === 0 ? '추가된 섹션이 없습니다. "+항목" 버튼을 눌러 섹션을 추가하세요.' :
-                     activeTab.sections.length === 0 ? '이 페이지는 비어있습니다. 새로운 섹션을 추가해 보세요.' : ''}
+                      activeTab.sections.length === 0 ? '이 페이지는 비어있습니다. 새로운 섹션을 추가해 보세요.' : ''}
                   </p>
                 </div>
               )}
@@ -1005,9 +1060,9 @@ const App: React.FC = () => {
 
         {/* 4. 우측 사이드바 고정: 메모보드 */}
         <aside className="flex-none hidden lg:block w-48 border-l border-slate-200 bg-white/40">
-          <MemoBoard 
-            notes={activeTab.sideNotes || []} 
-            onChange={handleUpdateSideNotes} 
+          <MemoBoard
+            notes={activeTab.sideNotes || []}
+            onChange={handleUpdateSideNotes}
           />
         </aside>
       </div>
