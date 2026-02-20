@@ -915,6 +915,15 @@ const App: React.FC = () => {
 
       <div className="flex-1 flex flex-row overflow-hidden">
         {/* 중앙 컨텐츠 컬럼 */}
+        {/* 4. 좌측 사이드바 고정: 메모보드 */}
+        <aside className="flex-none hidden lg:block w-60 border-r border-slate-200 bg-white/40">
+          <MemoBoard
+            notes={activeTab.sideNotes || []}
+            onChange={handleUpdateSideNotes}
+          />
+        </aside>
+
+        {/* 중앙 컨텐츠 컬럼 */}
         <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
           {/* 2. 대시보드 헤더 (틀고정 영역) */}
           <div className="flex-none bg-[#F8FAFC]">
@@ -1059,13 +1068,7 @@ const App: React.FC = () => {
           </main>
         </div>
 
-        {/* 4. 우측 사이드바 고정: 메모보드 */}
-        <aside className="flex-none hidden lg:block w-48 border-l border-slate-200 bg-white/40">
-          <MemoBoard
-            notes={activeTab.sideNotes || []}
-            onChange={handleUpdateSideNotes}
-          />
-        </aside>
+
       </div>
 
       {/* 5. 하단 고정: 탭바 */}

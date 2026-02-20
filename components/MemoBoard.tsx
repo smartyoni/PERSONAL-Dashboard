@@ -11,20 +11,40 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [tempTitle, setTempTitle] = useState('');
   const [tempContent, setTempContent] = useState('');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // 항상 16개의 메모 슬롯을 유지하도록 보장
   const memoList: SideNote[] = Array.from({ length: 16 }, (_, i) => notes[i] || { title: '', content: '' });
 
-  // 메모 유무에 따라 정렬: 메모가 있는 것을 위에, 없는 것을 아래에
-  const sortedMemoList = Array.from({ length: 16 }, (_, i) => ({
-    note: memoList[i],
-    originalIndex: i
-  })).sort((a, b) => {
-    const aHasMemo = a.note.title || a.note.content;
-    const bHasMemo = b.note.title || b.note.content;
-    if (aHasMemo === bHasMemo) return 0;
-    return aHasMemo ? -1 : 1; // 메모가 있는 것을 위로
-  });
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const newNotes = [...memoList];
+    const draggedItem = newNotes[draggedIndex];
+    const targetItem = newNotes[dropIndex];
+
+    // 스왑 방식으로 위치 변경
+    newNotes[draggedIndex] = targetItem;
+    newNotes[dropIndex] = draggedItem;
+
+    onChange(newNotes);
+    setDraggedIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
 
   const handleStartEdit = (index: number) => {
     setEditingIndex(index);
@@ -45,6 +65,15 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
     if (editingIndex !== null) {
       const newNotes = [...memoList];
       newNotes[editingIndex] = { title: '', content: '' };
+
+      // 메모 초기화 시: 내용이 있는 메모들은 위로, 빈 메모들은 아래로 정렬 (기존 순서 유지)
+      newNotes.sort((a, b) => {
+        const aHas = !!(a.title || a.content);
+        const bHas = !!(b.title || b.content);
+        if (aHas === bHas) return 0;
+        return aHas ? -1 : 1;
+      });
+
       onChange(newNotes);
       setEditingIndex(null);
     }
@@ -52,16 +81,44 @@ const MemoBoard: React.FC<MemoBoardProps> = ({ notes, onChange }) => {
 
   return (
     <div className="w-full h-full flex flex-col py-2 px-2 gap-1 overflow-hidden">
-      {sortedMemoList.map(({ note, originalIndex }) => {
+      {memoList.map((note, index) => {
         const hasMemo = note.title || note.content;
         return (
-          <div key={originalIndex} className="flex-1 min-h-0 w-full">
+          <div
+            key={index}
+            className={`flex-1 min-h-0 w-full flex items-stretch gap-0.5 ${draggedIndex === index ? 'opacity-40' : ''}`}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+          >
+            {/* 드래그 핸들 */}
+            <div
+              className={`w-5 flex-none flex items-center justify-center cursor-grab active:cursor-grabbing rounded-l-lg border-y border-l select-none transition-colors ${hasMemo
+                ? 'bg-green-600 border-green-700 text-white'
+                : 'bg-slate-200 border-slate-300 text-slate-400'
+                }`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragEnd={handleDragEnd}
+            >
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="9" cy="5" r="1.5" />
+                <circle cx="15" cy="5" r="1.5" />
+                <circle cx="9" cy="12" r="1.5" />
+                <circle cx="15" cy="12" r="1.5" />
+                <circle cx="9" cy="19" r="1.5" />
+                <circle cx="15" cy="19" r="1.5" />
+              </svg>
+            </div>
+
+            {/* 내용 버튼 */}
             <button
-              onClick={() => handleStartEdit(originalIndex)}
-              className={`w-full h-full px-2 py-1 rounded-lg border border-slate-200/60 text-[12px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm overflow-hidden leading-tight ${hasMemo ? 'bg-purple-400 text-white' : 'bg-[#FBF3DB] text-slate-700'
+              onClick={() => handleStartEdit(index)}
+              className={`flex-1 min-w-0 px-2 py-1 rounded-r-lg border-y border-r transition-all active:scale-95 flex flex-col items-center justify-center hover:brightness-95 hover:shadow-sm overflow-hidden leading-tight ${hasMemo
+                ? 'bg-green-400 text-black text-[14px] font-normal border-green-600'
+                : 'bg-[#FBF3DB] text-slate-700 text-[12px] font-bold border-slate-200/60'
                 }`}
             >
-              <span className="line-clamp-2 text-center break-all font-bold">
+              <span className="line-clamp-2 text-center break-all">
                 {note.title || (note.content ? note.content.substring(0, 10) : '미생성 메모장')}
               </span>
             </button>
