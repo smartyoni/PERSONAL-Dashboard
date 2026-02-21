@@ -6,7 +6,6 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1a5c3a",
-  "orientation": "portrait-primary",
   "scope": "/PERSONAL-Dashboard/",
   "icons": [
     {
@@ -54,7 +53,9 @@
       "form_factor": "narrow"
     }
   ],
-  "categories": ["productivity"],
+  "categories": [
+    "productivity"
+  ],
   "shortcuts": [
     {
       "name": "새로운 섹션",
