@@ -948,7 +948,7 @@ const App: React.FC = () => {
 
           {/* 3. 스크롤 가능한 메인 그리드 영역 (주차위치 + 섹션 카드들) */}
           <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-6 pb-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 h-full" style={{ gridAutoRows: 'auto' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-6 h-full" style={{ gridAutoRows: 'auto' }}>
               {isMainTab && (
                 <>
                   {/* 주차 섹션 */}
