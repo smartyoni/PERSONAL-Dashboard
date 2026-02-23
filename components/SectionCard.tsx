@@ -53,7 +53,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-  const quickInputRef = useRef<HTMLInputElement>(null);
+  const quickInputRef = useRef<HTMLTextAreaElement>(null);
+  const LINE_HEIGHT = 20; // 줄 높이 (px)
+  const MAX_LINES = 3;
 
   const handleItemEditingChange = (itemId: string, isEditing: boolean) => {
     setEditingItemIds(prev => {
@@ -85,8 +87,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
     onUpdateSection({ ...section, title: newTitle });
   };
 
-  const handleQuickAdd = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleQuickAdd = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       const trimmedValue = quickAddValue.trim();
       if (trimmedValue === '') return;
 
@@ -97,7 +100,19 @@ const SectionCard: React.FC<SectionCardProps> = ({
       };
       onUpdateSection({ ...section, items: [newItem, ...section.items] });
       setQuickAddValue('');
+      if (quickInputRef.current) {
+        quickInputRef.current.style.height = 'auto';
+      }
     }
+  };
+
+  const handleQuickAddChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setQuickAddValue(e.target.value);
+    const el = e.target;
+    el.style.height = 'auto';
+    const maxHeight = LINE_HEIGHT * MAX_LINES + 16; // padding 포함
+    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
   };
 
   const handleAddItem = () => {
@@ -248,15 +263,16 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       {/* 빠른 추가 입력창 */}
-      <div className="mb-3 flex-shrink-0 flex gap-0">
-        <input
+      <div className="mb-3 flex-shrink-0 flex items-end gap-0">
+        <textarea
           ref={quickInputRef}
-          type="text"
           value={quickAddValue}
-          onChange={(e) => setQuickAddValue(e.target.value)}
+          onChange={handleQuickAddChange}
           onKeyDown={handleQuickAdd}
-          placeholder="새 항목 입력 후 Enter..."
-          className="flex-1 px-3 py-2 text-sm border-2 border-black border-r-0 rounded-l-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
+          placeholder="새 항목 입력 후 Enter... (줄바꿈: Shift+Enter)"
+          rows={1}
+          className="flex-1 px-3 py-2 text-sm border-2 border-black border-r-0 rounded-l-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all resize-none overflow-hidden leading-5"
+          style={{ minHeight: '36px' }}
         />
         <button
           onClick={() => {
@@ -270,8 +286,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
             };
             onUpdateSection({ ...section, items: [newItem, ...section.items] });
             setQuickAddValue('');
+            if (quickInputRef.current) {
+              quickInputRef.current.style.height = 'auto';
+            }
           }}
-          className="px-3 py-2 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap"
+          className="px-3 py-2 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap self-end"
+          style={{ height: '36px' }}
           title="추가"
         >
           +
