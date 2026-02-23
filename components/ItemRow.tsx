@@ -103,14 +103,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       <input
         type="checkbox"
         checked={item.completed}
-        onChange={() => {
-          const isMobile = window.innerWidth < 768;
-          if (isMobile) {
-            onToggle();
-          } else {
-            onAddMemo();
-          }
-        }}
+        onChange={onAddMemo}
         className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
       />
 

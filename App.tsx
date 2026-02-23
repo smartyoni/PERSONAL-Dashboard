@@ -1124,7 +1124,7 @@ const App: React.FC = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-2xl h-[80vh] shadow-2xl border border-slate-200 flex flex-col"
+            className="bg-white w-full max-w-2xl h-[90vh] md:h-[85vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col"
           >
             {/* 읽기 모드 */}
             {!memoEditor.isEditing && (
