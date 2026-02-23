@@ -200,6 +200,19 @@ const App: React.FC = () => {
     dragOverSectionId: null
   });
 
+  // 태블릿 세로 모드 감지 (모바일 UI로 표시)
+  const [isMobileLayout, setIsMobileLayout] = useState(() => {
+    const query = window.matchMedia('(max-width: 1024px) and (orientation: portrait)');
+    return query.matches;
+  });
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 1024px) and (orientation: portrait)');
+    const handler = (e: MediaQueryListEvent) => setIsMobileLayout(e.matches);
+    query.addEventListener('change', handler);
+    return () => query.removeEventListener('change', handler);
+  }, []);
+
   const [moveItemModal, setMoveItemModal] = useState<{
     isOpen: boolean;
     itemId: string | null;
@@ -973,14 +986,14 @@ const App: React.FC = () => {
       )}
 
       {/* 1. 상단 완전 고정: 북마크바 */}
-      <div className="flex-none hidden md:block">
+      <div className={`flex-none ${isMobileLayout ? 'hidden' : 'hidden md:block'}`}>
         <BookmarkBar bookmarks={safeData.bookmarks} onUpdateBookmarks={handleUpdateBookmarks} />
       </div>
 
       <div className="flex-1 flex flex-row overflow-hidden">
         {/* 중앙 컨텐츠 컬럼 */}
         {/* 4. 좌측 사이드바 고정: 메모보드 */}
-        <aside className="flex-none hidden lg:block w-60 border-r border-slate-200 bg-white/40">
+        <aside className={`flex-none w-60 border-r border-slate-200 bg-white/40 ${isMobileLayout ? 'hidden' : 'hidden lg:block'}`}>
           <MemoBoard
             notes={activeTab.sideNotes || []}
             onChange={handleUpdateSideNotes}
@@ -1012,7 +1025,10 @@ const App: React.FC = () => {
 
           {/* 3. 스크롤 가능한 메인 그리드 영역 (주차위치 + 섹션 카드들) */}
           <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-6 pb-20">
-            <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 h-full ${isMainTab ? 'lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'lg:grid-cols-2 xl:grid-cols-3'}`} style={{ gridAutoRows: 'auto' }}>
+            <div className={`grid gap-3 h-full ${isMobileLayout
+              ? 'grid-cols-1'
+              : `grid-cols-1 md:grid-cols-2 md:gap-6 ${isMainTab ? 'lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'lg:grid-cols-2 xl:grid-cols-3'}`
+              }`} style={{ gridAutoRows: 'auto' }}>
               {isMainTab && (
                 <>
                   {/* 주차 섹션 */}
