@@ -26,6 +26,7 @@ interface SectionCardProps {
   tabColorBg?: string;
   initialQuickAddValue?: string;
   onQuickAddValuePopulated?: () => void;
+  onCrossSectionDrop?: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, targetItemId?: string | null) => void;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -48,7 +49,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   tabColorText = 'text-slate-800',
   tabColorBg = '',
   initialQuickAddValue,
-  onQuickAddValuePopulated
+  onQuickAddValuePopulated,
+  onCrossSectionDrop
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -181,8 +183,16 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const onItemDrop = (e: React.DragEvent, targetItemId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!dragState.draggedItemId || dragState.sourceSectionId !== section.id) return;
+    if (!dragState.draggedItemId) return;
 
+    // 섹션 간 이동 (Cross-section)
+    if (dragState.sourceSectionId !== section.id) {
+      onCrossSectionDrop?.(dragState.draggedItemId, dragState.sourceSectionId!, section.id, targetItemId);
+      setDragState({ ...dragState, draggedItemId: null, dragOverItemId: null, sourceSectionId: null });
+      return;
+    }
+
+    // 같은 섹션 내 재정렬
     const draggedIdx = section.items.findIndex(i => i.id === dragState.draggedItemId);
     const targetIdx = section.items.findIndex(i => i.id === targetItemId);
 
@@ -193,6 +203,22 @@ const SectionCard: React.FC<SectionCardProps> = ({
     newItems.splice(targetIdx, 0, draggedItem);
 
     onUpdateSection({ ...section, items: newItems });
+  };
+
+  // 빈 섹션 영역으로 드롭 (아이템 위가 아닌 섹션 자체로)
+  const onEmptyAreaDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!dragState.draggedItemId || !dragState.sourceSectionId) return;
+    if (dragState.sourceSectionId === section.id) return;
+    onCrossSectionDrop?.(dragState.draggedItemId, dragState.sourceSectionId, section.id, null);
+    setDragState({ ...dragState, draggedItemId: null, dragOverItemId: null, sourceSectionId: null });
+  };
+
+  const onEmptyAreaDragOver = (e: React.DragEvent) => {
+    if (dragState.draggedItemId && dragState.sourceSectionId !== section.id) {
+      e.preventDefault();
+    }
   };
 
   const onItemDragEnd = () => {
@@ -298,7 +324,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </button>
       </div>
 
-      <div className="space-y-0.5 overflow-y-auto overflow-x-hidden flex-1 pr-1">
+      <div
+        className={`space-y-0.5 overflow-y-auto overflow-x-hidden flex-1 pr-1 rounded transition-colors ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60 border-2 border-dashed border-blue-300' : ''}`}
+        onDragOver={onEmptyAreaDragOver}
+        onDrop={onEmptyAreaDrop}
+      >
         {[...section.items].sort((a, b) => {
           if (a.completed === b.completed) return 0;
           return a.completed ? 1 : -1;

@@ -680,6 +680,69 @@ const App: React.FC = () => {
     setDragState(prev => ({ ...prev, draggedSectionId: null, dragOverSectionId: null }));
   };
 
+  // 섹션 간 아이템 이동 (Trello style)
+  const handleCrossSectionItemDrop = (
+    draggedItemId: string,
+    sourceSectionId: string,
+    targetSectionId: string,
+    targetItemId?: string | null
+  ) => {
+    if (sourceSectionId === targetSectionId) return;
+
+    // 모든 섹션 목록 (IN-BOX, 명언, 일반 섹션 모두 포함)
+    const getAllSections = (tab: typeof activeTab) => {
+      const all: Section[] = [];
+      if (tab.inboxSection) all.push(tab.inboxSection);
+      if (tab.quotesSection) all.push(tab.quotesSection);
+      all.push(...tab.sections);
+      return all;
+    };
+
+    updateData({
+      ...safeData,
+      tabs: safeData.tabs.map(t => {
+        if (t.id !== safeData.activeTabId) return t;
+
+        const allSections = getAllSections(t);
+        const sourceSection = allSections.find(s => s.id === sourceSectionId);
+        const targetSection = allSections.find(s => s.id === targetSectionId);
+        if (!sourceSection || !targetSection) return t;
+
+        // 이동할 아이템 추출
+        const draggedItem = sourceSection.items.find(i => i.id === draggedItemId);
+        if (!draggedItem) return t;
+
+        const newSourceItems = sourceSection.items.filter(i => i.id !== draggedItemId);
+        let newTargetItems = [...targetSection.items];
+
+        if (targetItemId) {
+          const targetIdx = newTargetItems.findIndex(i => i.id === targetItemId);
+          if (targetIdx !== -1) {
+            newTargetItems.splice(targetIdx, 0, draggedItem);
+          } else {
+            newTargetItems.unshift(draggedItem);
+          }
+        } else {
+          newTargetItems.unshift(draggedItem);
+        }
+
+        // 각 섹션 종류에 따라 업데이트
+        const updateSection = (sec: Section) => {
+          if (sec.id === sourceSectionId) return { ...sec, items: newSourceItems };
+          if (sec.id === targetSectionId) return { ...sec, items: newTargetItems };
+          return sec;
+        };
+
+        return {
+          ...t,
+          inboxSection: t.inboxSection ? updateSection(t.inboxSection) : t.inboxSection,
+          quotesSection: updateSection(t.quotesSection),
+          sections: t.sections.map(updateSection),
+        };
+      })
+    });
+  };
+
   const handleClearAll = () => {
     if (!activeTab.sections.some(s => s.items.some(i => i.completed))) return;
     updateData({
@@ -984,6 +1047,7 @@ const App: React.FC = () => {
                       tabColorBg={getTabColor(0).bgLight}
                       initialQuickAddValue={sharedTextForInbox}
                       onQuickAddValuePopulated={handleClearSharedText}
+                      onCrossSectionDrop={handleCrossSectionItemDrop}
                     />
                   </div>
 
@@ -1006,6 +1070,7 @@ const App: React.FC = () => {
                       isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
                       isInboxSection={true}
                       tabColorBg={getTabColor(0).bgLight}
+                      onCrossSectionDrop={handleCrossSectionItemDrop}
                     />
                   </div>
 
@@ -1033,6 +1098,7 @@ const App: React.FC = () => {
                     isFullHeight={!isMainTab}
                     tabColorText={getTabColor(currentTabIndex).text}
                     tabColorBg={getTabColor(currentTabIndex).bgLight}
+                    onCrossSectionDrop={handleCrossSectionItemDrop}
                   />
                 </div>
               ))}
