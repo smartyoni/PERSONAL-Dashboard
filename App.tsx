@@ -43,7 +43,6 @@ const App: React.FC = () => {
     const initialTabId = Math.random().toString(36).substr(2, 9);
     const inboxSectionId = Math.random().toString(36).substr(2, 9);
     const quotesSectionId = Math.random().toString(36).substr(2, 9);
-    const goalsSectionId = Math.random().toString(36).substr(2, 9);
     return {
       tabs: [{
         id: initialTabId,
@@ -66,13 +65,7 @@ const App: React.FC = () => {
           color: 'slate',
           isLocked: false
         },
-        goalsSection: {
-          id: goalsSectionId,
-          title: '현안', // 사용자가 수정 가능
-          items: [],
-          color: 'slate',
-          isLocked: false
-        },
+
         isLocked: false,
         headerGoals: { goal1: '', goal2: '' }
       }],
@@ -119,13 +112,7 @@ const App: React.FC = () => {
             color: 'slate',
             isLocked: false
           },
-          goalsSection: tab.goalsSection || { // 기존 데이터 마이그레이션
-            id: Math.random().toString(36).substr(2, 9),
-            title: '현안',
-            items: [],
-            color: 'slate',
-            isLocked: false
-          },
+
           headerGoals: tab.headerGoals || { goal1: '', goal2: '' }
         };
       })
@@ -273,7 +260,6 @@ const App: React.FC = () => {
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
     const quotesSectionId = Math.random().toString(36).substr(2, 9);
-    const goalsSectionId = Math.random().toString(36).substr(2, 9);
     const newTab: Tab = {
       id: newId,
       name: `새 페이지 ${safeData.tabs.length + 1}`,
@@ -288,13 +274,7 @@ const App: React.FC = () => {
         color: 'slate',
         isLocked: false
       },
-      goalsSection: {
-        id: goalsSectionId,
-        title: '현안',
-        items: [],
-        color: 'slate',
-        isLocked: false
-      },
+
       isLocked: false,
       headerGoals: { goal1: '', goal2: '' }
     };
@@ -637,15 +617,7 @@ const App: React.FC = () => {
     });
   };
 
-  const handleUpdateGoalsSection = (updated: Section) => {
-    updateData({
-      ...safeData,
-      tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
-        ? { ...t, goalsSection: updated }
-        : t
-      )
-    });
-  };
+
 
   const handleDeleteSection = (id: string) => {
     const sectionToDelete = activeTab?.sections.find(s => s.id === id);
@@ -977,7 +949,7 @@ const App: React.FC = () => {
 
           {/* 3. 스크롤 가능한 메인 그리드 영역 (주차위치 + 섹션 카드들) */}
           <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-6 pb-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-6 h-full" style={{ gridAutoRows: 'auto' }}>
+            <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 h-full ${isMainTab ? 'lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'lg:grid-cols-2 xl:grid-cols-3'}`} style={{ gridAutoRows: 'auto' }}>
               {isMainTab && (
                 <>
                   {/* 주차 섹션 */}
@@ -992,7 +964,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* IN-BOX 섹션 */}
-                  <div className="h-[600px] md:h-auto md:row-span-2">
+                  <div className="h-[600px] md:h-auto md:row-span-2 xl:col-span-2">
                     <SectionCard
                       section={activeTab.inboxSection}
                       itemMemos={activeTab.memos}
@@ -1037,27 +1009,7 @@ const App: React.FC = () => {
                     />
                   </div>
 
-                  {/* 현안 섹션 (NEW) */}
-                  <div className="h-[600px] md:h-auto md:row-span-2">
-                    <SectionCard
-                      section={activeTab.goalsSection}
-                      itemMemos={activeTab.memos}
-                      onUpdateSection={handleUpdateGoalsSection}
-                      onDeleteSection={() => { }} // 삭제 불가
-                      onShowItemMemo={handleShowMemo}
-                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.goalsSection.id)}
-                      onAddToCalendar={handleAddToCalendarClick}
-                      dragState={dragState}
-                      setDragState={setDragState}
-                      onSectionDragStart={() => { }} // 드래그 불가
-                      onSectionDragOver={() => { }}
-                      onSectionDrop={() => { }}
-                      onSectionDragEnd={() => { }}
-                      isHighlighted={activeTab.goalsSection.id === highlightedSectionId}
-                      isInboxSection={true}
-                      tabColorBg={getTabColor(0).bgLight}
-                    />
-                  </div>
+
                 </>
               )}
 
