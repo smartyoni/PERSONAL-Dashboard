@@ -1,21 +1,26 @@
-<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-  <!-- 배경 (칠판 - 녹색) -->
-  <rect width="256" height="256" fill="#1a5c3a" rx="8"/>
-
-  <!-- 칠판 테두리 -->
-  <rect x="8" y="8" width="240" height="240" fill="none" stroke="#d4af37" stroke-width="6" rx="8"/>
-
-  <!-- 분필 선 1 (대각선) -->
-  <path d="M 40 80 Q 128 60 200 140" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round"/>
-
-  <!-- 분필 선 2 (하단) -->
-  <path d="M 50 170 Q 128 160 210 180" stroke="#ffd700" stroke-width="10" fill="none" stroke-linecap="round"/>
-
-  <!-- 분필 모양 (오른쪽 하단) -->
-  <g transform="translate(200, 200)">
-    <!-- 분필 막대 -->
-    <rect x="-8" y="-25" width="16" height="35" fill="#f5f5dc" stroke="#8b7355" stroke-width="1"/>
-    <!-- 분필 끝 -->
-    <polygon points="0,-25 -6,-15 6,-15" fill="#ffed4e"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Rounded Square Background -->
+  <rect width="480" height="480" x="16" y="16" rx="100" fill="#1a5c3a" />
+  
+  <!-- Checklist Board Paper -->
+  <rect width="280" height="340" x="116" y="100" rx="20" fill="#ffffff" opacity="0.9" />
+  
+  <!-- Clipboard Clip -->
+  <rect width="120" height="40" x="196" y="85" rx="10" fill="#e2e8f0" />
+  
+  <!-- Checklist Lines -->
+  <rect width="160" height="15" x="176" y="160" rx="5" fill="#cbd5e1" />
+  <rect width="160" height="15" x="176" y="220" rx="5" fill="#cbd5e1" />
+  <rect width="160" height="15" x="176" y="280" rx="5" fill="#cbd5e1" />
+  <rect width="160" height="15" x="176" y="340" rx="5" fill="#cbd5e1" />
+  
+  <!-- Checkboxes -->
+  <rect width="30" height="30" x="136" y="152" rx="5" stroke="#cbd5e1" stroke-width="4" fill="none" />
+  <rect width="30" height="30" x="136" y="212" rx="5" stroke="#cbd5e1" stroke-width="4" fill="none" />
+  <rect width="30" height="30" x="136" y="272" rx="5" stroke="#cbd5e1" stroke-width="4" fill="none" />
+  <rect width="30" height="30" x="136" y="332" rx="5" stroke="#cbd5e1" stroke-width="4" fill="none" />
+  
+  <!-- Vibrant Yellow Checkmark -->
+  <path d="M140 285 l8 8 l20 -20" stroke="#facc15" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M140 225 l8 8 l20 -20" stroke="#facc15" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" />
 </svg>
