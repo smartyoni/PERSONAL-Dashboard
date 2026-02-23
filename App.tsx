@@ -245,6 +245,7 @@ const App: React.FC = () => {
     type?: 'section' | 'checklist' | 'shopping';
     isEditing: boolean;
   }>({ id: null, value: '', type: 'section', isEditing: false });
+  const memoTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
@@ -794,6 +795,34 @@ const App: React.FC = () => {
     }
   };
 
+  const handleInsertSymbol = (symbol: string) => {
+    const textarea = memoTextareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentValue = memoEditor.value;
+    const newValue = currentValue.substring(0, start) + symbol + currentValue.substring(end);
+    setMemoEditor({ ...memoEditor, value: newValue });
+    // 커서 위치를 삽입된 기호 뒤로 이동
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + symbol.length;
+    });
+  };
+
+  const memoSymbols = [
+    { label: '•', value: '• ', title: '불렛' },
+    { label: '-', value: '- ', title: '하이픈' },
+    { label: '▸', value: '▸ ', title: '삼각' },
+    { label: '✓', value: '✓ ', title: '체크' },
+    { label: '★', value: '★ ', title: '별' },
+    { label: '※', value: '※ ', title: '참고' },
+    { label: '→', value: '→ ', title: '화살표' },
+    { label: '○', value: '○ ', title: '원' },
+    { label: '■', value: '■ ', title: '사각' },
+    { label: '◆', value: '◆ ', title: '다이아' },
+  ];
+
   const handleNavigateFromMap = (tabId: string, sectionId?: string) => {
     // 1. 탭 전환 (다른 탭인 경우)
     if (tabId !== safeData.activeTabId) {
@@ -1095,7 +1124,7 @@ const App: React.FC = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-2xl h-[80vh] shadow-2xl border border-slate-200 p-6 flex flex-col"
+            className="bg-white w-full max-w-2xl h-[80vh] shadow-2xl border border-slate-200 flex flex-col"
           >
             {/* 읽기 모드 */}
             {!memoEditor.isEditing && (
@@ -1112,7 +1141,7 @@ const App: React.FC = () => {
                     <p className="text-slate-400 italic">메모가 없습니다.</p>
                   )}
                 </div>
-                <div className="border-t border-slate-300 pt-4 mt-4 flex justify-end gap-3">
+                <div className="border-t border-slate-300 px-4 py-3 flex justify-end gap-3">
                   <button
                     onClick={() => setMemoEditor({ ...memoEditor, id: null })}
                     className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
@@ -1142,15 +1171,47 @@ const App: React.FC = () => {
             {/* 편집 모드 */}
             {memoEditor.isEditing && (
               <>
+                {/* 기호 삽입 툴바 */}
+                <div className="memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-b border-slate-200 overflow-x-auto">
+                  {memoSymbols.map((sym, idx) => (
+                    <button
+                      key={sym.label}
+                      title={sym.title}
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // textarea 포커스 유지
+                        handleInsertSymbol(sym.value);
+                      }}
+                      className={`flex-none flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-medium transition-colors select-none ${idx < 3 ? 'w-10 h-10 text-2xl' : 'w-8 h-8 text-base'}`}
+                    >
+                      {sym.label}
+                    </button>
+                  ))}
+                  <div className="w-px h-5 bg-slate-300 mx-1 flex-none" />
+                  <button
+                    title="들여쓰기"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleInsertSymbol('  ');
+                    }}
+                    className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-medium transition-colors select-none"
+                  >
+                    Tab
+                  </button>
+                </div>
                 <textarea
+                  ref={memoTextareaRef}
                   autoFocus
                   value={memoEditor.value}
                   onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
-                  onBlur={handleSaveMemo}
+                  onBlur={(e) => {
+                    // 툴바 버튼 클릭 시엔 blur 무시
+                    if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
+                    handleSaveMemo();
+                  }}
                   className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base resize-none p-4"
                   placeholder="여기에 메모를 작성하세요..."
                 />
-                <div className="mt-4 flex justify-end gap-3">
+                <div className="px-4 py-3 flex justify-end gap-3">
                   <button
                     onClick={() => {
                       // 메모가 원래 있었으면 읽기 모드로 돌아가기, 없었으면 닫기
