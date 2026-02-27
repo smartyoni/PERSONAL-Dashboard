@@ -4,9 +4,7 @@ import { PlusIcon, ResetIcon, MapIcon } from './Icons';
 import HeaderGoals from './HeaderGoals';
 
 interface HeaderProps {
-  onClearAll: () => void;
   onAddSection: () => void;
-  hasAnyCompletedItems: boolean;
   onOpenNavigationMap: () => void;
   headerGoals?: {
     goal1: string;
@@ -16,9 +14,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-  onClearAll,
   onAddSection,
-  hasAnyCompletedItems,
   onOpenNavigationMap,
   headerGoals,
   onHeaderGoalsChange
@@ -65,21 +61,12 @@ const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              onClick={onClearAll}
-              disabled={!hasAnyCompletedItems}
-              className="text-slate-900 hover:text-black p-1.5 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed bg-white border border-slate-200 shadow-sm"
-              title="현재 탭 전체 해제"
-            >
-              <ResetIcon />
-            </button>
-
-            <button
               onClick={onAddSection}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 border border-yellow-500 text-yellow-950 text-xs font-bold rounded-lg hover:bg-yellow-500 transition-all shadow-sm"
-              title="항목 추가"
+              title="섹션 추가"
             >
               <PlusIcon />
-              <span className="hidden sm:inline">+항목</span>
+              <span className="hidden sm:inline">섹션추가</span>
             </button>
           </div>
         </div>

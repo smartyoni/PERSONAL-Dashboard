@@ -1077,9 +1077,7 @@ const App: React.FC = () => {
           {/* 2. 대시보드 헤더 (틀고정 영역) */}
           <div className="flex-none bg-[#F8FAFC]">
             <Header
-              onClearAll={handleClearAll}
               onAddSection={handleAddSection}
-              hasAnyCompletedItems={hasAnyCompletedItems}
               onOpenNavigationMap={() => setNavigationMapOpen(true)}
               headerGoals={activeTab.headerGoals}
               onHeaderGoalsChange={(newGoals) => {
