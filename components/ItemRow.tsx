@@ -134,13 +134,13 @@ const ItemRow: React.FC<ItemRowProps> = ({
             compact
           />
         </div>
-        {memo && (
+        {memo && memo.trim() !== item.text.trim() && (
           <div
             onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
-            className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
+            className="text-[11px] text-slate-400 truncate cursor-pointer hover:text-slate-600 transition-colors mt-0.5 pl-1 font-normal italic"
             title={memo}
           >
-            {memo}
+            {memo.substring(item.text.length).trim()}
           </div>
         )}
       </div>

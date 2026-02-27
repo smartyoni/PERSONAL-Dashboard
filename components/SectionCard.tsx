@@ -8,7 +8,7 @@ import ItemRow from './ItemRow';
 interface SectionCardProps {
   section: Section;
   itemMemos: { [key: string]: string };
-  onUpdateSection: (updated: Section) => void;
+  onUpdateSection: (updated: Section, newMemos?: { [key: string]: string }) => void;
   onDeleteSection: (id: string) => void;
   onShowItemMemo: (id: string) => void;
   onMoveItem: (itemId: string) => void;
@@ -95,12 +95,28 @@ const SectionCard: React.FC<SectionCardProps> = ({
       const trimmedValue = quickAddValue.trim();
       if (trimmedValue === '') return;
 
+      // Smart Parsing Logic
+      const lines = trimmedValue.split('\n');
+      const firstLine = lines[0].trim();
+      const isMobile = window.innerWidth < 768;
+      const titleLimit = isMobile ? 30 : 60;
+
+      // If first line is too long or it's multi-line, we treat the first line as title (truncated)
+      const displayTitle = firstLine.length > titleLimit
+        ? firstLine.substring(0, titleLimit)
+        : firstLine;
+
+      const itemId = Math.random().toString(36).substr(2, 9);
       const newItem: ListItem = {
-        id: Math.random().toString(36).substr(2, 9),
-        text: trimmedValue,
+        id: itemId,
+        text: displayTitle,
         completed: false
       };
-      onUpdateSection({ ...section, items: [newItem, ...section.items] });
+
+      // Always save the full input as a memo
+      const newMemos = { [itemId]: trimmedValue };
+
+      onUpdateSection({ ...section, items: [newItem, ...section.items] }, newMemos);
       setQuickAddValue('');
       if (quickInputRef.current) {
         quickInputRef.current.style.height = 'auto';
@@ -305,12 +321,24 @@ const SectionCard: React.FC<SectionCardProps> = ({
             const trimmedValue = quickAddValue.trim();
             if (trimmedValue === '') return;
 
+            const lines = trimmedValue.split('\n');
+            const firstLine = lines[0].trim();
+            const isMobile = window.innerWidth < 768;
+            const titleLimit = isMobile ? 30 : 60;
+
+            const displayTitle = firstLine.length > titleLimit
+              ? firstLine.substring(0, titleLimit)
+              : firstLine;
+
+            const itemId = Math.random().toString(36).substr(2, 9);
             const newItem: ListItem = {
-              id: Math.random().toString(36).substr(2, 9),
-              text: trimmedValue,
+              id: itemId,
+              text: displayTitle,
               completed: false
             };
-            onUpdateSection({ ...section, items: [newItem, ...section.items] });
+            const newMemos = { [itemId]: trimmedValue };
+
+            onUpdateSection({ ...section, items: [newItem, ...section.items] }, newMemos);
             setQuickAddValue('');
             if (quickInputRef.current) {
               quickInputRef.current.style.height = 'auto';

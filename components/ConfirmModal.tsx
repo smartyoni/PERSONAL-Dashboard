@@ -13,7 +13,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, title, message, onC
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
       <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in zoom-in duration-200">
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100">

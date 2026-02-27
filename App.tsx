@@ -600,31 +600,43 @@ const App: React.FC = () => {
     });
   };
 
-  const handleUpdateSection = (updated: Section) => {
+  const handleUpdateSection = (updated: Section, newMemos?: { [key: string]: string }) => {
     updateData({
       ...safeData,
       tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
-        ? { ...t, sections: t.sections.map(s => s.id === updated.id ? updated : s) }
+        ? {
+          ...t,
+          sections: t.sections.map(s => s.id === updated.id ? updated : s),
+          memos: newMemos ? { ...t.memos, ...newMemos } : t.memos
+        }
         : t
       )
     });
   };
 
-  const handleUpdateInboxSection = (updated: Section) => {
+  const handleUpdateInboxSection = (updated: Section, newMemos?: { [key: string]: string }) => {
     updateData({
       ...safeData,
       tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
-        ? { ...t, inboxSection: updated }
+        ? {
+          ...t,
+          inboxSection: updated,
+          memos: newMemos ? { ...t.memos, ...newMemos } : t.memos
+        }
         : t
       )
     });
   };
 
-  const handleUpdateQuotesSection = (updated: Section) => {
+  const handleUpdateQuotesSection = (updated: Section, newMemos?: { [key: string]: string }) => {
     updateData({
       ...safeData,
       tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
-        ? { ...t, quotesSection: updated }
+        ? {
+          ...t,
+          quotesSection: updated,
+          memos: newMemos ? { ...t.memos, ...newMemos } : t.memos
+        }
         : t
       )
     });
@@ -841,6 +853,66 @@ const App: React.FC = () => {
       // 빈 메모면 모달 닫기
       setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
     }
+  };
+
+  const handleDeleteItemFromModal = () => {
+    if (!memoEditor.id) return;
+
+    setModal({
+      isOpen: true,
+      title: '항목 삭제',
+      message: '해당 항목을 삭제하시겠습니까? 관련 메모도 함께 삭제됩니다.',
+      onConfirm: () => {
+        updateData({
+          ...safeData,
+          tabs: safeData.tabs.map(t => {
+            if (t.id !== safeData.activeTabId) return t;
+
+            if (memoEditor.type === 'checklist') {
+              // 주차 위젯 챙길것
+              const newChecklistMemos = { ...t.parkingInfo.checklistMemos };
+              delete newChecklistMemos[memoEditor.id!];
+              return {
+                ...t,
+                parkingInfo: {
+                  ...t.parkingInfo,
+                  checklistItems: t.parkingInfo.checklistItems.filter(i => i.id !== memoEditor.id),
+                  checklistMemos: newChecklistMemos
+                }
+              };
+            } else if (memoEditor.type === 'shopping') {
+              // 주차 위젯 구매예정
+              const newShoppingMemos = { ...t.parkingInfo.shoppingListMemos };
+              delete newShoppingMemos[memoEditor.id!];
+              return {
+                ...t,
+                parkingInfo: {
+                  ...t.parkingInfo,
+                  shoppingListItems: t.parkingInfo.shoppingListItems.filter(i => i.id !== memoEditor.id),
+                  shoppingListMemos: newShoppingMemos
+                }
+              };
+            } else {
+              // 일반 섹션 또는 IN-BOX/명언
+              const newMemos = { ...t.memos };
+              delete newMemos[memoEditor.id!];
+
+              const updateItems = (items: ListItem[]) => items.filter(i => i.id !== memoEditor.id);
+
+              return {
+                ...t,
+                memos: newMemos,
+                inboxSection: t.inboxSection ? { ...t.inboxSection, items: updateItems(t.inboxSection.items) } : t.inboxSection,
+                quotesSection: { ...t.quotesSection, items: updateItems(t.quotesSection.items) },
+                sections: t.sections.map(s => ({ ...s, items: updateItems(s.items) }))
+              };
+            }
+          })
+        });
+        setModal(prev => ({ ...prev, isOpen: false }));
+        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+      }
+    });
   };
 
   const handleInsertSymbol = (symbol: string) => {
@@ -1175,21 +1247,7 @@ const App: React.FC = () => {
                     <p className="text-slate-400 italic">메모가 없습니다.</p>
                   )}
                 </div>
-                <div className="border-t border-slate-300 px-4 py-3 flex justify-end gap-3">
-                  <button
-                    onClick={() => setMemoEditor({ ...memoEditor, id: null })}
-                    className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
-                  >
-                    닫기
-                  </button>
-                  {memoEditor.type !== 'checklist' && memoEditor.type !== 'shopping' && (
-                    <button
-                      onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
-                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
-                    >
-                      ✏️ 수정
-                    </button>
-                  )}
+                <div className="border-t border-slate-300 px-4 py-3 flex justify-end gap-3 flex-wrap">
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(memoEditor.value);
@@ -1197,6 +1255,24 @@ const App: React.FC = () => {
                     className="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
                   >
                     📋 복사
+                  </button>
+                  <button
+                    onClick={() => setMemoEditor({ ...memoEditor, id: null })}
+                    className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  >
+                    닫기
+                  </button>
+                  <button
+                    onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
+                  >
+                    ✏️ 수정
+                  </button>
+                  <button
+                    onClick={handleDeleteItemFromModal}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium border-2 border-black transition-colors"
+                  >
+                    🗑️ 삭제
                   </button>
                 </div>
               </>
