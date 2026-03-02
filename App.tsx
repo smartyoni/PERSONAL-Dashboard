@@ -11,6 +11,7 @@ import MemoBoard from './components/MemoBoard';
 import NavigationMapModal from './components/NavigationMapModal';
 import MoveItemModal from './components/MoveItemModal';
 import AddToCalendarModal from './components/AddToCalendarModal';
+import SectionMapModal from './components/SectionMapModal';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { useGoogleCalendar } from './hooks/useGoogleCalendar';
@@ -248,6 +249,8 @@ const App: React.FC = () => {
   const memoTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
+  const [sectionMapOpen, setSectionMapOpen] = useState(false);
+  const [lastSectionPos, setLastSectionPos] = useState<{ tabId: string; sectionId: string } | null>(null);
   const [lastSectionBeforeInbox, setLastSectionBeforeInbox] = useState<{ tabId: string; sectionId: string } | null>(null);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
 
@@ -1061,6 +1064,26 @@ const App: React.FC = () => {
     }
   };
 
+  const handleOpenSectionMap = () => {
+    setSectionMapOpen(true);
+  };
+
+  const handleNavigateFromSectionMap = (sectionId: string) => {
+    // 현재 탭과 현재 위치를 '복귀'용으로 저장
+    setLastSectionPos({ tabId: safeData.activeTabId, sectionId: highlightedSectionId || activeTab.sections[0]?.id || '' });
+
+    // 이동 실행
+    handleNavigateFromMap(safeData.activeTabId, sectionId);
+    setSectionMapOpen(false);
+  };
+
+  const handleReturnToLastSection = () => {
+    if (lastSectionPos) {
+      handleNavigateFromMap(lastSectionPos.tabId, lastSectionPos.sectionId);
+      setLastSectionPos(null);
+    }
+  };
+
   const hasAnyCompletedItems = activeTab.sections.some(s => s.items.some(i => i.completed));
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
@@ -1449,6 +1472,36 @@ const App: React.FC = () => {
         onClose={() => setNavigationMapOpen(false)}
         onNavigate={handleNavigateFromMap}
       />
+
+      <SectionMapModal
+        isOpen={sectionMapOpen}
+        activeTab={activeTab}
+        tabs={safeData.tabs}
+        onClose={() => setSectionMapOpen(false)}
+        onNavigate={handleNavigateFromSectionMap}
+      />
+
+      {/* 모바일 플로팅 버튼 (FAB) */}
+      {isMobileLayout && (
+        <div className="fixed bottom-24 right-6 z-[200] flex flex-col gap-3">
+          {lastSectionPos && (
+            <button
+              onClick={handleReturnToLastSection}
+              className="w-14 h-14 bg-white border-2 border-slate-800 text-slate-800 rounded-full shadow-xl flex items-center justify-center text-2xl active:scale-95 transition-all animate-in fade-in slide-in-from-left-4"
+              title="이전 섹션으로 되돌아가기"
+            >
+              ↩️
+            </button>
+          )}
+          <button
+            onClick={handleOpenSectionMap}
+            className="w-14 h-14 bg-yellow-400 border-2 border-black text-black rounded-full shadow-xl flex items-center justify-center text-2xl active:scale-95 transition-all"
+            title="섹션 이동 맵 열기"
+          >
+            📋
+          </button>
+        </div>
+      )}
 
       <AddToCalendarModal
         isOpen={calendarModal.isOpen}
