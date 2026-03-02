@@ -250,6 +250,15 @@ const App: React.FC = () => {
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
 
+  // 메모 편집 모드 진입 시 커서를 끝으로 이동
+  useEffect(() => {
+    if (memoEditor.isEditing && memoTextareaRef.current) {
+      const len = memoEditor.value.length;
+      memoTextareaRef.current.focus();
+      memoTextareaRef.current.setSelectionRange(len, len);
+    }
+  }, [memoEditor.isEditing]);
+
   // Google Calendar 관련
   const googleCalendar = useGoogleCalendar();
   const [calendarModal, setCalendarModal] = useState<{
@@ -802,6 +811,14 @@ const App: React.FC = () => {
 
   const handleSaveMemo = () => {
     if (memoEditor.id) {
+      // 첫 줄 추출 및 제목으로 사용 (SectionCard와 동일한 로직)
+      const lines = memoEditor.value.trim().split('\n');
+      const firstLine = lines[0]?.trim() || '';
+      const titleLimit = 30;
+      const displayTitle = firstLine.length > titleLimit
+        ? firstLine.substring(0, titleLimit)
+        : firstLine;
+
       if (memoEditor.type === 'checklist') {
         updateData({
           ...safeData,
@@ -810,6 +827,10 @@ const App: React.FC = () => {
               ...t,
               parkingInfo: {
                 ...t.parkingInfo,
+                // 체크리스트 아이템 텍스트 업데이트
+                checklistItems: t.parkingInfo.checklistItems.map(item =>
+                  item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                ),
                 checklistMemos: {
                   ...t.parkingInfo.checklistMemos,
                   [memoEditor.id!]: memoEditor.value
@@ -827,6 +848,10 @@ const App: React.FC = () => {
               ...t,
               parkingInfo: {
                 ...t.parkingInfo,
+                // 쇼핑리스트 아이템 텍스트 업데이트
+                shoppingListItems: t.parkingInfo.shoppingListItems.map(item =>
+                  item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                ),
                 shoppingListMemos: {
                   ...t.parkingInfo.shoppingListMemos,
                   [memoEditor.id!]: memoEditor.value
@@ -837,10 +862,29 @@ const App: React.FC = () => {
           )
         });
       } else {
+        // 일반 섹션 아이템 (IN-BOX, 명언, 일반 섹션들 모두 포함)
         updateData({
           ...safeData,
           tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
-            ? { ...t, memos: { ...t.memos, [memoEditor.id!]: memoEditor.value } }
+            ? {
+              ...t,
+              // 모든 섹션 순회하며 아이템 텍스트 업데이트
+              sections: t.sections.map(s => ({
+                ...s,
+                items: s.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+              })),
+              // IN-BOX 업데이트
+              inboxSection: t.inboxSection ? {
+                ...t.inboxSection,
+                items: t.inboxSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+              } : t.inboxSection,
+              // 명언 업데이트
+              quotesSection: t.quotesSection ? {
+                ...t.quotesSection,
+                items: t.quotesSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+              } : t.quotesSection,
+              memos: { ...t.memos, [memoEditor.id!]: memoEditor.value }
+            }
             : t
           )
         });
@@ -1279,8 +1323,21 @@ const App: React.FC = () => {
             {/* 편집 모드 */}
             {memoEditor.isEditing && (
               <>
-                {/* 기호 삽입 툴바 */}
-                <div className="memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-b border-slate-200 overflow-x-auto">
+                <textarea
+                  ref={memoTextareaRef}
+                  autoFocus
+                  value={memoEditor.value}
+                  onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
+                  onBlur={(e) => {
+                    // 툴바 버튼 클릭 시엔 blur 무시
+                    if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
+                    handleSaveMemo();
+                  }}
+                  className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base resize-none p-4"
+                  placeholder="여기에 메모를 작성하세요..."
+                />
+                {/* 기호 삽입 툴바 - 하단으로 이동 */}
+                <div className="memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-t border-slate-200 overflow-x-auto">
                   {memoSymbols.map((sym, idx) => (
                     <button
                       key={sym.label}
@@ -1306,20 +1363,7 @@ const App: React.FC = () => {
                     Tab
                   </button>
                 </div>
-                <textarea
-                  ref={memoTextareaRef}
-                  autoFocus
-                  value={memoEditor.value}
-                  onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
-                  onBlur={(e) => {
-                    // 툴바 버튼 클릭 시엔 blur 무시
-                    if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
-                    handleSaveMemo();
-                  }}
-                  className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base resize-none p-4"
-                  placeholder="여기에 메모를 작성하세요..."
-                />
-                <div className="px-4 py-3 flex justify-end gap-3">
+                <div className="px-4 py-3 flex justify-end gap-3 pb-6">
                   <button
                     onClick={() => {
                       // 메모가 원래 있었으면 읽기 모드로 돌아가기, 없었으면 닫기

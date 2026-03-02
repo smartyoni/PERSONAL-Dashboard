@@ -338,16 +338,16 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                         compact
                       />
                     </div>
-                    {info.checklistMemos?.[item.id] && (
+                    {info.checklistMemos?.[item.id] && info.checklistMemos[item.id].trim() !== item.text.trim() && (
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
                           onShowChecklistMemo(item.id);
                         }}
-                        className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
+                        className="text-[11px] text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-normal opacity-90"
                         title={info.checklistMemos[item.id]}
                       >
-                        {info.checklistMemos[item.id]}
+                        {info.checklistMemos[item.id].substring(item.text.length).trim()}
                       </div>
                     )}
                   </div>
@@ -508,16 +508,16 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                         compact
                       />
                     </div>
-                    {info.shoppingListMemos?.[item.id] && (
+                    {info.shoppingListMemos?.[item.id] && info.shoppingListMemos[item.id].trim() !== item.text.trim() && (
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
                           onShowShoppingMemo(item.id);
                         }}
-                        className="text-xs text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-medium"
+                        className="text-[11px] text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-normal opacity-90"
                         title={info.shoppingListMemos[item.id]}
                       >
-                        {info.shoppingListMemos[item.id]}
+                        {info.shoppingListMemos[item.id].substring(item.text.length).trim()}
                       </div>
                     )}
                   </div>

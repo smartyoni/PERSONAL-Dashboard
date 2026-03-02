@@ -98,8 +98,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       // Smart Parsing Logic
       const lines = trimmedValue.split('\n');
       const firstLine = lines[0].trim();
-      const isMobile = window.innerWidth < 768;
-      const titleLimit = isMobile ? 30 : 60;
+      const titleLimit = 30;
 
       // If first line is too long or it's multi-line, we treat the first line as title (truncated)
       const displayTitle = firstLine.length > titleLimit
@@ -323,8 +322,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
             const lines = trimmedValue.split('\n');
             const firstLine = lines[0].trim();
-            const isMobile = window.innerWidth < 768;
-            const titleLimit = isMobile ? 30 : 60;
+            const titleLimit = 30;
 
             const displayTitle = firstLine.length > titleLimit
               ? firstLine.substring(0, titleLimit)
