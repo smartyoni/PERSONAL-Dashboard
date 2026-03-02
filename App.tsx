@@ -248,6 +248,7 @@ const App: React.FC = () => {
   const memoTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
+  const [lastSectionBeforeInbox, setLastSectionBeforeInbox] = useState<{ tabId: string; sectionId: string } | null>(null);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
 
   // 메모 편집 모드 진입 시 커서를 끝으로 이동
@@ -1048,6 +1049,18 @@ const App: React.FC = () => {
     }, 3000);
   };
 
+  const handleGoToInbox = (tabId: string, sectionId: string) => {
+    setLastSectionBeforeInbox({ tabId, sectionId });
+    handleNavigateToInbox();
+  };
+
+  const handleReturnFromInbox = () => {
+    if (lastSectionBeforeInbox) {
+      handleNavigateFromMap(lastSectionBeforeInbox.tabId, lastSectionBeforeInbox.sectionId);
+      setLastSectionBeforeInbox(null);
+    }
+  };
+
   const hasAnyCompletedItems = activeTab.sections.some(s => s.items.some(i => i.completed));
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
@@ -1178,6 +1191,8 @@ const App: React.FC = () => {
                       initialQuickAddValue={sharedTextForInbox}
                       onQuickAddValuePopulated={handleClearSharedText}
                       onCrossSectionDrop={handleCrossSectionItemDrop}
+                      onReturnFromInbox={handleReturnFromInbox}
+                      isReturnVisible={!!lastSectionBeforeInbox}
                     />
                   </div>
 
@@ -1201,6 +1216,7 @@ const App: React.FC = () => {
                       isInboxSection={true}
                       tabColorBg={getTabColor(0).bgLight}
                       onCrossSectionDrop={handleCrossSectionItemDrop}
+                      onGoToInbox={() => handleGoToInbox(activeTab.id, activeTab.quotesSection.id)}
                     />
                   </div>
 
@@ -1229,6 +1245,7 @@ const App: React.FC = () => {
                     tabColorText={getTabColor(currentTabIndex).text}
                     tabColorBg={getTabColor(currentTabIndex).bgLight}
                     onCrossSectionDrop={handleCrossSectionItemDrop}
+                    onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
                   />
                 </div>
               ))}

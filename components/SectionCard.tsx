@@ -27,6 +27,9 @@ interface SectionCardProps {
   initialQuickAddValue?: string;
   onQuickAddValuePopulated?: () => void;
   onCrossSectionDrop?: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, targetItemId?: string | null) => void;
+  onGoToInbox?: () => void;
+  onReturnFromInbox?: () => void;
+  isReturnVisible?: boolean;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -50,7 +53,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
   tabColorBg = '',
   initialQuickAddValue,
   onQuickAddValuePopulated,
-  onCrossSectionDrop
+  onCrossSectionDrop,
+  onGoToInbox,
+  onReturnFromInbox,
+  isReturnVisible = false
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -281,6 +287,26 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
+          {isInboxSection && isReturnVisible && (
+            <button
+              onClick={onReturnFromInbox}
+              className="text-lg hover:bg-slate-200/50 p-1 rounded-md transition-all active:scale-90"
+              title="이전 섹션으로 되돌아가기"
+            >
+              ↩️
+            </button>
+          )}
+
+          {!isInboxSection && (
+            <button
+              onClick={onGoToInbox}
+              className="text-lg hover:bg-slate-200/50 p-1 rounded-md transition-all active:scale-90"
+              title="인박스로 바로가기"
+            >
+              📥
+            </button>
+          )}
+
           {!isInboxSection && (
             <button
               onClick={handleToggleLock}
@@ -310,7 +336,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
           value={quickAddValue}
           onChange={handleQuickAddChange}
           onKeyDown={handleQuickAdd}
-          placeholder="새 항목 입력 후 Enter... (줄바꿈: Shift+Enter)"
           rows={1}
           className="flex-1 px-3 py-2 text-sm border-2 border-black border-r-0 rounded-l-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all resize-none overflow-hidden leading-5"
           style={{ minHeight: '36px' }}
