@@ -101,30 +101,30 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`group flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-start gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
     >
       {/* 1. Checkbox or Bookmark Icon */}
       {!isBookmark ? (
-        <input
-          type="checkbox"
-          checked={item.completed}
-          onChange={onAddMemo}
-          className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
-        />
+        <div className="h-5 flex items-center flex-shrink-0">
+          <input
+            type="checkbox"
+            checked={item.completed}
+            onChange={onAddMemo}
+            className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer"
+          />
+        </div>
       ) : (
-        <div className="w-5 h-5 flex items-center justify-center text-cyan-600 flex-shrink-0">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.826L10.242 9.172a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102 1.101" />
-          </svg>
+        <div className="w-5 h-5 flex items-center justify-center text-purple-600 flex-shrink-0">
+          <div className="w-3 h-3 rounded-full bg-current" />
         </div>
       )}
 
       {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0">
         <div
-          className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
+          className={`leading-snug ${item.completed ? 'line-through text-slate-400' : (isBookmark ? 'text-[15px] font-bold text-slate-800' : 'text-sm font-medium text-slate-700')} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
           onClick={() => {
             if (isBookmark) {
               if (item.url) {
@@ -160,7 +160,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
               onEditingChange?.(isEditing);
             }}
             placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
-            className="text-sm"
+            className={isBookmark ? "text-[15px] font-bold" : "text-sm"}
             compact
           />
         </div>
@@ -181,7 +181,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       </div>
 
       {/* 4. Menu Button or Delete Button */}
-      <div className="relative flex-shrink-0 -mr-3">
+      <div className="relative flex-shrink-0 -mr-3 mt-[1px]">
         {item.completed ? (
           <button
             onClick={() => setShowDeleteConfirm(true)}
@@ -297,13 +297,18 @@ const ItemRow: React.FC<ItemRowProps> = ({
         <UrlInputModal
           isOpen={isUrlModalOpen}
           onClose={() => setIsUrlModalOpen(false)}
-          onSave={(newUrl) => {
-            // 주소 보정 (http 없으면 추가)
+          onSave={(newLabel, newUrl) => {
+            // 1. 주소 보정 및 업데이트
             const formattedUrl = newUrl.trim() === '' ? '' : (newUrl.startsWith('http') ? newUrl : `https://${newUrl}`);
             onUpdateUrl?.(formattedUrl);
+
+            // 2. 이름 업데이트
+            if (newLabel.trim() !== '' && newLabel !== item.text) {
+              onUpdateText(newLabel);
+            }
           }}
           initialUrl={item.url || ''}
-          title={item.text}
+          initialLabel={item.text}
         />
       )}
     </div>

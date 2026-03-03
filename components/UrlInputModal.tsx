@@ -4,30 +4,32 @@ import React, { useState, useEffect, useRef } from 'react';
 interface UrlInputModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (url: string) => void;
+    onSave: (label: string, url: string) => void;
     initialUrl: string;
-    title: string;
+    initialLabel: string;
 }
 
-const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, initialUrl, title }) => {
+const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, initialUrl, initialLabel }) => {
     const [url, setUrl] = useState(initialUrl);
+    const [label, setLabel] = useState(initialLabel);
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen) {
             setUrl(initialUrl);
+            setLabel(initialLabel);
             // 포커스 지연 (모달 애니메이션 끝난 후)
             setTimeout(() => {
                 inputRef.current?.focus();
                 inputRef.current?.select();
             }, 100);
         }
-    }, [isOpen, initialUrl]);
+    }, [isOpen, initialUrl, initialLabel]);
 
     if (!isOpen) return null;
 
     const handleSave = () => {
-        onSave(url);
+        onSave(label, url);
         onClose();
     };
 
@@ -51,7 +53,7 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, 
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <span className="text-cyan-600">🔗</span> {title} URL 설정
+                        <span className="text-cyan-600">🔖</span> 북마크 편집
                     </h3>
                     <button
                         onClick={onClose}
@@ -65,7 +67,19 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, 
 
                 {/* Body */}
                 <div className="p-6">
-                    <div className="space-y-4">
+                    <div className="space-y-5">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">사이트 이름</label>
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={label}
+                                onChange={(e) => setLabel(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="사이트명 입력..."
+                                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:outline-none focus:border-cyan-400 focus:bg-white transition-all text-slate-700 font-bold placeholder:text-slate-300"
+                            />
+                        </div>
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">웹사이트 주소</label>
                             <div className="relative group">
@@ -73,7 +87,6 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, 
                                     <span className="text-sm font-medium">https://</span>
                                 </div>
                                 <input
-                                    ref={inputRef}
                                     type="text"
                                     value={url.replace(/^https?:\/\//, '')}
                                     onChange={(e) => setUrl(e.target.value)}
