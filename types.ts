@@ -3,6 +3,7 @@ export interface ListItem {
   id: string;
   text: string;
   completed: boolean;
+  url?: string; // 추가: 북마크 이동 주소
 }
 
 export interface Section {
@@ -55,6 +56,7 @@ export interface AppData {
   tabs: Tab[];
   activeTabId: string;
   bookmarks: Bookmark[];
+  bookmarkSections?: Section[];      // 북마크 탭의 6개 고정 섹션
 }
 
 export interface DragState {

@@ -71,7 +71,15 @@ const App: React.FC = () => {
         headerGoals: { goal1: '', goal2: '' }
       }],
       activeTabId: initialTabId,
-      bookmarks: DEFAULT_BOOKMARKS
+      bookmarks: DEFAULT_BOOKMARKS,
+      bookmarkSections: [
+        { id: 'bms1', title: '섹션 1', items: [], color: 'slate', isLocked: false },
+        { id: 'bms2', title: '섹션 2', items: [], color: 'slate', isLocked: false },
+        { id: 'bms3', title: '섹션 3', items: [], color: 'slate', isLocked: false },
+        { id: 'bms4', title: '섹션 4', items: [], color: 'slate', isLocked: false },
+        { id: 'bms5', title: '섹션 5', items: [], color: 'slate', isLocked: false },
+        { id: 'bms6', title: '섹션 6', items: [], color: 'slate', isLocked: false },
+      ]
     };
   }, []);
 
@@ -93,6 +101,9 @@ const App: React.FC = () => {
     // 메인탭(첫 번째 탭)만 inboxSection을 유지, 나머지는 undefined
     return {
       ...data,
+      bookmarkSections: (data.bookmarkSections && data.bookmarkSections.length === 6)
+        ? data.bookmarkSections
+        : defaultData.bookmarkSections,
       tabs: data.tabs.map((tab, index) => {
         const isMainTab = index === 0;
         return {
@@ -192,6 +203,9 @@ const App: React.FC = () => {
       }
     }, 300);
   }, [sharedTextForInbox, loading, safeData, updateData]);
+
+  // 북마크 탭 뷰 상태 - 로컬에서만 관리 (Firestore 리스너와 완전히 독립적)
+  const [isBookmarkView, setIsBookmarkView] = useState(false);
 
   const [dragState, setDragState] = useState<DragState>({
     draggedItemId: null,
@@ -556,6 +570,7 @@ const App: React.FC = () => {
   };
 
   const handleSelectTab = (id: string) => {
+    setIsBookmarkView(false); // 일반 탭 클릭 시 항상 북마크 뷰 해제
     updateData({ ...safeData, activeTabId: id });
   };
 
@@ -1087,6 +1102,47 @@ const App: React.FC = () => {
   const hasAnyCompletedItems = activeTab.sections.some(s => s.items.some(i => i.completed));
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
+  const handleToggleBookmarkView = () => {
+    setIsBookmarkView(prev => !prev);
+  };
+
+  // 북마크 섹션 업데이트 핸들러
+  const handleUpdateBookmarkSection = (updated: Section, newMemos?: { [key: string]: string }) => {
+    const newSections = (safeData.bookmarkSections || []).map(s => s.id === updated.id ? updated : s);
+    updateData({ ...safeData, bookmarkSections: newSections });
+  };
+
+  // 북마크 섹션 간 아이템 이동
+  const handleCrossBookmarkSectionDrop = (
+    draggedItemId: string,
+    sourceSectionId: string,
+    targetSectionId: string,
+    targetItemId?: string | null
+  ) => {
+    if (sourceSectionId === targetSectionId) return;
+    const bSections = safeData.bookmarkSections || [];
+    const sourceSection = bSections.find(s => s.id === sourceSectionId);
+    const targetSection = bSections.find(s => s.id === targetSectionId);
+    if (!sourceSection || !targetSection) return;
+    const draggedItem = sourceSection.items.find(i => i.id === draggedItemId);
+    if (!draggedItem) return;
+    const newSourceItems = sourceSection.items.filter(i => i.id !== draggedItemId);
+    let newTargetItems = [...targetSection.items];
+    if (targetItemId) {
+      const idx = newTargetItems.findIndex(i => i.id === targetItemId);
+      if (idx !== -1) newTargetItems.splice(idx, 0, draggedItem);
+      else newTargetItems.unshift(draggedItem);
+    } else {
+      newTargetItems.unshift(draggedItem);
+    }
+    const newSections = bSections.map(s => {
+      if (s.id === sourceSectionId) return { ...s, items: newSourceItems };
+      if (s.id === targetSectionId) return { ...s, items: newTargetItems };
+      return s;
+    });
+    updateData({ ...safeData, bookmarkSections: newSections });
+  };
+
   // 로딩 상태 처리
   if (loading) {
     return (
@@ -1173,115 +1229,147 @@ const App: React.FC = () => {
             />
           </div>
 
-          {/* 3. 스크롤 가능한 메인 그리드 영역 (주차위치 + 섹션 카드들) */}
+          {/* 3. 스크롤 가능한 메인 그리드 영역 */}
           <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-6 pb-20">
-            <div className={`grid gap-3 h-full ${isMobileLayout
-              ? 'grid-cols-1'
-              : `grid-cols-1 md:grid-cols-2 md:gap-6 ${isMainTab ? 'lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'lg:grid-cols-2 xl:grid-cols-3'}`
-              }`} style={{ gridAutoRows: 'auto' }}>
-              {isMainTab && (
-                <>
-                  {/* 주차 섹션 */}
-                  <div className="h-[600px] md:h-auto md:row-span-2">
-                    <ParkingWidget
-                      info={activeTab.parkingInfo}
-                      onChange={handleParkingChange}
-                      onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
-                      onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
-                      onAddToCalendar={handleAddToCalendarClick}
-                    />
-                  </div>
 
-                  {/* IN-BOX 섹션 */}
-                  <div className="h-[600px] md:h-auto md:row-span-2 xl:col-span-2">
+            {/* ── 북마크 탭 뷰 ── */}
+            {isBookmarkView ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 pt-2" style={{ gridAutoRows: 'auto' }}>
+                {(safeData.bookmarkSections || []).map((section) => (
+                  <div key={section.id} className="h-[480px] lg:h-[calc(100vh-160px)]">
                     <SectionCard
-                      section={activeTab.inboxSection}
-                      itemMemos={activeTab.memos}
-                      onUpdateSection={handleUpdateInboxSection}
-                      onDeleteSection={() => { }} // IN-BOX는 삭제 불가
-                      onShowItemMemo={handleShowMemo}
-                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
+                      section={section}
+                      itemMemos={{}}
+                      onUpdateSection={handleUpdateBookmarkSection}
+                      onDeleteSection={() => { }} // 북마크 섹션은 삭제 불가
+                      onShowItemMemo={(id) => { }}
+                      onMoveItem={() => { }}
                       onAddToCalendar={handleAddToCalendarClick}
                       dragState={dragState}
                       setDragState={setDragState}
-                      onSectionDragStart={() => { }} // IN-BOX는 드래그 불가
+                      onSectionDragStart={() => { }} // 북마크 섹션은 위치 고정
                       onSectionDragOver={() => { }}
                       onSectionDrop={() => { }}
                       onSectionDragEnd={() => { }}
-                      isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                      isHighlighted={false}
                       isInboxSection={true}
-                      tabColorBg={getTabColor(0).bgLight}
-                      initialQuickAddValue={sharedTextForInbox}
-                      onQuickAddValuePopulated={handleClearSharedText}
-                      onCrossSectionDrop={handleCrossSectionItemDrop}
-                      onReturnFromInbox={handleReturnFromInbox}
-                      isReturnVisible={!!lastSectionBeforeInbox}
+                      isBookmarkTab={true}
+                      tabColorBg={'bg-[#FEF3C7]'}
+                      onCrossSectionDrop={handleCrossBookmarkSectionDrop}
                     />
                   </div>
+                ))}
+              </div>
+            ) : (
+              /* ── 일반 탭 뷰 ── */
+              <div className={`grid gap-3 h-full ${isMobileLayout
+                ? 'grid-cols-1'
+                : `grid-cols-1 md:grid-cols-2 md:gap-6 ${isMainTab ? 'lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'lg:grid-cols-2 xl:grid-cols-3'}`
+                }`} style={{ gridAutoRows: 'auto' }}>
+                {isMainTab && (
+                  <>
+                    {/* 주차 섹션 */}
+                    <div className="h-[600px] md:h-auto md:row-span-2">
+                      <ParkingWidget
+                        info={activeTab.parkingInfo}
+                        onChange={handleParkingChange}
+                        onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
+                        onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
+                        onAddToCalendar={handleAddToCalendarClick}
+                      />
+                    </div>
 
-                  {/* 명언 섹션 */}
-                  <div className="h-[600px] md:h-auto md:row-span-2">
+                    {/* IN-BOX 섹션 */}
+                    <div className="h-[600px] md:h-auto md:row-span-2 xl:col-span-2">
+                      <SectionCard
+                        section={activeTab.inboxSection}
+                        itemMemos={activeTab.memos}
+                        onUpdateSection={handleUpdateInboxSection}
+                        onDeleteSection={() => { }} // IN-BOX는 삭제 불가
+                        onShowItemMemo={handleShowMemo}
+                        onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
+                        onAddToCalendar={handleAddToCalendarClick}
+                        dragState={dragState}
+                        setDragState={setDragState}
+                        onSectionDragStart={() => { }} // IN-BOX는 드래그 불가
+                        onSectionDragOver={() => { }}
+                        onSectionDrop={() => { }}
+                        onSectionDragEnd={() => { }}
+                        isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                        isInboxSection={true}
+                        tabColorBg={getTabColor(0).bgLight}
+                        initialQuickAddValue={sharedTextForInbox}
+                        onQuickAddValuePopulated={handleClearSharedText}
+                        onCrossSectionDrop={handleCrossSectionItemDrop}
+                        onReturnFromInbox={handleReturnFromInbox}
+                        isReturnVisible={!!lastSectionBeforeInbox}
+                      />
+                    </div>
+
+                    {/* 명언 섹션 */}
+                    <div className="h-[600px] md:h-auto md:row-span-2">
+                      <SectionCard
+                        section={activeTab.quotesSection}
+                        itemMemos={activeTab.memos}
+                        onUpdateSection={handleUpdateQuotesSection}
+                        onDeleteSection={() => { }} // 명언은 삭제 불가
+                        onShowItemMemo={handleShowMemo}
+                        onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
+                        onAddToCalendar={handleAddToCalendarClick}
+                        dragState={dragState}
+                        setDragState={setDragState}
+                        onSectionDragStart={() => { }} // 명언은 드래그 불가
+                        onSectionDragOver={() => { }}
+                        onSectionDrop={() => { }}
+                        onSectionDragEnd={() => { }}
+                        isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
+                        isInboxSection={true}
+                        tabColorBg={getTabColor(0).bgLight}
+                        onCrossSectionDrop={handleCrossSectionItemDrop}
+                        onGoToInbox={() => handleGoToInbox(activeTab.id, activeTab.quotesSection.id)}
+                      />
+                    </div>
+
+
+                  </>
+                )}
+
+                {activeTab.sections.map(section => (
+                  <div key={section.id} className={isMainTab ? '' : 'h-screen md:h-full md:row-span-2'}>
                     <SectionCard
-                      section={activeTab.quotesSection}
+                      section={section}
                       itemMemos={activeTab.memos}
-                      onUpdateSection={handleUpdateQuotesSection}
-                      onDeleteSection={() => { }} // 명언은 삭제 불가
+                      onUpdateSection={handleUpdateSection}
+                      onDeleteSection={handleDeleteSection}
                       onShowItemMemo={handleShowMemo}
-                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
+                      onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
                       onAddToCalendar={handleAddToCalendarClick}
                       dragState={dragState}
                       setDragState={setDragState}
-                      onSectionDragStart={() => { }} // 명언은 드래그 불가
-                      onSectionDragOver={() => { }}
-                      onSectionDrop={() => { }}
-                      onSectionDragEnd={() => { }}
-                      isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
-                      isInboxSection={true}
-                      tabColorBg={getTabColor(0).bgLight}
+                      onSectionDragStart={() => onSectionDragStart(section.id)}
+                      onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
+                      onSectionDrop={(e) => onSectionDrop(e, section.id)}
+                      onSectionDragEnd={onSectionDragEnd}
+                      isHighlighted={section.id === highlightedSectionId}
+                      isFullHeight={!isMainTab}
+                      tabColorText={getTabColor(currentTabIndex).text}
+                      tabColorBg={getTabColor(currentTabIndex).bgLight}
                       onCrossSectionDrop={handleCrossSectionItemDrop}
-                      onGoToInbox={() => handleGoToInbox(activeTab.id, activeTab.quotesSection.id)}
+                      onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
                     />
                   </div>
+                ))}
 
-
-                </>
-              )}
-
-              {activeTab.sections.map(section => (
-                <div key={section.id} className={isMainTab ? '' : 'h-screen md:h-full md:row-span-2'}>
-                  <SectionCard
-                    section={section}
-                    itemMemos={activeTab.memos}
-                    onUpdateSection={handleUpdateSection}
-                    onDeleteSection={handleDeleteSection}
-                    onShowItemMemo={handleShowMemo}
-                    onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
-                    onAddToCalendar={handleAddToCalendarClick}
-                    dragState={dragState}
-                    setDragState={setDragState}
-                    onSectionDragStart={() => onSectionDragStart(section.id)}
-                    onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
-                    onSectionDrop={(e) => onSectionDrop(e, section.id)}
-                    onSectionDragEnd={onSectionDragEnd}
-                    isHighlighted={section.id === highlightedSectionId}
-                    isFullHeight={!isMainTab}
-                    tabColorText={getTabColor(currentTabIndex).text}
-                    tabColorBg={getTabColor(currentTabIndex).bgLight}
-                    onCrossSectionDrop={handleCrossSectionItemDrop}
-                    onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
-                  />
-                </div>
-              ))}
-
-              {activeTab.sections.length === 0 && (!isMainTab || activeTab.sections.length === 0) && (
-                <div className="col-span-full text-center py-16 text-slate-400">
-                  <p className="text-sm italic">
-                    {isMainTab && activeTab.sections.length === 0 ? '추가된 섹션이 없습니다. "+항목" 버튼을 눌러 섹션을 추가하세요.' :
-                      activeTab.sections.length === 0 ? '이 페이지는 비어있습니다. 새로운 섹션을 추가해 보세요.' : ''}
-                  </p>
-                </div>
-              )}
-            </div>
+                {activeTab.sections.length === 0 && (!isMainTab || activeTab.sections.length === 0) && (
+                  <div className="col-span-full text-center py-16 text-slate-400">
+                    <p className="text-sm italic">
+                      {isMainTab && activeTab.sections.length === 0 ? '추가된 섹션이 없습니다. "+항목" 버튼을 눌러 섹션을 추가하세요.' :
+                        activeTab.sections.length === 0 ? '이 페이지는 비어있습니다. 새로운 섹션을 추가해 보세요.' : ''}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </main>
         </div>
 
@@ -1301,6 +1389,8 @@ const App: React.FC = () => {
           onReorderTabs={handleReorderTabs}
           onNavigateToInbox={handleNavigateToInbox}
           hasInbox={!!safeData.tabs[0]?.inboxSection}
+          isBookmarkView={isBookmarkView}
+          onToggleBookmarkView={handleToggleBookmarkView}
         />
       </div>
 

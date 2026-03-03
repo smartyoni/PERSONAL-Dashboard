@@ -30,7 +30,8 @@ export async function fetchWorkspaceData(): Promise<AppData | null> {
       return {
         tabs: data.tabs || [],
         activeTabId: data.activeTabId || '',
-        bookmarks: data.bookmarks || []
+        bookmarks: data.bookmarks || [],
+        bookmarkSections: data.bookmarkSections || undefined
       };
     }
     return null;
@@ -71,7 +72,8 @@ export function subscribeToWorkspace(
         onUpdate({
           tabs: data.tabs || [],
           activeTabId: data.activeTabId || '',
-          bookmarks: data.bookmarks || []
+          bookmarks: data.bookmarks || [],
+          bookmarkSections: data.bookmarkSections || undefined
         });
       }
     },

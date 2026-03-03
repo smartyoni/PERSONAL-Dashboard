@@ -30,6 +30,7 @@ interface SectionCardProps {
   onGoToInbox?: () => void;
   onReturnFromInbox?: () => void;
   isReturnVisible?: boolean;
+  isBookmarkTab?: boolean; // 추가
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -56,7 +57,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onCrossSectionDrop,
   onGoToInbox,
   onReturnFromInbox,
-  isReturnVisible = false
+  isReturnVisible = false,
+  isBookmarkTab = false
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -166,6 +168,13 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const handleUpdateItemText = (itemId: string, newText: string) => {
     const newItems = section.items.map(item =>
       item.id === itemId ? { ...item, text: newText } : item
+    );
+    onUpdateSection({ ...section, items: newItems });
+  };
+
+  const handleUpdateItemUrl = (itemId: string, newUrl: string) => {
+    const newItems = section.items.map(item =>
+      item.id === itemId ? { ...item, url: newUrl } : item
     );
     onUpdateSection({ ...section, items: newItems });
   };
@@ -397,6 +406,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onCopy={() => handleCopyItem(item.id)}
             onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
             onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
+            isBookmark={isBookmarkTab}
+            onUpdateUrl={(url) => handleUpdateItemUrl(item.id, url)}
             dragState={dragState}
             onDragStart={(e) => onItemDragStart(e, item.id)}
             onDragOver={(e) => onItemDragOver(e, item.id)}

@@ -4,6 +4,7 @@ import { DragHandleIcon, MenuIcon } from './Icons';
 import EditableText from './EditableText';
 import LinkifiedText from './LinkifiedText';
 import { useClickOutside } from '../hooks/useClickOutside';
+import UrlInputModal from './UrlInputModal'; // 추가
 
 interface ItemRowProps {
   item: ListItem;
@@ -17,6 +18,8 @@ interface ItemRowProps {
   onCopy: () => void;
   onAddToCalendar?: () => void;
   onEditingChange?: (isEditing: boolean) => void;
+  isBookmark?: boolean; // 추가
+  onUpdateUrl?: (newUrl: string) => void; // 추가
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -36,6 +39,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onCopy,
   onAddToCalendar,
   onEditingChange,
+  isBookmark = false,
+  onUpdateUrl,
   dragState,
   onDragStart,
   onDragOver,
@@ -45,6 +50,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isTextEditing, setIsTextEditing] = useState(false);
+  const [isUrlModalOpen, setIsUrlModalOpen] = useState(false); // 추가
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -99,22 +105,46 @@ const ItemRow: React.FC<ItemRowProps> = ({
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
     >
-      {/* 1. Checkbox - Increased size (w-5 h-5) */}
-      <input
-        type="checkbox"
-        checked={item.completed}
-        onChange={onAddMemo}
-        className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
-      />
+      {/* 1. Checkbox or Bookmark Icon */}
+      {!isBookmark ? (
+        <input
+          type="checkbox"
+          checked={item.completed}
+          onChange={onAddMemo}
+          className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
+        />
+      ) : (
+        <div className="w-5 h-5 flex items-center justify-center text-cyan-600 flex-shrink-0">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.826L10.242 9.172a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102 1.101" />
+          </svg>
+        </div>
+      )}
 
-      {/* 2. Text Area & Memo Preview - text-sm (reduced from text-base) */}
+      {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0">
         <div
-          className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}
+          className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
+          onClick={() => {
+            if (isBookmark) {
+              if (item.url) {
+                window.open(item.url.startsWith('http') ? item.url : `https://${item.url}`, '_blank');
+              } else {
+                alert('이동할 URL이 설정되지 않았습니다. 우클릭하여 URL을 설정해 주세요!');
+              }
+            }
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            // 데스크톱 우클릭 시 메뉴 오픈
+
+            // 북마크 모드면 URL 입력 모달 활성화
+            if (isBookmark) {
+              setIsUrlModalOpen(true);
+              return;
+            }
+
+            // 데스크톱 우클릭 시 메뉴 오픈 (기본 아이템)
             setMenuPos({
               top: e.clientY,
               left: e.clientX
@@ -129,12 +159,17 @@ const ItemRow: React.FC<ItemRowProps> = ({
               setIsTextEditing(isEditing);
               onEditingChange?.(isEditing);
             }}
-            placeholder="항목을 입력하세요..."
+            placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
             className="text-sm"
             compact
           />
         </div>
-        {memo && memo.trim() !== item.text.trim() && (
+        {isBookmark && item.url && (
+          <div className="text-[10px] text-cyan-500 truncate pl-1 mt-0.5 opacity-70">
+            {item.url}
+          </div>
+        )}
+        {!isBookmark && memo && memo.trim() !== item.text.trim() && (
           <div
             onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
             className="text-[11px] text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-normal opacity-90"
@@ -256,6 +291,21 @@ const ItemRow: React.FC<ItemRowProps> = ({
           </div>
         )}
       </div>
+
+      {/* URL Input Modal */}
+      {isBookmark && (
+        <UrlInputModal
+          isOpen={isUrlModalOpen}
+          onClose={() => setIsUrlModalOpen(false)}
+          onSave={(newUrl) => {
+            // 주소 보정 (http 없으면 추가)
+            const formattedUrl = newUrl.trim() === '' ? '' : (newUrl.startsWith('http') ? newUrl : `https://${newUrl}`);
+            onUpdateUrl?.(formattedUrl);
+          }}
+          initialUrl={item.url || ''}
+          title={item.text}
+        />
+      )}
     </div>
   );
 };

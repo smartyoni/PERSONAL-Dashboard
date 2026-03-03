@@ -16,6 +16,8 @@ interface FooterTabsProps {
   onReorderTabs: (fromIndex: number, toIndex: number) => void;
   onNavigateToInbox: () => void;
   hasInbox: boolean;
+  isBookmarkView: boolean;
+  onToggleBookmarkView: () => void;
 }
 
 export const TAB_COLORS = [
@@ -65,23 +67,22 @@ const TabMenuItem: React.FC<{
       <button
         ref={triggerRef}
         onClick={toggleMenu}
-        className={`p-1 rounded-full transition-all flex items-center justify-center ${
-          isActive
+        className={`p-1 rounded-full transition-all flex items-center justify-center ${isActive
             ? `opacity-100 ${tabColor.text} hover:bg-black/5`
             : `opacity-40 group-hover:opacity-100 ${tabColor.textLight} hover:bg-black/5`
-        }`}
+          }`}
         title="페이지 메뉴"
       >
         <MenuIcon />
       </button>
 
       {showMenu && (
-        <div 
+        <div
           ref={menuRef}
           className="fixed bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] border border-slate-200 z-[999] py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150 w-32"
-          style={{ 
-            bottom: `${menuPos.bottom}px`, 
-            left: `${menuPos.left}px` 
+          style={{
+            bottom: `${menuPos.bottom}px`,
+            left: `${menuPos.left}px`
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -95,23 +96,22 @@ const TabMenuItem: React.FC<{
             <span className="text-sm leading-none">{tab.isLocked ? '🔓' : '🔒'}</span>
             <span className="font-bold">{tab.isLocked ? '잠금 해제' : '잠금'}</span>
           </button>
-          
+
           <button
             disabled={!isActuallyDeleteable}
             onClick={() => {
               onDelete(tab.id);
               setShowMenu(false);
             }}
-            className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 border-t border-slate-50 ${
-              isActuallyDeleteable 
-                ? 'text-red-600 hover:bg-red-50' 
+            className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 border-t border-slate-50 ${isActuallyDeleteable
+                ? 'text-red-600 hover:bg-red-50'
                 : 'text-slate-300 cursor-not-allowed bg-slate-50'
-            }`}
+              }`}
           >
             <span className="text-sm leading-none">🗑️</span>
             <span className="font-bold">삭제</span>
           </button>
-          
+
           <button
             onClick={() => setShowMenu(false)}
             className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-100 font-medium"
@@ -134,7 +134,9 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   onToggleLockTab,
   onReorderTabs,
   onNavigateToInbox,
-  hasInbox
+  hasInbox,
+  isBookmarkView,
+  onToggleBookmarkView,
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -184,6 +186,24 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
           </button>
         )}
 
+        {/* 구분선 */}
+        <div className="h-6 w-px bg-slate-200 flex-shrink-0" />
+
+        {/* 북마크 탭 고정 버튼 */}
+        <button
+          onClick={onToggleBookmarkView}
+          title="북마크 탭"
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 font-bold text-xs ${isBookmarkView
+              ? 'bg-amber-400 text-amber-900 border-amber-400 shadow-sm'
+              : 'bg-amber-50 text-amber-600 border-transparent hover:border-amber-400 hover:shadow-md'
+            }`}
+        >
+          🔖 북마크
+        </button>
+
+        {/* 구분선 */}
+        <div className="h-6 w-px bg-slate-200 flex-shrink-0 mr-1" />
+
         {tabs.map((tab, index) => {
           const tabColor = getTabColor(index);
           const isActive = activeTabId === tab.id;
@@ -199,19 +219,14 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={handleDragEnd}
               onClick={() => onSelectTab(tab.id)}
-              className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 ${
-                isDragged ? 'opacity-50' : ''
-              } ${
-                isDragOver ? 'ring-2 ring-offset-1 ring-blue-400' : ''
-              } ${
-                !tab.isLocked ? 'hover:shadow-md' : ''
-              } ${
-                isActive
+              className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 ${isDragged ? 'opacity-50' : ''
+                } ${isDragOver ? 'ring-2 ring-offset-1 ring-blue-400' : ''
+                } ${!tab.isLocked ? 'hover:shadow-md' : ''
+                } ${isActive
                   ? `${tabColor.bg} ${tabColor.text} ${tabColor.border} shadow-sm`
                   : `${tabColor.bgLight} ${tabColor.textLight} border-transparent hover:${tabColor.border}`
-              } ${
-                tab.isLocked ? 'cursor-default' : ''
-              }`}
+                } ${tab.isLocked ? 'cursor-default' : ''
+                }`}
             >
               <div draggable={false} onDragStart={(e) => e.stopPropagation()}>
                 <EditableText

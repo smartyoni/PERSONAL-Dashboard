@@ -14,41 +14,39 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // 로컬 업데이트 방지 플래그 (무한 루프 방지)
+  // 로컬 업데이트 및 저장 상태 관리
   const isRemoteUpdate = useRef(false);
+  const isSaving = useRef(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 초기 데이터 로드
+  // 초기 데이터 로드 및 실시간 동기화
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
 
     async function initialize() {
       try {
-        // 1. 초기 데이터 가져오기
         const firestoreData = await fetchWorkspaceData();
 
         if (firestoreData && firestoreData.tabs.length > 0) {
-          // Firestore에 데이터가 있으면 사용
           setData(firestoreData);
         } else {
-          // Firestore가 비어있으면 기본값으로 초기화
           await saveWorkspaceData(defaultData);
           setData(defaultData);
         }
 
-        // 2. 실시간 동기화 시작
         unsubscribe = subscribeToWorkspace(
           (updatedData) => {
+            // 로컬에서 저장 중이거나 리모트 업데이트 플래그가 켜져 있으면 스냅샷 무시
+            if (isSaving.current) return;
+
             isRemoteUpdate.current = true;
             setData(updatedData);
-            // 다음 렌더 후 플래그 리셋
+
             setTimeout(() => {
               isRemoteUpdate.current = false;
             }, 0);
           },
-          (err) => {
-            setError(err);
-          }
+          (err) => setError(err)
         );
 
         setLoading(false);
@@ -64,19 +62,16 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
       if (unsubscribe) unsubscribe();
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, []); // 빈 배열: 마운트 시 1회만 실행
+  }, []);
 
   // 데이터 업데이트 함수 (디바운스 적용)
   const updateData = useCallback(async (newData: AppData) => {
-    // 원격 업데이트면 저장 스킵
-    if (isRemoteUpdate.current) {
-      return;
-    }
+    if (isRemoteUpdate.current) return;
 
     // 로컬 상태 즉시 업데이트
     setData(newData);
+    isSaving.current = true; // 저장 프로세스 시작됨을 표시
 
-    // 디바운스: 300ms 후에 Firestore 저장
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
@@ -84,8 +79,13 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         await saveWorkspaceData(newData);
+        // 저장이 완료된 후 잠시 기다렸다가 플래그 해제 (리스너가 이 저장을 반영한 데이터를 받을 때까지)
+        setTimeout(() => {
+          isSaving.current = false;
+        }, 500);
       } catch (err) {
         setError(err as Error);
+        isSaving.current = false;
         console.error('Failed to save to Firestore:', err);
       }
     }, 300);
