@@ -209,7 +209,7 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
             </h3>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-2">
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
             {selectedSection.section.items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-slate-400 italic">
                 등록된 체크리스트 항목이 없습니다.

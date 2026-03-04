@@ -399,7 +399,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       <div
-        className={`space-y-0.5 overflow-y-auto overflow-x-hidden flex-1 pr-1 rounded transition-colors ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60 border-2 border-dashed border-blue-300' : ''}`}
+        className={`space-y-0.5 overflow-y-auto custom-scrollbar overflow-x-hidden flex-1 pr-1 rounded transition-colors ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60 border-2 border-dashed border-blue-300' : ''}`}
         onDragOver={onEmptyAreaDragOver}
         onDrop={onEmptyAreaDrop}
       >

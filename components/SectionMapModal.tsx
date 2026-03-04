@@ -55,7 +55,7 @@ const SectionMapModal: React.FC<SectionMapModalProps> = ({
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 pb-10">
+                <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-4 space-y-2 pb-10">
                     {sections.map((section, idx) => {
                         const isInbox = section.id === activeTab.inboxSection?.id;
                         const isQuotes = section.id === activeTab.quotesSection?.id;
