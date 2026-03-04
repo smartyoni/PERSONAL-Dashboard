@@ -1216,7 +1216,7 @@ const App: React.FC = () => {
               /* ── 일반 탭 뷰 ── */
               <div className={`grid gap-3 h-full ${isMobileLayout
                 ? 'grid-cols-1'
-                : `grid-cols-1 md:grid-cols-2 md:gap-6 ${isMainTab ? 'lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'lg:grid-cols-2 xl:grid-cols-3'}`
+                : 'grid-cols-1 md:grid-cols-2 md:gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
                 }`} style={{ gridAutoRows: 'auto' }}>
                 {isMainTab && (
                   <>
@@ -1354,7 +1354,7 @@ const App: React.FC = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-2xl h-[90vh] md:h-[85vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col"
+            className="bg-white w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col"
           >
             {/* 읽기 모드 */}
             {!memoEditor.isEditing && (

@@ -101,19 +101,20 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`group flex items-start gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-start gap-1 py-2 px-1 border-b border-slate-200 last:border-0 transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
     >
       {/* 1. Checkbox or Bookmark Icon */}
       {!isBookmark ? (
-        <div className="h-5 flex items-center flex-shrink-0">
-          <input
-            type="checkbox"
-            checked={item.completed}
-            onChange={onAddMemo}
-            className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer"
-          />
+        <div className="h-5 flex items-center justify-center flex-shrink-0 w-5">
+          <button
+            onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
+            className="text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none text-red-400 hover:text-red-500"
+            title="메모 보기"
+          >
+            •
+          </button>
         </div>
       ) : (
         <div className="w-5 h-5 flex items-center justify-center text-purple-600 flex-shrink-0">
@@ -124,7 +125,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0">
         <div
-          className={`leading-snug ${item.completed ? 'line-through text-slate-400' : (isBookmark ? 'text-[15px] font-bold text-slate-800' : 'text-sm font-medium text-slate-700')} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
+          className={`leading-snug ${isBookmark ? 'text-[15px] font-bold text-slate-800' : 'text-sm font-medium text-slate-700'} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
           onClick={() => {
             if (isBookmark) {
               if (item.url) {
@@ -182,26 +183,16 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
       {/* 4. Menu Button or Delete Button */}
       <div className="relative flex-shrink-0 -mr-3 mt-[1px]">
-        {item.completed ? (
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md transition-colors text-sm font-medium border-2 border-black"
-            title="삭제"
-          >
-            삭제
-          </button>
-        ) : (
-          <button
-            ref={triggerRef}
-            onClick={toggleMenu}
-            className="text-slate-500 hover:text-slate-700 transition-colors p-0 rounded"
-            title="메뉴"
-          >
-            <MenuIcon />
-          </button>
-        )}
+        <button
+          ref={triggerRef}
+          onClick={toggleMenu}
+          className="text-slate-500 hover:text-slate-700 transition-colors p-0 rounded"
+          title="메모 및 삭제 등 메뉴 열기"
+        >
+          <MenuIcon />
+        </button>
 
-        {showMenu && !item.completed && (() => {
+        {showMenu && (() => {
           const isMobile = window.innerWidth < 768;
           return (
             <div
