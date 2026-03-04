@@ -240,8 +240,9 @@ const App: React.FC = () => {
   const [memoEditor, setMemoEditor] = useState<{
     id: string | null;
     value: string;
-    type?: 'section' | 'checklist' | 'shopping';
+    type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
     isEditing: boolean;
+    openedFromMap?: boolean;
   }>({ id: null, value: '', type: 'section', isEditing: false });
   const memoTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -1078,7 +1079,8 @@ const App: React.FC = () => {
           id: itemId,
           value: memoValue,
           type: 'section',
-          isEditing: false
+          isEditing: false,
+          openedFromMap: true
         });
       }
     }, 50);
@@ -1395,10 +1397,14 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* 중앙 메모용 모달 */}
       {memoEditor.id && (
         <div
-          onClick={() => setMemoEditor({ id: null, value: '', type: 'section', isEditing: false })}
+          onClick={() => {
+            setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+            if (memoEditor.openedFromMap) {
+              setNavigationMapOpen(true);
+            }
+          }}
           className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
         >
           <div
@@ -1429,6 +1435,17 @@ const App: React.FC = () => {
                   >
                     📋 복사
                   </button>
+                  {memoEditor.openedFromMap && (
+                    <button
+                      onClick={() => {
+                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                        setNavigationMapOpen(true);
+                      }}
+                      className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium border-2 border-indigo-200 transition-colors mr-auto"
+                    >
+                      🔙 목차로 돌아가기
+                    </button>
+                  )}
                   <button
                     onClick={() => setMemoEditor({ ...memoEditor, id: null })}
                     className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
@@ -1495,6 +1512,18 @@ const App: React.FC = () => {
                   </button>
                 </div>
                 <div className="px-4 py-3 flex justify-end gap-3 pb-6">
+                  {memoEditor.openedFromMap && (
+                    <button
+                      onClick={() => {
+                        handleSaveMemo();
+                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                        setNavigationMapOpen(true);
+                      }}
+                      className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium border-2 border-indigo-200 transition-colors mr-auto"
+                    >
+                      🔙 목차로 돌아가기
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       // 메모가 원래 있었으면 읽기 모드로 돌아가기, 없었으면 닫기
