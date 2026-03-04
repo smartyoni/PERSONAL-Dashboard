@@ -65,13 +65,13 @@ const Header: React.FC<HeaderProps> = ({
             {onToggleBookmarkView && (
               <button
                 onClick={onToggleBookmarkView}
-                className={`flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-all border shadow-sm flex-shrink-0 ${isBookmarkView
+                className={`flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-all border shadow-sm flex-shrink-0 text-xs font-bold ${isBookmarkView
                   ? 'bg-amber-400 text-amber-900 border-amber-400'
                   : 'bg-white text-slate-900 border-slate-200 hover:text-black hover:shadow-md'
                   }`}
                 title="북마크 페이지"
               >
-                <span className="text-sm">🔖</span>
+                북마크
               </button>
             )}
             <button
