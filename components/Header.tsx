@@ -56,23 +56,16 @@ const Header: React.FC<HeaderProps> = ({
             {onNavigateToInbox && (
               <button
                 onClick={onNavigateToInbox}
-                className="hidden md:flex items-center justify-center p-1.5 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm text-slate-900 hover:text-black"
+                className="hidden md:flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm text-slate-900 hover:text-black"
                 title="인박스로 바로가기"
               >
                 <InboxIcon />
               </button>
             )}
-            <button
-              onClick={onOpenNavigationMap}
-              className="px-3 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg hover:text-black hover:shadow-md transition-all shadow-sm"
-              title="목차"
-            >
-              목차
-            </button>
             {onToggleBookmarkView && (
               <button
                 onClick={onToggleBookmarkView}
-                className={`flex items-center justify-center p-1.5 rounded-lg transition-all border shadow-sm flex-shrink-0 ${isBookmarkView
+                className={`flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-all border shadow-sm flex-shrink-0 ${isBookmarkView
                   ? 'bg-amber-400 text-amber-900 border-amber-400'
                   : 'bg-white text-slate-900 border-slate-200 hover:text-black hover:shadow-md'
                   }`}
@@ -81,10 +74,17 @@ const Header: React.FC<HeaderProps> = ({
                 <span className="text-sm">🔖</span>
               </button>
             )}
+            <button
+              onClick={onOpenNavigationMap}
+              className="px-3 py-1.5 h-8 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg hover:text-black hover:shadow-md transition-all shadow-sm flex items-center justify-center"
+              title="목차"
+            >
+              목차
+            </button>
 
             <button
               onClick={onAddSection}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 border border-yellow-500 text-yellow-950 text-xs font-bold rounded-lg hover:bg-yellow-500 transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 h-8 bg-yellow-400 border border-yellow-500 text-yellow-950 text-xs font-bold rounded-lg hover:bg-yellow-500 transition-all shadow-sm"
               title="섹션 추가"
             >
               <PlusIcon />
