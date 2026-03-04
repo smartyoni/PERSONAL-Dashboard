@@ -18,8 +18,12 @@ export interface ParkingInfo {
   text: string;
   checklistItems: ListItem[];
   shoppingListItems: ListItem[];
+  remindersItems: ListItem[]; // 기억해야할 것
+  todoItems: ListItem[];      // 해야할 일
   checklistMemos: { [key: string]: string };
   shoppingListMemos: { [key: string]: string };
+  remindersMemos: { [key: string]: string }; // 기억해야할 것 메모
+  todoMemos: { [key: string]: string };      // 해야할 일 메모
 }
 
 export interface Bookmark {
@@ -64,7 +68,7 @@ export interface DragState {
 export interface MemoEditorState {
   id: string | null;
   value: string;
-  type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
+  type: 'section' | 'checklist' | 'shopping' | 'reminders' | 'todo' | 'memoBoard';
   isEditing: boolean;
   openedFromMap?: boolean;
   sectionId?: string | null;

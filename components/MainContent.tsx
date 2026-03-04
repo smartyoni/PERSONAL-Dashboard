@@ -135,6 +135,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onChange={handleParkingChange}
                                                 onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist', 'checklist')}
                                                 onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping')}
+                                                onShowRemindersMemo={(id) => handleShowMemo(id, 'reminders', 'reminders')}
+                                                onShowTodoMemo={(id) => handleShowMemo(id, 'todo', 'todo')}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>

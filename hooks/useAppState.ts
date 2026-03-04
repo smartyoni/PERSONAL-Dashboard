@@ -14,7 +14,17 @@ const defaultData: AppData = (() => {
             name: '메인',
             sections: [],
             memos: {},
-            parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
+            parkingInfo: {
+                text: '',
+                checklistItems: [],
+                shoppingListItems: [],
+                remindersItems: [],
+                todoItems: [],
+                checklistMemos: {},
+                shoppingListMemos: {},
+                remindersMemos: {},
+                todoMemos: {}
+            },
             inboxSection: {
                 id: inboxSectionId, title: 'IN-BOX', items: [], color: 'slate', isLocked: false
             },
@@ -60,6 +70,17 @@ export const useAppState = () => {
                             title: 'IN-BOX', items: [], color: 'slate', isLocked: false
                         })
                         : undefined,
+                    parkingInfo: {
+                        ...tab.parkingInfo,
+                        checklistItems: tab.parkingInfo?.checklistItems || [],
+                        shoppingListItems: tab.parkingInfo?.shoppingListItems || [],
+                        remindersItems: tab.parkingInfo?.remindersItems || [],
+                        todoItems: tab.parkingInfo?.todoItems || [],
+                        checklistMemos: tab.parkingInfo?.checklistMemos || {},
+                        shoppingListMemos: tab.parkingInfo?.shoppingListMemos || {},
+                        remindersMemos: tab.parkingInfo?.remindersMemos || {},
+                        todoMemos: tab.parkingInfo?.todoMemos || {},
+                    },
                     quotesSection: tab.quotesSection || {
                         id: Math.random().toString(36).substr(2, 9),
                         title: '명언', items: [], color: 'slate', isLocked: false
