@@ -20,6 +20,7 @@ interface ItemRowProps {
   onEditingChange?: (isEditing: boolean) => void;
   isBookmark?: boolean; // 추가
   onUpdateUrl?: (newUrl: string) => void; // 추가
+  onDoubleClickItem?: () => void;
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -41,6 +42,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onEditingChange,
   isBookmark = false,
   onUpdateUrl,
+  onDoubleClickItem,
   dragState,
   onDragStart,
   onDragOver,
@@ -126,6 +128,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
       <div className="flex-1 min-w-0">
         <div
           className={`leading-snug ${isBookmark ? 'text-[15px] font-bold text-slate-800' : 'text-sm font-medium text-slate-700'} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            onDoubleClickItem?.();
+          }}
           onClick={() => {
             if (isBookmark) {
               if (item.url) {
@@ -163,6 +169,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
             placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
             className={isBookmark ? "text-[15px] font-bold" : "text-sm"}
             compact
+            disabled={true}
           />
         </div>
         {isBookmark && item.url && (

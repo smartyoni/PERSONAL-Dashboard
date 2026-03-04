@@ -11,6 +11,7 @@ import NavigationMapModal from './components/NavigationMapModal';
 import MoveItemModal from './components/MoveItemModal';
 import AddToCalendarModal from './components/AddToCalendarModal';
 import SectionMapModal from './components/SectionMapModal';
+import TagSelectionModal from './components/TagSelectionModal';
 import { useFirestoreSync } from './hooks/useFirestoreSync';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { useGoogleCalendar } from './hooks/useGoogleCalendar';
@@ -243,6 +244,7 @@ const App: React.FC = () => {
 
   const [navigationMapOpen, setNavigationMapOpen] = useState(false);
   const [sectionMapOpen, setSectionMapOpen] = useState(false);
+  const [tagSelectionModalOpen, setTagSelectionModalOpen] = useState(false);
   const [lastSectionPos, setLastSectionPos] = useState<{ tabId: string; sectionId: string } | null>(null);
   const [lastSectionBeforeInbox, setLastSectionBeforeInbox] = useState<{ tabId: string; sectionId: string } | null>(null);
   const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
@@ -1063,6 +1065,11 @@ const App: React.FC = () => {
     setSectionMapOpen(false);
   };
 
+  const handleNavigateFromTag = (sectionId: string, tabId: string) => {
+    handleNavigateFromMap(tabId, sectionId);
+    setTagSelectionModalOpen(false);
+  };
+
   const handleReturnToLastSection = () => {
     if (lastSectionPos) {
       handleNavigateFromMap(lastSectionPos.tabId, lastSectionPos.sectionId);
@@ -1208,6 +1215,7 @@ const App: React.FC = () => {
                       isBookmarkTab={true}
                       tabColorBg={'bg-[#FEF3C7]'}
                       onCrossSectionDrop={handleCrossBookmarkSectionDrop}
+                      onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                     />
                   </div>
                 ))}
@@ -1255,6 +1263,7 @@ const App: React.FC = () => {
                         onCrossSectionDrop={handleCrossSectionItemDrop}
                         onReturnFromInbox={handleReturnFromInbox}
                         isReturnVisible={!!lastSectionBeforeInbox}
+                        onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                       />
                     </div>
 
@@ -1279,6 +1288,7 @@ const App: React.FC = () => {
                         tabColorBg={getTabColor(0).bgLight}
                         onCrossSectionDrop={handleCrossSectionItemDrop}
                         onGoToInbox={() => handleGoToInbox(activeTab.id, activeTab.quotesSection.id)}
+                        onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                       />
                     </div>
 
@@ -1308,6 +1318,7 @@ const App: React.FC = () => {
                       tabColorBg={getTabColor(currentTabIndex).bgLight}
                       onCrossSectionDrop={handleCrossSectionItemDrop}
                       onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
+                      onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                     />
                   </div>
                 ))}
@@ -1522,6 +1533,16 @@ const App: React.FC = () => {
         onClose={() => setSectionMapOpen(false)}
         onNavigate={handleNavigateFromSectionMap}
       />
+
+      {/* 태그(섹션) 선택 모달 */}
+      {tagSelectionModalOpen && (
+        <TagSelectionModal
+          isOpen={tagSelectionModalOpen}
+          tabs={safeData.tabs}
+          onClose={() => setTagSelectionModalOpen(false)}
+          onNavigate={handleNavigateFromTag}
+        />
+      )}
 
       {/* 모바일 플로팅 버튼 (FAB) */}
       {isMobileLayout && (

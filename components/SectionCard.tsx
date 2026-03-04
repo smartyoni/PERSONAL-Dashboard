@@ -31,6 +31,7 @@ interface SectionCardProps {
   onReturnFromInbox?: () => void;
   isReturnVisible?: boolean;
   isBookmarkTab?: boolean; // 추가
+  onItemDoubleClick?: (itemId: string) => void; // 추가
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -58,7 +59,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onGoToInbox,
   onReturnFromInbox,
   isReturnVisible = false,
-  isBookmarkTab = false
+  isBookmarkTab = false,
+  onItemDoubleClick,
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -412,6 +414,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onDragOver={(e) => onItemDragOver(e, item.id)}
             onDrop={(e) => onItemDrop(e, item.id)}
             onDragEnd={onItemDragEnd}
+            onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
           />
         ))}
         {section.items.length === 0 && (

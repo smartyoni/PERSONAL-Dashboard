@@ -8,9 +8,10 @@ interface EditableTextProps {
   className?: string;
   compact?: boolean;
   onEditingChange?: (isEditing: boolean) => void;
+  disabled?: boolean;
 }
 
-const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholder, className = "", compact = false, onEditingChange }) => {
+const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholder, className = "", compact = false, onEditingChange, disabled = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -40,6 +41,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
   }, [tempValue, isEditing, autoResize]);
 
   const handleDoubleClick = (e: React.MouseEvent) => {
+    if (disabled) return;
     e.stopPropagation();
     setIsEditing(true);
     setTempValue(value);
