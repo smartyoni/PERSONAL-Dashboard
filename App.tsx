@@ -1,13 +1,12 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Header from './components/Header';
-import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, SideNote, ListItem } from './types';
+import { Section, AppData, DragState, Tab, ParkingInfo, Bookmark, ListItem } from './types';
 import SectionCard from './components/SectionCard';
 import ConfirmModal from './components/ConfirmModal';
 import ParkingWidget from './components/ParkingWidget';
 import FooterTabs, { getTabColor } from './components/FooterTabs';
-import BookmarkBar from './components/BookmarkBar';
-import MemoBoard from './components/MemoBoard';
+
 import NavigationMapModal from './components/NavigationMapModal';
 import MoveItemModal from './components/MoveItemModal';
 import AddToCalendarModal from './components/AddToCalendarModal';
@@ -20,23 +19,7 @@ import LinkifiedText from './components/LinkifiedText';
 
 const STORAGE_KEY = 'custom_workspace_v4_final_persistent';
 
-const DEFAULT_BOOKMARKS: Bookmark[] = [
-  { id: 'b1', label: '호실관리', url: '', color: 'bg-[#B89F1F]' },
-  { id: 'b2', label: '호실수정', url: '', color: 'bg-[#B89F1F]' },
-  { id: 'b3', label: '호실시트', url: '', color: 'bg-[#B89F1F]' },
-  { id: 'b4', label: '북클립바', url: '', color: 'bg-[#B89F1F]' },
-  { id: 'b5', label: '등기소', url: '', color: 'bg-[#0F5A9F]' },
-  { id: 'b6', label: '정부24', url: '', color: 'bg-[#0F5A9F]' },
-  { id: 'b7', label: '토지이음', url: '', color: 'bg-[#0F5A9F]' },
-  { id: 'b8', label: '정보광장', url: '', color: 'bg-[#0F5A9F]' },
-  { id: 'b9', label: '원부장님계약', url: '', color: 'bg-[#724C8F]' },
-  { id: 'b10', label: '건강보험', url: '', color: 'bg-[#724C8F]' },
-  { id: 'b11', label: '네이버메일', url: '', color: 'bg-[#724C8F]' },
-  { id: 'b12', label: '공제가입(협회)', url: '', color: 'bg-[#724C8F]' },
-  { id: 'b13', label: '깃허브', url: '', color: 'bg-[#369D47]' },
-  { id: 'b14', label: 'AI스튜디오', url: '', color: 'bg-[#369D47]' },
-  { id: 'b15', label: '구글시트', url: '', color: 'bg-[#369D47]' },
-];
+
 
 const App: React.FC = () => {
   // 기본 데이터 정의
@@ -50,7 +33,7 @@ const App: React.FC = () => {
         name: '메인',
         sections: [],
         memos: {},
-        sideNotes: [],
+
         parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
         inboxSection: {
           id: inboxSectionId,
@@ -67,11 +50,9 @@ const App: React.FC = () => {
           isLocked: false
         },
 
-        isLocked: false,
-        headerGoals: { goal1: '', goal2: '' }
+        isLocked: false
       }],
       activeTabId: initialTabId,
-      bookmarks: DEFAULT_BOOKMARKS,
       bookmarkSections: [
         { id: 'bms1', title: '섹션 1', items: [], color: 'slate', isLocked: false },
         { id: 'bms2', title: '섹션 2', items: [], color: 'slate', isLocked: false },
@@ -124,8 +105,6 @@ const App: React.FC = () => {
             color: 'slate',
             isLocked: false
           },
-
-          headerGoals: tab.headerGoals || { goal1: '', goal2: '' }
         };
       })
     };
@@ -293,9 +272,7 @@ const App: React.FC = () => {
     return safeData.tabs.findIndex(t => t.id === safeData.activeTabId);
   }, [safeData.tabs, safeData.activeTabId]);
 
-  const handleUpdateBookmarks = (newBookmarks: Bookmark[]) => {
-    updateData({ ...safeData, bookmarks: newBookmarks });
-  };
+
 
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
@@ -305,7 +282,7 @@ const App: React.FC = () => {
       name: `새 페이지 ${safeData.tabs.length + 1}`,
       sections: [],
       memos: {},
-      sideNotes: [],
+
       parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
       quotesSection: {
         id: quotesSectionId,
@@ -315,8 +292,7 @@ const App: React.FC = () => {
         isLocked: false
       },
 
-      isLocked: false,
-      headerGoals: { goal1: '', goal2: '' }
+      isLocked: false
     };
 
     updateData({
@@ -603,12 +579,7 @@ const App: React.FC = () => {
     });
   };
 
-  const handleUpdateSideNotes = (newNotes: SideNote[]) => {
-    updateData({
-      ...safeData,
-      tabs: safeData.tabs.map(t => t.id === safeData.activeTabId ? { ...t, sideNotes: newNotes } : t)
-    });
-  };
+
 
   const handleAddSection = () => {
     const newSection: Section = {
@@ -1193,20 +1164,11 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* 1. 상단 완전 고정: 북마크바 */}
-      <div className={`flex-none ${isMobileLayout ? 'hidden' : 'hidden md:block'}`}>
-        <BookmarkBar bookmarks={safeData.bookmarks} onUpdateBookmarks={handleUpdateBookmarks} />
-      </div>
+
 
       <div className="flex-1 flex flex-row overflow-hidden">
         {/* 중앙 컨텐츠 컬럼 */}
-        {/* 4. 좌측 사이드바 고정: 메모보드 */}
-        <aside className={`flex-none w-60 border-r border-slate-200 bg-white/40 ${isMobileLayout ? 'hidden' : 'hidden lg:block'}`}>
-          <MemoBoard
-            notes={activeTab.sideNotes || []}
-            onChange={handleUpdateSideNotes}
-          />
-        </aside>
+
 
         {/* 중앙 컨텐츠 컬럼 */}
         <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
@@ -1215,17 +1177,7 @@ const App: React.FC = () => {
             <Header
               onAddSection={handleAddSection}
               onOpenNavigationMap={() => setNavigationMapOpen(true)}
-              headerGoals={activeTab.headerGoals}
-              onHeaderGoalsChange={(newGoals) => {
-                updateData({
-                  ...safeData,
-                  tabs: safeData.tabs.map(t =>
-                    t.id === safeData.activeTabId
-                      ? { ...t, headerGoals: newGoals }
-                      : t
-                  )
-                });
-              }}
+              onNavigateToInbox={handleNavigateToInbox}
             />
           </div>
 

@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, ResetIcon, MapIcon } from './Icons';
-import HeaderGoals from './HeaderGoals';
+import { PlusIcon, ResetIcon, MapIcon, InboxIcon } from './Icons';
 
 interface HeaderProps {
   onAddSection: () => void;
   onOpenNavigationMap: () => void;
+  onNavigateToInbox?: () => void;
   headerGoals?: {
     goal1: string;
     goal2: string;
@@ -16,8 +16,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   onAddSection,
   onOpenNavigationMap,
-  headerGoals,
-  onHeaderGoalsChange
+  onNavigateToInbox
 }) => {
   const [dateTime, setDateTime] = useState('');
 
@@ -45,13 +44,20 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className="w-full px-6 flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-4 pt-3 pb-4 md:py-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight hidden md:block">
-          최영현 대시보드
-        </h1>
+
         <div className="flex items-center gap-3 mt-1">
           <p className="text-red-600 font-medium whitespace-nowrap text-sm">{dateTime}</p>
 
           <div className="flex items-center gap-2 ml-2">
+            {onNavigateToInbox && (
+              <button
+                onClick={onNavigateToInbox}
+                className="hidden md:flex items-center justify-center p-1.5 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm text-slate-900 hover:text-black"
+                title="인박스로 바로가기"
+              >
+                <InboxIcon />
+              </button>
+            )}
             <button
               onClick={onOpenNavigationMap}
               className="text-slate-900 hover:text-black p-1.5 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm"
@@ -72,18 +78,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {headerGoals && onHeaderGoalsChange && (
-        <div className="flex-1 hidden lg:flex items-end justify-end">
-          <div className="w-[90%]">
-            <HeaderGoals
-              goal1={headerGoals.goal1}
-              goal2={headerGoals.goal2}
-              onGoal1Change={(value) => onHeaderGoalsChange({ ...headerGoals, goal1: value })}
-              onGoal2Change={(value) => onHeaderGoalsChange({ ...headerGoals, goal2: value })}
-            />
-          </div>
-        </div>
-      )}
+
     </header>
   );
 };

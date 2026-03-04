@@ -339,7 +339,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       {/* 빠른 추가 입력창 */}
-      <div className="mb-3 flex-shrink-0 flex items-end gap-0">
+      <div className="mb-3 flex-shrink-0 flex items-stretch gap-0">
         <textarea
           ref={quickInputRef}
           value={quickAddValue}
@@ -376,8 +376,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
               quickInputRef.current.style.height = 'auto';
             }
           }}
-          className="px-3 py-2 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap self-end"
-          style={{ height: '36px' }}
+          className="px-3 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap flex flex-col items-center justify-center"
           title="추가"
         >
           +

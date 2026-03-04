@@ -68,8 +68,8 @@ const TabMenuItem: React.FC<{
         ref={triggerRef}
         onClick={toggleMenu}
         className={`p-1 rounded-full transition-all flex items-center justify-center ${isActive
-            ? `opacity-100 ${tabColor.text} hover:bg-black/5`
-            : `opacity-40 group-hover:opacity-100 ${tabColor.textLight} hover:bg-black/5`
+          ? `opacity-100 ${tabColor.text} hover:bg-black/5`
+          : `opacity-40 group-hover:opacity-100 ${tabColor.textLight} hover:bg-black/5`
           }`}
         title="페이지 메뉴"
       >
@@ -104,8 +104,8 @@ const TabMenuItem: React.FC<{
               setShowMenu(false);
             }}
             className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 border-t border-slate-50 ${isActuallyDeleteable
-                ? 'text-red-600 hover:bg-red-50'
-                : 'text-slate-300 cursor-not-allowed bg-slate-50'
+              ? 'text-red-600 hover:bg-red-50'
+              : 'text-slate-300 cursor-not-allowed bg-slate-50'
               }`}
           >
             <span className="text-sm leading-none">🗑️</span>
@@ -179,7 +179,7 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
         {hasInbox && (
           <button
             onClick={onNavigateToInbox}
-            className="flex items-center justify-center w-8 h-8 text-lg leading-none hover:bg-blue-50 rounded-lg transition-all active:scale-95 flex-shrink-0"
+            className="md:hidden flex items-center justify-center w-8 h-8 text-lg leading-none hover:bg-blue-50 rounded-lg transition-all active:scale-95 flex-shrink-0"
             title="메인 페이지의 IN-BOX 섹션으로 이동"
           >
             📥
@@ -194,8 +194,8 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
           onClick={onToggleBookmarkView}
           title="북마크 탭"
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 font-bold text-xs ${isBookmarkView
-              ? 'bg-amber-400 text-amber-900 border-amber-400 shadow-sm'
-              : 'bg-amber-50 text-amber-600 border-transparent hover:border-amber-400 hover:shadow-md'
+            ? 'bg-amber-400 text-amber-900 border-amber-400 shadow-sm'
+            : 'bg-amber-50 text-amber-600 border-transparent hover:border-amber-400 hover:shadow-md'
             }`}
         >
           🔖 북마크

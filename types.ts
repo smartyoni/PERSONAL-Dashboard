@@ -29,10 +29,7 @@ export interface Bookmark {
   color: string;
 }
 
-export interface SideNote {
-  title: string;
-  content: string;
-}
+
 
 export interface Tab {
   id: string;
@@ -41,15 +38,12 @@ export interface Tab {
   memos: {
     [key: string]: string;
   };
-  sideNotes: SideNote[]; // 우측 사이드바 메모들을 위한 필드 (객체 배열로 변경)
+
   parkingInfo: ParkingInfo;
   inboxSection?: Section;  // IN-BOX 기본 섹션 (메인탭만)
   quotesSection: Section;  // 명언 기본 섹션
   isLocked?: boolean;
-  headerGoals?: {
-    goal1: string;
-    goal2: string;
-  };
+
 }
 
 export interface AppData {
