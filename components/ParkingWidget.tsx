@@ -130,7 +130,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     });
 
     return (
-      <div className="flex-1 flex flex-col min-h-0 border-b border-slate-100 last:border-b-0 py-2 first:pt-0">
+      <div className="flex-1 flex flex-col min-h-0 border-b border-blue-400 last:border-b-0 py-2 first:pt-0">
         <div className="flex items-center justify-between mb-1 px-1">
           <label className="text-sm font-bold text-slate-800">{title}</label>
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-blue-600 hover:text-blue-700 font-bold">+ 추가</button>
@@ -195,7 +195,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         />
       </div>
 
-      <div className="border-t-2 border-black/10 mb-2"></div>
+      <div className="border-t-2 border-blue-400 mb-2"></div>
 
       {/* 4분할 섹션 */}
       <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
