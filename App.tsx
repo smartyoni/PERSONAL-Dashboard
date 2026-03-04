@@ -234,6 +234,9 @@ const App: React.FC = () => {
     onConfirm: () => { }
   });
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [focusQuickAddSectionId, setFocusQuickAddSectionId] = useState<string | null>(null);
+
   const [memoEditor, setMemoEditor] = useState<{
     id: string | null;
     value: string;
@@ -274,7 +277,7 @@ const App: React.FC = () => {
     return safeData.tabs.findIndex(t => t.id === safeData.activeTabId);
   }, [safeData.tabs, safeData.activeTabId]);
 
-
+  const activeTabColorConfig = useMemo(() => getTabColor(currentTabIndex), [currentTabIndex]);
 
   const handleAddTab = () => {
     const newId = Math.random().toString(36).substr(2, 9);
@@ -1065,6 +1068,28 @@ const App: React.FC = () => {
     setSectionMapOpen(false);
   };
 
+  const handleShowMemoFromMap = (tabId: string, sectionId: string, itemId: string) => {
+    handleNavigateFromMap(tabId, sectionId);
+    setTimeout(() => {
+      const tab = safeData.tabs.find(t => t.id === tabId);
+      if (tab) {
+        const memoValue = tab.memos[itemId] || '';
+        setMemoEditor({
+          id: itemId,
+          value: memoValue,
+          type: 'section',
+          isEditing: false
+        });
+      }
+    }, 50);
+  };
+
+  const handleNavigateAndFocusFromMap = (tabId: string, sectionId: string) => {
+    handleNavigateFromMap(tabId, sectionId);
+    setNavigationMapOpen(false);
+    setFocusQuickAddSectionId(sectionId);
+  };
+
   const handleNavigateFromTag = (sectionId: string, tabId: string) => {
     handleNavigateFromMap(tabId, sectionId);
     setTagSelectionModalOpen(false);
@@ -1257,13 +1282,17 @@ const App: React.FC = () => {
                         onSectionDragEnd={() => { }}
                         isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
                         isInboxSection={true}
-                        tabColorBg={getTabColor(0).bgLight}
+                        isFullHeight={true}
+                        tabColorText={activeTabColorConfig.text}
+                        tabColorBg={activeTabColorConfig.bgLight}
                         initialQuickAddValue={sharedTextForInbox}
                         onQuickAddValuePopulated={handleClearSharedText}
                         onCrossSectionDrop={handleCrossSectionItemDrop}
                         onReturnFromInbox={handleReturnFromInbox}
                         isReturnVisible={!!lastSectionBeforeInbox}
                         onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                        autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
+                        onClearFocus={() => setFocusQuickAddSectionId(null)}
                       />
                     </div>
 
@@ -1285,10 +1314,15 @@ const App: React.FC = () => {
                         onSectionDragEnd={() => { }}
                         isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
                         isInboxSection={true}
-                        tabColorBg={getTabColor(0).bgLight}
+                        tabColorText={activeTabColorConfig.text}
+                        tabColorBg={activeTabColorConfig.bgLight}
                         onCrossSectionDrop={handleCrossSectionItemDrop}
                         onGoToInbox={() => handleGoToInbox(activeTab.id, activeTab.quotesSection.id)}
                         onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                        isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === activeTab.quotesSection.id}
+                        onReturnFromInbox={handleReturnFromInbox}
+                        autoFocusQuickAdd={focusQuickAddSectionId === activeTab.quotesSection.id}
+                        onClearFocus={() => setFocusQuickAddSectionId(null)}
                       />
                     </div>
 
@@ -1314,11 +1348,15 @@ const App: React.FC = () => {
                       onSectionDragEnd={onSectionDragEnd}
                       isHighlighted={section.id === highlightedSectionId}
                       isFullHeight={!isMainTab}
-                      tabColorText={getTabColor(currentTabIndex).text}
-                      tabColorBg={getTabColor(currentTabIndex).bgLight}
+                      tabColorText={activeTabColorConfig.text}
+                      tabColorBg={activeTabColorConfig.bgLight}
                       onCrossSectionDrop={handleCrossSectionItemDrop}
                       onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
                       onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                      isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
+                      onReturnFromInbox={handleReturnFromInbox}
+                      autoFocusQuickAdd={focusQuickAddSectionId === section.id}
+                      onClearFocus={() => setFocusQuickAddSectionId(null)}
                     />
                   </div>
                 ))}
@@ -1361,7 +1399,7 @@ const App: React.FC = () => {
       {memoEditor.id && (
         <div
           onClick={() => setMemoEditor({ id: null, value: '', type: 'section', isEditing: false })}
-          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -1524,6 +1562,8 @@ const App: React.FC = () => {
         activeTabId={safeData.activeTabId}
         onClose={() => setNavigationMapOpen(false)}
         onNavigate={handleNavigateFromMap}
+        onShowItemMemo={handleShowMemoFromMap}
+        onNavigateAndFocus={handleNavigateAndFocusFromMap}
       />
 
       <SectionMapModal

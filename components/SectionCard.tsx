@@ -32,6 +32,8 @@ interface SectionCardProps {
   isReturnVisible?: boolean;
   isBookmarkTab?: boolean; // 추가
   onItemDoubleClick?: (itemId: string) => void; // 추가
+  autoFocusQuickAdd?: boolean;
+  onClearFocus?: () => void;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -61,6 +63,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   isReturnVisible = false,
   isBookmarkTab = false,
   onItemDoubleClick,
+  autoFocusQuickAdd,
+  onClearFocus,
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -80,6 +84,13 @@ const SectionCard: React.FC<SectionCardProps> = ({
       return newSet;
     });
   };
+
+  useEffect(() => {
+    if (autoFocusQuickAdd && quickInputRef.current) {
+      quickInputRef.current.focus();
+      onClearFocus?.();
+    }
+  }, [autoFocusQuickAdd, onClearFocus]);
 
   // Populate quick input when shared text is received
   useEffect(() => {

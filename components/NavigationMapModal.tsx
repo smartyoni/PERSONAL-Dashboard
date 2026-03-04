@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Tab } from '../types';
+import { Tab, Section } from '../types';
 import { MapIcon, LockIcon } from './Icons';
 
 interface NavigationMapModalProps {
@@ -19,21 +19,33 @@ const ChevronIcon: React.FC<{ isExpanded: boolean }> = ({ isExpanded }) => (
   </span>
 );
 
-const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
+const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (tabId: string, sectionId: string, itemId: string) => void, onNavigateAndFocus: (tabId: string, sectionId: string) => void }> = ({
   isOpen,
   tabs,
   activeTabId,
   onClose,
-  onNavigate
+  onNavigate,
+  onShowItemMemo,
+  onNavigateAndFocus
 }) => {
   const [expandedTabIds, setExpandedTabIds] = useState<Set<string>>(new Set([activeTabId]));
+  const [selectedSection, setSelectedSection] = useState<{ tabId: string, section: Section } | null>(null);
 
   // Initialize state when modal opens
   useEffect(() => {
     if (isOpen) {
       setExpandedTabIds(new Set([activeTabId]));
+      // Select first section of active tab by default
+      const activeTab = tabs.find(t => t.id === activeTabId);
+      if (activeTab) {
+        if (activeTab.sections.length > 0) {
+          setSelectedSection({ tabId: activeTab.id, section: activeTab.sections[0] });
+        } else if (activeTab.inboxSection) {
+          setSelectedSection({ tabId: activeTab.id, section: activeTab.inboxSection });
+        }
+      }
     }
-  }, [isOpen, activeTabId]);
+  }, [isOpen, activeTabId, tabs]);
 
   if (!isOpen) return null;
 
@@ -60,8 +72,8 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
     });
   };
 
-  const handleSectionClick = (tabId: string, sectionId: string) => {
-    onNavigate(tabId, sectionId);
+  const handleSectionSelect = (tabId: string, section: Section) => {
+    setSelectedSection({ tabId, section });
   };
 
   return (
@@ -70,11 +82,11 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-4xl max-h-[80vh] rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        className="bg-white w-full max-w-6xl max-h-[85vh] h-[85vh] rounded-xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 flex-shrink-0">
           <div className="flex items-center gap-2">
             <MapIcon />
             <h2 className="text-lg font-bold text-slate-800">목차</h2>
@@ -90,86 +102,166 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-          {tabs.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <p className="italic">탭이 없습니다.</p>
-            </div>
-          ) : (
-            tabs.map((tab) => (
-              <div key={tab.id} className="mb-4">
-                {/* Tab Row - Accordion Header */}
-                <button
-                  onClick={() => toggleTab(tab.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${tab.id === activeTabId
-                    ? 'bg-blue-50 border-2 border-blue-400'
-                    : 'hover:bg-slate-100 border border-slate-200'
-                    }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <ChevronIcon isExpanded={expandedTabIds.has(tab.id)} />
-                    <span className="text-lg">📑</span>
-                    <span className="font-semibold text-slate-800">{tab.name}</span>
-                    {tab.isLocked && <LockIcon />}
-                    <span className="text-xs text-slate-400 ml-auto font-normal">
-                      {getSectionCount(tab)}개 섹션
-                    </span>
-                  </div>
-                </button>
+        {/* Content - 2 Columns */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Panel: Accordion */}
+          <div className="w-1/2 border-r border-slate-200 overflow-y-auto custom-scrollbar p-6 bg-white">
+            {tabs.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">
+                <p className="italic">탭이 없습니다.</p>
+              </div>
+            ) : (
+              tabs.map((tab) => (
+                <div key={tab.id} className="mb-4">
+                  {/* Tab Row - Accordion Header */}
+                  <button
+                    onClick={() => toggleTab(tab.id)}
+                    className={`w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${tab.id === activeTabId
+                      ? 'bg-blue-50 border-2 border-blue-400'
+                      : 'hover:bg-slate-100 border border-slate-200'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ChevronIcon isExpanded={expandedTabIds.has(tab.id)} />
+                      <span className="text-lg">📑</span>
+                      <span className="font-semibold text-slate-800">{tab.name}</span>
+                      {tab.isLocked && <LockIcon />}
+                      <span className="text-xs text-slate-400 ml-auto font-normal">
+                        {getSectionCount(tab)}개 섹션
+                      </span>
+                    </div>
+                  </button>
 
-                {/* Sections Container - Accordion Content */}
-                {expandedTabIds.has(tab.id) && (
-                  <div className="pl-6 space-y-2">
-                    {/* IN-BOX 섹션 (고정) */}
-                    {tab.inboxSection && (
-                      <button
-                        onClick={() => handleSectionClick(tab.id, tab.inboxSection!.id)}
-                        className="w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all flex items-center gap-3 group"
-                      >
-                        <span className="text-base grayscale group-hover:grayscale-0 transition-all">📥</span>
-                        <span className="text-sm font-medium text-slate-700 group-hover:text-blue-700">
-                          {tab.inboxSection.title}
-                        </span>
-                        {tab.inboxSection.isLocked && <div className="scale-75"><LockIcon /></div>}
-                        <span className="text-[11px] text-slate-400 ml-auto font-normal">
-                          {tab.inboxSection.items.length}개 항목
-                        </span>
-                      </button>
-                    )}
+                  {/* Sections Container - Accordion Content */}
+                  {expandedTabIds.has(tab.id) && (
+                    <div className="pl-6 space-y-2">
+                      {/* IN-BOX 섹션 (고정) */}
+                      {tab.inboxSection && (
+                        <div className="flex items-center group">
+                          <button
+                            onClick={() => handleSectionSelect(tab.id, tab.inboxSection!)}
+                            className={`flex-1 text-left px-4 py-2 rounded-lg border transition-all flex items-center gap-3 ${selectedSection?.section.id === tab.inboxSection.id
+                              ? 'bg-blue-100 border-blue-300'
+                              : 'hover:bg-slate-50 border-transparent'
+                              }`}
+                          >
+                            <span className="text-base grayscale transition-all">📥</span>
+                            <span className={`text-sm font-medium ${selectedSection?.section.id === tab.inboxSection.id ? 'text-blue-800' : 'text-slate-700'}`}>
+                              {tab.inboxSection.title}
+                            </span>
+                            {tab.inboxSection.isLocked && <div className="scale-75"><LockIcon /></div>}
+                            <span className="text-[11px] text-slate-400 ml-auto font-normal">
+                              {tab.inboxSection.items.length}개 항목
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => onNavigateAndFocus(tab.id, tab.inboxSection!.id)}
+                            className="ml-2 p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                            title="이 섹션으로 이동 후 입력하기"
+                          >
+                            🚀
+                          </button>
+                        </div>
+                      )}
 
-                    {/* 일반 섹션들 */}
-                    {tab.sections.length === 0 && !tab.inboxSection ? (
-                      <div className="pl-10 py-2 text-xs text-slate-400 italic">
-                        추가 섹션이 없습니다
-                      </div>
-                    ) : (
-                      tab.sections.map((section) => (
+                      {/* 일반 섹션들 */}
+                      {tab.sections.length === 0 && !tab.inboxSection ? (
+                        <div className="pl-10 py-2 text-xs text-slate-400 italic">
+                          추가 섹션이 없습니다
+                        </div>
+                      ) : (
+                        tab.sections.map((section) => (
+                          <div key={section.id} className="flex items-center group">
+                            <button
+                              onClick={() => handleSectionSelect(tab.id, section)}
+                              className={`flex-1 text-left px-4 py-2 rounded-lg border transition-all flex items-center gap-3 ${selectedSection?.section.id === section.id
+                                ? 'bg-blue-100 border-blue-300'
+                                : 'hover:bg-slate-50 border-transparent'
+                                }`}
+                            >
+                              <span className="text-base grayscale transition-all">📋</span>
+                              <span className={`text-sm font-medium ${selectedSection?.section.id === section.id ? 'text-blue-800' : 'text-slate-700'}`}>
+                                {section.title}
+                              </span>
+                              {section.isLocked && <div className="scale-75"><LockIcon /></div>}
+                              <span className="text-[11px] text-slate-400 ml-auto font-normal">
+                                {section.items.length}개 항목
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => onNavigateAndFocus(tab.id, section.id)}
+                              className="ml-2 p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                              title="이 섹션으로 이동 후 입력하기"
+                            >
+                              🚀
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Right Panel: Checklist Preview */}
+          <div className="w-1/2 bg-slate-50 p-6 overflow-y-auto custom-scrollbar">
+            {selectedSection ? (
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
+                  <h3 className="text-xl font-bold text-slate-800 break-all">{selectedSection.section.title} 항목</h3>
+                  <button
+                    onClick={() => onNavigateAndFocus(selectedSection.tabId, selectedSection.section.id)}
+                    className="flex text-sm items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors shadow-sm"
+                  >
+                    <span>🚀 이동 및 입력</span>
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-2">
+                  {selectedSection.section.items.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 italic">
+                      등록된 체크리스트 항목이 없습니다.
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {selectedSection.section.items.map(item => (
                         <button
-                          key={section.id}
-                          onClick={() => handleSectionClick(tab.id, section.id)}
-                          className="w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all flex items-center gap-3 group"
+                          key={item.id}
+                          onClick={() => onShowItemMemo(selectedSection.tabId, selectedSection.section.id, item.id)}
+                          className="w-full text-left bg-white px-4 py-3 border border-slate-200 rounded-lg hover:border-blue-400 hover:shadow-sm transition-all flex items-start gap-3 group"
                         >
-                          <span className="text-base grayscale group-hover:grayscale-0 transition-all">📋</span>
-                          <span className="text-sm font-medium text-slate-700 group-hover:text-blue-700">
-                            {section.title}
+                          <div className="mt-0.5">
+                            <input
+                              type="checkbox"
+                              checked={item.completed}
+                              readOnly
+                              className="w-4 h-4 rounded border-slate-300 pointer-events-none"
+                            />
+                          </div>
+                          <span className={`text-sm flex-1 break-all ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} group-hover:text-blue-700`}>
+                            {item.text}
                           </span>
-                          {section.isLocked && <div className="scale-75"><LockIcon /></div>}
-                          <span className="text-[11px] text-slate-400 ml-auto font-normal">
-                            {section.items.length}개 항목
+                          <span className="text-[10px] text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pt-1">
+                            메모 보기
                           </span>
                         </button>
-                      ))
-                    )}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            ))
-          )}
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                <p className="italic">항목을 볼 섹션을 선택해주세요.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
+        <div className="px-6 py-3 border-t border-slate-200 bg-white flex-shrink-0 text-xs text-slate-500 text-center">
           전체 {tabs.length}개 탭, {getTotalSections()}개 섹션, {getTotalItems()}개 항목
         </div>
       </div>
