@@ -73,14 +73,16 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       const spaceBelow = window.innerHeight - rect.bottom;
 
       if (spaceBelow >= menuHeight) {
+        // 아래쪽에 충분한 공간이 있으면: 메뉴의 top을 불렛의 top에 맞춤
         setMenuPos({
-          top: rect.bottom + 8,
-          left: rect.right + 8
+          top: rect.top,
+          left: rect.right + 4
         });
       } else {
+        // 공간이 부족하면: 메뉴의 bottom을 불렛의 bottom에 맞춤 (우측 위로 올라가는 형태)
         setMenuPos({
-          bottom: window.innerHeight - rect.top + 8,
-          left: rect.right + 8
+          bottom: window.innerHeight - rect.bottom,
+          left: rect.right + 4
         });
       }
     }
@@ -323,15 +325,25 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
                     }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={item.completed}
-                    onChange={() => handleToggleItem(item.id)}
-                    className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
-                  />
+                  <div className="h-5 flex items-center justify-center flex-shrink-0 w-5">
+                    <button
+                      ref={(el) => {
+                        if (el) triggerRefs.current[item.id] = el;
+                      }}
+                      onClick={(e) => toggleMenu(e, item.id)}
+                      className="text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none text-red-400 hover:text-red-500"
+                      title="메뉴 열기"
+                    >
+                      •
+                    </button>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div
-                      className="text-sm leading-snug font-medium text-slate-700 relative"
+                      className="text-sm leading-snug font-medium text-slate-700 relative cursor-pointer hover:text-blue-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onShowChecklistMemo(item.id);
+                      }}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -365,18 +377,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     )}
                   </div>
                   <div className="relative flex-shrink-0 -mr-3">
-                    <button
-                      ref={(el) => {
-                        if (el) triggerRefs.current[item.id] = el;
-                      }}
-                      onClick={(e) => toggleMenu(e, item.id)}
-                      className="text-slate-600 hover:text-slate-800 transition-colors p-1.5 rounded"
-                      title="메뉴"
-                      style={{ transform: 'scale(1.2)' }}
-                    >
-                      <MenuIcon />
-                    </button>
-
                     {openMenuId === item.id && (() => {
                       const isMobile = window.innerWidth < 768;
                       return (
@@ -398,15 +398,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                           }}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            onClick={() => {
-                              onShowChecklistMemo(item.id);
-                              setOpenMenuId(null);
-                            }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                          >
-                            📝 메모 수정/추가
-                          </button>
                           <button
                             onClick={() => {
                               handleCopyChecklistItem(item.id);
@@ -493,15 +484,25 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
                     }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={item.completed}
-                    onChange={() => handleToggleShoppingItem(item.id)}
-                    className="w-5 h-5 rounded border-slate-300 text-slate-700 focus:ring-slate-500 cursor-pointer flex-shrink-0"
-                  />
+                  <div className="h-5 flex items-center justify-center flex-shrink-0 w-5">
+                    <button
+                      ref={(el) => {
+                        if (el) triggerRefs.current[item.id] = el;
+                      }}
+                      onClick={(e) => toggleMenu(e, item.id)}
+                      className="text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none text-red-400 hover:text-red-500"
+                      title="메뉴 열기"
+                    >
+                      •
+                    </button>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div
-                      className="text-sm leading-snug font-medium text-slate-700 relative"
+                      className="text-sm leading-snug font-medium text-slate-700 relative cursor-pointer hover:text-blue-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onShowShoppingMemo(item.id);
+                      }}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -535,18 +536,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     )}
                   </div>
                   <div className="relative flex-shrink-0 -mr-3">
-                    <button
-                      ref={(el) => {
-                        if (el) triggerRefs.current[item.id] = el;
-                      }}
-                      onClick={(e) => toggleMenu(e, item.id)}
-                      className="text-slate-600 hover:text-slate-800 transition-colors p-1.5 rounded"
-                      title="메뉴"
-                      style={{ transform: 'scale(1.2)' }}
-                    >
-                      <MenuIcon />
-                    </button>
-
                     {openMenuId === item.id && (() => {
                       const isMobile = window.innerWidth < 768;
                       return (
@@ -568,15 +557,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                           }}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            onClick={() => {
-                              onShowShoppingMemo(item.id);
-                              setOpenMenuId(null);
-                            }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                          >
-                            📝 메모 수정/추가
-                          </button>
                           <button
                             onClick={() => {
                               handleCopyShoppingItem(item.id);

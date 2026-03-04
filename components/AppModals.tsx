@@ -1,5 +1,5 @@
-import React from 'react';
-import { AppData, Section, Tab } from '../types';
+import React, { useState, useRef } from 'react';
+import { AppData, Section, Tab, MemoEditorState } from '../types';
 import MoveItemModal from './MoveItemModal';
 import ConfirmModal from './ConfirmModal';
 import NavigationMapModal from './NavigationMapModal';
@@ -8,20 +8,13 @@ import TagSelectionModal from './TagSelectionModal';
 import AddToCalendarModal from './AddToCalendarModal';
 import LinkifiedText from './LinkifiedText';
 
-interface MemoEditorState {
-    id: string | null;
-    value: string;
-    type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
-    isEditing: boolean;
-    openedFromMap?: boolean;
-}
-
 interface AppModalsProps {
     // Memo editor
     memoEditor: MemoEditorState;
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
     memoTextareaRef: React.RefObject<HTMLTextAreaElement>;
     handleSaveMemo: () => void;
+    handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
     handleInsertSymbol: (symbol: string) => void;
     memoSymbols: { label: string; value: string; title: string }[];
@@ -61,7 +54,7 @@ interface AppModalsProps {
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleDeleteItemFromModal, handleInsertSymbol, memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, memoSymbols,
     setNavigationMapOpen, activeTab,
     moveItemModal, setMoveItemModal, handleMoveItem, safeData,
     modal, setModal,
@@ -71,12 +64,61 @@ const AppModals: React.FC<AppModalsProps> = ({
     isMobileLayout, lastSectionPos, handleReturnToLastSection, handleOpenSectionMap,
     calendarModal, setCalendarModal, handleConfirmCalendar
 }) => {
+    const touchStart = useRef<number | null>(null);
+    const touchEnd = useRef<number | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStart.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        touchEnd.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart.current || !touchEnd.current) return;
+        const distance = touchStart.current - touchEnd.current;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe) handleSwipeMemo('left');
+        if (isRightSwipe) handleSwipeMemo('right');
+
+        touchStart.current = null;
+        touchEnd.current = null;
+    };
+
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!memoEditor.id || memoEditor.isEditing) return;
+
+            if (e.key === 'ArrowLeft') {
+                handleSwipeMemo('right'); // 물리적으로 왼쪽 키는 '이전' 항목 (오른쪽 스와이프와 동일)
+            } else if (e.key === 'ArrowRight') {
+                handleSwipeMemo('left'); // 물리적으로 오른쪽 키는 '다음' 항목 (왼쪽 스와이프와 동일)
+            } else if (e.key === 'Escape') {
+                setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [memoEditor.id, memoEditor.isEditing, handleSwipeMemo, setMemoEditor]);
+
+    const currentItem = React.useMemo(() => {
+        if (!memoEditor.id) return null;
+        if (memoEditor.type === 'checklist') return activeTab.parkingInfo.checklistItems.find(i => i.id === memoEditor.id);
+        if (memoEditor.type === 'shopping') return activeTab.parkingInfo.shoppingListItems.find(i => i.id === memoEditor.id);
+        const section = [activeTab.inboxSection, activeTab.quotesSection, ...activeTab.sections].find(s => s?.id === memoEditor.sectionId);
+        return section?.items.find(i => i.id === memoEditor.id);
+    }, [memoEditor.id, memoEditor.sectionId, activeTab]);
+
     return (
         <>
             {memoEditor.id && (
                 <div
                     onClick={() => {
-                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
                         if (memoEditor.openedFromMap) {
                             setNavigationMapOpen(true);
                         }
@@ -85,14 +127,29 @@ const AppModals: React.FC<AppModalsProps> = ({
                 >
                     <div
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-white w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col"
+                        onTouchStart={memoEditor.isEditing ? undefined : handleTouchStart}
+                        onTouchMove={memoEditor.isEditing ? undefined : handleTouchMove}
+                        onTouchEnd={memoEditor.isEditing ? undefined : handleTouchEnd}
+                        className="bg-white w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col relative"
                     >
+                        {/* 헤더 부분에 제목 추가 */}
+                        {!memoEditor.isEditing && currentItem && (
+                            <div className="flex-none px-4 py-2 bg-slate-100 border-b border-black flex items-center justify-between">
+                                <span className="text-sm font-bold truncate max-w-[80%] text-slate-700">📌 {currentItem.text}</span>
+                                <div className="flex gap-1">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* 읽기 모드 */}
                         {!memoEditor.isEditing && (
                             <>
                                 <div
                                     onDoubleClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
-                                    className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors"
+                                    className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors animate-in fade-in slide-in-from-bottom-2 duration-200"
                                 >
                                     {memoEditor.value ? (
                                         <div className="prose prose-sm max-w-none select-text">
@@ -102,7 +159,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                                         <p className="text-slate-400 italic">메모가 없습니다.</p>
                                     )}
                                 </div>
-                                <div className="border-t border-slate-300 px-4 py-3 flex justify-end gap-3 flex-wrap">
+                                <div className="border-t border-slate-300 px-4 py-3 flex justify-end gap-3 flex-wrap bg-white">
                                     <button
                                         onClick={() => navigator.clipboard.writeText(memoEditor.value)}
                                         className="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
@@ -110,14 +167,14 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     {memoEditor.openedFromMap && (
                                         <button
                                             onClick={() => {
-                                                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                                                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
                                                 setNavigationMapOpen(true);
                                             }}
                                             className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium border-2 border-indigo-200 transition-colors mr-auto"
                                         >🔙 목차로 돌아가기</button>
                                     )}
                                     <button
-                                        onClick={() => setMemoEditor({ ...memoEditor, id: null })}
+                                        onClick={() => setMemoEditor({ ...memoEditor, id: null, sectionId: null })}
                                         className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
                                     >닫기</button>
                                     <button

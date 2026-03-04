@@ -60,3 +60,12 @@ export interface DragState {
   draggedSectionId: string | null;
   dragOverSectionId: string | null;
 }
+
+export interface MemoEditorState {
+  id: string | null;
+  value: string;
+  type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
+  isEditing: boolean;
+  openedFromMap?: boolean;
+  sectionId?: string | null;
+}

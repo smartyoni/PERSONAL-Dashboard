@@ -58,7 +58,7 @@ const App: React.FC = () => {
 
   // Phase 3: 메모 에디터 훅
   const {
-    handleShowMemo, handleSaveMemo, handleDeleteItemFromModal,
+    handleShowMemo, handleSwipeMemo, handleSaveMemo, handleDeleteItemFromModal,
     handleInsertSymbol, memoSymbols
   } = useMemoEditor(safeData, updateData, activeTab, memoEditor, setMemoEditor, memoTextareaRef, setModal);
 
@@ -142,7 +142,9 @@ const App: React.FC = () => {
       <AppModals
         memoEditor={memoEditor} setMemoEditor={setMemoEditor}
         memoTextareaRef={memoTextareaRef}
-        handleSaveMemo={handleSaveMemo} handleDeleteItemFromModal={handleDeleteItemFromModal}
+        handleSaveMemo={handleSaveMemo}
+        handleSwipeMemo={handleSwipeMemo}
+        handleDeleteItemFromModal={handleDeleteItemFromModal}
         handleInsertSymbol={handleInsertSymbol} memoSymbols={memoSymbols}
         setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
         moveItemModal={moveItemModal} setMoveItemModal={setMoveItemModal}

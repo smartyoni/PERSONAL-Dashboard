@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { AppData, ParkingInfo } from '../types';
+import { AppData, ParkingInfo, MemoEditorState } from '../types';
 import { useFirestoreSync } from './useFirestoreSync';
 import { useGoogleCalendar } from './useGoogleCalendar';
 import { parseMillieText } from '../utils/parseMillieText';
@@ -24,6 +24,7 @@ const defaultData: AppData = (() => {
             isLocked: false
         }],
         activeTabId: initialTabId,
+        bookmarks: [],
         bookmarkSections: [
             { id: 'bms1', title: '섹션 1', items: [], color: 'slate', isLocked: false },
             { id: 'bms2', title: '섹션 2', items: [], color: 'slate', isLocked: false },
@@ -166,10 +167,10 @@ export const useAppState = () => {
             console.error('캘린더 추가 실패:', error);
             if (error.message?.includes('인증이 만료') || error.message?.includes('권한이 부족')) {
                 setCalendarModal({ isOpen: false, itemText: '' });
-                alert(`${error.message}\n\n확인을 누르면 다시 로그인합니다.`);
+                alert(`${error.message} \n\n확인을 누르면 다시 로그인합니다.`);
                 googleCalendar.login();
             } else {
-                alert(`캘린더 추가 실패: ${error.message || '알 수 없는 오류'}`);
+                alert(`캘린더 추가 실패: ${error.message || '알 수 없는 오류'} `);
             }
         }
     };

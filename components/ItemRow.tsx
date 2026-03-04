@@ -70,16 +70,16 @@ const ItemRow: React.FC<ItemRowProps> = ({
       const spaceBelow = window.innerHeight - rect.bottom;
 
       if (spaceBelow >= menuHeight) {
-        // 아래쪽에 충분한 공간이 있으면 아래쪽에 렌더링 (메뉴의 top이 버튼의 bottom과 같음)
+        // 아래쪽에 충분한 공간이 있으면: 메뉴의 top을 불렛의 top에 맞춤
         setMenuPos({
-          top: rect.bottom + 8,
-          left: rect.right + 8
+          top: rect.top,
+          left: rect.right + 4
         });
       } else {
-        // 공간이 부족하면 위쪽에 렌더링 (메뉴의 bottom이 버튼의 top과 같음)
+        // 공간이 부족하면: 메뉴의 bottom을 불렛의 bottom에 맞춤 (우측 위로 올라가는 형태)
         setMenuPos({
-          bottom: window.innerHeight - rect.top + 8,
-          left: rect.right + 8
+          bottom: window.innerHeight - rect.bottom,
+          left: rect.right + 4
         });
       }
     }
@@ -111,9 +111,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
       {!isBookmark ? (
         <div className="h-5 flex items-center justify-center flex-shrink-0 w-5">
           <button
-            onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
+            ref={triggerRef}
+            onClick={toggleMenu}
             className="text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none text-red-400 hover:text-red-500"
-            title="메모 보기"
+            title="메뉴 열기"
           >
             •
           </button>
@@ -127,18 +128,21 @@ const ItemRow: React.FC<ItemRowProps> = ({
       {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0">
         <div
-          className={`leading-snug ${isBookmark ? 'text-[15px] font-bold text-slate-800' : 'text-sm font-medium text-slate-700'} ${isBookmark ? 'cursor-pointer hover:underline decoration-cyan-400' : ''}`}
+          className={`leading-snug ${isBookmark ? 'text-[15px] font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-sm font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onDoubleClickItem?.();
           }}
-          onClick={() => {
+          onClick={(e) => {
             if (isBookmark) {
               if (item.url) {
                 window.open(item.url.startsWith('http') ? item.url : `https://${item.url}`, '_blank');
               } else {
                 alert('이동할 URL이 설정되지 않았습니다. 우클릭하여 URL을 설정해 주세요!');
               }
+            } else {
+              e.stopPropagation();
+              onAddMemo();
             }
           }}
           onContextMenu={(e) => {
@@ -188,17 +192,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
         )}
       </div>
 
-      {/* 4. Menu Button or Delete Button */}
+      {/* 4. Hidden Menu Logic (Triggered by Bullet) */}
       <div className="relative flex-shrink-0 -mr-3 mt-[1px]">
-        <button
-          ref={triggerRef}
-          onClick={toggleMenu}
-          className="text-slate-500 hover:text-slate-700 transition-colors p-0 rounded"
-          title="메모 및 삭제 등 메뉴 열기"
-        >
-          <MenuIcon />
-        </button>
-
         {showMenu && (() => {
           const isMobile = window.innerWidth < 768;
           return (
@@ -220,12 +215,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => { onAddMemo(); setShowMenu(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-              >
-                📝 메모 수정/추가
-              </button>
               <button
                 onClick={() => { onMoveItem(); setShowMenu(false); }}
                 className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"

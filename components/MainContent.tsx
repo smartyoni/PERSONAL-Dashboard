@@ -128,8 +128,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
                                                 onChange={handleParkingChange}
-                                                onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist')}
-                                                onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping')}
+                                                onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist', 'checklist')}
+                                                onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping')}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>
@@ -140,7 +140,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateInboxSection}
                                                 onDeleteSection={() => { }}
-                                                onShowItemMemo={handleShowMemo}
+                                                onShowItemMemo={(id) => handleShowMemo(id, 'section', activeTab.inboxSection.id)}
                                                 onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -171,7 +171,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateQuotesSection}
                                                 onDeleteSection={() => { }}
-                                                onShowItemMemo={handleShowMemo}
+                                                onShowItemMemo={(id) => handleShowMemo(id, 'section', activeTab.quotesSection.id)}
                                                 onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -203,7 +203,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={activeTab.memos}
                                             onUpdateSection={handleUpdateSection}
                                             onDeleteSection={handleDeleteSection}
-                                            onShowItemMemo={handleShowMemo}
+                                            onShowItemMemo={(id) => handleShowMemo(id, 'section', section.id)}
                                             onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}

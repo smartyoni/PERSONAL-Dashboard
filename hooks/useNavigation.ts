@@ -82,20 +82,19 @@ export const useNavigation = (
     };
 
     const handleShowMemoFromMap = (tabId: string, sectionId: string, itemId: string) => {
-        handleNavigateFromMap(tabId, sectionId);
-        setTimeout(() => {
-            const tab = safeData.tabs.find(t => t.id === tabId);
-            if (tab) {
-                const memoValue = tab.memos[itemId] || '';
-                setMemoEditor({
-                    id: itemId,
-                    value: memoValue,
-                    type: 'section',
-                    isEditing: false,
-                    openedFromMap: true
-                });
-            }
-        }, 50);
+        handleSelectTab(tabId);
+        const tab = safeData.tabs.find(t => t.id === tabId);
+        if (tab) {
+            const memoValue = tab.memos[itemId] || '';
+            setMemoEditor({
+                id: itemId,
+                value: memoValue,
+                type: 'section',
+                isEditing: false,
+                openedFromMap: true,
+                sectionId: sectionId
+            });
+        }
     };
 
     const handleNavigateAndFocusFromMap = (tabId: string, sectionId: string) => {

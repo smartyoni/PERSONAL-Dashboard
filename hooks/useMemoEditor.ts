@@ -1,13 +1,5 @@
 import React, { useRef } from 'react';
-import { AppData, Tab, ListItem } from '../types';
-
-interface MemoEditorState {
-    id: string | null;
-    value: string;
-    type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
-    isEditing: boolean;
-    openedFromMap?: boolean;
-}
+import { AppData, Tab, ListItem, MemoEditorState } from '../types';
 
 interface ConfirmModal {
     isOpen: boolean;
@@ -25,7 +17,7 @@ export const useMemoEditor = (
     memoTextareaRef: React.RefObject<HTMLTextAreaElement>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {
-    const handleShowMemo = (id: string, type?: 'checklist' | 'shopping') => {
+    const handleShowMemo = (id: string, type?: 'checklist' | 'shopping' | 'section', sectionId?: string | null) => {
         let memoValue = '';
         if (type === 'checklist') {
             memoValue = activeTab.parkingInfo.checklistMemos?.[id] || '';
@@ -39,8 +31,50 @@ export const useMemoEditor = (
             id,
             value: memoValue,
             type: type || 'section',
-            isEditing: !isChecklistOrShopping && memoValue === ''
+            isEditing: !isChecklistOrShopping && memoValue === '' && !memoEditor.openedFromMap,
+            sectionId: sectionId || null
         });
+    };
+
+    const handleSwipeMemo = (direction: 'left' | 'right') => {
+        if (!memoEditor.id) return;
+
+        let items: ListItem[] = [];
+        let type: 'checklist' | 'shopping' | 'section' = memoEditor.type as any;
+
+        if (memoEditor.type === 'checklist') {
+            items = activeTab.parkingInfo.checklistItems;
+        } else if (memoEditor.type === 'shopping') {
+            items = activeTab.parkingInfo.shoppingListItems;
+        } else {
+            // Find section items
+            if (memoEditor.sectionId === activeTab.inboxSection?.id) {
+                items = activeTab.inboxSection.items;
+            } else if (memoEditor.sectionId === activeTab.quotesSection?.id) {
+                items = activeTab.quotesSection.items;
+            } else {
+                const section = activeTab.sections.find(s => s.id === memoEditor.sectionId);
+                if (section) items = section.items;
+            }
+        }
+
+        if (items.length === 0) return;
+
+        // Sort items the same way as in SectionCard (uncompleted first)
+        const sortedItems = [...items].sort((a, b) => {
+            if (a.completed === b.completed) return 0;
+            return a.completed ? 1 : -1;
+        });
+
+        const currentIndex = sortedItems.findIndex(i => i.id === memoEditor.id);
+        if (currentIndex === -1) return;
+
+        let nextIndex = direction === 'left' ? currentIndex + 1 : currentIndex - 1;
+
+        if (nextIndex >= 0 && nextIndex < sortedItems.length) {
+            const nextItem = sortedItems[nextIndex];
+            handleShowMemo(nextItem.id, type, memoEditor.sectionId);
+        }
     };
 
     const handleSaveMemo = () => {
@@ -120,7 +154,7 @@ export const useMemoEditor = (
         if (memoEditor.value.trim()) {
             setMemoEditor({ ...memoEditor, isEditing: false });
         } else {
-            setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+            setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
         }
     };
 
@@ -174,7 +208,7 @@ export const useMemoEditor = (
                     })
                 });
                 setModal(prev => ({ ...prev, isOpen: false }));
-                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
             }
         });
     };
@@ -208,6 +242,7 @@ export const useMemoEditor = (
 
     return {
         handleShowMemo,
+        handleSwipeMemo,
         handleSaveMemo,
         handleDeleteItemFromModal,
         handleInsertSymbol,
