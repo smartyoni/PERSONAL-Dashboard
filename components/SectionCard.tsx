@@ -281,7 +281,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-4 py-4 transition-all flex flex-col ${isInboxSection || isFullHeight ? 'h-full' : 'h-[350px]'} cursor-default ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
+      className={`bg-white px-4 py-4 transition-all flex flex-col h-full cursor-default ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
           isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
         }`}

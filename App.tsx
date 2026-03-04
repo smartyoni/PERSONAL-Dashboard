@@ -1229,7 +1229,7 @@ const App: React.FC = () => {
                 {isMainTab && (
                   <>
                     {/* 주차 섹션 */}
-                    <div className="h-[600px] md:h-auto md:row-span-2">
+                    <div className="h-[calc(100vh-160px)]">
                       <ParkingWidget
                         info={activeTab.parkingInfo}
                         onChange={handleParkingChange}
@@ -1240,7 +1240,7 @@ const App: React.FC = () => {
                     </div>
 
                     {/* IN-BOX 섹션 */}
-                    <div className="h-[600px] md:h-auto md:row-span-2 xl:col-span-2">
+                    <div className="h-[calc(100vh-160px)] xl:col-span-2">
                       <SectionCard
                         section={activeTab.inboxSection}
                         itemMemos={activeTab.memos}
@@ -1268,7 +1268,7 @@ const App: React.FC = () => {
                     </div>
 
                     {/* 명언 섹션 */}
-                    <div className="h-[600px] md:h-auto md:row-span-2">
+                    <div className="h-[calc(100vh-160px)]">
                       <SectionCard
                         section={activeTab.quotesSection}
                         itemMemos={activeTab.memos}
@@ -1297,7 +1297,7 @@ const App: React.FC = () => {
                 )}
 
                 {activeTab.sections.map(section => (
-                  <div key={section.id} className={isMainTab ? '' : 'h-screen md:h-full md:row-span-2'}>
+                  <div key={section.id} className="h-[calc(100vh-160px)]">
                     <SectionCard
                       section={section}
                       itemMemos={activeTab.memos}
