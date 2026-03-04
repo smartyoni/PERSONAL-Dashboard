@@ -331,7 +331,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                   />
                   <div className="flex-1 min-w-0">
                     <div
-                      className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} relative`}
+                      className="text-sm leading-snug font-medium text-slate-700 relative"
                       onContextMenu={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -501,7 +501,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                   />
                   <div className="flex-1 min-w-0">
                     <div
-                      className={`text-sm leading-snug font-medium ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} relative`}
+                      className="text-sm leading-snug font-medium text-slate-700 relative"
                       onContextMenu={(e) => {
                         e.preventDefault();
                         e.stopPropagation();

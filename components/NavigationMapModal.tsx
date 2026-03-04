@@ -240,7 +240,7 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                               className="w-4 h-4 rounded border-slate-300 pointer-events-none"
                             />
                           </div>
-                          <span className={`text-sm flex-1 break-all ${item.completed ? 'line-through text-slate-400' : 'text-slate-700'} group-hover:text-blue-700`}>
+                          <span className="text-sm flex-1 break-all text-slate-700 group-hover:text-blue-700">
                             {item.text}
                           </span>
                           <span className="text-[10px] text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pt-1">
