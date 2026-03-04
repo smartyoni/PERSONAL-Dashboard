@@ -257,17 +257,30 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         </h2>
       </div>
 
-      {/* 텍스트 입력 */}
-      <div className="mb-4">
-        <label className="block text-[9px] font-bold text-slate-500 mb-0.5 uppercase tracking-wider">
-          Location Info
-        </label>
+      {/* 주차 위치 탭 컨테이너 */}
+      <div className="mb-4 flex gap-1 items-stretch">
+        {['B1', 'B2', 'B3', 'B4', 'B5'].map(floor => (
+          <button
+            key={floor}
+            onClick={() => onChange({ ...info, text: floor })}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition-colors ${info.text === floor
+              ? 'bg-blue-500 text-white border-blue-600'
+              : 'bg-slate-50 text-slate-600 border-slate-300 hover:bg-slate-100'
+              }`}
+          >
+            {floor}
+          </button>
+        ))}
         <input
           type="text"
-          value={info.text}
-          onChange={(e) => onChange({ text: e.target.value, checklistItems })}
-          placeholder="예: B2 14C"
-          className="w-full px-2 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-500 text-xs text-slate-700 font-medium placeholder:text-slate-300"
+          maxLength={4}
+          placeholder="기타"
+          value={['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) ? '' : info.text}
+          onChange={(e) => onChange({ ...info, text: e.target.value })}
+          className={`flex-[2] min-w-0 px-2 py-1.5 text-xs font-bold rounded-lg border transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 text-center ${!['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) && (info.text || '') !== ''
+            ? 'bg-blue-50 border-blue-400 text-blue-700'
+            : 'bg-slate-50 border-slate-300 text-slate-700 placeholder:text-slate-400'
+            }`}
         />
       </div>
 
