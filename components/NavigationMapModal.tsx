@@ -77,7 +77,7 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
             <MapIcon />
-            <h2 className="text-lg font-bold text-slate-800">전체 구조 보기</h2>
+            <h2 className="text-lg font-bold text-slate-800">목차</h2>
           </div>
           <button
             onClick={onClose}
@@ -103,8 +103,8 @@ const NavigationMapModal: React.FC<NavigationMapModalProps> = ({
                 <button
                   onClick={() => toggleTab(tab.id)}
                   className={`w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${tab.id === activeTabId
-                      ? 'bg-blue-50 border-2 border-blue-400'
-                      : 'hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-blue-50 border-2 border-blue-400'
+                    : 'hover:bg-slate-100 border border-slate-200'
                     }`}
                 >
                   <div className="flex items-center gap-2">

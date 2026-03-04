@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onOpenNavigationMap}
               className="text-slate-900 hover:text-black p-1.5 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm"
-              title="전체 구조 보기"
+              title="목차"
             >
               <MapIcon />
             </button>
