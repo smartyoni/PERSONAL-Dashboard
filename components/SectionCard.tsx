@@ -34,6 +34,7 @@ interface SectionCardProps {
   onItemDoubleClick?: (itemId: string) => void; // 추가
   autoFocusQuickAdd?: boolean;
   onClearFocus?: () => void;
+  isMobileLayout?: boolean;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -65,6 +66,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onItemDoubleClick,
   autoFocusQuickAdd,
   onClearFocus,
+  isMobileLayout = false,
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -119,7 +121,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       // Smart Parsing Logic
       const lines = trimmedValue.split('\n');
       const firstLine = lines[0].trim();
-      const titleLimit = 30;
+      const titleLimit = isMobileLayout ? 30 : 60;
 
       // If first line is too long or it's multi-line, we treat the first line as title (truncated)
       const displayTitle = firstLine.length > titleLimit
@@ -369,7 +371,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
             const lines = trimmedValue.split('\n');
             const firstLine = lines[0].trim();
-            const titleLimit = 30;
+            const titleLimit = isMobileLayout ? 30 : 60;
 
             const displayTitle = firstLine.length > titleLimit
               ? firstLine.substring(0, titleLimit)

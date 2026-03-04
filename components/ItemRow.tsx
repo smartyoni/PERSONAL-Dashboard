@@ -120,15 +120,22 @@ const ItemRow: React.FC<ItemRowProps> = ({
           </button>
         </div>
       ) : (
-        <div className="w-5 h-5 flex items-center justify-center text-purple-600 flex-shrink-0">
-          <div className="w-3 h-3 rounded-full bg-current" />
+        <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsUrlModalOpen(true);
+            }}
+            className="w-3 h-3 rounded-full bg-purple-600 hover:scale-125 transition-transform focus:outline-none shadow-sm"
+            title="북마크 수정"
+          />
         </div>
       )}
 
       {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0">
         <div
-          className={`leading-snug ${isBookmark ? 'text-[15px] font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-sm font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
+          className={`leading-snug ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onDoubleClickItem?.();
@@ -171,20 +178,15 @@ const ItemRow: React.FC<ItemRowProps> = ({
               onEditingChange?.(isEditing);
             }}
             placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
-            className={isBookmark ? "text-[15px] font-bold" : "text-sm"}
+            className={isBookmark ? "text-base font-bold" : "text-[15px]"}
             compact
             disabled={true}
           />
         </div>
-        {isBookmark && item.url && (
-          <div className="text-[10px] text-cyan-500 truncate pl-1 mt-0.5 opacity-70">
-            {item.url}
-          </div>
-        )}
         {!isBookmark && memo && memo.trim() !== item.text.trim() && (
           <div
             onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
-            className="text-[11px] text-green-600 truncate cursor-pointer hover:text-green-700 transition-colors mt-0.5 pl-1 font-normal opacity-90"
+            className="text-xs text-green-700 truncate cursor-pointer hover:text-green-800 transition-colors mt-0.5 pl-1 font-medium opacity-100"
             title={memo}
           >
             {memo.substring(item.text.length).trim()}

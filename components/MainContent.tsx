@@ -38,6 +38,7 @@ interface MainContentProps {
     // Navigation
     setNavigationMapOpen: (open: boolean) => void;
     handleNavigateToInbox: () => void;
+    onToggleBookmarkView: () => void;
     highlightedSectionId: string | null;
     activeTabColorConfig: { text: string; bgLight: string };
     lastSectionBeforeInbox: { tabId: string; sectionId: string } | null;
@@ -59,6 +60,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleCrossSectionItemDrop, handleCrossBookmarkSectionDrop,
     handleParkingChange, handleShowMemo, handleAddToCalendarClick,
     handleOpenMoveItemModal, setNavigationMapOpen, handleNavigateToInbox,
+    onToggleBookmarkView,
     highlightedSectionId, activeTabColorConfig,
     lastSectionBeforeInbox, handleReturnFromInbox, handleGoToInbox,
     setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
@@ -85,6 +87,8 @@ const MainContent: React.FC<MainContentProps> = ({
                             onAddSection={handleAddSection}
                             onOpenNavigationMap={() => setNavigationMapOpen(true)}
                             onNavigateToInbox={handleNavigateToInbox}
+                            isBookmarkView={isBookmarkView}
+                            onToggleBookmarkView={onToggleBookmarkView}
                         />
                     </div>
 
@@ -113,6 +117,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             tabColorBg={'bg-[#FEF3C7]'}
                                             onCrossSectionDrop={handleCrossBookmarkSectionDrop}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                            isMobileLayout={isMobileLayout}
                                         />
                                     </div>
                                 ))}
@@ -162,6 +167,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                                 autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
                                                 onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                isMobileLayout={isMobileLayout}
                                             />
                                         </div>
 
@@ -191,6 +197,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onReturnFromInbox={handleReturnFromInbox}
                                                 autoFocusQuickAdd={focusQuickAddSectionId === activeTab.quotesSection.id}
                                                 onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                isMobileLayout={isMobileLayout}
                                             />
                                         </div>
                                     </>
@@ -223,6 +230,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onReturnFromInbox={handleReturnFromInbox}
                                             autoFocusQuickAdd={focusQuickAddSectionId === section.id}
                                             onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                            isMobileLayout={isMobileLayout}
                                         />
                                     </div>
                                 ))}

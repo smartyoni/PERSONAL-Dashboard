@@ -120,6 +120,7 @@ const App: React.FC = () => {
         handleParkingChange={handleParkingChange} handleShowMemo={handleShowMemo}
         handleAddToCalendarClick={handleAddToCalendarClick} handleOpenMoveItemModal={handleOpenMoveItemModal}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
+        onToggleBookmarkView={handleToggleBookmarkView}
         highlightedSectionId={highlightedSectionId} activeTabColorConfig={activeTabColorConfig}
         lastSectionBeforeInbox={lastSectionBeforeInbox} handleReturnFromInbox={handleReturnFromInbox}
         handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}

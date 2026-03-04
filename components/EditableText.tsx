@@ -78,7 +78,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
         onKeyDown={handleKeyDown}
         onDragStart={(e) => e.stopPropagation()}
         rows={1}
-        className={`w-full ${compact ? 'p-0 text-lg leading-normal' : 'p-1'} border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white resize-none overflow-hidden ${className}`}
+        className={`w-full ${compact ? 'p-0 leading-normal' : 'p-1'} border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white resize-none overflow-hidden ${className}`}
       />
     );
   }
@@ -86,7 +86,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
   return (
     <div
       onDoubleClick={handleDoubleClick}
-      className={`cursor-pointer hover:bg-slate-50 transition-colors ${compact ? 'p-0 min-h-0 text-lg leading-tight' : 'p-1 min-h-[1.5rem]'} rounded break-words whitespace-pre-wrap ${className}`}
+      className={`cursor-pointer hover:bg-slate-50 transition-colors ${compact ? 'p-0 min-h-0 leading-tight' : 'p-1 min-h-[1.5rem]'} rounded break-words whitespace-pre-wrap ${className}`}
     >
       {value || <span className="text-slate-400 italic text-[0.8em]">{placeholder}</span>}
     </div>

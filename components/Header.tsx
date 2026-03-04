@@ -6,6 +6,8 @@ interface HeaderProps {
   onAddSection: () => void;
   onOpenNavigationMap: () => void;
   onNavigateToInbox?: () => void;
+  isBookmarkView?: boolean;
+  onToggleBookmarkView?: () => void;
   headerGoals?: {
     goal1: string;
     goal2: string;
@@ -16,7 +18,9 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   onAddSection,
   onOpenNavigationMap,
-  onNavigateToInbox
+  onNavigateToInbox,
+  isBookmarkView,
+  onToggleBookmarkView
 }) => {
   const [dateTime, setDateTime] = useState('');
 
@@ -60,11 +64,23 @@ const Header: React.FC<HeaderProps> = ({
             )}
             <button
               onClick={onOpenNavigationMap}
-              className="text-slate-900 hover:text-black p-1.5 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm"
+              className="px-3 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg hover:text-black hover:shadow-md transition-all shadow-sm"
               title="목차"
             >
-              <MapIcon />
+              목차
             </button>
+            {onToggleBookmarkView && (
+              <button
+                onClick={onToggleBookmarkView}
+                className={`flex items-center justify-center p-1.5 rounded-lg transition-all border shadow-sm flex-shrink-0 ${isBookmarkView
+                  ? 'bg-amber-400 text-amber-900 border-amber-400'
+                  : 'bg-white text-slate-900 border-slate-200 hover:text-black hover:shadow-md'
+                  }`}
+                title="북마크 페이지"
+              >
+                <span className="text-sm">🔖</span>
+              </button>
+            )}
 
             <button
               onClick={onAddSection}

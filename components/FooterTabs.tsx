@@ -2,7 +2,6 @@
 import React, { useState, useRef } from 'react';
 import { Tab } from '../types';
 import EditableText from './EditableText';
-import { MenuIcon } from './Icons';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 interface FooterTabsProps {
@@ -21,108 +20,18 @@ interface FooterTabsProps {
 }
 
 export const TAB_COLORS = [
-  { bg: 'bg-[#F59E0B]', bgLight: 'bg-[#FEF3C7]', text: 'text-[#92400E]', textLight: 'text-[#D97706]', border: 'border-[#F59E0B]' },
-  { bg: 'bg-[#3B82F6]', bgLight: 'bg-[#DBEAFE]', text: 'text-[#1E3A8A]', textLight: 'text-[#3B82F6]', border: 'border-[#3B82F6]' },
-  { bg: 'bg-[#9333EA]', bgLight: 'bg-[#F3E8FF]', text: 'text-[#581C87]', textLight: 'text-[#9333EA]', border: 'border-[#9333EA]' },
-  { bg: 'bg-[#10B981]', bgLight: 'bg-[#D1FAE5]', text: 'text-[#065F46]', textLight: 'text-[#10B981]', border: 'border-[#10B981]' },
-  { bg: 'bg-[#F43F5E]', bgLight: 'bg-[#FFE4E6]', text: 'text-[#881337]', textLight: 'text-[#F43F5E]', border: 'border-[#F43F5E]' },
-  { bg: 'bg-[#06B6D4]', bgLight: 'bg-[#CFFAFE]', text: 'text-[#164E63]', textLight: 'text-[#06B6D4]', border: 'border-[#06B6D4]' },
-  { bg: 'bg-[#8B5CF6]', bgLight: 'bg-[#EDE9FE]', text: 'text-[#4C1D95]', textLight: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]' },
-  { bg: 'bg-[#F97316]', bgLight: 'bg-[#FFEDD5]', text: 'text-[#7C2D12]', textLight: 'text-[#F97316]', border: 'border-[#F97316]' },
+  { bg: 'bg-[#F59E0B]', bgLight: 'bg-[#FEF3C7]', text: 'text-slate-900', textLight: 'text-[#92400E]', border: 'border-[#F59E0B]' },
+  { bg: 'bg-[#3B82F6]', bgLight: 'bg-[#DBEAFE]', text: 'text-slate-900', textLight: 'text-[#1E3A8A]', border: 'border-[#3B82F6]' },
+  { bg: 'bg-[#9333EA]', bgLight: 'bg-[#F3E8FF]', text: 'text-slate-900', textLight: 'text-[#581C87]', border: 'border-[#9333EA]' },
+  { bg: 'bg-[#10B981]', bgLight: 'bg-[#D1FAE5]', text: 'text-slate-900', textLight: 'text-[#065F46]', border: 'border-[#10B981]' },
+  { bg: 'bg-[#F43F5E]', bgLight: 'bg-[#FFE4E6]', text: 'text-slate-900', textLight: 'text-[#881337]', border: 'border-[#F43F5E]' },
+  { bg: 'bg-[#06B6D4]', bgLight: 'bg-[#CFFAFE]', text: 'text-slate-900', textLight: 'text-[#164E63]', border: 'border-[#06B6D4]' },
+  { bg: 'bg-[#8B5CF6]', bgLight: 'bg-[#EDE9FE]', text: 'text-slate-900', textLight: 'text-[#4C1D95]', border: 'border-[#8B5CF6]' },
+  { bg: 'bg-[#F97316]', bgLight: 'bg-[#FFEDD5]', text: 'text-slate-900', textLight: 'text-[#7C2D12]', border: 'border-[#F97316]' },
 ];
 
 export const getTabColor = (index: number) => TAB_COLORS[index % TAB_COLORS.length];
 
-const TabMenuItem: React.FC<{
-  tab: Tab;
-  onDelete: (id: string) => void;
-  onToggleLock: (id: string) => void;
-  canDelete: boolean;
-  isActive: boolean;
-  tabColor: { text: string; textLight: string };
-}> = ({ tab, onDelete, onToggleLock, canDelete, isActive, tabColor }) => {
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 });
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useClickOutside(menuRef, () => setShowMenu(false));
-
-  const toggleMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setMenuPos({
-        bottom: window.innerHeight - rect.top + 8,
-        left: rect.left
-      });
-    }
-    setShowMenu(!showMenu);
-  };
-
-  const isActuallyDeleteable = canDelete && !tab.isLocked;
-
-  return (
-    <div className="relative ml-1">
-      <button
-        ref={triggerRef}
-        onClick={toggleMenu}
-        className={`p-1 rounded-full transition-all flex items-center justify-center ${isActive
-          ? `opacity-100 ${tabColor.text} hover:bg-black/5`
-          : `opacity-40 group-hover:opacity-100 ${tabColor.textLight} hover:bg-black/5`
-          }`}
-        title="페이지 메뉴"
-      >
-        <MenuIcon />
-      </button>
-
-      {showMenu && (
-        <div
-          ref={menuRef}
-          className="fixed bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] border border-slate-200 z-[999] py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150 w-32"
-          style={{
-            bottom: `${menuPos.bottom}px`,
-            left: `${menuPos.left}px`
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={() => {
-              onToggleLock(tab.id);
-              setShowMenu(false);
-            }}
-            className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-2"
-          >
-            <span className="text-sm leading-none">{tab.isLocked ? '🔓' : '🔒'}</span>
-            <span className="font-bold">{tab.isLocked ? '잠금 해제' : '잠금'}</span>
-          </button>
-
-          <button
-            disabled={!isActuallyDeleteable}
-            onClick={() => {
-              onDelete(tab.id);
-              setShowMenu(false);
-            }}
-            className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 border-t border-slate-50 ${isActuallyDeleteable
-              ? 'text-red-600 hover:bg-red-50'
-              : 'text-slate-300 cursor-not-allowed bg-slate-50'
-              }`}
-          >
-            <span className="text-sm leading-none">🗑️</span>
-            <span className="font-bold">삭제</span>
-          </button>
-
-          <button
-            onClick={() => setShowMenu(false)}
-            className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-100 font-medium"
-          >
-            취소
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
 
 const FooterTabs: React.FC<FooterTabsProps> = ({
   tabs,
@@ -140,10 +49,15 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 });
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  useClickOutside(menuRef, () => setOpenMenuId(null));
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     const tab = tabs[index];
-    // 잠긴 탭은 드래그할 수 없음
     if (tab.isLocked) {
       e.preventDefault();
       return;
@@ -172,10 +86,24 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
     setDragOverIndex(null);
   };
 
+  const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const trigger = triggerRefs.current[tabId];
+    if (trigger) {
+      const rect = trigger.getBoundingClientRect();
+      setMenuPos({
+        bottom: window.innerHeight - rect.top + 8,
+        left: rect.left
+      });
+      setOpenMenuId(tabId);
+    }
+  };
+
   return (
-    <div className="bg-white border-t border-slate-200 z-[100] h-12 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
+    <div className="bg-white border-t border-slate-200 z-[100] h-16 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
       <div className="w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap px-6 gap-1">
-        {/* IN-BOX 빠른 이동 버튼 */}
         {hasInbox && (
           <button
             onClick={onNavigateToInbox}
@@ -186,64 +114,90 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
           </button>
         )}
 
-        {/* 구분선 */}
         <div className="h-6 w-px bg-slate-200 flex-shrink-0" />
-
-        {/* 북마크 탭 고정 버튼 */}
-        <button
-          onClick={onToggleBookmarkView}
-          title="북마크 탭"
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 font-bold text-xs ${isBookmarkView
-            ? 'bg-amber-400 text-amber-900 border-amber-400 shadow-sm'
-            : 'bg-amber-50 text-amber-600 border-transparent hover:border-amber-400 hover:shadow-md'
-            }`}
-        >
-          🔖 북마크
-        </button>
-
-        {/* 구분선 */}
-        <div className="h-6 w-px bg-slate-200 flex-shrink-0 mr-1" />
 
         {tabs.map((tab, index) => {
           const tabColor = getTabColor(index);
           const isActive = activeTabId === tab.id;
           const isDragged = draggedIndex === index;
           const isDragOver = dragOverIndex === index;
+          const canDelete = tabs.length > 1;
+          const isActuallyDeleteable = canDelete && !tab.isLocked;
 
           return (
             <div
               key={tab.id}
+              ref={(el) => { triggerRefs.current[tab.id] = el; }}
               draggable={!tab.isLocked}
               onDragStart={(e) => handleDragStart(e, index)}
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={handleDragEnd}
               onClick={() => onSelectTab(tab.id)}
-              className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all border flex-shrink-0 ${isDragged ? 'opacity-50' : ''
+              onContextMenu={(e) => handleContextMenu(e, tab.id)}
+              className={`group flex items-center justify-center w-[82px] h-[52px] rounded-lg cursor-pointer transition-all border-2 border-black flex-shrink-0 relative ${isDragged ? 'opacity-50' : ''
                 } ${isDragOver ? 'ring-2 ring-offset-1 ring-blue-400' : ''
                 } ${!tab.isLocked ? 'hover:shadow-md' : ''
                 } ${isActive
-                  ? `${tabColor.bg} ${tabColor.text} ${tabColor.border} shadow-sm`
-                  : `${tabColor.bgLight} ${tabColor.textLight} border-transparent hover:${tabColor.border}`
+                  ? `${tabColor.bg} ${tabColor.text} shadow-sm`
+                  : `${tabColor.bgLight} ${tabColor.textLight} hover:shadow-lg`
                 } ${tab.isLocked ? 'cursor-default' : ''
                 }`}
             >
-              <div draggable={false} onDragStart={(e) => e.stopPropagation()}>
+              <div draggable={false} onDragStart={(e) => e.stopPropagation()} className="w-full h-full flex items-center justify-center px-0.5">
                 <EditableText
                   value={tab.name}
                   onChange={(newName) => onRenameTab(tab.id, newName)}
-                  className={`text-xs min-w-[40px] text-center ${isActive ? 'font-bold' : 'font-medium'}`}
-                  placeholder="페이지 이름"
+                  className={`text-[13px] leading-[1.2] tracking-tighter text-center w-full line-clamp-2 overflow-hidden ${isActive ? 'font-black' : 'font-bold'}`}
+                  placeholder="페이지"
+                  compact
                 />
               </div>
-              <TabMenuItem
-                tab={tab}
-                onDelete={onDeleteTab}
-                onToggleLock={onToggleLockTab}
-                canDelete={tabs.length > 1}
-                isActive={isActive}
-                tabColor={tabColor}
-              />
+
+              {openMenuId === tab.id && (
+                <div
+                  ref={menuRef}
+                  className="fixed bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] border border-slate-200 z-[999] py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150 w-32"
+                  style={{
+                    bottom: `${menuPos.bottom}px`,
+                    left: `${menuPos.left}px`
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => {
+                      onToggleLockTab(tab.id);
+                      setOpenMenuId(null);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-2"
+                  >
+                    <span className="text-sm leading-none">{tab.isLocked ? '🔓' : '🔒'}</span>
+                    <span className="font-bold">{tab.isLocked ? '잠금 해제' : '잠금'}</span>
+                  </button>
+
+                  <button
+                    disabled={!isActuallyDeleteable}
+                    onClick={() => {
+                      onDeleteTab(tab.id);
+                      setOpenMenuId(null);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 border-t border-slate-50 ${isActuallyDeleteable
+                      ? 'text-red-600 hover:bg-red-50'
+                      : 'text-slate-300 cursor-not-allowed bg-slate-50'
+                      }`}
+                  >
+                    <span className="text-sm leading-none">🗑️</span>
+                    <span className="font-bold">삭제</span>
+                  </button>
+
+                  <button
+                    onClick={() => setOpenMenuId(null)}
+                    className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-100 font-medium"
+                  >
+                    취소
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
