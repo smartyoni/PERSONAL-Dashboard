@@ -66,8 +66,8 @@ const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onToggleBookmarkView}
                 className={`flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-all border shadow-sm flex-shrink-0 text-xs font-bold ${isBookmarkView
-                  ? 'bg-amber-400 text-amber-900 border-amber-400'
-                  : 'bg-white text-slate-900 border-slate-200 hover:text-black hover:shadow-md'
+                  ? 'bg-blue-500 text-white border-blue-600'
+                  : 'bg-white text-slate-900 border-slate-200 hover:text-blue-600 hover:border-blue-200 hover:shadow-md'
                   }`}
                 title="북마크 페이지"
               >
@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
             <button
               onClick={onOpenNavigationMap}
-              className="px-3 py-1.5 h-8 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg hover:text-black hover:shadow-md transition-all shadow-sm flex items-center justify-center"
+              className="px-3 py-1.5 h-8 bg-emerald-500 border border-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 hover:shadow-md transition-all shadow-sm flex items-center justify-center font-bold"
               title="목차"
             >
               목차
