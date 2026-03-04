@@ -82,7 +82,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
             <div className="flex-1 flex flex-row overflow-hidden">
                 <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex-none bg-[#F8FAFC]">
+                    <div className={`flex-none ${isBookmarkView ? 'bg-orange-100' : 'bg-[#F8FAFC]'}`}>
                         <Header
                             onAddSection={handleAddSection}
                             onOpenNavigationMap={() => setNavigationMapOpen(true)}
