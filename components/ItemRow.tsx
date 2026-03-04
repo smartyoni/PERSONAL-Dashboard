@@ -103,7 +103,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`group flex items-start gap-1 py-2 px-1 border-b border-slate-200 last:border-0 transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-start gap-1 py-2 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
     >

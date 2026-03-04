@@ -319,7 +319,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                   onDragOver={(e) => handleItemDragOver(e, item.id)}
                   onDrop={(e) => handleItemDrop(e, item.id)}
                   onDragEnd={handleItemDragEnd}
-                  className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+                  className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
                     isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
                     }`}
                 >
@@ -489,7 +489,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                   onDragOver={(e) => handleShoppingItemDragOver(e, item.id)}
                   onDrop={(e) => handleShoppingItemDrop(e, item.id)}
                   onDragEnd={handleShoppingItemDragEnd}
-                  className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-move relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+                  className={`flex items-center gap-1 py-1.5 px-0 rounded transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
                     isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
                     }`}
                 >
