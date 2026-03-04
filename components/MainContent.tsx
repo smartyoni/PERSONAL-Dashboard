@@ -82,7 +82,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
             <div className="flex-1 flex flex-row overflow-hidden">
                 <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
-                    <div className={`flex-none ${isBookmarkView ? 'bg-orange-100' : 'bg-[#F8FAFC]'}`}>
+                    <div className="flex-none bg-orange-100">
                         <Header
                             onAddSection={handleAddSection}
                             onOpenNavigationMap={() => setNavigationMapOpen(true)}
@@ -114,7 +114,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             isHighlighted={false}
                                             isInboxSection={true}
                                             isBookmarkTab={true}
-                                            tabColorBg={'bg-[#FEF3C7]'}
+                                            tabColorBg={'bg-sky-100'}
                                             onCrossSectionDrop={handleCrossBookmarkSectionDrop}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                             isMobileLayout={isMobileLayout}
