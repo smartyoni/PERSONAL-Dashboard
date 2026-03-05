@@ -17,18 +17,20 @@ export const useMemoEditor = (
     memoTextareaRef: React.RefObject<HTMLTextAreaElement>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {
-    const handleShowMemo = (id: string, type?: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'section', sectionId?: string | null) => {
-        let memoValue = '';
-        if (type === 'checklist') {
-            memoValue = activeTab.parkingInfo.checklistMemos?.[id] || '';
-        } else if (type === 'shopping') {
-            memoValue = activeTab.parkingInfo.shoppingListMemos?.[id] || '';
-        } else if (type === 'reminders') {
-            memoValue = activeTab.parkingInfo.remindersMemos?.[id] || '';
-        } else if (type === 'todo') {
-            memoValue = activeTab.parkingInfo.todoMemos?.[id] || '';
-        } else {
-            memoValue = activeTab.memos[id] || '';
+    const handleShowMemo = (id: string, type?: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'section', sectionId?: string | null, initialValue?: string) => {
+        let memoValue = initialValue !== undefined ? initialValue : '';
+        if (initialValue === undefined) {
+            if (type === 'checklist') {
+                memoValue = activeTab.parkingInfo.checklistMemos?.[id] || '';
+            } else if (type === 'shopping') {
+                memoValue = activeTab.parkingInfo.shoppingListMemos?.[id] || '';
+            } else if (type === 'reminders') {
+                memoValue = activeTab.parkingInfo.remindersMemos?.[id] || '';
+            } else if (type === 'todo') {
+                memoValue = activeTab.parkingInfo.todoMemos?.[id] || '';
+            } else {
+                memoValue = activeTab.memos[id] || '';
+            }
         }
         const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo';
         setMemoEditor({

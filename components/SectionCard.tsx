@@ -10,7 +10,7 @@ interface SectionCardProps {
   itemMemos: { [key: string]: string };
   onUpdateSection: (updated: Section, newMemos?: { [key: string]: string }) => void;
   onDeleteSection: (id: string) => void;
-  onShowItemMemo: (id: string) => void;
+  onShowItemMemo: (id: string, initialValue?: string) => void;
   onMoveItem: (itemId: string) => void;
   onAddToCalendar?: (itemText: string) => void;
   dragState: DragState;
@@ -143,6 +143,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       if (quickInputRef.current) {
         quickInputRef.current.style.height = 'auto';
       }
+      onShowItemMemo(itemId, trimmedValue);
     }
   };
 
@@ -387,6 +388,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             if (quickInputRef.current) {
               quickInputRef.current.style.height = 'auto';
             }
+            onShowItemMemo(itemId, trimmedValue);
           }}
           className="px-3 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap flex flex-col items-center justify-center"
           title="추가"

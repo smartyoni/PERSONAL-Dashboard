@@ -32,7 +32,7 @@ interface MainContentProps {
     // Parking
     handleParkingChange: (newInfo: ParkingInfo) => void;
     // Memo & Calendar
-    handleShowMemo: (id: string, type?: 'checklist' | 'shopping') => void;
+    handleShowMemo: (id: string, type?: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'section', sectionId?: string | null, initialValue?: string) => void;
     handleAddToCalendarClick: (itemText: string) => void;
     handleOpenMoveItemModal: (itemId: string, sectionId: string) => void;
     // Navigation
@@ -102,7 +102,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={{}}
                                             onUpdateSection={handleUpdateBookmarkSection}
                                             onDeleteSection={() => { }}
-                                            onShowItemMemo={() => { }}
+                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue)}
                                             onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}
@@ -147,7 +147,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateInboxSection}
                                                 onDeleteSection={() => { }}
-                                                onShowItemMemo={(id) => handleShowMemo(id, 'section', activeTab.inboxSection.id)}
+                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue)}
                                                 onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -179,7 +179,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateQuotesSection}
                                                 onDeleteSection={() => { }}
-                                                onShowItemMemo={(id) => handleShowMemo(id, 'section', activeTab.quotesSection.id)}
+                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.quotesSection.id, initialValue)}
                                                 onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -212,7 +212,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={activeTab.memos}
                                             onUpdateSection={handleUpdateSection}
                                             onDeleteSection={handleDeleteSection}
-                                            onShowItemMemo={(id) => handleShowMemo(id, 'section', section.id)}
+                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue)}
                                             onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}
