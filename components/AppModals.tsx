@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AppData, Section, Tab, MemoEditorState } from '../types';
 import MoveItemModal from './MoveItemModal';
 import ConfirmModal from './ConfirmModal';
@@ -66,6 +66,7 @@ const AppModals: React.FC<AppModalsProps> = ({
 }) => {
     const touchStart = useRef<number | null>(null);
     const touchEnd = useRef<number | null>(null);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStart.current = e.targetTouches[0].clientX;
@@ -104,6 +105,22 @@ const AppModals: React.FC<AppModalsProps> = ({
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [memoEditor.id, memoEditor.isEditing, handleSwipeMemo, setMemoEditor]);
+
+    // 모바일 가상 키보드 높이 감지 (visualViewport API)
+    useEffect(() => {
+        const vv = window.visualViewport;
+        if (!vv) return;
+        const onResize = () => {
+            const kbHeight = window.innerHeight - vv.height - vv.offsetTop;
+            setKeyboardHeight(kbHeight > 0 ? kbHeight : 0);
+        };
+        vv.addEventListener('resize', onResize);
+        vv.addEventListener('scroll', onResize);
+        return () => {
+            vv.removeEventListener('resize', onResize);
+            vv.removeEventListener('scroll', onResize);
+        };
+    }, []);
 
     const currentItem = React.useMemo(() => {
         if (!memoEditor.id) return null;
@@ -197,19 +214,34 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     autoFocus
                                     value={memoEditor.value}
                                     onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Tab') {
+                                            e.preventDefault();
+                                            handleInsertSymbol('• ');
+                                        }
+                                    }}
                                     onBlur={(e) => {
                                         if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
                                         handleSaveMemo();
                                     }}
                                     className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base resize-none p-4"
+                                    style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
                                     placeholder="여기에 메모를 작성하세요..."
                                 />
-                                <div className="memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-t border-slate-200 overflow-x-auto">
+                                {/* 심볼 바: 모바일 키보드 위에 고정되거나 모달 하단에 위치 */}
+                                <div
+                                    className={`memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-t border-slate-200 overflow-x-auto ${keyboardHeight > 0 ? 'fixed left-0 right-0 z-[1100] shadow-[0_-4px_12px_rgba(0,0,0,0.1)]' : 'relative z-10'}`}
+                                    style={{ bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined }}
+                                >
                                     {memoSymbols.map((sym, idx) => (
                                         <button
                                             key={sym.label}
                                             title={sym.title}
                                             onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                handleInsertSymbol(sym.value);
+                                            }}
+                                            onTouchEnd={(e) => {
                                                 e.preventDefault();
                                                 handleInsertSymbol(sym.value);
                                             }}
@@ -220,6 +252,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     <button
                                         title="들여쓰기"
                                         onMouseDown={(e) => { e.preventDefault(); handleInsertSymbol('  '); }}
+                                        onTouchEnd={(e) => { e.preventDefault(); handleInsertSymbol('  '); }}
                                         className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-medium transition-colors select-none"
                                     >Tab</button>
                                 </div>
