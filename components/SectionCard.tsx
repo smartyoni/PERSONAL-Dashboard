@@ -310,11 +310,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
           />
         </div>
 
-        <div className="flex items-center border-2 border-black rounded-md overflow-hidden bg-white/50 backdrop-blur-sm shadow-sm md:shadow-none">
+        <div className="flex items-center border-[1.5px] border-black rounded-md overflow-hidden bg-white/50 backdrop-blur-sm self-center">
           {isInboxSection && isReturnVisible && (
             <button
               onClick={onReturnFromInbox}
-              className="flex items-center justify-center p-1.5 md:p-2 hover:bg-slate-200/50 transition-all active:scale-95 text-base md:text-lg"
+              className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 hover:bg-slate-200/50 transition-all active:scale-95 text-xs md:text-sm"
               title="이전 섹션으로 되돌아가기"
             >
               ↩️
@@ -325,14 +325,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <>
               <button
                 onClick={onGoToInbox}
-                className="flex items-center justify-center p-1.5 md:p-2 hover:bg-slate-200/50 transition-all active:scale-95 text-base md:text-lg"
+                className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 hover:bg-slate-200/50 transition-all active:scale-95 text-xs md:text-sm"
                 title="인박스로 바로가기"
               >
                 📥
               </button>
               <button
                 onClick={handleToggleLock}
-                className="flex items-center justify-center p-1.5 md:p-2 border-l-2 border-black hover:bg-slate-200/50 transition-all active:scale-95 text-red-500"
+                className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 border-l-[1.5px] border-black hover:bg-slate-200/50 transition-all active:scale-95 text-red-500 scale-75"
                 title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
               >
                 {section.isLocked ? <LockIcon /> : <UnlockIcon />}
@@ -340,7 +340,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
               <button
                 disabled={section.isLocked}
                 onClick={() => onDeleteSection(section.id)}
-                className="flex items-center justify-center px-2 py-1.5 md:py-2 border-l-2 border-black hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold text-red-600"
+                className="flex items-center justify-center px-1.5 md:px-2 h-7 md:h-8 border-l-[1.5px] border-black hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-[10px] md:text-[11px] font-bold text-red-600 whitespace-nowrap"
                 title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
               >
                 삭제
