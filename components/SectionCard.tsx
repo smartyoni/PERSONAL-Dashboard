@@ -299,13 +299,13 @@ const SectionCard: React.FC<SectionCardProps> = ({
           isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
         }`}
     >
-      <div className={`flex items-center justify-between mb-3 gap-2 cursor-move flex-shrink-0 px-4 py-3 -mx-4 -mt-4 mb-3 border-b-2 border-black ${tabColorBg}`} title="드래그하여 순서 변경">
+      <div className={`flex items-center justify-between gap-2 cursor-move flex-shrink-0 px-4 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black ${tabColorBg}`} title="드래그하여 순서 변경">
         <div className="flex-1 min-w-0">
           <EditableText
             value={section.title}
             onChange={handleTitleChange}
             onEditingChange={setIsTitleEditing}
-            className="text-xl font-bold text-black"
+            className="text-base font-bold text-black"
             placeholder="섹션 이름"
           />
         </div>

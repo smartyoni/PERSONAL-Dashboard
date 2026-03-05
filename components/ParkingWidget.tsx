@@ -174,7 +174,9 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white border-2 border-black p-4 shadow-sm overflow-hidden">
-      <h2 className="text-sm font-black text-slate-800 mb-3 flex items-center gap-2">주차 <span className="text-[10px] font-normal text-slate-400 font-mono">PARKING</span></h2>
+      <h2 className="text-base font-black text-slate-800 flex items-center gap-2 flex-shrink-0 px-4 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black" title="주차 정보">
+        주차 <span className="text-[10px] font-normal text-slate-400 font-mono">PARKING</span>
+      </h2>
 
       {/* 층수 선택 */}
       <div className="mb-4 flex gap-1 items-stretch">
