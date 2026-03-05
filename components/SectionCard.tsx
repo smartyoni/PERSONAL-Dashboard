@@ -347,7 +347,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
               className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition-colors text-sm font-medium border-2 border-black disabled:opacity-30 disabled:cursor-not-allowed"
               title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
             >
-              섹션삭제
+              삭제
             </button>
           )}
         </div>
