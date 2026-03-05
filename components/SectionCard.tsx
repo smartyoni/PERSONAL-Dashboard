@@ -351,7 +351,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       {/* 빠른 추가 입력창 */}
-      <div className="mb-3 flex-shrink-0 flex items-stretch gap-0">
+      <div className="mb-3 flex-shrink-0 flex items-stretch gap-0 -mx-3.5">
         <textarea
           ref={quickInputRef}
           value={quickAddValue}
