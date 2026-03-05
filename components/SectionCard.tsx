@@ -310,11 +310,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center border-2 border-black rounded-md overflow-hidden bg-white/50 backdrop-blur-sm shadow-sm md:shadow-none">
           {isInboxSection && isReturnVisible && (
             <button
               onClick={onReturnFromInbox}
-              className="text-lg hover:bg-slate-200/50 p-1 rounded-md transition-all active:scale-90"
+              className="flex items-center justify-center p-1.5 md:p-2 hover:bg-slate-200/50 transition-all active:scale-95 text-base md:text-lg"
               title="이전 섹션으로 되돌아가기"
             >
               ↩️
@@ -322,33 +322,30 @@ const SectionCard: React.FC<SectionCardProps> = ({
           )}
 
           {!isInboxSection && (
-            <button
-              onClick={onGoToInbox}
-              className="text-lg hover:bg-slate-200/50 p-1 rounded-md transition-all active:scale-90"
-              title="인박스로 바로가기"
-            >
-              📥
-            </button>
-          )}
-
-          {!isInboxSection && (
-            <button
-              onClick={handleToggleLock}
-              className="text-red-500 hover:text-red-700 p-0.5 rounded-full transition-colors"
-              title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
-            >
-              {section.isLocked ? <LockIcon /> : <UnlockIcon />}
-            </button>
-          )}
-          {!isInboxSection && (
-            <button
-              disabled={section.isLocked}
-              onClick={() => onDeleteSection(section.id)}
-              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition-colors text-sm font-medium border-2 border-black disabled:opacity-30 disabled:cursor-not-allowed"
-              title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
-            >
-              삭제
-            </button>
+            <>
+              <button
+                onClick={onGoToInbox}
+                className="flex items-center justify-center p-1.5 md:p-2 hover:bg-slate-200/50 transition-all active:scale-95 text-base md:text-lg"
+                title="인박스로 바로가기"
+              >
+                📥
+              </button>
+              <button
+                onClick={handleToggleLock}
+                className="flex items-center justify-center p-1.5 md:p-2 border-l-2 border-black hover:bg-slate-200/50 transition-all active:scale-95 text-red-500"
+                title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
+              >
+                {section.isLocked ? <LockIcon /> : <UnlockIcon />}
+              </button>
+              <button
+                disabled={section.isLocked}
+                onClick={() => onDeleteSection(section.id)}
+                className="flex items-center justify-center px-2 py-1.5 md:py-2 border-l-2 border-black hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold text-red-600"
+                title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
+              >
+                삭제
+              </button>
+            </>
           )}
         </div>
       </div>
