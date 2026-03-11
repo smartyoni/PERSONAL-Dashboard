@@ -301,13 +301,13 @@ const AppModals: React.FC<AppModalsProps> = ({
                                             className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
                                         >취소</button>
                                         <button
-                                            onClick={handleSaveMemo}
-                                            className="flex-1 px-2 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-green-600"
-                                        >💾 저장</button>
-                                        <button
                                             onClick={() => navigator.clipboard.writeText(memoEditor.value)}
                                             className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
                                         >📋 복사</button>
+                                        <button
+                                            onClick={handleSaveMemo}
+                                            className="flex-1 px-2 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-green-600"
+                                        >💾 저장</button>
                                     </div>
                                 </div>
                             </>
