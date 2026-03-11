@@ -107,6 +107,9 @@ const AppModals: React.FC<AppModalsProps> = ({
                 setMemoEditor({ ...memoEditor, id: null, sectionId: null });
             } else if (e.key === 'Enter') {
                 setMemoEditor({ ...memoEditor, isEditing: true });
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                setMemoEditor({ ...memoEditor, id: null, sectionId: null });
             }
         };
 
