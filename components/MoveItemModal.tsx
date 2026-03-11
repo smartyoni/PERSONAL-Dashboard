@@ -54,7 +54,7 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
     !(selectedTabId === currentTabId && selectedSectionId === currentSectionId);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]">
       <div
         ref={modalRef}
         className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
@@ -135,11 +135,10 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
                     const isMainTab = tabs.findIndex(t => t.id === selectedTabId) === 0;
                     return isMainTab && selectedTab?.inboxSection && (
                       <label
-                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${
-                          selectedSectionId === selectedTab.inboxSection.id
+                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === selectedTab.inboxSection.id
                             ? 'bg-blue-50 border border-blue-300'
                             : 'border border-transparent'
-                        }`}
+                          }`}
                       >
                         <input
                           type="radio"
@@ -160,11 +159,10 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
                   {selectedTab?.sections.map((section) => (
                     <label
                       key={section.id}
-                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${
-                        selectedSectionId === section.id
+                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === section.id
                           ? 'bg-blue-50 border border-blue-300'
                           : 'border border-transparent'
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"

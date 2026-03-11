@@ -36,7 +36,7 @@ const AddToCalendarModal: React.FC<AddToCalendarModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6">
         <h3 className="text-lg font-bold text-slate-800 mb-4">
           📅 캘린더에 추가
