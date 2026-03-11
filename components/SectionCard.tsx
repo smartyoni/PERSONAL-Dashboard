@@ -410,7 +410,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             key={item.id}
             item={item}
             sectionId={section.id}
-            memo={itemMemos[item.id]}
+            memo={isInboxSection ? undefined : itemMemos[item.id]}
             onToggle={() => handleToggleItem(item.id)}
             onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
             onDelete={() => handleDeleteItem(item.id)}
