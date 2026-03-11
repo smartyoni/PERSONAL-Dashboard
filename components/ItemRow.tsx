@@ -103,7 +103,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      className={`group flex items-start gap-1 py-2 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-start gap-1 py-1.5 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
     >
@@ -183,16 +183,19 @@ const ItemRow: React.FC<ItemRowProps> = ({
             disabled={true}
           />
         </div>
-        {!isBookmark && memo && memo.trim() !== item.text.trim() && (
-          <div
-            onClick={(e) => { e.stopPropagation(); onAddMemo(); }}
-            className="text-xs text-green-700 truncate cursor-pointer hover:text-green-800 transition-colors mt-0.5 pl-1 font-medium opacity-100"
-            title={memo}
-          >
-            {memo.substring(item.text.length).trim()}
-          </div>
-        )}
       </div>
+
+      {/* 3. Hover Tooltip for Memo */}
+      {!isBookmark && memo && memo.trim() !== '' && (
+        <div className="absolute left-1/2 -top-1 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-[3000] w-max max-w-[280px]">
+          <div className="bg-slate-800/95 backdrop-blur-sm text-white text-[13px] py-2 px-3 rounded-xl shadow-2xl border border-white/10 relative">
+            <div className="line-clamp-6 leading-relaxed">
+              {memo}
+            </div>
+            <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-slate-800/95 rotate-45 border-r border-b border-white/10" />
+          </div>
+        </div>
+      )}
 
       {/* 4. Hidden Menu Logic (Triggered by Bullet) */}
       <div className="relative flex-shrink-0 -mr-3 mt-[1px]">
