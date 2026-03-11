@@ -50,14 +50,14 @@ const Header: React.FC<HeaderProps> = ({
       <div>
 
         <div className="flex items-center gap-3 mt-1">
-          <p className="text-red-600 font-medium whitespace-nowrap text-sm">{dateTime}</p>
+          <p className="text-red-600 font-medium whitespace-nowrap text-xs sm:text-sm">{dateTime}</p>
 
-          <div className="flex items-center gap-2 ml-2">
+          <div className="flex bg-slate-200/50 p-1 rounded-xl items-center gap-1 shadow-inner ml-1 sm:ml-2">
             {onNavigateToInbox && (
               <button
                 onClick={onNavigateToInbox}
-                className="hidden md:flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-colors bg-white border border-slate-200 shadow-sm text-slate-900 hover:text-black"
-                title="인박스로 바로가기"
+                className="flex items-center justify-center w-9 h-8 sm:w-10 sm:h-9 bg-white hover:bg-slate-50 text-slate-700 rounded-lg transition-all shadow-sm border border-slate-200"
+                title="인박스"
               >
                 <InboxIcon />
               </button>
@@ -65,18 +65,18 @@ const Header: React.FC<HeaderProps> = ({
             {onToggleBookmarkView && (
               <button
                 onClick={onToggleBookmarkView}
-                className={`flex items-center justify-center px-3 py-1.5 h-8 rounded-lg transition-all border shadow-sm flex-shrink-0 text-xs font-bold ${isBookmarkView
+                className={`flex items-center justify-center px-2.5 sm:px-3 h-8 sm:h-9 rounded-lg transition-all text-[10px] sm:text-xs font-bold border shadow-sm ${isBookmarkView
                   ? 'bg-blue-500 text-white border-blue-600'
-                  : 'bg-white text-slate-900 border-slate-200 hover:text-blue-600 hover:border-blue-200 hover:shadow-md'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
-                title="북마크 페이지"
+                title="북마크"
               >
                 북마크
               </button>
             )}
             <button
               onClick={onOpenNavigationMap}
-              className="px-3 py-1.5 h-8 bg-emerald-500 border border-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 hover:shadow-md transition-all shadow-sm flex items-center justify-center font-bold"
+              className="px-2.5 sm:px-3 h-8 sm:h-9 bg-white hover:bg-slate-50 text-slate-700 text-[10px] sm:text-xs font-bold rounded-lg border border-slate-200 transition-all shadow-sm flex items-center justify-center"
               title="목차"
             >
               목차
@@ -84,11 +84,11 @@ const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={onAddSection}
-              className="flex items-center gap-1.5 px-3 py-1.5 h-8 bg-yellow-400 border border-yellow-500 text-yellow-950 text-xs font-bold rounded-lg hover:bg-yellow-500 transition-all shadow-sm"
+              className="flex items-center gap-1 px-2.5 sm:px-3 h-8 sm:h-9 bg-white hover:bg-slate-50 text-slate-700 text-[10px] sm:text-xs font-bold rounded-lg border border-slate-200 transition-all shadow-sm"
               title="섹션 추가"
             >
               <PlusIcon />
-              <span className="hidden sm:inline">섹션추가</span>
+              <span className="hidden xs:inline">섹션추가</span>
             </button>
           </div>
         </div>
