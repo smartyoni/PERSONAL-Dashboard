@@ -6,16 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>최영현보드</title>
   <!-- PWA 메니페스트 -->
-  <link rel="manifest" href="/PERSONAL-Dashboard/manifest.json" />
+  <link rel="manifest" href="./manifest.json" />
 
-  <!-- 파비콘 및 아이콘 (칠판과 분필 디자인) -->
-  <link rel="icon" type="image/svg+xml" href="/PERSONAL-Dashboard/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/PERSONAL-Dashboard/favicon.png" />
-  <link rel="apple-touch-icon" href="/PERSONAL-Dashboard/apple-touch-icon.png" sizes="180x180" />
+  <!-- 파비콘 및 아이콘 (새로운 디자인) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
 
   <!-- PWA 메타 태그 -->
   <meta name="theme-color" content="#1a5c3a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="최영현보드" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -54,7 +53,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-CyzibFlx.js"></script>
+  <script type="module" crossorigin src="./assets/index-5r8r48rw.js"></script>
 </head>
 
 <body class="bg-[#F8FAFC]">
@@ -64,8 +63,8 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/PERSONAL-Dashboard/sw.js', {
-          scope: '/PERSONAL-Dashboard/'
+        navigator.serviceWorker.register('/sw.js', {
+          scope: '/'
         }).then((registration) => {
           console.log('[PWA] Service Worker 등록 완료:', registration.scope);
         }).catch((error) => {
