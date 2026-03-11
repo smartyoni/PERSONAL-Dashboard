@@ -299,7 +299,7 @@ export const useMemoEditor = (
             }
         }
         if (memoEditor.value.trim()) {
-            setMemoEditor({ ...memoEditor, isEditing: false });
+            setMemoEditor(prev => ({ ...prev, isEditing: false }));
         } else {
             setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
         }
