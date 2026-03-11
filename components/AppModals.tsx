@@ -225,6 +225,9 @@ const AppModals: React.FC<AppModalsProps> = ({
                                         if (e.key === 'Tab') {
                                             e.preventDefault();
                                             handleInsertSymbol('• ');
+                                        } else if (e.key === 'Enter' && e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSaveMemo();
                                         }
                                     }}
                                     onBlur={(e) => {
