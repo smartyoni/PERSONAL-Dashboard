@@ -5,12 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>최영현보드</title>
-  <!-- PWA 메니페스트 -->
-  <link rel="manifest" href="./manifest.json" />
+  <link rel="manifest" href="/PERSONAL-Dashboard/manifest.json" />
 
   <!-- 파비콘 및 아이콘 (새로운 디자인) -->
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/PERSONAL-Dashboard/favicon.png" />
+  <link rel="apple-touch-icon" href="/PERSONAL-Dashboard/apple-touch-icon.png" sizes="180x180" />
 
   <!-- PWA 메타 태그 -->
   <meta name="theme-color" content="#1a5c3a" />
@@ -29,17 +28,24 @@
       width: 6px;
     }
 
-    .custom-scrollbar::-webkit-scrollbar-track {
+    .wide-scrollbar::-webkit-scrollbar {
+      width: 9px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track,
+    .wide-scrollbar::-webkit-scrollbar-track {
       background: transparent;
     }
 
-    .custom-scrollbar::-webkit-scrollbar-thumb {
+    .custom-scrollbar::-webkit-scrollbar-thumb,
+    .wide-scrollbar::-webkit-scrollbar-thumb {
       background: #94A3B8;
       border-radius: 10px;
       transition: background 0.2s ease;
     }
 
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+    .wide-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #64748B;
     }
   </style>
@@ -53,7 +59,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="./assets/index-dTL89GVS.js"></script>
+  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-BrM1SfJx.js"></script>
 </head>
 
 <body class="bg-[#F8FAFC]">
@@ -63,8 +69,8 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', {
-          scope: '/'
+        navigator.serviceWorker.register('/PERSONAL-Dashboard/sw.js', {
+          scope: '/PERSONAL-Dashboard/'
         }).then((registration) => {
           console.log('[PWA] Service Worker 등록 완료:', registration.scope);
         }).catch((error) => {
