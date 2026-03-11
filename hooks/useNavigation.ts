@@ -92,7 +92,8 @@ export const useNavigation = (
                 type: 'section',
                 isEditing: false,
                 openedFromMap: true,
-                sectionId: sectionId
+                sectionId: sectionId,
+                tabId: tabId
             });
         }
     };

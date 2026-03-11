@@ -189,7 +189,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                                         <button
                                             onClick={() => {
                                                 if (memoEditor.id && memoEditor.sectionId) {
-                                                    handleOpenMoveItemModal(memoEditor.id, memoEditor.sectionId);
+                                                    handleOpenMoveItemModal(memoEditor.id, memoEditor.sectionId, memoEditor.tabId);
                                                 }
                                             }}
                                             className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"

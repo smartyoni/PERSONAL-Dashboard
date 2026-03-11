@@ -105,7 +105,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={{}}
                                             onUpdateSection={handleUpdateBookmarkSection}
                                             onDeleteSection={() => { }}
-                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue)}
+                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
                                             onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}
@@ -138,7 +138,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateInboxSection}
                                                 onDeleteSection={() => { }}
-                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue)}
+                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue, activeTab.id)}
                                                 onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -168,10 +168,10 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
                                                 onChange={handleParkingChange}
-                                                onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist', 'checklist')}
-                                                onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping')}
-                                                onShowRemindersMemo={(id) => handleShowMemo(id, 'reminders', 'reminders')}
-                                                onShowTodoMemo={(id) => handleShowMemo(id, 'todo', 'todo')}
+                                                onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist', 'checklist', undefined, activeTab.id)}
+                                                onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping', undefined, activeTab.id)}
+                                                onShowRemindersMemo={(id) => handleShowMemo(id, 'reminders', 'reminders', undefined, activeTab.id)}
+                                                onShowTodoMemo={(id) => handleShowMemo(id, 'todo', 'todo', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>
@@ -180,10 +180,10 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
-                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todoCat1', 'todoCat1')}
-                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todoCat2', 'todoCat2')}
-                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3')}
-                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4')}
+                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todoCat1', 'todoCat1', undefined, activeTab.id)}
+                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todoCat2', 'todoCat2', undefined, activeTab.id)}
+                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3', undefined, activeTab.id)}
+                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>
@@ -194,7 +194,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateQuotesSection}
                                                 onDeleteSection={() => { }}
-                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.quotesSection.id, initialValue)}
+                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.quotesSection.id, initialValue, activeTab.id)}
                                                 onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -227,7 +227,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={activeTab.memos}
                                             onUpdateSection={handleUpdateSection}
                                             onDeleteSection={handleDeleteSection}
-                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue)}
+                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
                                             onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}

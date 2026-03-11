@@ -226,15 +226,20 @@ export const useSectionManagement = (
         });
     };
 
-    const handleOpenMoveItemModal = (itemId: string, sectionId: string) => {
+    const handleOpenMoveItemModal = (itemId: string, sectionId: string, tabId?: string | null) => {
         let itemText = '';
         let found = false;
+        const targetTab = tabId ? safeData.tabs.find(t => t.id === tabId) || activeTab : activeTab;
 
-        // 1. 일반 섹션 및 인박스에서 찾기
-        let section = activeTab.sections.find(s => s.id === sectionId);
-        if (!section && activeTab.inboxSection?.id === sectionId) {
-            section = activeTab.inboxSection;
+        // 1. 일반 섹션, 인박스, 명언에서 찾기
+        let section = targetTab.sections.find(s => s.id === sectionId);
+        if (!section && targetTab.inboxSection?.id === sectionId) {
+            section = targetTab.inboxSection;
         }
+        if (!section && targetTab.quotesSection?.id === sectionId) {
+            section = targetTab.quotesSection;
+        }
+
         if (section) {
             const item = section.items.find(i => i.id === itemId);
             if (item) {
@@ -245,8 +250,8 @@ export const useSectionManagement = (
 
         // 2. 주차/할일관리 특수 섹션에서 찾기
         if (!found) {
-            const parking = activeTab.parkingInfo;
-            const todo = activeTab.todoManagementInfo;
+            const parking = targetTab.parkingInfo;
+            const todo = targetTab.todoManagementInfo;
             let pItem;
             if (sectionId === 'checklist') pItem = parking.checklistItems.find(i => i.id === itemId);
             else if (sectionId === 'shopping') pItem = parking.shoppingListItems.find(i => i.id === itemId);
@@ -269,7 +274,7 @@ export const useSectionManagement = (
             isOpen: true,
             itemId: itemId,
             itemText: itemText,
-            sourceTabId: safeData.activeTabId,
+            sourceTabId: targetTab.id,
             sourceSectionId: sectionId
         });
     };
@@ -294,6 +299,9 @@ export const useSectionManagement = (
         let sourceSection = sourceTab.sections.find(s => s.id === sourceSectionId);
         if (!sourceSection && sourceTab.inboxSection?.id === sourceSectionId) {
             sourceSection = sourceTab.inboxSection;
+        }
+        if (!sourceSection && sourceTab.quotesSection?.id === sourceSectionId) {
+            sourceSection = sourceTab.quotesSection;
         }
 
         if (sourceSection) {
@@ -323,6 +331,9 @@ export const useSectionManagement = (
         if (!targetSection && targetTab.inboxSection?.id === targetSectionId) {
             targetSection = targetTab.inboxSection;
         }
+        if (!targetSection && targetTab.quotesSection?.id === targetSectionId) {
+            targetSection = targetTab.quotesSection;
+        }
         if (!targetSection) return;
 
 
@@ -337,6 +348,8 @@ export const useSectionManagement = (
                     if (sourceSection) {
                         if (sourceSection.id === tab.inboxSection?.id) {
                             updatedTab.inboxSection = { ...tab.inboxSection!, items: tab.inboxSection!.items.filter(i => i.id !== itemId) };
+                        } else if (sourceSection.id === tab.quotesSection?.id) {
+                            updatedTab.quotesSection = { ...tab.quotesSection!, items: tab.quotesSection!.items.filter(i => i.id !== itemId) };
                         } else {
                             updatedTab.sections = tab.sections.map(s => s.id === sourceSectionId ? { ...s, items: s.items.filter(i => i.id !== itemId) } : s);
                         }
@@ -368,6 +381,8 @@ export const useSectionManagement = (
                     if (sourceTabId === targetTabId) {
                         if (targetSection!.id === updatedTab.inboxSection?.id) {
                             updatedTab.inboxSection = { ...updatedTab.inboxSection!, items: [...updatedTab.inboxSection!.items, itemToMove] };
+                        } else if (targetSection!.id === updatedTab.quotesSection?.id) {
+                            updatedTab.quotesSection = { ...updatedTab.quotesSection!, items: [...updatedTab.quotesSection!.items, itemToMove] };
                         } else {
                             updatedTab.sections = updatedTab.sections.map(s => s.id === targetSectionId ? { ...s, items: [...s.items, itemToMove] } : s);
                         }
@@ -382,6 +397,8 @@ export const useSectionManagement = (
                     let updatedTab = { ...tab };
                     if (targetSection!.id === tab.inboxSection?.id) {
                         updatedTab.inboxSection = { ...tab.inboxSection!, items: [...tab.inboxSection!.items, itemToMove] };
+                    } else if (targetSection!.id === tab.quotesSection?.id) {
+                        updatedTab.quotesSection = { ...tab.quotesSection!, items: [...tab.quotesSection!.items, itemToMove] };
                     } else {
                         updatedTab.sections = tab.sections.map(s => s.id === targetSectionId ? { ...s, items: [...s.items, itemToMove] } : s);
                     }

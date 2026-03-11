@@ -88,4 +88,5 @@ export interface MemoEditorState {
   isEditing: boolean;
   openedFromMap?: boolean;
   sectionId?: string | null;
+  tabId?: string | null;
 }

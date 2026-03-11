@@ -43,10 +43,26 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
     }
   }, [isOpen, selectedTabId, tabs]);
 
+  const getSectionName = (tabId: string, sectionId: string) => {
+    const tab = tabs.find(t => t.id === tabId);
+    if (!tab) return sectionId;
+    if (tab.inboxSection?.id === sectionId) return 'IN-BOX';
+    if (tab.quotesSection?.id === sectionId) return '명언';
+    if (sectionId === 'checklist') return '업무루틴';
+    if (sectionId === 'shopping') return '쇼핑';
+    if (sectionId === 'reminders') return '챙겨야할 것';
+    if (sectionId === 'todo') return '잊지말고 할일';
+    if (sectionId === 'todoCat1') return tab.todoManagementInfo.category1Title;
+    if (sectionId === 'todoCat2') return tab.todoManagementInfo.category2Title;
+    if (sectionId === 'todoCat3') return tab.todoManagementInfo.category3Title;
+    if (sectionId === 'todoCat4') return tab.todoManagementInfo.category4Title;
+    const section = tab.sections.find(s => s.id === sectionId);
+    return section?.title || sectionId;
+  };
+
   if (!isOpen) return null;
 
   const currentTab = tabs.find(t => t.id === currentTabId);
-  const currentSection = currentTab?.sections.find(s => s.id === currentSectionId);
   const selectedTab = tabs.find(t => t.id === selectedTabId);
 
   const canMove =
@@ -88,7 +104,7 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
             <p className="text-xs text-slate-500 mb-1">현재 위치</p>
             <p className="text-sm font-semibold text-slate-700">
-              {currentTab?.name} &gt; {currentSection?.title}
+              {currentTab?.name} &gt; {getSectionName(currentTabId, currentSectionId)}
             </p>
           </div>
 
@@ -136,8 +152,8 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
                     return isMainTab && selectedTab?.inboxSection && (
                       <label
                         className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === selectedTab.inboxSection.id
-                            ? 'bg-blue-50 border border-blue-300'
-                            : 'border border-transparent'
+                          ? 'bg-blue-50 border border-blue-300'
+                          : 'border border-transparent'
                           }`}
                       >
                         <input
@@ -155,13 +171,35 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
                     );
                   })()}
 
+                  {/* 명언 섹션 */}
+                  {selectedTab?.quotesSection && (
+                    <label
+                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === selectedTab.quotesSection.id
+                        ? 'bg-blue-50 border border-blue-300'
+                        : 'border border-transparent'
+                        }`}
+                    >
+                      <input
+                        type="radio"
+                        name="targetSection"
+                        value={selectedTab.quotesSection.id}
+                        checked={selectedSectionId === selectedTab.quotesSection.id}
+                        onChange={(e) => setSelectedSectionId(e.target.value)}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                      />
+                      <span className="text-sm font-medium flex-1 text-slate-700">
+                        ✨ 명언
+                      </span>
+                    </label>
+                  )}
+
                   {/* 일반 섹션들 */}
                   {selectedTab?.sections.map((section) => (
                     <label
                       key={section.id}
                       className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === section.id
-                          ? 'bg-blue-50 border border-blue-300'
-                          : 'border border-transparent'
+                        ? 'bg-blue-50 border border-blue-300'
+                        : 'border border-transparent'
                         }`}
                     >
                       <input

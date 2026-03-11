@@ -17,27 +17,29 @@ export const useMemoEditor = (
     memoTextareaRef: React.RefObject<HTMLTextAreaElement>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {
-    const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string) => {
+    const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null) => {
         let memoValue = initialValue !== undefined ? initialValue : '';
+        const targetTab = tabId ? safeData.tabs.find(t => t.id === tabId) || activeTab : activeTab;
+
         if (initialValue === undefined) {
             if (type === 'checklist') {
-                memoValue = activeTab.parkingInfo.checklistMemos?.[id] || '';
+                memoValue = targetTab.parkingInfo.checklistMemos?.[id] || '';
             } else if (type === 'shopping') {
-                memoValue = activeTab.parkingInfo.shoppingListMemos?.[id] || '';
+                memoValue = targetTab.parkingInfo.shoppingListMemos?.[id] || '';
             } else if (type === 'reminders') {
-                memoValue = activeTab.parkingInfo.remindersMemos?.[id] || '';
+                memoValue = targetTab.parkingInfo.remindersMemos?.[id] || '';
             } else if (type === 'todo') {
-                memoValue = activeTab.parkingInfo.todoMemos?.[id] || '';
+                memoValue = targetTab.parkingInfo.todoMemos?.[id] || '';
             } else if (type === 'todoCat1') {
-                memoValue = activeTab.todoManagementInfo.category1Memos?.[id] || '';
+                memoValue = targetTab.todoManagementInfo.category1Memos?.[id] || '';
             } else if (type === 'todoCat2') {
-                memoValue = activeTab.todoManagementInfo.category2Memos?.[id] || '';
+                memoValue = targetTab.todoManagementInfo.category2Memos?.[id] || '';
             } else if (type === 'todoCat3') {
-                memoValue = activeTab.todoManagementInfo.category3Memos?.[id] || '';
+                memoValue = targetTab.todoManagementInfo.category3Memos?.[id] || '';
             } else if (type === 'todoCat4') {
-                memoValue = activeTab.todoManagementInfo.category4Memos?.[id] || '';
+                memoValue = targetTab.todoManagementInfo.category4Memos?.[id] || '';
             } else {
-                memoValue = activeTab.memos[id] || '';
+                memoValue = targetTab.memos[id] || '';
             }
         }
         const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
@@ -47,7 +49,8 @@ export const useMemoEditor = (
             value: memoValue,
             type: type || 'section',
             isEditing: !isParkingSub && memoValue === '' && !memoEditor.openedFromMap,
-            sectionId: sectionId || null
+            sectionId: sectionId || null,
+            tabId: tabId || activeTab.id
         });
     };
 
@@ -56,31 +59,32 @@ export const useMemoEditor = (
 
         let items: ListItem[] = [];
         let type: 'checklist' | 'shopping' | 'section' = memoEditor.type as any;
+        const targetTab = memoEditor.tabId ? safeData.tabs.find(t => t.id === memoEditor.tabId) || activeTab : activeTab;
 
         if (memoEditor.type === 'checklist') {
-            items = activeTab.parkingInfo.checklistItems;
+            items = targetTab.parkingInfo.checklistItems;
         } else if (memoEditor.type === 'shopping') {
-            items = activeTab.parkingInfo.shoppingListItems;
+            items = targetTab.parkingInfo.shoppingListItems;
         } else if (memoEditor.type === 'reminders') {
-            items = activeTab.parkingInfo.remindersItems;
+            items = targetTab.parkingInfo.remindersItems;
         } else if (memoEditor.type === 'todo') {
-            items = activeTab.parkingInfo.todoItems;
+            items = targetTab.parkingInfo.todoItems;
         } else if (memoEditor.type === 'todoCat1') {
-            items = activeTab.todoManagementInfo.category1Items;
+            items = targetTab.todoManagementInfo.category1Items;
         } else if (memoEditor.type === 'todoCat2') {
-            items = activeTab.todoManagementInfo.category2Items;
+            items = targetTab.todoManagementInfo.category2Items;
         } else if (memoEditor.type === 'todoCat3') {
-            items = activeTab.todoManagementInfo.category3Items;
+            items = targetTab.todoManagementInfo.category3Items;
         } else if (memoEditor.type === 'todoCat4') {
-            items = activeTab.todoManagementInfo.category4Items;
+            items = targetTab.todoManagementInfo.category4Items;
         } else {
             // Find section items
-            if (memoEditor.sectionId === activeTab.inboxSection?.id) {
-                items = activeTab.inboxSection.items;
-            } else if (memoEditor.sectionId === activeTab.quotesSection?.id) {
-                items = activeTab.quotesSection.items;
+            if (memoEditor.sectionId === targetTab.inboxSection?.id) {
+                items = targetTab.inboxSection.items;
+            } else if (memoEditor.sectionId === targetTab.quotesSection?.id) {
+                items = targetTab.quotesSection.items;
             } else {
-                const section = activeTab.sections.find(s => s.id === memoEditor.sectionId);
+                const section = targetTab.sections.find(s => s.id === memoEditor.sectionId);
                 if (section) items = section.items;
             }
         }
@@ -100,7 +104,7 @@ export const useMemoEditor = (
 
         if (nextIndex >= 0 && nextIndex < sortedItems.length) {
             const nextItem = sortedItems[nextIndex];
-            handleShowMemo(nextItem.id, type, memoEditor.sectionId);
+            handleShowMemo(nextItem.id, type, memoEditor.sectionId, undefined, memoEditor.tabId);
         }
     };
 
