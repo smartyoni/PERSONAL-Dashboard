@@ -1,7 +1,8 @@
 import React from 'react';
-import { Section, AppData, DragState, ParkingInfo, Tab } from '../types';
+import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo } from '../types';
 import SectionCard from './SectionCard';
 import ParkingWidget from './ParkingWidget';
+import TodoWidget from './TodoWidget';
 import Header from './Header';
 
 interface MainContentProps {
@@ -31,6 +32,7 @@ interface MainContentProps {
     handleCrossBookmarkSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, targetItemId?: string | null) => void;
     // Parking
     handleParkingChange: (newInfo: ParkingInfo) => void;
+    handleTodoManagementChange: (newInfo: TodoManagementInfo) => void;
     // Memo & Calendar
     handleShowMemo: (id: string, type?: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'section', sectionId?: string | null, initialValue?: string) => void;
     handleAddToCalendarClick: (itemText: string) => void;
@@ -63,6 +65,7 @@ const MainContent: React.FC<MainContentProps> = ({
     onToggleBookmarkView,
     highlightedSectionId, activeTabColorConfig,
     lastSectionBeforeInbox, handleReturnFromInbox, handleGoToInbox,
+    handleTodoManagementChange,
     setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
     isOnline
 }) => {
@@ -137,6 +140,18 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping')}
                                                 onShowRemindersMemo={(id) => handleShowMemo(id, 'reminders', 'reminders')}
                                                 onShowTodoMemo={(id) => handleShowMemo(id, 'todo', 'todo')}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                            />
+                                        </div>
+
+                                        <div className="h-[calc(100vh-160px)]">
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo}
+                                                onChange={handleTodoManagementChange}
+                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todoCat1', 'todoCat1')}
+                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todoCat2', 'todoCat2')}
+                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3')}
+                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4')}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>

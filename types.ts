@@ -35,6 +35,21 @@ export interface Bookmark {
 
 
 
+export interface TodoManagementInfo {
+  category1Title: string;
+  category2Title: string;
+  category3Title: string;
+  category4Title: string;
+  category1Items: ListItem[];
+  category2Items: ListItem[];
+  category3Items: ListItem[];
+  category4Items: ListItem[];
+  category1Memos: { [key: string]: string };
+  category2Memos: { [key: string]: string };
+  category3Memos: { [key: string]: string };
+  category4Memos: { [key: string]: string };
+}
+
 export interface Tab {
   id: string;
   name: string;
@@ -44,11 +59,12 @@ export interface Tab {
   };
 
   parkingInfo: ParkingInfo;
+  todoManagementInfo: TodoManagementInfo; // 추가: 할일 관리 섹션
   inboxSection?: Section;  // IN-BOX 기본 섹션 (메인탭만)
   quotesSection: Section;  // 명언 기본 섹션
   isLocked?: boolean;
-
 }
+
 
 export interface AppData {
   tabs: Tab[];
@@ -68,7 +84,7 @@ export interface DragState {
 export interface MemoEditorState {
   id: string | null;
   value: string;
-  type: 'section' | 'checklist' | 'shopping' | 'reminders' | 'todo' | 'memoBoard';
+  type: 'section' | 'checklist' | 'shopping' | 'reminders' | 'todo' | 'memoBoard' | 'todoCat1' | 'todoCat2' | 'todoCat3' | 'todoCat4';
   isEditing: boolean;
   openedFromMap?: boolean;
   sectionId?: string | null;

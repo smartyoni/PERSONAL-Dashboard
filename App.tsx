@@ -19,7 +19,7 @@ const App: React.FC = () => {
     modal, setModal,
     memoEditor, setMemoEditor, memoTextareaRef,
     calendarModal, setCalendarModal,
-    handleParkingChange, handleAddToCalendarClick, handleConfirmCalendar
+    handleParkingChange, handleTodoManagementChange, handleAddToCalendarClick, handleConfirmCalendar
   } = useAppState();
 
   // Phase 5: 북마크 훅
@@ -117,7 +117,9 @@ const App: React.FC = () => {
         onSectionDrop={onSectionDrop} onSectionDragEnd={onSectionDragEnd}
         handleCrossSectionItemDrop={handleCrossSectionItemDrop}
         handleCrossBookmarkSectionDrop={handleCrossBookmarkSectionDrop}
-        handleParkingChange={handleParkingChange} handleShowMemo={handleShowMemo}
+        handleParkingChange={handleParkingChange}
+        handleTodoManagementChange={handleTodoManagementChange}
+        handleShowMemo={handleShowMemo}
         handleAddToCalendarClick={handleAddToCalendarClick} handleOpenMoveItemModal={handleOpenMoveItemModal}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
         onToggleBookmarkView={handleToggleBookmarkView}

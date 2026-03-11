@@ -130,10 +130,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     });
 
     return (
-      <div className="flex-1 flex flex-col min-h-0 border-b border-blue-400 last:border-b-0 py-2 first:pt-0">
+      <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-2 first:pt-0">
         <div className="flex items-center justify-between mb-1 px-1">
           <label className="text-sm font-bold text-slate-800">{title}</label>
-          <button onClick={() => handleAddItem(type)} className="text-[11px] text-blue-600 hover:text-blue-700 font-bold">+ 추가</button>
+          <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold">+ 추가</button>
         </div>
         <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
           {[...items].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(item => (
@@ -144,12 +144,12 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               onDragOver={(e) => { e.preventDefault(); if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); }}
               onDrop={() => { if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); setDragState({ draggedItemId: null, dragOverItemId: null }); }}
               onDragEnd={() => setDragState({ draggedItemId: null, dragOverItemId: null })}
-              className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'}`}
+              className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
             >
               <button
                 ref={el => triggerRefs.current[item.id] = el}
                 onClick={(e) => toggleMenu(e, item.id)}
-                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-red-400 hover:text-red-500 transition-colors"
+                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
               >•</button>
               <div className="flex-1 min-w-0" onClick={() => onShowMemo(item.id)}>
                 <EditableText
@@ -174,8 +174,8 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white border-2 border-black p-4 shadow-sm overflow-hidden">
-      <h2 className="text-base font-black text-slate-800 flex items-center gap-2 flex-shrink-0 px-4 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black" title="주차 정보">
-        주차 <span className="text-[10px] font-normal text-slate-400 font-mono">PARKING</span>
+      <h2 className="text-base font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-4 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black" title="주차 정보">
+        주차 <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
       </h2>
 
       {/* 층수 선택 */}
@@ -184,7 +184,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           <button
             key={floor}
             onClick={() => onChange({ ...info, text: floor })}
-            className={`flex-1 py-1.5 text-xs font-black rounded-lg border-2 transition-all ${info.text === floor ? 'bg-blue-500 text-white border-black shadow-[2px_2px_0_0_#000]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-black'}`}
+            className={`flex-1 py-1.5 text-xs font-black rounded-lg border-2 transition-all ${info.text === floor ? 'bg-green-500 text-white border-black shadow-[2px_2px_0_0_#000]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-black'}`}
           >
             {floor}
           </button>
@@ -193,11 +193,9 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           type="text" maxLength={4} placeholder="기타"
           value={['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) ? '' : info.text}
           onChange={(e) => onChange({ ...info, text: e.target.value })}
-          className={`flex-[1.5] min-w-0 px-2 py-1.5 text-xs font-black rounded-lg border-2 text-center transition-all focus:outline-none ${!['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) && info.text !== '' ? 'bg-blue-50 border-black shadow-[2px_2px_0_0_#000]' : 'bg-slate-50 border-slate-200 focus:border-black'}`}
+          className={`flex-[1.5] min-w-0 px-2 py-1.5 text-xs font-black rounded-lg border-2 text-center transition-all focus:outline-none ${!['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) && info.text !== '' ? 'bg-green-50 border-black shadow-[2px_2px_0_0_#000]' : 'bg-slate-50 border-slate-200 focus:border-black'}`}
         />
       </div>
-
-      <div className="border-t-2 border-blue-400 mb-2"></div>
 
       {/* 4분할 섹션 */}
       <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">

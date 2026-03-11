@@ -25,6 +25,20 @@ const defaultData: AppData = (() => {
                 remindersMemos: {},
                 todoMemos: {}
             },
+            todoManagementInfo: {
+                category1Title: '항목 1',
+                category2Title: '항목 2',
+                category3Title: '항목 3',
+                category4Title: '항목 4',
+                category1Items: [],
+                category2Items: [],
+                category3Items: [],
+                category4Items: [],
+                category1Memos: {},
+                category2Memos: {},
+                category3Memos: {},
+                category4Memos: {}
+            },
             inboxSection: {
                 id: inboxSectionId, title: 'IN-BOX', items: [], color: 'slate', isLocked: false
             },
@@ -80,6 +94,20 @@ export const useAppState = () => {
                         shoppingListMemos: tab.parkingInfo?.shoppingListMemos || {},
                         remindersMemos: tab.parkingInfo?.remindersMemos || {},
                         todoMemos: tab.parkingInfo?.todoMemos || {},
+                    },
+                    todoManagementInfo: {
+                        category1Title: tab.todoManagementInfo?.category1Title || '항목 1',
+                        category2Title: tab.todoManagementInfo?.category2Title || '항목 2',
+                        category3Title: tab.todoManagementInfo?.category3Title || '항목 3',
+                        category4Title: tab.todoManagementInfo?.category4Title || '항목 4',
+                        category1Items: tab.todoManagementInfo?.category1Items || [],
+                        category2Items: tab.todoManagementInfo?.category2Items || [],
+                        category3Items: tab.todoManagementInfo?.category3Items || [],
+                        category4Items: tab.todoManagementInfo?.category4Items || [],
+                        category1Memos: tab.todoManagementInfo?.category1Memos || {},
+                        category2Memos: tab.todoManagementInfo?.category2Memos || {},
+                        category3Memos: tab.todoManagementInfo?.category3Memos || {},
+                        category4Memos: tab.todoManagementInfo?.category4Memos || {},
                     },
                     quotesSection: tab.quotesSection || {
                         id: Math.random().toString(36).substr(2, 9),
@@ -172,6 +200,13 @@ export const useAppState = () => {
         });
     };
 
+    const handleTodoManagementChange = (newInfo: any) => {
+        updateData({
+            ...safeData,
+            tabs: safeData.tabs.map(t => t.id === safeData.activeTabId ? { ...t, todoManagementInfo: newInfo } : t)
+        });
+    };
+
     const handleAddToCalendarClick = (itemText: string) => {
         if (!googleCalendar.isAuthorized) { googleCalendar.login(); return; }
         setCalendarModal({ isOpen: true, itemText });
@@ -203,6 +238,6 @@ export const useAppState = () => {
         modal, setModal,
         memoEditor, setMemoEditor, memoTextareaRef,
         calendarModal, setCalendarModal,
-        handleParkingChange, handleAddToCalendarClick, handleConfirmCalendar
+        handleParkingChange, handleTodoManagementChange, handleAddToCalendarClick, handleConfirmCalendar
     };
 };
