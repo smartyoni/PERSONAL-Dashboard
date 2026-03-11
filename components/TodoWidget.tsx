@@ -126,7 +126,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         });
 
         return (
-            <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0">
+            <div className="flex-1 flex flex-col min-h-0 border-b border-sky-400 last:border-b-0 py-1 first:pt-0">
                 <div className="flex items-center justify-between mb-1 px-1">
                     <EditableText
                         value={title}
@@ -135,7 +135,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                         className="text-sm font-bold text-slate-800"
                         compact
                     />
-                    <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold">+ 추가</button>
+                    <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
                 </div>
                 <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
                     {[...items].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(item => (
@@ -146,12 +146,12 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             onDragOver={(e) => { e.preventDefault(); if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); }}
                             onDrop={() => { if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); setDragState({ draggedItemId: null, dragOverItemId: null }); }}
                             onDragEnd={() => setDragState({ draggedItemId: null, dragOverItemId: null })}
-                            className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
+                            className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
                         >
                             <button
                                 ref={el => triggerRefs.current[item.id] = el}
                                 onClick={(e) => toggleMenu(e, item.id)}
-                                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
+                                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-sky-400 hover:text-sky-500 transition-colors"
                             >•</button>
                             <div className="flex-1 min-w-0" onClick={() => onShowMemo(item.id)}>
                                 <EditableText
@@ -162,9 +162,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                     className={`text-sm ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                                     compact
                                 />
-                                {memos[item.id] && memos[item.id].trim() !== item.text.trim() && (
-                                    <div className="text-[10px] text-green-600 truncate opacity-80 pl-0.5">{memos[item.id].substring(item.text.length).trim()}</div>
-                                )}
                             </div>
                         </div>
                     ))}
@@ -176,8 +173,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
-            <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title="할일관리">
-                할일관리 <span className="text-[10px] font-normal text-green-600 font-mono">TODO</span>
+            <h2 className="text-sm font-black text-sky-900 bg-sky-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title="할일관리">
+                할일관리 <span className="text-[10px] font-normal text-sky-600 font-mono">TODO</span>
             </h2>
 
 

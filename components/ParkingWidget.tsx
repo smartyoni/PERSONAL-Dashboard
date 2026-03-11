@@ -160,9 +160,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                   className={`text-sm ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                   compact
                 />
-                {memos[item.id] && memos[item.id].trim() !== item.text.trim() && (
-                  <div className="text-[10px] text-green-600 truncate opacity-80 pl-0.5">{memos[item.id].substring(item.text.length).trim()}</div>
-                )}
               </div>
             </div>
           ))}

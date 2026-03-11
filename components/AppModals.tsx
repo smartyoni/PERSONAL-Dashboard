@@ -104,6 +104,8 @@ const AppModals: React.FC<AppModalsProps> = ({
                 handleSwipeMemo('left'); // 물리적으로 오른쪽 키는 '다음' 항목 (왼쪽 스와이프와 동일)
             } else if (e.key === 'Escape') {
                 setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+            } else if (e.key === 'Enter') {
+                setMemoEditor({ ...memoEditor, isEditing: true });
             }
         };
 
