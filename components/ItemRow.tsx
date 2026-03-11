@@ -54,7 +54,9 @@ const ItemRow: React.FC<ItemRowProps> = ({
   const [isTextEditing, setIsTextEditing] = useState(false);
   const [isUrlModalOpen, setIsUrlModalOpen] = useState(false); // 추가
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
+  const [tooltipDirection, setTooltipDirection] = useState<'top' | 'bottom'>('top');
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(menuRef, () => setShowMenu(false));
@@ -103,6 +105,14 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDragOver}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
+      ref={rowRef}
+      onMouseEnter={() => {
+        if (rowRef.current) {
+          const rect = rowRef.current.getBoundingClientRect();
+          // 상단 공간이 150px 미만이면 하단으로 표시
+          setTooltipDirection(rect.top < 150 ? 'bottom' : 'top');
+        }
+      }}
       className={`group flex items-start gap-1 py-1.5 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
@@ -187,12 +197,19 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
       {/* 3. Hover Tooltip for Memo */}
       {!isBookmark && memo && memo.trim() !== '' && (
-        <div className="absolute left-1/2 -top-1 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-[3000] w-max max-w-[280px]">
+        <div className={`absolute left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-[3000] w-max max-w-[280px] ${tooltipDirection === 'top'
+          ? '-top-1 -translate-y-full'
+          : '-bottom-1 translate-y-full'
+          }`}>
           <div className="bg-slate-800/95 backdrop-blur-sm text-white text-[13px] py-2 px-3 rounded-xl shadow-2xl border border-white/10 relative">
             <div className="line-clamp-6 leading-relaxed">
               {memo}
             </div>
-            <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-slate-800/95 rotate-45 border-r border-b border-white/10" />
+            {/* Arrow */}
+            <div className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800/95 rotate-45 border-white/10 ${tooltipDirection === 'top'
+              ? '-bottom-1 border-r border-b'
+              : '-top-1 border-l border-t'
+              }`} />
           </div>
         </div>
       )}
