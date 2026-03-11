@@ -132,6 +132,38 @@ const MainContent: React.FC<MainContentProps> = ({
                                 }`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab && (
                                     <>
+                                        <div className="h-[calc(100vh-160px)] xl:col-span-2">
+                                            <SectionCard
+                                                section={activeTab.inboxSection}
+                                                itemMemos={activeTab.memos}
+                                                onUpdateSection={handleUpdateInboxSection}
+                                                onDeleteSection={() => { }}
+                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue)}
+                                                onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onSectionDragStart={() => { }}
+                                                onSectionDragOver={() => { }}
+                                                onSectionDrop={() => { }}
+                                                onSectionDragEnd={() => { }}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onReturnFromInbox={handleReturnFromInbox}
+                                                isReturnVisible={!!lastSectionBeforeInbox}
+                                                isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                                                isInboxSection={true}
+                                                isFullHeight={true}
+                                                tabColorText={activeTabColorConfig.text}
+                                                tabColorBg={activeTabColorConfig.bgLight}
+                                                initialQuickAddValue={sharedTextForInbox}
+                                                onQuickAddValuePopulated={handleClearSharedText}
+                                                onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
+                                                onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                isMobileLayout={isMobileLayout}
+                                            />
+                                        </div>
+
                                         <div className="h-[calc(100vh-160px)]">
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
@@ -153,38 +185,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3')}
                                                 onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4')}
                                                 onAddToCalendar={handleAddToCalendarClick}
-                                            />
-                                        </div>
-
-                                        <div className="h-[calc(100vh-160px)] xl:col-span-2">
-                                            <SectionCard
-                                                section={activeTab.inboxSection}
-                                                itemMemos={activeTab.memos}
-                                                onUpdateSection={handleUpdateInboxSection}
-                                                onDeleteSection={() => { }}
-                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue)}
-                                                onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onSectionDragStart={() => { }}
-                                                onSectionDragOver={() => { }}
-                                                onSectionDrop={() => { }}
-                                                onSectionDragEnd={() => { }}
-                                                isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
-                                                isInboxSection={true}
-                                                isFullHeight={true}
-                                                tabColorText={activeTabColorConfig.text}
-                                                tabColorBg={activeTabColorConfig.bgLight}
-                                                initialQuickAddValue={sharedTextForInbox}
-                                                onQuickAddValuePopulated={handleClearSharedText}
-                                                onCrossSectionDrop={handleCrossSectionItemDrop}
-                                                onReturnFromInbox={handleReturnFromInbox}
-                                                isReturnVisible={!!lastSectionBeforeInbox}
-                                                onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                                autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
-                                                onClearFocus={() => setFocusQuickAddSectionId(null)}
-                                                isMobileLayout={isMobileLayout}
                                             />
                                         </div>
 
