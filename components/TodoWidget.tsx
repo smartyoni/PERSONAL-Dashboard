@@ -132,7 +132,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                         value={title}
                         onChange={(txt) => handleUpdateTitle(type, txt)}
                         placeholder="제목 입력..."
-                        className="text-[17px] font-bold text-slate-800"
+                        className="text-[17px] font-bold text-green-600"
                         compact
                     />
                     <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
