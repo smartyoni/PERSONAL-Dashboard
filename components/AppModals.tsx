@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AppData, Section, Tab, MemoEditorState } from '../types';
-import MoveItemModal from './MoveItemModal';
 import ConfirmModal from './ConfirmModal';
 import NavigationMapModal from './NavigationMapModal';
 import SectionMapModal from './SectionMapModal';
@@ -16,15 +15,12 @@ interface AppModalsProps {
     handleSaveMemo: () => void;
     handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
-    handleOpenMoveItemModal: (itemId: string, sectionId: string) => void;
+    handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
     handleInsertSymbol: (symbol: string) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     activeTab: Tab;
-    // Move item modal
-    moveItemModal: { isOpen: boolean; itemText: string; sourceTabId: string; sourceSectionId: string };
-    setMoveItemModal: React.Dispatch<React.SetStateAction<any>>;
-    handleMoveItem: (targetTabId: string, targetSectionId: string) => void;
+    tagSelectionContext: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string } | null;
     safeData: AppData;
     // Confirm modal
     modal: { isOpen: boolean; title: string; message: string; onConfirm: () => void };
@@ -58,9 +54,9 @@ interface AppModalsProps {
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleOpenMoveItemModal, handleInsertSymbol, memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, memoSymbols,
     setNavigationMapOpen, activeTab,
-    moveItemModal, setMoveItemModal, handleMoveItem, safeData,
+    tagSelectionContext, handleOpenTagSelection, safeData,
     modal, setModal,
     navigationMapOpen, handleNavigateFromMap, handleShowMemoFromMap, handleNavigateAndFocusFromMap,
     sectionMapOpen, setSectionMapOpen, handleNavigateFromSectionMap,
@@ -191,12 +187,17 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
                                         <button
                                             onClick={() => {
-                                                if (memoEditor.id && memoEditor.sectionId) {
-                                                    handleOpenMoveItemModal(memoEditor.id, memoEditor.sectionId, memoEditor.tabId);
+                                                if (memoEditor.id && memoEditor.sectionId && currentItem) {
+                                                    handleOpenTagSelection({
+                                                        itemId: memoEditor.id,
+                                                        sourceSectionId: memoEditor.sectionId,
+                                                        sourceTabId: memoEditor.tabId || activeTab.id,
+                                                        itemText: currentItem.text
+                                                    });
                                                 }
                                             }}
                                             className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
-                                        >📦 이동</button>
+                                        ># 태그</button>
                                         <button
                                             onClick={() => navigator.clipboard.writeText(memoEditor.value)}
                                             className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
@@ -319,15 +320,6 @@ const AppModals: React.FC<AppModalsProps> = ({
                 </div>
             )}
 
-            <MoveItemModal
-                isOpen={moveItemModal.isOpen}
-                itemText={moveItemModal.itemText}
-                currentTabId={moveItemModal.sourceTabId}
-                currentSectionId={moveItemModal.sourceSectionId}
-                tabs={safeData.tabs}
-                onMove={handleMoveItem}
-                onCancel={() => setMoveItemModal((prev: any) => ({ ...prev, isOpen: false }))}
-            />
 
             <ConfirmModal
                 isOpen={modal.isOpen}
@@ -361,6 +353,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                     tabs={safeData.tabs}
                     onClose={() => setTagSelectionModalOpen(false)}
                     onNavigate={handleNavigateFromTag}
+                    context={tagSelectionContext}
                 />
             )}
 
@@ -369,19 +362,12 @@ const AppModals: React.FC<AppModalsProps> = ({
                     {/* 확장된 메뉴 버튼들 */}
                     {isFabExpanded && (
                         <div className="flex flex-col gap-3 mb-2 animate-in slide-in-from-bottom-4 duration-300">
-                            {/* 인박스 버튼 */}
+                            {/* 목차(App Map) 버튼 */}
                             <button
-                                onClick={() => { handleNavigateToInbox(); setIsFabExpanded(false); }}
+                                onClick={() => { setNavigationMapOpen(true); setIsFabExpanded(false); }}
                                 className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all"
-                                title="인박스로 이동"
-                            >📥</button>
-
-                            {/* 북마크 버튼 */}
-                            <button
-                                onClick={() => { handleToggleBookmarkView(); setIsFabExpanded(false); }}
-                                className={`w-12 h-12 border-2 border-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all ${isBookmarkView ? 'bg-amber-400 text-white' : 'bg-white text-black'}`}
-                                title="북마크 보기 토글"
-                            >🔖</button>
+                                title="전체 목차"
+                            >🗺️</button>
 
                             {/* 섹션 맵 버튼 */}
                             <button
@@ -389,6 +375,13 @@ const AppModals: React.FC<AppModalsProps> = ({
                                 className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all"
                                 title="현재 섹션 목차"
                             >📋</button>
+
+                            {/* 북마크 버튼 */}
+                            <button
+                                onClick={() => { handleToggleBookmarkView(); setIsFabExpanded(false); }}
+                                className={`w-12 h-12 border-2 border-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all ${isBookmarkView ? 'bg-amber-400 text-white' : 'bg-white text-black'}`}
+                                title="북마크 보기 토글"
+                            >🔖</button>
                         </div>
                     )}
 

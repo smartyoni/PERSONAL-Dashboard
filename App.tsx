@@ -48,12 +48,12 @@ const App: React.FC = () => {
 
   // Phase 2: 섹션 관리 훅
   const {
-    dragState, setDragState, moveItemModal, setMoveItemModal,
+    dragState, setDragState,
     handleAddSection, handleUpdateSection, handleUpdateInboxSection,
     handleDeleteSection,
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleClearAll,
-    handleOpenMoveItemModal, handleMoveItem
+    handleMoveItem
   } = useSectionManagement(safeData, updateData, activeTab, setModal);
 
   // Phase 3: 메모 에디터 훅
@@ -73,8 +73,9 @@ const App: React.FC = () => {
     handleGoToInbox, handleReturnFromInbox,
     handleOpenSectionMap, handleNavigateFromSectionMap,
     handleShowMemoFromMap, handleNavigateAndFocusFromMap,
-    handleNavigateFromTag, handleReturnToLastSection
-  } = useNavigation(safeData, activeTab, handleSelectTab, setMemoEditor);
+    handleNavigateFromTag, handleReturnToLastSection,
+    handleOpenTagSelection, tagSelectionContext
+  } = useNavigation(safeData, activeTab, handleSelectTab, setMemoEditor, handleMoveItem);
 
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
@@ -121,7 +122,8 @@ const App: React.FC = () => {
         handleTodoManagementChange={handleTodoManagementChange}
         handleTodoManagement2Change={handleTodoManagement2Change}
         handleShowMemo={handleShowMemo}
-        handleAddToCalendarClick={handleAddToCalendarClick} handleOpenMoveItemModal={handleOpenMoveItemModal}
+        handleAddToCalendarClick={handleAddToCalendarClick}
+        handleOpenTagSelection={handleOpenTagSelection}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
         onToggleBookmarkView={handleToggleBookmarkView}
         highlightedSectionId={highlightedSectionId} activeTabColorConfig={activeTabColorConfig}
@@ -149,11 +151,11 @@ const App: React.FC = () => {
         handleSaveMemo={handleSaveMemo}
         handleSwipeMemo={handleSwipeMemo}
         handleDeleteItemFromModal={handleDeleteItemFromModal}
-        handleOpenMoveItemModal={handleOpenMoveItemModal}
         handleInsertSymbol={handleInsertSymbol} memoSymbols={memoSymbols}
         setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
-        moveItemModal={moveItemModal} setMoveItemModal={setMoveItemModal}
         handleMoveItem={handleMoveItem} safeData={safeData}
+        handleOpenTagSelection={handleOpenTagSelection}
+        tagSelectionContext={tagSelectionContext}
         modal={modal} setModal={setModal}
         navigationMapOpen={navigationMapOpen}
         handleNavigateFromMap={handleNavigateFromMap}

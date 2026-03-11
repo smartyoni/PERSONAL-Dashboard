@@ -14,14 +14,13 @@ interface ItemRowProps {
   onUpdateText: (newText: string) => void;
   onDelete: () => void;
   onAddMemo: () => void;
-  onMoveItem: () => void;
+  onTagClick?: (itemId: string, itemText: string) => void;
   onCopy: () => void;
   onAddToCalendar?: () => void;
   onEditingChange?: (isEditing: boolean) => void;
   isBookmark?: boolean; // 추가
   onUpdateUrl?: (newUrl: string) => void; // 추가
   onDoubleClickItem?: () => void;
-  onTagClick?: () => void; // 추가
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -37,14 +36,13 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onUpdateText,
   onDelete,
   onAddMemo,
-  onMoveItem,
+  onTagClick,
   onCopy,
   onAddToCalendar,
   onEditingChange,
   isBookmark = false,
   onUpdateUrl,
   onDoubleClickItem,
-  onTagClick,
   dragState,
   onDragStart,
   onDragOver,
@@ -195,7 +193,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onTagClick();
+              onTagClick?.(item.id, item.text);
             }}
             className="text-[14px] font-black text-purple-400 hover:text-purple-600 hover:bg-purple-50 w-6 h-6 flex items-center justify-center rounded-full transition-all"
             title="태그(섹션) 이동"
@@ -228,12 +226,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => { onMoveItem(); setShowMenu(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-              >
-                📦 이동
-              </button>
               <button
                 onClick={() => { onCopy(); setShowMenu(false); }}
                 className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"

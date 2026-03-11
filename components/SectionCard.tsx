@@ -32,7 +32,7 @@ interface SectionCardProps {
   isReturnVisible?: boolean;
   isBookmarkTab?: boolean; // 추가
   onItemDoubleClick?: (itemId: string) => void; // 추가
-  onItemTagClick?: () => void; // 추가
+  onItemTagClick?: (itemId: string, itemText: string) => void; // 추가
   autoFocusQuickAdd?: boolean;
   onClearFocus?: () => void;
   isMobileLayout?: boolean;
@@ -44,7 +44,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onUpdateSection,
   onDeleteSection,
   onShowItemMemo,
-  onMoveItem,
   onAddToCalendar,
   dragState,
   setDragState,
@@ -415,7 +414,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
             onDelete={() => handleDeleteItem(item.id)}
             onAddMemo={() => onShowItemMemo(item.id)}
-            onMoveItem={() => onMoveItem(item.id)}
             onCopy={() => handleCopyItem(item.id)}
             onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
             onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
@@ -427,7 +425,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onDrop={(e) => onItemDrop(e, item.id)}
             onDragEnd={onItemDragEnd}
             onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
-            onTagClick={onItemTagClick}
+            onTagClick={() => onItemTagClick?.(item.id, item.text)}
           />
         ))}
         {section.items.length === 0 && (

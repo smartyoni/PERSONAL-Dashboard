@@ -13,7 +13,8 @@ export const useNavigation = (
     safeData: AppData,
     activeTab: Tab,
     handleSelectTab: (id: string) => void,
-    setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>
+    setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,
+    handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string) => void
 ) => {
     const [navigationMapOpen, setNavigationMapOpen] = useState(false);
     const [sectionMapOpen, setSectionMapOpen] = useState(false);
@@ -22,6 +23,12 @@ export const useNavigation = (
     const [lastSectionBeforeInbox, setLastSectionBeforeInbox] = useState<{ tabId: string; sectionId: string } | null>(null);
     const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
     const [focusQuickAddSectionId, setFocusQuickAddSectionId] = useState<string | null>(null);
+    const [tagSelectionContext, setTagSelectionContext] = useState<{
+        itemId: string;
+        sourceTabId: string;
+        sourceSectionId: string;
+        itemText: string;
+    } | null>(null);
 
     const handleNavigateFromMap = (tabId: string, sectionId?: string) => {
         if (tabId !== safeData.activeTabId) {
@@ -104,7 +111,22 @@ export const useNavigation = (
         setFocusQuickAddSectionId(sectionId);
     };
 
+    const handleOpenTagSelection = (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => {
+        setTagSelectionContext(context || null);
+        setTagSelectionModalOpen(true);
+    };
+
     const handleNavigateFromTag = (sectionId: string, tabId: string) => {
+        if (tagSelectionContext) {
+            handleMoveItem(
+                tagSelectionContext.itemId,
+                tagSelectionContext.sourceTabId,
+                tagSelectionContext.sourceSectionId,
+                tabId,
+                sectionId
+            );
+            setTagSelectionContext(null);
+        }
         handleNavigateFromMap(tabId, sectionId);
         setTagSelectionModalOpen(false);
     };
@@ -137,6 +159,8 @@ export const useNavigation = (
         handleShowMemoFromMap,
         handleNavigateAndFocusFromMap,
         handleNavigateFromTag,
-        handleReturnToLastSection
+        handleOpenTagSelection,
+        handleReturnToLastSection,
+        tagSelectionContext
     };
 };

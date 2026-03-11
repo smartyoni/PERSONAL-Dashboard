@@ -77,7 +77,7 @@ const SectionMapModal: React.FC<SectionMapModalProps> = ({
 
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <span className="text-blue-500">📑</span> {activeTab.name} 섹션 이동
+                        <span className="text-blue-500">📑</span> {activeTab.name} 섹션내 이동
                     </h2>
                     <button
                         onClick={onClose}

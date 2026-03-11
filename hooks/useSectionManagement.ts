@@ -8,13 +8,6 @@ interface ConfirmModal {
     onConfirm: () => void;
 }
 
-interface MoveItemModal {
-    isOpen: boolean;
-    itemId: string | null;
-    itemText: string;
-    sourceTabId: string;
-    sourceSectionId: string;
-}
 
 export const useSectionManagement = (
     safeData: AppData,
@@ -30,13 +23,6 @@ export const useSectionManagement = (
         dragOverSectionId: null
     });
 
-    const [moveItemModal, setMoveItemModal] = useState<MoveItemModal>({
-        isOpen: false,
-        itemId: null,
-        itemText: '',
-        sourceTabId: '',
-        sourceSectionId: ''
-    });
 
     const handleAddSection = () => {
         const newSection: Section = {
@@ -211,66 +197,11 @@ export const useSectionManagement = (
         });
     };
 
-    const handleOpenMoveItemModal = (itemId: string, sectionId: string, tabId?: string | null) => {
-        let itemText = '';
-        let found = false;
-        const targetTab = tabId ? safeData.tabs.find(t => t.id === tabId) || activeTab : activeTab;
 
-        // 1. 일반 섹션, 인박스, 명언에서 찾기
-        let section = targetTab.sections.find(s => s.id === sectionId);
-        if (!section && targetTab.inboxSection?.id === sectionId) {
-            section = targetTab.inboxSection;
-        }
-
-        if (section) {
-            const item = section.items.find(i => i.id === itemId);
-            if (item) {
-                itemText = item.text;
-                found = true;
-            }
-        }
-
-        // 2. 주차/할일관리 특수 섹션에서 찾기
-        if (!found) {
-            const parking = targetTab.parkingInfo;
-            const todo = targetTab.todoManagementInfo;
-            let pItem;
-            if (sectionId === 'checklist') pItem = parking.checklistItems.find(i => i.id === itemId);
-            else if (sectionId === 'shopping') pItem = parking.shoppingListItems.find(i => i.id === itemId);
-            else if (sectionId === 'reminders') pItem = parking.remindersItems.find(i => i.id === itemId);
-            else if (sectionId === 'todo') pItem = parking.todoItems.find(i => i.id === itemId);
-            else if (sectionId === 'todoCat1') pItem = todo.category1Items.find(i => i.id === itemId);
-            else if (sectionId === 'todoCat2') pItem = todo.category2Items.find(i => i.id === itemId);
-            else if (sectionId === 'todoCat3') pItem = todo.category3Items.find(i => i.id === itemId);
-            else if (sectionId === 'todoCat4') pItem = todo.category4Items.find(i => i.id === itemId);
-            else if (sectionId === 'todo2Cat1') pItem = targetTab.todoManagementInfo2.category1Items.find(i => i.id === itemId);
-            else if (sectionId === 'todo2Cat2') pItem = targetTab.todoManagementInfo2.category2Items.find(i => i.id === itemId);
-            else if (sectionId === 'todo2Cat3') pItem = targetTab.todoManagementInfo2.category3Items.find(i => i.id === itemId);
-            else if (sectionId === 'todo2Cat4') pItem = targetTab.todoManagementInfo2.category4Items.find(i => i.id === itemId);
-
-            if (pItem) {
-                itemText = pItem.text;
-                found = true;
-            }
-        }
-
-        if (!found) return;
-
-        setMoveItemModal({
-            isOpen: true,
-            itemId: itemId,
-            itemText: itemText,
-            sourceTabId: targetTab.id,
-            sourceSectionId: sectionId
-        });
-    };
-
-    const handleMoveItem = (targetTabId: string, targetSectionId: string) => {
-        const { itemId, sourceTabId, sourceSectionId } = moveItemModal;
+    const handleMoveItem = (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string) => {
         if (!itemId) return;
 
         if (sourceTabId === targetTabId && sourceSectionId === targetSectionId) {
-            setMoveItemModal(prev => ({ ...prev, isOpen: false }));
             return;
         }
 
@@ -466,14 +397,11 @@ export const useSectionManagement = (
             })
         });
 
-        setMoveItemModal({ isOpen: false, itemId: null, itemText: '', sourceTabId: '', sourceSectionId: '' });
     };
 
     return {
         dragState,
         setDragState,
-        moveItemModal,
-        setMoveItemModal,
         handleAddSection,
         handleUpdateSection,
         handleUpdateInboxSection,
@@ -484,7 +412,6 @@ export const useSectionManagement = (
         onSectionDragEnd,
         handleCrossSectionItemDrop,
         handleClearAll,
-        handleOpenMoveItemModal,
         handleMoveItem
     };
 };

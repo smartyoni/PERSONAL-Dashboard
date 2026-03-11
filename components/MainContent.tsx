@@ -36,7 +36,7 @@ interface MainContentProps {
     // Memo & Calendar
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null) => void;
     handleAddToCalendarClick: (itemText: string) => void;
-    handleOpenMoveItemModal: (itemId: string, sectionId: string) => void;
+    handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
     // Navigation
     setNavigationMapOpen: (open: boolean) => void;
     handleNavigateToInbox: () => void;
@@ -61,7 +61,7 @@ const MainContent: React.FC<MainContentProps> = ({
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleCrossBookmarkSectionDrop,
     handleParkingChange, handleShowMemo, handleAddToCalendarClick,
-    handleOpenMoveItemModal, setNavigationMapOpen, handleNavigateToInbox,
+    handleOpenTagSelection, setNavigationMapOpen, handleNavigateToInbox,
     onToggleBookmarkView,
     highlightedSectionId, activeTabColorConfig,
     lastSectionBeforeInbox, handleReturnFromInbox, handleGoToInbox,
@@ -123,7 +123,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             tabColorBg={'bg-sky-100'}
                                             onCrossSectionDrop={handleCrossBookmarkSectionDrop}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                            onItemTagClick={() => setTagSelectionModalOpen(true)}
+                                            onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                             isMobileLayout={isMobileLayout}
                                         />
                                     </div>
@@ -143,7 +143,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onUpdateSection={handleUpdateInboxSection}
                                                 onDeleteSection={() => { }}
                                                 onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue, activeTab.id)}
-                                                onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.inboxSection.id)}
+                                                onMoveItem={() => { }}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
                                                 setDragState={setDragState}
@@ -162,7 +162,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 initialQuickAddValue={sharedTextForInbox}
                                                 onQuickAddValuePopulated={handleClearSharedText}
                                                 onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                                onItemTagClick={() => setTagSelectionModalOpen(true)}
+                                                onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: activeTab.inboxSection.id, sourceTabId: activeTab.id })}
                                                 autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
                                                 onClearFocus={() => setFocusQuickAddSectionId(null)}
                                                 isMobileLayout={isMobileLayout}
@@ -218,7 +218,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onUpdateSection={handleUpdateSection}
                                             onDeleteSection={handleDeleteSection}
                                             onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
-                                            onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, section.id)}
+                                            onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}
                                             setDragState={setDragState}
@@ -233,7 +233,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onCrossSectionDrop={handleCrossSectionItemDrop}
                                             onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                            onItemTagClick={() => setTagSelectionModalOpen(true)}
+                                            onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                             isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
                                             onReturnFromInbox={handleReturnFromInbox}
                                             autoFocusQuickAdd={focusQuickAddSectionId === section.id}
