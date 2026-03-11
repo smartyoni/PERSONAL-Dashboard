@@ -19,19 +19,27 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, title, message, onC
         confirmButtonRef.current?.focus();
       }, 100);
 
-      // 엔터 키 숏컷 추가
+      // 엔터 및 스페이스 키 숏컷 추가 (캡처링 단계에서 최우선으로 처리)
       const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' || e.key === ' ') {
+          // 입력 필드가 포커스된 경우 단축키 무시 (모달 내부/외부 텍스트 편집 중일 수 있음)
+          const activeTag = document.activeElement?.tagName;
+          const isContentEditable = (document.activeElement as HTMLElement)?.isContentEditable;
+          if (activeTag === 'TEXTAREA' || activeTag === 'INPUT' || isContentEditable) {
+            return;
+          }
           e.preventDefault();
+          e.stopPropagation(); // 버튼에 포커스 되어 있을 때 네이티브 클릭과 중복 실행 방지
           onConfirm();
         } else if (e.key === 'Escape') {
           e.preventDefault();
+          e.stopPropagation();
           onCancel();
         }
       };
 
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+      window.addEventListener('keydown', handleKeyDown, true);
+      return () => window.removeEventListener('keydown', handleKeyDown, true);
     }
   }, [isOpen, onConfirm, onCancel]);
 
