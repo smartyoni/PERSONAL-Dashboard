@@ -172,11 +172,9 @@ export const useAppState = () => {
     }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
 
     // 메모 에디터 상태
-    const [memoEditor, setMemoEditor] = useState<{
-        id: string | null; value: string;
-        type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
-        isEditing: boolean; openedFromMap?: boolean;
-    }>({ id: null, value: '', type: 'section', isEditing: false });
+    const [memoEditor, setMemoEditor] = useState<MemoEditorState>({
+        id: null, value: '', type: 'section', isEditing: false, sectionId: null
+    });
     const memoTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
