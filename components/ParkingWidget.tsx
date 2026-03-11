@@ -117,13 +117,23 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     updateList(type, newItems);
   };
 
+  const handleUpdateSubTitle = (type: 'checklist' | 'shopping' | 'reminders' | 'todo', title: string) => {
+    const key = `${type}${type === 'shopping' ? '' : ''}Title` as keyof ParkingInfo;
+    // Actually, type is 'checklist', 'shopping', 'reminders', 'todo'.
+    // Fields are 'checklistTitle', 'shoppingTitle', 'remindersTitle', 'todoTitle'.
+    // So the key is simply type + 'Title'.
+    const titleKey = `${type}Title` as keyof ParkingInfo;
+    onChange({ ...info, [titleKey]: title });
+  };
+
   // 섹션 렌더링 컴포넌트
-  const SubSection = ({ title, type, items, memos, onShowMemo }: {
+  const SubSection = ({ title, type, items, memos, onShowMemo, onTitleChange }: {
     title: string,
     type: 'checklist' | 'shopping' | 'reminders' | 'todo',
     items: ListItem[],
     memos: { [key: string]: string },
-    onShowMemo: (id: string) => void
+    onShowMemo: (id: string) => void,
+    onTitleChange: (newTitle: string) => void
   }) => {
     const [dragState, setDragState] = useState<{ draggedItemId: string | null; dragOverItemId: string | null }>({
       draggedItemId: null, dragOverItemId: null
@@ -132,7 +142,13 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     return (
       <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0">
         <div className="flex items-center justify-between mb-1 px-1">
-          <label className="text-sm font-bold text-slate-800">{title}</label>
+          <EditableText
+            value={title}
+            onChange={onTitleChange}
+            placeholder="제목 입력..."
+            className="text-sm font-bold text-slate-800"
+            compact
+          />
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold">+ 추가</button>
         </div>
         <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
@@ -171,35 +187,22 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
-      <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title="주차 정보">
-        주차 <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
-      </h2>
-
-      {/* 층수 선택 */}
-      <div className="mb-2 flex gap-1 items-stretch">
-        {['B1', 'B2', 'B3', 'B4', 'B5'].map(floor => (
-          <button
-            key={floor}
-            onClick={() => onChange({ ...info, text: floor })}
-            className={`flex-1 py-1.5 text-xs font-black rounded-lg border-2 transition-all ${info.text === floor ? 'bg-green-500 text-white border-black shadow-[2px_2px_0_0_#000]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-black'}`}
-          >
-            {floor}
-          </button>
-        ))}
-        <input
-          type="text" maxLength={4} placeholder="기타"
-          value={['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) ? '' : info.text}
-          onChange={(e) => onChange({ ...info, text: e.target.value })}
-          className={`flex-[1.5] min-w-0 px-2 py-1.5 text-xs font-black rounded-lg border-2 text-center transition-all focus:outline-none ${!['B1', 'B2', 'B3', 'B4', 'B5'].includes(info.text) && info.text !== '' ? 'bg-green-50 border-black shadow-[2px_2px_0_0_#000]' : 'bg-slate-50 border-slate-200 focus:border-black'}`}
+      <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title={info.title || "주차"}>
+        <EditableText
+          value={info.title || "주차"}
+          onChange={(newTitle) => onChange({ ...info, title: newTitle })}
+          placeholder="제목 입력..."
+          className="flex-1"
         />
-      </div>
+        <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
+      </h2>
 
       {/* 4분할 섹션 */}
       <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
-        <SubSection title="업무루틴" type="checklist" items={info.checklistItems} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} />
-        <SubSection title="구매예정" type="shopping" items={info.shoppingListItems} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} />
-        <SubSection title="챙겨야할 것" type="reminders" items={info.remindersItems} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} />
-        <SubSection title="잊지말고 할일" type="todo" items={info.todoItems} memos={info.todoMemos} onShowMemo={onShowTodoMemo} />
+        <SubSection title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} />
+        <SubSection title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} />
+        <SubSection title={info.remindersTitle || "챙겨야할 것"} type="reminders" items={info.remindersItems} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />
+        <SubSection title={info.todoTitle || "잊지말고 할일"} type="todo" items={info.todoItems} memos={info.todoMemos} onShowMemo={onShowTodoMemo} onTitleChange={(t) => handleUpdateSubTitle('todo', t)} />
       </div>
 
       {/* 메뉴 팝업 (포탈 개념의 fixed 유지) */}

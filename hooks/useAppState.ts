@@ -15,10 +15,15 @@ const defaultData: AppData = (() => {
             sections: [],
             memos: {},
             parkingInfo: {
+                title: '주차',
                 text: '',
+                checklistTitle: '업무루틴',
                 checklistItems: [],
+                shoppingTitle: '구매예정',
                 shoppingListItems: [],
+                remindersTitle: '챙겨야할 것',
                 remindersItems: [],
+                todoTitle: '잊지말고 할일',
                 todoItems: [],
                 checklistMemos: {},
                 shoppingListMemos: {},
@@ -26,6 +31,22 @@ const defaultData: AppData = (() => {
                 todoMemos: {}
             },
             todoManagementInfo: {
+                title: '할일관리',
+                category1Title: '항목 1',
+                category2Title: '항목 2',
+                category3Title: '항목 3',
+                category4Title: '항목 4',
+                category1Items: [],
+                category2Items: [],
+                category3Items: [],
+                category4Items: [],
+                category1Memos: {},
+                category2Memos: {},
+                category3Memos: {},
+                category4Memos: {}
+            },
+            todoManagementInfo2: {
+                title: '할일관리 2',
                 category1Title: '항목 1',
                 category2Title: '항목 2',
                 category3Title: '항목 3',
@@ -41,9 +62,6 @@ const defaultData: AppData = (() => {
             },
             inboxSection: {
                 id: inboxSectionId, title: 'IN-BOX', items: [], color: 'slate', isLocked: false
-            },
-            quotesSection: {
-                id: quotesSectionId, title: '명언', items: [], color: 'slate', isLocked: false
             },
             isLocked: false
         }],
@@ -86,9 +104,14 @@ export const useAppState = () => {
                         : undefined,
                     parkingInfo: {
                         ...tab.parkingInfo,
+                        title: tab.parkingInfo?.title || '주차',
+                        checklistTitle: tab.parkingInfo?.checklistTitle || '업무루틴',
                         checklistItems: tab.parkingInfo?.checklistItems || [],
+                        shoppingTitle: tab.parkingInfo?.shoppingTitle || '구매예정',
                         shoppingListItems: tab.parkingInfo?.shoppingListItems || [],
+                        remindersTitle: tab.parkingInfo?.remindersTitle || '챙겨야할 것',
                         remindersItems: tab.parkingInfo?.remindersItems || [],
+                        todoTitle: tab.parkingInfo?.todoTitle || '잊지말고 할일',
                         todoItems: tab.parkingInfo?.todoItems || [],
                         checklistMemos: tab.parkingInfo?.checklistMemos || {},
                         shoppingListMemos: tab.parkingInfo?.shoppingListMemos || {},
@@ -96,6 +119,8 @@ export const useAppState = () => {
                         todoMemos: tab.parkingInfo?.todoMemos || {},
                     },
                     todoManagementInfo: {
+                        ...tab.todoManagementInfo,
+                        title: tab.todoManagementInfo?.title || '할일관리',
                         category1Title: tab.todoManagementInfo?.category1Title || '항목 1',
                         category2Title: tab.todoManagementInfo?.category2Title || '항목 2',
                         category3Title: tab.todoManagementInfo?.category3Title || '항목 3',
@@ -109,9 +134,21 @@ export const useAppState = () => {
                         category3Memos: tab.todoManagementInfo?.category3Memos || {},
                         category4Memos: tab.todoManagementInfo?.category4Memos || {},
                     },
-                    quotesSection: tab.quotesSection || {
-                        id: Math.random().toString(36).substr(2, 9),
-                        title: '명언', items: [], color: 'slate', isLocked: false
+                    todoManagementInfo2: {
+                        ...tab.todoManagementInfo2,
+                        title: tab.todoManagementInfo2?.title || '할일관리 2',
+                        category1Title: tab.todoManagementInfo2?.category1Title || '항목 1',
+                        category2Title: tab.todoManagementInfo2?.category2Title || '항목 2',
+                        category3Title: tab.todoManagementInfo2?.category3Title || '항목 3',
+                        category4Title: tab.todoManagementInfo2?.category4Title || '항목 4',
+                        category1Items: tab.todoManagementInfo2?.category1Items || [],
+                        category2Items: tab.todoManagementInfo2?.category2Items || [],
+                        category3Items: tab.todoManagementInfo2?.category3Items || [],
+                        category4Items: tab.todoManagementInfo2?.category4Items || [],
+                        category1Memos: tab.todoManagementInfo2?.category1Memos || {},
+                        category2Memos: tab.todoManagementInfo2?.category2Memos || {},
+                        category3Memos: tab.todoManagementInfo2?.category3Memos || {},
+                        category4Memos: tab.todoManagementInfo2?.category4Memos || {},
                     },
                 };
             })
@@ -205,6 +242,13 @@ export const useAppState = () => {
         });
     };
 
+    const handleTodoManagement2Change = (newInfo: any) => {
+        updateData({
+            ...safeData,
+            tabs: safeData.tabs.map(t => t.id === safeData.activeTabId ? { ...t, todoManagementInfo2: newInfo } : t)
+        });
+    };
+
     const handleAddToCalendarClick = (itemText: string) => {
         if (!googleCalendar.isAuthorized) { googleCalendar.login(); return; }
         setCalendarModal({ isOpen: true, itemText });
@@ -236,6 +280,6 @@ export const useAppState = () => {
         modal, setModal,
         memoEditor, setMemoEditor, memoTextareaRef,
         calendarModal, setCalendarModal,
-        handleParkingChange, handleTodoManagementChange, handleAddToCalendarClick, handleConfirmCalendar
+        handleParkingChange, handleTodoManagementChange, handleTodoManagement2Change, handleAddToCalendarClick, handleConfirmCalendar
     };
 };

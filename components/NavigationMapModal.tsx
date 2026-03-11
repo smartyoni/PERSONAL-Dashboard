@@ -228,9 +228,6 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                     <span className="text-sm flex-1 break-all text-slate-700 group-hover:text-blue-700">
                       {item.text}
                     </span>
-                    <span className="text-[10px] text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pt-1">
-                      메모 보기
-                    </span>
                   </button>
                 ))}
               </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo } from '../types';
+import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo, MemoEditorState } from '../types';
 import SectionCard from './SectionCard';
 import ParkingWidget from './ParkingWidget';
 import TodoWidget from './TodoWidget';
@@ -18,7 +18,6 @@ interface MainContentProps {
     handleAddSection: () => void;
     handleUpdateSection: (updated: Section, newMemos?: { [key: string]: string }) => void;
     handleUpdateInboxSection: (updated: Section, newMemos?: { [key: string]: string }) => void;
-    handleUpdateQuotesSection: (updated: Section, newMemos?: { [key: string]: string }) => void;
     handleDeleteSection: (id: string) => void;
     handleUpdateBookmarkSection: (updated: Section, newMemos?: { [key: string]: string }) => void;
     // Drag
@@ -33,8 +32,9 @@ interface MainContentProps {
     // Parking
     handleParkingChange: (newInfo: ParkingInfo) => void;
     handleTodoManagementChange: (newInfo: TodoManagementInfo) => void;
+    handleTodoManagement2Change: (newInfo: TodoManagementInfo) => void;
     // Memo & Calendar
-    handleShowMemo: (id: string, type?: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'section', sectionId?: string | null, initialValue?: string) => void;
+    handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null) => void;
     handleAddToCalendarClick: (itemText: string) => void;
     handleOpenMoveItemModal: (itemId: string, sectionId: string) => void;
     // Navigation
@@ -56,7 +56,7 @@ const MainContent: React.FC<MainContentProps> = ({
     safeData, activeTab, isMainTab, isBookmarkView, isMobileLayout,
     sharedTextForInbox, handleClearSharedText, mainRef,
     handleAddSection, handleUpdateSection, handleUpdateInboxSection,
-    handleUpdateQuotesSection, handleDeleteSection, handleUpdateBookmarkSection,
+    handleDeleteSection, handleUpdateBookmarkSection,
     dragState, setDragState,
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleCrossBookmarkSectionDrop,
@@ -66,6 +66,7 @@ const MainContent: React.FC<MainContentProps> = ({
     highlightedSectionId, activeTabColorConfig,
     lastSectionBeforeInbox, handleReturnFromInbox, handleGoToInbox,
     handleTodoManagementChange,
+    handleTodoManagement2Change,
     setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
     isOnline
 }) => {
@@ -92,6 +93,8 @@ const MainContent: React.FC<MainContentProps> = ({
                             onNavigateToInbox={handleNavigateToInbox}
                             isBookmarkView={isBookmarkView}
                             onToggleBookmarkView={onToggleBookmarkView}
+                            parkingInfo={activeTab.parkingInfo}
+                            onParkingChange={handleParkingChange}
                         />
                     </div>
 
@@ -189,32 +192,14 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         <div className="h-[calc(100vh-160px)]">
-                                            <SectionCard
-                                                section={activeTab.quotesSection}
-                                                itemMemos={activeTab.memos}
-                                                onUpdateSection={handleUpdateQuotesSection}
-                                                onDeleteSection={() => { }}
-                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.quotesSection.id, initialValue, activeTab.id)}
-                                                onMoveItem={(itemId) => handleOpenMoveItemModal(itemId, activeTab.quotesSection.id)}
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo2}
+                                                onChange={handleTodoManagement2Change}
+                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todo2Cat1', 'todo2Cat1', undefined, activeTab.id)}
+                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todo2Cat2', 'todo2Cat2', undefined, activeTab.id)}
+                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todo2Cat3', 'todo2Cat3', undefined, activeTab.id)}
+                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todo2Cat4', 'todo2Cat4', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onSectionDragStart={() => { }}
-                                                onSectionDragOver={() => { }}
-                                                onSectionDrop={() => { }}
-                                                onSectionDragEnd={() => { }}
-                                                isHighlighted={activeTab.quotesSection.id === highlightedSectionId}
-                                                isInboxSection={true}
-                                                tabColorText={activeTabColorConfig.text}
-                                                tabColorBg={activeTabColorConfig.bgLight}
-                                                onCrossSectionDrop={handleCrossSectionItemDrop}
-                                                onGoToInbox={() => handleGoToInbox(activeTab.id, activeTab.quotesSection.id)}
-                                                onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                                isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === activeTab.quotesSection.id}
-                                                onReturnFromInbox={handleReturnFromInbox}
-                                                autoFocusQuickAdd={focusQuickAddSectionId === activeTab.quotesSection.id}
-                                                onClearFocus={() => setFocusQuickAddSectionId(null)}
-                                                isMobileLayout={isMobileLayout}
                                             />
                                         </div>
                                     </>

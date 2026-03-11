@@ -19,7 +19,7 @@ const App: React.FC = () => {
     modal, setModal,
     memoEditor, setMemoEditor, memoTextareaRef,
     calendarModal, setCalendarModal,
-    handleParkingChange, handleTodoManagementChange, handleAddToCalendarClick, handleConfirmCalendar
+    handleParkingChange, handleTodoManagementChange, handleTodoManagement2Change, handleAddToCalendarClick, handleConfirmCalendar
   } = useAppState();
 
   // Phase 5: 북마크 훅
@@ -50,7 +50,7 @@ const App: React.FC = () => {
   const {
     dragState, setDragState, moveItemModal, setMoveItemModal,
     handleAddSection, handleUpdateSection, handleUpdateInboxSection,
-    handleUpdateQuotesSection, handleDeleteSection,
+    handleDeleteSection,
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleClearAll,
     handleOpenMoveItemModal, handleMoveItem
@@ -110,7 +110,7 @@ const App: React.FC = () => {
         sharedTextForInbox={sharedTextForInbox} handleClearSharedText={handleClearSharedText}
         mainRef={mainRef}
         handleAddSection={handleAddSection} handleUpdateSection={handleUpdateSection}
-        handleUpdateInboxSection={handleUpdateInboxSection} handleUpdateQuotesSection={handleUpdateQuotesSection}
+        handleUpdateInboxSection={handleUpdateInboxSection}
         handleDeleteSection={handleDeleteSection} handleUpdateBookmarkSection={handleUpdateBookmarkSection}
         dragState={dragState} setDragState={setDragState}
         onSectionDragStart={onSectionDragStart} onSectionDragOver={onSectionDragOver}
@@ -119,6 +119,7 @@ const App: React.FC = () => {
         handleCrossBookmarkSectionDrop={handleCrossBookmarkSectionDrop}
         handleParkingChange={handleParkingChange}
         handleTodoManagementChange={handleTodoManagementChange}
+        handleTodoManagement2Change={handleTodoManagement2Change}
         handleShowMemo={handleShowMemo}
         handleAddToCalendarClick={handleAddToCalendarClick} handleOpenMoveItemModal={handleOpenMoveItemModal}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
