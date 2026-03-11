@@ -21,6 +21,7 @@ interface ItemRowProps {
   isBookmark?: boolean; // 추가
   onUpdateUrl?: (newUrl: string) => void; // 추가
   onDoubleClickItem?: () => void;
+  onTagClick?: () => void; // 추가
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -43,6 +44,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   isBookmark = false,
   onUpdateUrl,
   onDoubleClickItem,
+  onTagClick,
   dragState,
   onDragStart,
   onDragOver,
@@ -186,6 +188,22 @@ const ItemRow: React.FC<ItemRowProps> = ({
           />
         </div>
       </div>
+
+      {/* 3. Tag Button (#) */}
+      {!isBookmark && onTagClick && (
+        <div className="flex-shrink-0 flex items-center h-5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onTagClick();
+            }}
+            className="text-[14px] font-black text-purple-400 hover:text-purple-600 hover:bg-purple-50 w-6 h-6 flex items-center justify-center rounded-full transition-all"
+            title="태그(섹션) 이동"
+          >
+            #
+          </button>
+        </div>
+      )}
 
       {/* 4. Hidden Menu Logic (Triggered by Bullet) */}
       <div className="relative flex-shrink-0 -mr-3 mt-[1px]">

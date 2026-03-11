@@ -123,6 +123,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             tabColorBg={'bg-sky-100'}
                                             onCrossSectionDrop={handleCrossBookmarkSectionDrop}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                            onItemTagClick={() => setTagSelectionModalOpen(true)}
                                             isMobileLayout={isMobileLayout}
                                         />
                                     </div>
@@ -161,6 +162,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 initialQuickAddValue={sharedTextForInbox}
                                                 onQuickAddValuePopulated={handleClearSharedText}
                                                 onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                onItemTagClick={() => setTagSelectionModalOpen(true)}
                                                 autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
                                                 onClearFocus={() => setFocusQuickAddSectionId(null)}
                                                 isMobileLayout={isMobileLayout}
@@ -231,6 +233,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onCrossSectionDrop={handleCrossSectionItemDrop}
                                             onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                            onItemTagClick={() => setTagSelectionModalOpen(true)}
                                             isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
                                             onReturnFromInbox={handleReturnFromInbox}
                                             autoFocusQuickAdd={focusQuickAddSectionId === section.id}

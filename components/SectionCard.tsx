@@ -32,6 +32,7 @@ interface SectionCardProps {
   isReturnVisible?: boolean;
   isBookmarkTab?: boolean; // 추가
   onItemDoubleClick?: (itemId: string) => void; // 추가
+  onItemTagClick?: () => void; // 추가
   autoFocusQuickAdd?: boolean;
   onClearFocus?: () => void;
   isMobileLayout?: boolean;
@@ -64,6 +65,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   isReturnVisible = false,
   isBookmarkTab = false,
   onItemDoubleClick,
+  onItemTagClick,
   autoFocusQuickAdd,
   onClearFocus,
   isMobileLayout = false,
@@ -425,6 +427,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onDrop={(e) => onItemDrop(e, item.id)}
             onDragEnd={onItemDragEnd}
             onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
+            onTagClick={onItemTagClick}
           />
         ))}
         {section.items.length === 0 && (
