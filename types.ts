@@ -64,10 +64,10 @@ export interface Tab {
     [key: string]: string;
   };
 
-  parkingInfo: ParkingInfo;
-  todoManagementInfo: TodoManagementInfo; // 추가: 할일 관리 섹션
-  todoManagementInfo2: TodoManagementInfo; // 추가: 두 번째 할일 관리 섹션
-  inboxSection?: Section;  // IN-BOX 기본 섹션 (메인탭만)
+  parkingInfo: ParkingInfo; // 섹션 2: 주차
+  todoManagementInfo: TodoManagementInfo; // 섹션 3: 할일 관리 1
+  todoManagementInfo2: TodoManagementInfo; // 섹션 4: 할일 관리 2
+  inboxSection?: Section;  // 섹션 1: IN-BOX (메인탭만)
   isLocked?: boolean;
 }
 

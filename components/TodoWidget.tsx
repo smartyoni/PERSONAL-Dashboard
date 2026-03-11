@@ -159,7 +159,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                     onChange={(txt) => handleUpdateText(type, item.id, txt)}
                                     onEditingChange={(ed) => handleEditingChange(item.id, ed)}
                                     placeholder="항목 입력..."
-                                    className={`text-sm ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
+                                    className={`text-base ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                                     compact
                                 />
                             </div>
