@@ -65,7 +65,7 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
 
                         return (
                             <div key={tab.id} className="space-y-2">
-                                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider pl-2 border-b border-slate-100 pb-1">
+                                <h3 className="text-sm font-bold text-red-600 uppercase tracking-wider pl-2 border-b border-slate-100 pb-1">
                                     {tab.name}
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
