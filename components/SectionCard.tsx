@@ -365,15 +365,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
         <button
           onClick={() => {
             const trimmedValue = quickAddValue.trim();
-            if (trimmedValue === '') return;
-
-            const lines = trimmedValue.split('\n');
-            const firstLine = lines[0].trim();
-            const titleLimit = isMobileLayout ? 30 : 60;
-
-            const displayTitle = firstLine.length > titleLimit
-              ? firstLine.substring(0, titleLimit)
-              : firstLine;
+            // 내용이 없어도 빈 항목으로 추가 가능하게 변경
+            const displayTitle = trimmedValue
+              ? (trimmedValue.split('\n')[0].length > (isMobileLayout ? 30 : 60)
+                ? trimmedValue.split('\n')[0].substring(0, isMobileLayout ? 30 : 60)
+                : trimmedValue.split('\n')[0])
+              : '';
 
             const itemId = Math.random().toString(36).substr(2, 9);
             const newItem: ListItem = {
@@ -381,13 +378,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
               text: displayTitle,
               completed: false
             };
-            const newMemos = { [itemId]: trimmedValue };
+            const newMemos = trimmedValue ? { [itemId]: trimmedValue } : {};
 
             onUpdateSection({ ...section, items: [newItem, ...section.items] }, newMemos);
             setQuickAddValue('');
             if (quickInputRef.current) {
               quickInputRef.current.style.height = 'auto';
             }
+            // 즉시 메모 모달 오픈
             onShowItemMemo(itemId, trimmedValue);
           }}
           className="px-3 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap flex flex-col items-center justify-center"

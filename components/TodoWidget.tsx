@@ -79,10 +79,17 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     };
 
     const handleAddItem = (type: 1 | 2 | 3 | 4) => {
-        const newItem: ListItem = { id: Math.random().toString(36).substr(2, 9), text: '', completed: false };
+        const newItemId = Math.random().toString(36).substr(2, 9);
+        const newItem: ListItem = { id: newItemId, text: '', completed: false };
         const key = `category${type}Items` as keyof TodoManagementInfo;
         const currentItems = info[key] as ListItem[];
         updateList(type, [...currentItems, newItem]);
+
+        // 신규 추가 후 즉시 메모 모달 오픈 
+        if (type === 1) onShowTodoCat1Memo(newItemId);
+        else if (type === 2) onShowTodoCat2Memo(newItemId);
+        else if (type === 3) onShowTodoCat3Memo(newItemId);
+        else if (type === 4) onShowTodoCat4Memo(newItemId);
     };
 
     const handleDeleteItem = (type: 1 | 2 | 3 | 4, itemId: string) => {

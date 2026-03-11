@@ -76,11 +76,18 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   const handleAddItem = (type: 'checklist' | 'shopping' | 'reminders' | 'todo') => {
-    const newItem: ListItem = { id: Math.random().toString(36).substr(2, 9), text: '', completed: false };
+    const newItemId = Math.random().toString(36).substr(2, 9);
+    const newItem: ListItem = { id: newItemId, text: '', completed: false };
     const currentItems = type === 'checklist' ? info.checklistItems :
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : info.todoItems;
     updateList(type, [...currentItems, newItem]);
+
+    // 신규 추가 후 즉시 메모 모달 오픈
+    if (type === 'checklist') onShowChecklistMemo(newItemId);
+    else if (type === 'shopping') onShowShoppingMemo(newItemId);
+    else if (type === 'reminders') onShowRemindersMemo(newItemId);
+    else if (type === 'todo') onShowTodoMemo(newItemId);
   };
 
   const handleDeleteItem = (type: 'checklist' | 'shopping' | 'reminders' | 'todo', itemId: string) => {
