@@ -183,32 +183,34 @@ const AppModals: React.FC<AppModalsProps> = ({
                                         <p className="text-slate-400 italic">메모가 없습니다.</p>
                                     )}
                                 </div>
-                                <div className="border-t border-slate-300 px-4 py-3 flex justify-end gap-3 flex-wrap bg-white">
-                                    <button
-                                        onClick={() => navigator.clipboard.writeText(memoEditor.value)}
-                                        className="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
-                                    >📋 복사</button>
-                                    {memoEditor.openedFromMap && (
+                                <div className="p-3 bg-slate-50 border-t border-slate-200">
+                                    <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
+                                        {memoEditor.openedFromMap && (
+                                            <button
+                                                onClick={() => {
+                                                    setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
+                                                    setNavigationMapOpen(true);
+                                                }}
+                                                className="flex-1 px-2 py-2.5 bg-indigo-50 hover:bg-white text-indigo-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-indigo-100"
+                                            >🔙 목차</button>
+                                        )}
                                         <button
-                                            onClick={() => {
-                                                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
-                                                setNavigationMapOpen(true);
-                                            }}
-                                            className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium border-2 border-indigo-200 transition-colors mr-auto"
-                                        >🔙 목차로 돌아가기</button>
-                                    )}
-                                    <button
-                                        onClick={() => setMemoEditor({ ...memoEditor, id: null, sectionId: null })}
-                                        className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
-                                    >닫기</button>
-                                    <button
-                                        onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
-                                        className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium border-2 border-black transition-colors"
-                                    >✏️ 수정</button>
-                                    <button
-                                        onClick={handleDeleteItemFromModal}
-                                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium border-2 border-black transition-colors"
-                                    >🗑️ 삭제</button>
+                                            onClick={() => navigator.clipboard.writeText(memoEditor.value)}
+                                            className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                                        >📋 복사</button>
+                                        <button
+                                            onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                                            className="flex-1 px-2 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-blue-600"
+                                        >✏️ 수정</button>
+                                        <button
+                                            onClick={() => setMemoEditor({ ...memoEditor, id: null, sectionId: null })}
+                                            className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                                        >닫기</button>
+                                        <button
+                                            onClick={handleDeleteItemFromModal}
+                                            className="flex-1 px-2 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-all shadow-sm border border-red-100"
+                                        >🗑️ 삭제</button>
+                                    </div>
                                 </div>
                             </>
                         )}
@@ -268,43 +270,45 @@ const AppModals: React.FC<AppModalsProps> = ({
                                         className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-medium transition-colors select-none"
                                     >Tab</button>
                                 </div>
-                                <div className="px-4 py-3 flex justify-end gap-3 pb-6">
-                                    {memoEditor.openedFromMap && (
+                                <div className="p-3 bg-slate-50 border-t border-slate-200">
+                                    <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
+                                        {memoEditor.openedFromMap && (
+                                            <button
+                                                onClick={() => {
+                                                    handleSaveMemo();
+                                                    setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                                                    setNavigationMapOpen(true);
+                                                }}
+                                                className="flex-1 px-2 py-2.5 bg-indigo-50 hover:bg-white text-indigo-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-indigo-100"
+                                            >🔙 목차</button>
+                                        )}
                                         <button
                                             onClick={() => {
-                                                handleSaveMemo();
-                                                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
-                                                setNavigationMapOpen(true);
+                                                let originalMemo = '';
+                                                if (memoEditor.type === 'checklist') {
+                                                    originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
+                                                } else if (memoEditor.type === 'shopping') {
+                                                    originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
+                                                } else {
+                                                    originalMemo = activeTab.memos?.[memoEditor.id!] || '';
+                                                }
+                                                if (originalMemo) {
+                                                    setMemoEditor({ ...memoEditor, value: originalMemo, isEditing: false });
+                                                } else {
+                                                    setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                                                }
                                             }}
-                                            className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium border-2 border-indigo-200 transition-colors mr-auto"
-                                        >🔙 목차로 돌아가기</button>
-                                    )}
-                                    <button
-                                        onClick={() => {
-                                            let originalMemo = '';
-                                            if (memoEditor.type === 'checklist') {
-                                                originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
-                                            } else if (memoEditor.type === 'shopping') {
-                                                originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
-                                            } else {
-                                                originalMemo = activeTab.memos?.[memoEditor.id!] || '';
-                                            }
-                                            if (originalMemo) {
-                                                setMemoEditor({ ...memoEditor, value: originalMemo, isEditing: false });
-                                            } else {
-                                                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
-                                            }
-                                        }}
-                                        className="px-4 py-2 border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
-                                    >취소</button>
-                                    <button
-                                        onClick={handleSaveMemo}
-                                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium border-2 border-black transition-colors"
-                                    >💾 저장</button>
-                                    <button
-                                        onClick={() => navigator.clipboard.writeText(memoEditor.value)}
-                                        className="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white font-medium border-2 border-black transition-colors"
-                                    >📋 복사</button>
+                                            className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                                        >취소</button>
+                                        <button
+                                            onClick={handleSaveMemo}
+                                            className="flex-1 px-2 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-green-600"
+                                        >💾 저장</button>
+                                        <button
+                                            onClick={() => navigator.clipboard.writeText(memoEditor.value)}
+                                            className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                                        >📋 복사</button>
+                                    </div>
                                 </div>
                             </>
                         )}
