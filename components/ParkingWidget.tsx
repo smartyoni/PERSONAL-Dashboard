@@ -173,7 +173,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                   onChange={(txt) => handleUpdateText(type, item.id, txt)}
                   onEditingChange={(ed) => handleEditingChange(item.id, ed)}
                   placeholder="항목 입력..."
-                  className={`text-base ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
+                  className={`text-[15px] ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                   compact
                 />
               </div>
