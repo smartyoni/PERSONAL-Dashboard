@@ -164,6 +164,9 @@ const App: React.FC = () => {
         isMobileLayout={isMobileLayout}
         lastSectionPos={lastSectionPos} handleReturnToLastSection={handleReturnToLastSection}
         handleOpenSectionMap={handleOpenSectionMap}
+        handleNavigateToInbox={handleNavigateToInbox}
+        handleToggleBookmarkView={handleToggleBookmarkView}
+        isBookmarkView={isBookmarkView}
         calendarModal={calendarModal} setCalendarModal={setCalendarModal}
         handleConfirmCalendar={handleConfirmCalendar}
       />
