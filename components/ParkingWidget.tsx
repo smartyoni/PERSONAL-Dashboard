@@ -146,7 +146,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
             value={title}
             onChange={onTitleChange}
             placeholder="제목 입력..."
-            className="text-lg font-bold text-red-600"
+            className="text-[17px] font-bold text-red-600"
             compact
           />
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold">+ 추가</button>
