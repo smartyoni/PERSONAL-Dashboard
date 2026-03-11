@@ -16,13 +16,13 @@ export interface Section {
 
 export interface ParkingInfo {
   text: string;
-  checklistItems: ListItem[];
+  checklistItems: ListItem[]; // 업무루틴
   shoppingListItems: ListItem[];
-  remindersItems: ListItem[]; // 지금 흥미있는것
+  remindersItems: ListItem[]; // 챙겨야할 것
   todoItems: ListItem[];      // 잊지말고 할일
-  checklistMemos: { [key: string]: string };
+  checklistMemos: { [key: string]: string }; // 업무루틴 메모
   shoppingListMemos: { [key: string]: string };
-  remindersMemos: { [key: string]: string }; // 지금 흥미있는것 메모
+  remindersMemos: { [key: string]: string }; // 챙겨야할 것 메모
   todoMemos: { [key: string]: string };      // 잊지말고 할일 메모
 }
 
