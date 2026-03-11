@@ -18,7 +18,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Handle share-target endpoint
-  if (url.pathname === '/share-target' && event.request.method === 'POST') {
+  if (url.pathname.endsWith('/share-target') && event.request.method === 'POST') {
     event.respondWith(handleShareTarget(event.request));
   }
 });
@@ -43,13 +43,14 @@ async function handleShareTarget(request) {
       text: sharedText
     });
 
-    const redirectUrl = `/?${params.toString()}`;
+    // Use absolute base path to support GitHub Pages
+    const redirectUrl = `/PERSONAL-Dashboard/?${params.toString()}`;
 
     // Redirect to main page with shared data (303 See Other for POST to GET conversion)
     return Response.redirect(redirectUrl, 303);
   } catch (error) {
     console.error('[SW] Error handling share target:', error);
     // Fallback redirect to main page
-    return Response.redirect('/', 303);
+    return Response.redirect('/PERSONAL-Dashboard/', 303);
   }
 }
