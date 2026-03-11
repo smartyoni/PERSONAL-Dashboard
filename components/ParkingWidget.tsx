@@ -130,7 +130,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     });
 
     return (
-      <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-2 first:pt-0">
+      <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0">
         <div className="flex items-center justify-between mb-1 px-1">
           <label className="text-sm font-bold text-slate-800">{title}</label>
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold">+ 추가</button>
@@ -173,13 +173,13 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-2 border-black p-4 shadow-sm overflow-hidden">
-      <h2 className="text-base font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-4 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black" title="주차 정보">
+    <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
+      <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title="주차 정보">
         주차 <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
       </h2>
 
       {/* 층수 선택 */}
-      <div className="mb-4 flex gap-1 items-stretch">
+      <div className="mb-2 flex gap-1 items-stretch">
         {['B1', 'B2', 'B3', 'B4', 'B5'].map(floor => (
           <button
             key={floor}

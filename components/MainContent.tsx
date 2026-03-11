@@ -95,9 +95,9 @@ const MainContent: React.FC<MainContentProps> = ({
                         />
                     </div>
 
-                    <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-6 pb-20">
+                    <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-2 pb-20">
                         {isBookmarkView ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 pt-2" style={{ gridAutoRows: 'auto' }}>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 md:gap-2 pt-1" style={{ gridAutoRows: 'auto' }}>
                                 {(safeData.bookmarkSections || []).map((section) => (
                                     <div key={section.id} className="h-[480px] lg:h-[calc(100vh-160px)]">
                                         <SectionCard
@@ -126,9 +126,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-3 h-full ${isMobileLayout
+                            <div className={`grid gap-1 h-full ${isMobileLayout
                                 ? 'grid-cols-1'
-                                : 'grid-cols-1 md:grid-cols-2 md:gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
+                                : 'grid-cols-1 md:grid-cols-2 md:gap-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
                                 }`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab && (
                                     <>

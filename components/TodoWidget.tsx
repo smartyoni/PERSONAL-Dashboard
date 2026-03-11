@@ -126,7 +126,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         });
 
         return (
-            <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-2 first:pt-0">
+            <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0">
                 <div className="flex items-center justify-between mb-1 px-1">
                     <EditableText
                         value={title}
@@ -175,8 +175,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-full bg-white border-2 border-black p-4 shadow-sm overflow-hidden">
-            <h2 className="text-base font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-4 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black" title="할일관리">
+        <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
+            <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title="할일관리">
                 할일관리 <span className="text-[10px] font-normal text-green-600 font-mono">TODO</span>
             </h2>
 

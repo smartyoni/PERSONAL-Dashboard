@@ -295,18 +295,18 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-4 py-4 transition-all flex flex-col h-full cursor-default ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
+      className={`bg-white px-2 py-2 transition-all flex flex-col h-full cursor-default ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
           isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
         }`}
     >
-      <div className={`flex items-center justify-between gap-2 cursor-move flex-shrink-0 pl-4 pr-1 h-[56px] -mx-4 -mt-4 mb-3 border-b-2 border-black ${tabColorBg}`} title="드래그하여 순서 변경">
+      <div className={`flex items-center justify-between gap-2 cursor-move flex-shrink-0 pl-2 pr-1 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black ${tabColorBg}`} title="드래그하여 순서 변경">
         <div className="flex-1 min-w-0">
           <EditableText
             value={section.title}
             onChange={handleTitleChange}
             onEditingChange={setIsTitleEditing}
-            className="text-base font-bold text-black"
+            className="text-sm font-bold text-black"
             placeholder="섹션 이름"
           />
         </div>
@@ -326,14 +326,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <>
               <button
                 onClick={onGoToInbox}
-                className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 hover:bg-slate-200/50 transition-all active:scale-95 text-xs md:text-sm"
+                className="flex items-center justify-center w-6 h-6 md:w-7 md:h-7 hover:bg-slate-200/50 transition-all active:scale-95 text-xs md:text-sm"
                 title="인박스로 바로가기"
               >
                 📥
               </button>
               <button
                 onClick={handleToggleLock}
-                className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 border-l-[1.5px] border-black hover:bg-slate-200/50 transition-all active:scale-95 text-red-500 scale-75"
+                className="flex items-center justify-center w-6 h-6 md:w-7 md:h-7 border-l-[1.5px] border-black hover:bg-slate-200/50 transition-all active:scale-95 text-red-500 scale-75"
                 title={section.isLocked ? "섹션 잠금 해제" : "섹션 잠금"}
               >
                 {section.isLocked ? <LockIcon /> : <UnlockIcon />}
@@ -341,7 +341,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
               <button
                 disabled={section.isLocked}
                 onClick={() => onDeleteSection(section.id)}
-                className="flex items-center justify-center px-1.5 md:px-2 h-7 md:h-8 border-l-[1.5px] border-black hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-[10px] md:text-[11px] font-bold text-red-600 whitespace-nowrap"
+                className="flex items-center justify-center px-1 md:px-1.5 h-6 md:h-7 border-l-[1.5px] border-black hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-[10px] font-bold text-red-600 whitespace-nowrap"
                 title={section.isLocked ? "잠긴 섹션은 삭제할 수 없습니다" : "섹션 삭제"}
               >
                 삭제
@@ -352,7 +352,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       {/* 빠른 추가 입력창 */}
-      <div className="mb-3 flex-shrink-0 flex items-stretch gap-0 -mx-3.5">
+      <div className="mb-2 flex-shrink-0 flex items-stretch gap-0 -mx-1.5">
         <textarea
           ref={quickInputRef}
           value={quickAddValue}
