@@ -109,8 +109,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onMouseEnter={() => {
         if (rowRef.current) {
           const rect = rowRef.current.getBoundingClientRect();
-          // 상단 공간이 150px 미만이면 하단으로 표시
-          setTooltipDirection(rect.top < 150 ? 'bottom' : 'top');
+          // 상단 공간이 넉넉하지 않으면(220px 미만) 하단으로 표시
+          setTooltipDirection(rect.top < 220 ? 'bottom' : 'top');
         }
       }}
       className={`group flex items-start gap-1 py-1.5 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
