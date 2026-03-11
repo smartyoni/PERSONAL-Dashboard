@@ -36,8 +36,7 @@ const Header: React.FC<HeaderProps> = ({
       const dateStr = now.toLocaleDateString('ko-KR', dateOptions);
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      setDateTime(`${dateStr} ${hours}:${minutes}:${seconds}`);
+      setDateTime(`${dateStr} ${hours}:${minutes}`);
     };
 
     updateTime();
