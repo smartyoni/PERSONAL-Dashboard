@@ -11,6 +11,9 @@ interface TodoWidgetProps {
     onShowTodoCat3Memo: (itemId: string) => void;
     onShowTodoCat4Memo: (itemId: string) => void;
     onAddToCalendar: (itemText: string) => void;
+    mainHeaderClass?: string;
+    subHeaderClass?: string;
+    todoTagClass?: string;
 }
 
 const TodoWidget: React.FC<TodoWidgetProps> = ({
@@ -20,7 +23,10 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     onShowTodoCat2Memo,
     onShowTodoCat3Memo,
     onShowTodoCat4Memo,
-    onAddToCalendar
+    onAddToCalendar,
+    mainHeaderClass,
+    subHeaderClass,
+    todoTagClass
 }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -132,7 +138,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                         value={title}
                         onChange={(txt) => handleUpdateTitle(type, txt)}
                         placeholder="제목 입력..."
-                        className="text-[17px] font-bold text-green-600"
+                        className={subHeaderClass || "text-[17px] font-bold text-green-600"}
                         compact
                     />
                     <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
@@ -173,14 +179,14 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
-            <h2 className="text-sm font-black text-sky-900 bg-sky-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title={info.title || "할일관리"}>
+            <h2 className={mainHeaderClass || "text-sm font-black text-sky-900 bg-sky-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"} title={info.title || "할일관리"}>
                 <EditableText
                     value={info.title || "할일관리"}
                     onChange={(newTitle) => onChange({ ...info, title: newTitle })}
                     placeholder="제목 입력..."
                     className="flex-1"
                 />
-                <span className="text-[10px] font-normal text-sky-600 font-mono">TODO</span>
+                <span className={todoTagClass || "text-[10px] font-normal text-sky-600 font-mono"}>TODO</span>
             </h2>
 
 

@@ -188,6 +188,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3', undefined, activeTab.id)}
                                                 onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
+                                                mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                subHeaderClass="text-[17px] font-bold text-blue-600"
+                                                todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
                                             />
                                         </div>
 
