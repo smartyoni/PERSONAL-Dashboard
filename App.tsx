@@ -148,6 +148,7 @@ const App: React.FC = () => {
         handleSaveMemo={handleSaveMemo}
         handleSwipeMemo={handleSwipeMemo}
         handleDeleteItemFromModal={handleDeleteItemFromModal}
+        handleOpenMoveItemModal={handleOpenMoveItemModal}
         handleInsertSymbol={handleInsertSymbol} memoSymbols={memoSymbols}
         setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
         moveItemModal={moveItemModal} setMoveItemModal={setMoveItemModal}

@@ -16,6 +16,7 @@ interface AppModalsProps {
     handleSaveMemo: () => void;
     handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
+    handleOpenMoveItemModal: (itemId: string, sectionId: string) => void;
     handleInsertSymbol: (symbol: string) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
@@ -57,7 +58,7 @@ interface AppModalsProps {
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleOpenMoveItemModal, handleInsertSymbol, memoSymbols,
     setNavigationMapOpen, activeTab,
     moveItemModal, setMoveItemModal, handleMoveItem, safeData,
     modal, setModal,
@@ -185,15 +186,14 @@ const AppModals: React.FC<AppModalsProps> = ({
                                 </div>
                                 <div className="p-3 bg-slate-50 border-t border-slate-200">
                                     <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
-                                        {memoEditor.openedFromMap && (
-                                            <button
-                                                onClick={() => {
-                                                    setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
-                                                    setNavigationMapOpen(true);
-                                                }}
-                                                className="flex-1 px-2 py-2.5 bg-indigo-50 hover:bg-white text-indigo-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-indigo-100"
-                                            >🔙 목차</button>
-                                        )}
+                                        <button
+                                            onClick={() => {
+                                                if (memoEditor.id && memoEditor.sectionId) {
+                                                    handleOpenMoveItemModal(memoEditor.id, memoEditor.sectionId);
+                                                }
+                                            }}
+                                            className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                                        >📦 이동</button>
                                         <button
                                             onClick={() => navigator.clipboard.writeText(memoEditor.value)}
                                             className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
