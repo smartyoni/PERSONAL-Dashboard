@@ -2,32 +2,32 @@
   "name": "최영현보드",
   "short_name": "최영현보드",
   "description": "칠판 같은 개인용 작업 관리 대시보드",
-  "start_url": "/PERSONAL-Dashboard/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1a5c3a",
-  "scope": "/PERSONAL-Dashboard/",
+  "scope": "/",
   "icons": [
     {
-      "src": "/PERSONAL-Dashboard/favicon.png",
+      "src": "/favicon.png",
       "sizes": "32x32",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/PERSONAL-Dashboard/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/PERSONAL-Dashboard/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/PERSONAL-Dashboard/apple-touch-icon.png",
+      "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
@@ -35,13 +35,13 @@
   ],
   "screenshots": [
     {
-      "src": "/PERSONAL-Dashboard/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "/PERSONAL-Dashboard/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "form_factor": "narrow"
@@ -55,17 +55,17 @@
       "name": "새로운 섹션",
       "short_name": "섹션",
       "description": "새로운 섹션을 만듭니다",
-      "url": "/PERSONAL-Dashboard/?shortcut=new-section",
+      "url": "/?shortcut=new-section",
       "icons": [
         {
-          "src": "/PERSONAL-Dashboard/icon-192.png",
+          "src": "/icon-192.png",
           "sizes": "192x192"
         }
       ]
     }
   ],
   "share_target": {
-    "action": "/PERSONAL-Dashboard/share-target",
+    "action": "/share-target",
     "method": "POST",
     "enctype": "application/x-www-form-urlencoded",
     "params": {

@@ -14,7 +14,7 @@
 
   <!-- PWA 메타 태그 -->
   <meta name="theme-color" content="#1a5c3a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="최영현보드" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -62,8 +62,8 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/PERSONAL-Dashboard/sw.js', {
-          scope: '/PERSONAL-Dashboard/'
+        navigator.serviceWorker.register('/sw.js', {
+          scope: '/'
         }).then((registration) => {
           console.log('[PWA] Service Worker 등록 완료:', registration.scope);
         }).catch((error) => {
