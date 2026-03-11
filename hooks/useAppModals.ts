@@ -303,10 +303,6 @@ export function useAppModals(
                                 ...t.inboxSection,
                                 items: t.inboxSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
                             } : t.inboxSection,
-                            quotesSection: t.quotesSection ? {
-                                ...t.quotesSection,
-                                items: t.quotesSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
-                            } : t.quotesSection,
                             memos: { ...t.memos, [memoEditor.id!]: memoEditor.value }
                         }
                         : t
@@ -366,7 +362,6 @@ export function useAppModals(
                                 ...t,
                                 memos: newMemos,
                                 inboxSection: t.inboxSection ? { ...t.inboxSection, items: updateItems(t.inboxSection.items) } : t.inboxSection,
-                                quotesSection: { ...t.quotesSection, items: updateItems(t.quotesSection.items) },
                                 sections: t.sections.map(s => ({ ...s, items: updateItems(s.items) }))
                             };
                         }

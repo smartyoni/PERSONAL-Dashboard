@@ -7,7 +7,6 @@ import { parseMillieText } from '../utils/parseMillieText';
 const defaultData: AppData = (() => {
     const initialTabId = Math.random().toString(36).substr(2, 9);
     const inboxSectionId = Math.random().toString(36).substr(2, 9);
-    const quotesSectionId = Math.random().toString(36).substr(2, 9);
     return {
         tabs: [{
             id: initialTabId,

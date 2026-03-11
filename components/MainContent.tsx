@@ -167,7 +167,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="parking-section" className="h-[calc(100vh-160px)]">
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
                                                 onChange={handleParkingChange}
@@ -179,7 +179,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="todo-section-1" className="h-[calc(100vh-160px)]">
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -191,7 +191,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="todo-section-2" className="h-[calc(100vh-160px)]">
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo2}
                                                 onChange={handleTodoManagement2Change}

@@ -17,16 +17,13 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
     if (!isOpen) return null;
 
     // 모든 탭의 모든 섹션을 수집합니다.
-    const allSections: { section: Section, tabName: string, tabId: string, type: 'inbox' | 'quotes' | 'general' }[] = [];
+    const allSections: { section: Section, tabName: string, tabId: string, type: 'inbox' | 'general' }[] = [];
 
     tabs.forEach((tab, index) => {
         const isMainTab = index === 0;
 
         if (isMainTab && tab.inboxSection) {
             allSections.push({ section: tab.inboxSection, tabName: tab.name, tabId: tab.id, type: 'inbox' });
-        }
-        if (isMainTab && tab.quotesSection) {
-            allSections.push({ section: tab.quotesSection, tabName: tab.name, tabId: tab.id, type: 'quotes' });
         }
 
         tab.sections.forEach(sec => {
@@ -79,7 +76,7 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
                                             className="px-3 py-1.5 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-sm font-medium rounded-full transition-colors border border-slate-200 hover:border-purple-300 flex items-center gap-1.5"
                                         >
                                             <span className="text-xs opacity-70">
-                                                {type === 'inbox' ? '📥' : type === 'quotes' ? '📜' : '#'}
+                                                {type === 'inbox' ? '📥' : '#'}
                                             </span>
                                             {section.title}
                                         </button>

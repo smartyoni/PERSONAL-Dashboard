@@ -28,19 +28,56 @@ export const useTabManagement = (
 
     const handleAddTab = () => {
         const newId = Math.random().toString(36).substr(2, 9);
-        const quotesSectionId = Math.random().toString(36).substr(2, 9);
         const newTab: Tab = {
             id: newId,
             name: `새 페이지 ${safeData.tabs.length + 1}`,
             sections: [],
             memos: {},
-            parkingInfo: { text: '', checklistItems: [], shoppingListItems: [], checklistMemos: {}, shoppingListMemos: {} },
-            quotesSection: {
-                id: quotesSectionId,
-                title: '명언',
-                items: [],
-                color: 'slate',
-                isLocked: false
+            parkingInfo: {
+                title: '주차',
+                text: '',
+                checklistTitle: '업무루틴',
+                checklistItems: [],
+                shoppingTitle: '구매예정',
+                shoppingListItems: [],
+                remindersTitle: '챙겨야할 것',
+                remindersItems: [],
+                todoTitle: '잊지말고 할일',
+                todoItems: [],
+                checklistMemos: {},
+                shoppingListMemos: {},
+                remindersMemos: {},
+                todoMemos: {}
+            },
+            todoManagementInfo: {
+                title: '할일관리',
+                category1Title: '항목 1',
+                category2Title: '항목 2',
+                category3Title: '항목 3',
+                category4Title: '항목 4',
+                category1Items: [],
+                category2Items: [],
+                category3Items: [],
+                category4Items: [],
+                category1Memos: {},
+                category2Memos: {},
+                category3Memos: {},
+                category4Memos: {}
+            },
+            todoManagementInfo2: {
+                title: '할일관리 2',
+                category1Title: '항목 1',
+                category2Title: '항목 2',
+                category3Title: '항목 3',
+                category4Title: '항목 4',
+                category1Items: [],
+                category2Items: [],
+                category3Items: [],
+                category4Items: [],
+                category1Memos: {},
+                category2Memos: {},
+                category3Memos: {},
+                category4Memos: {}
             },
             isLocked: false
         };

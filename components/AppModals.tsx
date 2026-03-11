@@ -134,7 +134,7 @@ const AppModals: React.FC<AppModalsProps> = ({
         if (!memoEditor.id) return null;
         if (memoEditor.type === 'checklist') return activeTab.parkingInfo.checklistItems.find(i => i.id === memoEditor.id);
         if (memoEditor.type === 'shopping') return activeTab.parkingInfo.shoppingListItems.find(i => i.id === memoEditor.id);
-        const section = [activeTab.inboxSection, activeTab.quotesSection, ...activeTab.sections].find(s => s?.id === memoEditor.sectionId);
+        const section = [activeTab.inboxSection, ...activeTab.sections].find(s => s?.id === memoEditor.sectionId);
         return section?.items.find(i => i.id === memoEditor.id);
     }, [memoEditor.id, memoEditor.sectionId, activeTab]);
 

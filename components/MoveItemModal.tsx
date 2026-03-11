@@ -47,7 +47,6 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
     const tab = tabs.find(t => t.id === tabId);
     if (!tab) return sectionId;
     if (tab.inboxSection?.id === sectionId) return 'IN-BOX';
-    if (tab.quotesSection?.id === sectionId) return '명언';
     if (sectionId === 'checklist') return '업무루틴';
     if (sectionId === 'shopping') return '쇼핑';
     if (sectionId === 'reminders') return '챙겨야할 것';
@@ -171,27 +170,48 @@ const MoveItemModal: React.FC<MoveItemModalProps> = ({
                     );
                   })()}
 
-                  {/* 명언 섹션 */}
-                  {selectedTab?.quotesSection && (
-                    <label
-                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === selectedTab.quotesSection.id
-                        ? 'bg-blue-50 border border-blue-300'
-                        : 'border border-transparent'
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="targetSection"
-                        value={selectedTab.quotesSection.id}
-                        checked={selectedSectionId === selectedTab.quotesSection.id}
-                        onChange={(e) => setSelectedSectionId(e.target.value)}
-                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 flex-shrink-0"
-                      />
-                      <span className="text-sm font-medium flex-1 text-slate-700">
-                        ✨ 명언
-                      </span>
-                    </label>
-                  )}
+                  {/* 주차/할일관리 특수 섹션 - 메인탭만 표시 */}
+                  {(() => {
+                    const isMainTab = tabs.findIndex(t => t.id === selectedTabId) === 0;
+                    if (!isMainTab) return null;
+
+                    const sections = [
+                      { id: 'checklist', label: '🚗 ' + (selectedTab?.parkingInfo.checklistTitle || '업무루틴') },
+                      { id: 'shopping', label: '🚗 ' + (selectedTab?.parkingInfo.shoppingTitle || '쇼핑') },
+                      { id: 'reminders', label: '🚗 ' + (selectedTab?.parkingInfo.remindersTitle || '챙겨야할 것') },
+                      { id: 'todo', label: '🚗 ' + (selectedTab?.parkingInfo.todoTitle || '잊지말고 할일') },
+                      { id: 'todoCat1', label: '✅ ' + (selectedTab?.todoManagementInfo.category1Title || '항목 1') },
+                      { id: 'todoCat2', label: '✅ ' + (selectedTab?.todoManagementInfo.category2Title || '항목 2') },
+                      { id: 'todoCat3', label: '✅ ' + (selectedTab?.todoManagementInfo.category3Title || '항목 3') },
+                      { id: 'todoCat4', label: '✅ ' + (selectedTab?.todoManagementInfo.category4Title || '항목 4') },
+                      { id: 'todo2Cat1', label: '✅ ' + (selectedTab?.todoManagementInfo2.category1Title || '항목 1') },
+                      { id: 'todo2Cat2', label: '✅ ' + (selectedTab?.todoManagementInfo2.category2Title || '항목 2') },
+                      { id: 'todo2Cat3', label: '✅ ' + (selectedTab?.todoManagementInfo2.category3Title || '항목 3') },
+                      { id: 'todo2Cat4', label: '✅ ' + (selectedTab?.todoManagementInfo2.category4Title || '항목 4') },
+                    ];
+
+                    return sections.map(sec => (
+                      <label
+                        key={sec.id}
+                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${selectedSectionId === sec.id
+                          ? 'bg-blue-50 border border-blue-300'
+                          : 'border border-transparent'
+                          }`}
+                      >
+                        <input
+                          type="radio"
+                          name="targetSection"
+                          value={sec.id}
+                          checked={selectedSectionId === sec.id}
+                          onChange={(e) => setSelectedSectionId(e.target.value)}
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                        />
+                        <span className="text-sm font-medium flex-1 text-slate-700">
+                          {sec.label}
+                        </span>
+                      </label>
+                    ));
+                  })()}
 
                   {/* 일반 섹션들 */}
                   {selectedTab?.sections.map((section) => (
