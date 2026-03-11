@@ -18,12 +18,12 @@ export interface ParkingInfo {
   text: string;
   checklistItems: ListItem[];
   shoppingListItems: ListItem[];
-  remindersItems: ListItem[]; // 기억해야할 것
-  todoItems: ListItem[];      // 해야할 일
+  remindersItems: ListItem[]; // 지금 흥미있는것
+  todoItems: ListItem[];      // 잊지말고 할일
   checklistMemos: { [key: string]: string };
   shoppingListMemos: { [key: string]: string };
-  remindersMemos: { [key: string]: string }; // 기억해야할 것 메모
-  todoMemos: { [key: string]: string };      // 해야할 일 메모
+  remindersMemos: { [key: string]: string }; // 지금 흥미있는것 메모
+  todoMemos: { [key: string]: string };      // 잊지말고 할일 메모
 }
 
 export interface Bookmark {

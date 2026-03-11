@@ -201,8 +201,8 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
         <SubSection title="챙길것" type="checklist" items={info.checklistItems} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} />
         <SubSection title="구매예정" type="shopping" items={info.shoppingListItems} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} />
-        <SubSection title="기억해야할 것" type="reminders" items={info.remindersItems} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} />
-        <SubSection title="해야할 일" type="todo" items={info.todoItems} memos={info.todoMemos} onShowMemo={onShowTodoMemo} />
+        <SubSection title="지금 흥미있는것" type="reminders" items={info.remindersItems} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} />
+        <SubSection title="잊지말고 할일" type="todo" items={info.todoItems} memos={info.todoMemos} onShowMemo={onShowTodoMemo} />
       </div>
 
       {/* 메뉴 팝업 (포탈 개념의 fixed 유지) */}
