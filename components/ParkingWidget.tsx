@@ -208,7 +208,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
         <SubSection title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} />
         <SubSection title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} />
-        <SubSection title={info.remindersTitle || "챙겨야할 것"} type="reminders" items={info.remindersItems} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />
+        <SubSection title={info.remindersTitle || "기억하고 확인할것"} type="reminders" items={info.remindersItems} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />
         <SubSection title={info.todoTitle || "잊지말고 할일"} type="todo" items={info.todoItems} memos={info.todoMemos} onShowMemo={onShowTodoMemo} onTitleChange={(t) => handleUpdateSubTitle('todo', t)} />
       </div>
 

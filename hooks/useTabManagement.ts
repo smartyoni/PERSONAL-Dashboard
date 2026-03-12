@@ -40,7 +40,7 @@ export const useTabManagement = (
                 checklistItems: [],
                 shoppingTitle: '구매예정',
                 shoppingListItems: [],
-                remindersTitle: '챙겨야할 것',
+                remindersTitle: '기억하고 확인할것',
                 remindersItems: [],
                 todoTitle: '잊지말고 할일',
                 todoItems: [],
