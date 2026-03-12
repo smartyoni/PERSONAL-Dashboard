@@ -14,7 +14,7 @@ export const useNavigation = (
     activeTab: Tab,
     handleSelectTab: (id: string) => void,
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,
-    handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string) => void
+    handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void
 ) => {
     const [navigationMapOpen, setNavigationMapOpen] = useState(false);
     const [sectionMapOpen, setSectionMapOpen] = useState(false);
@@ -118,16 +118,28 @@ export const useNavigation = (
 
     const handleNavigateFromTag = (sectionId: string, tabId: string) => {
         if (tagSelectionContext) {
+            const isCrossTab = tabId !== tagSelectionContext.sourceTabId;
+
             handleMoveItem(
                 tagSelectionContext.itemId,
                 tagSelectionContext.sourceTabId,
                 tagSelectionContext.sourceSectionId,
                 tabId,
-                sectionId
+                sectionId,
+                isCrossTab
             );
+            
+            // 만약 현재 열려있는 메모 모달의 아이템을 이동한 것이라면 메모 모달을 닫습니다.
+            setMemoEditor((prev: any) => 
+                prev.id === tagSelectionContext.itemId 
+                    ? { id: null, value: '', type: 'section', isEditing: false, sectionId: null } 
+                    : prev
+            );
+            
             setTagSelectionContext(null);
+        } else {
+            handleNavigateFromMap(tabId, sectionId);
         }
-        handleNavigateFromMap(tabId, sectionId);
         setTagSelectionModalOpen(false);
     };
 

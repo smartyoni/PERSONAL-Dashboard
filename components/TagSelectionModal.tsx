@@ -60,18 +60,25 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
                                     {tab.name}
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {tabSections.map(({ section, type }) => (
-                                        <button
-                                            key={section.id}
-                                            onClick={() => onNavigate(section.id, tab.id)}
-                                            className="px-3 py-1.5 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-sm font-medium rounded-full transition-colors border border-slate-200 hover:border-purple-300 flex items-center gap-1.5"
-                                        >
-                                            <span className="text-xs opacity-70">
-                                                {type === 'inbox' ? '📥' : '#'}
-                                            </span>
-                                            {section.title}
-                                        </button>
-                                    ))}
+                                    {tabSections.map(({ section, type }) => {
+                                        const isCurrent = context?.sourceSectionId === section.id && context?.sourceTabId === tab.id;
+                                        return (
+                                            <button
+                                                key={section.id}
+                                                onClick={() => onNavigate(section.id, tab.id)}
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors border flex items-center gap-1.5 ${
+                                                    isCurrent 
+                                                    ? 'bg-purple-600 text-white border-purple-700 shadow-md ring-2 ring-purple-300' 
+                                                    : 'bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 border-slate-200 hover:border-purple-300'
+                                                }`}
+                                            >
+                                                <span className="text-xs opacity-70">
+                                                    {isCurrent ? '📍' : (type === 'inbox' ? '📥' : '#')}
+                                                </span>
+                                                {section.title}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         );

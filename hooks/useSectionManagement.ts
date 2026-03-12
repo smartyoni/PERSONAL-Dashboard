@@ -198,7 +198,14 @@ export const useSectionManagement = (
     };
 
 
-    const handleMoveItem = (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string) => {
+    const handleMoveItem = (
+        itemId: string,
+        sourceTabId: string,
+        sourceSectionId: string,
+        targetTabId: string,
+        targetSectionId: string,
+        switchTab: boolean = false
+    ) => {
         if (!itemId) return;
 
         if (sourceTabId === targetTabId && sourceSectionId === targetSectionId) {
@@ -394,7 +401,8 @@ export const useSectionManagement = (
                     return updatedTab;
                 }
                 return tab;
-            })
+            }),
+            activeTabId: switchTab ? targetTabId : safeData.activeTabId
         });
 
     };
