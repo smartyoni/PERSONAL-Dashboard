@@ -108,7 +108,9 @@ export const useAppState = () => {
                         checklistItems: tab.parkingInfo?.checklistItems || [],
                         shoppingTitle: tab.parkingInfo?.shoppingTitle || '구매예정',
                         shoppingListItems: tab.parkingInfo?.shoppingListItems || [],
-                        remindersTitle: tab.parkingInfo?.remindersTitle || '기억하고 확인할것',
+                        remindersTitle: (tab.parkingInfo?.remindersTitle === '챙겨야할 것' || !tab.parkingInfo?.remindersTitle) 
+                            ? '기억하고 확인할것' 
+                            : tab.parkingInfo.remindersTitle,
                         remindersItems: tab.parkingInfo?.remindersItems || [],
                         todoTitle: tab.parkingInfo?.todoTitle || '잊지말고 할일',
                         todoItems: tab.parkingInfo?.todoItems || [],
