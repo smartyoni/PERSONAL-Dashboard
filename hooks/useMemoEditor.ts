@@ -14,86 +14,114 @@ export const useMemoEditor = (
     activeTab: Tab,
     memoEditor: MemoEditorState,
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,
-    memoTextareaRef: React.RefObject<HTMLTextAreaElement>,
+    memoTextareaRef: React.RefObject<HTMLDivElement>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {
-    const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null) => {
-        let memoValue = initialValue !== undefined ? initialValue : '';
+    const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => {
         const targetTab = tabId ? safeData.tabs.find(t => t.id === tabId) || activeTab : activeTab;
+        const targetTabId = tabId || activeTab.id;
 
-        if (initialValue === undefined) {
+        if (targetTab) {
+            let loadedValue = '';
             if (type === 'checklist') {
-                memoValue = targetTab.parkingInfo.checklistMemos?.[id] || '';
+                loadedValue = targetTab.parkingInfo.checklistMemos?.[id] || '';
             } else if (type === 'shopping') {
-                memoValue = targetTab.parkingInfo.shoppingListMemos?.[id] || '';
+                loadedValue = targetTab.parkingInfo.shoppingListMemos?.[id] || '';
             } else if (type === 'reminders') {
-                memoValue = targetTab.parkingInfo.remindersMemos?.[id] || '';
+                loadedValue = targetTab.parkingInfo.remindersMemos?.[id] || '';
             } else if (type === 'todo') {
-                memoValue = targetTab.parkingInfo.todoMemos?.[id] || '';
+                loadedValue = targetTab.parkingInfo.todoMemos?.[id] || '';
+            } else if (type === 'parkingCat5') {
+                loadedValue = targetTab.parkingInfo.category5Memos?.[id] || '';
             } else if (type === 'todoCat1') {
-                memoValue = targetTab.todoManagementInfo.category1Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo.category1Memos?.[id] || '';
             } else if (type === 'todoCat2') {
-                memoValue = targetTab.todoManagementInfo.category2Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo.category2Memos?.[id] || '';
             } else if (type === 'todoCat3') {
-                memoValue = targetTab.todoManagementInfo.category3Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo.category3Memos?.[id] || '';
             } else if (type === 'todoCat4') {
-                memoValue = targetTab.todoManagementInfo.category4Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo.category4Memos?.[id] || '';
+            } else if (type === 'todoCat5') {
+                loadedValue = targetTab.todoManagementInfo.category5Memos?.[id] || '';
             } else if (type === 'todo2Cat1') {
-                memoValue = targetTab.todoManagementInfo2.category1Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2.category1Memos?.[id] || '';
             } else if (type === 'todo2Cat2') {
-                memoValue = targetTab.todoManagementInfo2.category2Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2.category2Memos?.[id] || '';
             } else if (type === 'todo2Cat3') {
-                memoValue = targetTab.todoManagementInfo2.category3Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2.category3Memos?.[id] || '';
             } else if (type === 'todo2Cat4') {
-                memoValue = targetTab.todoManagementInfo2.category4Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2.category4Memos?.[id] || '';
+            } else if (type === 'todo2Cat5') {
+                loadedValue = targetTab.todoManagementInfo2.category5Memos?.[id] || '';
             } else {
-                memoValue = targetTab.memos[id] || '';
+                loadedValue = targetTab.memos?.[id] || '';
             }
+            
+            // 페이지 분할 로직 (backward compatibility 포함)
+            const pages = loadedValue.split('\n===page-break===\n');
+            const allValues = [
+                pages[0] || '',
+                pages[1] || '',
+                pages[2] || '',
+                pages[3] || '',
+                pages[4] || ''
+            ];
+
+            const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
+                type === 'todoCat1' || type === 'todoCat2' || type === 'todoCat3' || type === 'todoCat4' ||
+                type === 'todo2Cat1' || type === 'todo2Cat2' || type === 'todo2Cat3' || type === 'todo2Cat4';
+
+            setMemoEditor({
+                id,
+                value: allValues[0],
+                allValues,
+                activePageIndex: 0,
+                type: type || 'section',
+                isEditing: !isParkingSub && allValues[0] === '' && !openedFromMap,
+                openedFromMap,
+                sectionId: sectionId || null,
+                tabId: targetTabId
+            });
         }
-        const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
-            type === 'todoCat1' || type === 'todoCat2' || type === 'todoCat3' || type === 'todoCat4' ||
-            type === 'todo2Cat1' || type === 'todo2Cat2' || type === 'todo2Cat3' || type === 'todo2Cat4';
-        setMemoEditor({
-            id,
-            value: memoValue,
-            type: type || 'section',
-            isEditing: !isParkingSub && memoValue === '' && !memoEditor.openedFromMap,
-            sectionId: sectionId || null,
-            tabId: tabId || activeTab.id
-        });
     };
 
     const handleSwipeMemo = (direction: 'left' | 'right') => {
         if (!memoEditor.id) return;
 
         let items: ListItem[] = [];
-        let type: 'checklist' | 'shopping' | 'section' = memoEditor.type as any;
+        const type = memoEditor.type;
         const targetTab = memoEditor.tabId ? safeData.tabs.find(t => t.id === memoEditor.tabId) || activeTab : activeTab;
 
-        if (memoEditor.type === 'checklist') {
+        if (type === 'checklist') {
             items = targetTab.parkingInfo.checklistItems;
-        } else if (memoEditor.type === 'shopping') {
+        } else if (type === 'shopping') {
             items = targetTab.parkingInfo.shoppingListItems;
-        } else if (memoEditor.type === 'reminders') {
+        } else if (type === 'reminders') {
             items = targetTab.parkingInfo.remindersItems;
-        } else if (memoEditor.type === 'todo') {
+        } else if (type === 'todo') {
             items = targetTab.parkingInfo.todoItems;
-        } else if (memoEditor.type === 'todoCat1') {
+        } else if (type === 'parkingCat5') {
+            items = targetTab.parkingInfo.category5Items;
+        } else if (type === 'todoCat1') {
             items = targetTab.todoManagementInfo.category1Items;
-        } else if (memoEditor.type === 'todoCat2') {
+        } else if (type === 'todoCat2') {
             items = targetTab.todoManagementInfo.category2Items;
-        } else if (memoEditor.type === 'todoCat3') {
+        } else if (type === 'todoCat3') {
             items = targetTab.todoManagementInfo.category3Items;
-        } else if (memoEditor.type === 'todoCat4') {
+        } else if (type === 'todoCat4') {
             items = targetTab.todoManagementInfo.category4Items;
-        } else if (memoEditor.type === 'todo2Cat1') {
+        } else if (type === 'todoCat5') {
+            items = targetTab.todoManagementInfo.category5Items;
+        } else if (type === 'todo2Cat1') {
             items = targetTab.todoManagementInfo2.category1Items;
-        } else if (memoEditor.type === 'todo2Cat2') {
+        } else if (type === 'todo2Cat2') {
             items = targetTab.todoManagementInfo2.category2Items;
-        } else if (memoEditor.type === 'todo2Cat3') {
+        } else if (type === 'todo2Cat3') {
             items = targetTab.todoManagementInfo2.category3Items;
-        } else if (memoEditor.type === 'todo2Cat4') {
+        } else if (type === 'todo2Cat4') {
             items = targetTab.todoManagementInfo2.category4Items;
+        } else if (type === 'todo2Cat5') {
+            items = targetTab.todoManagementInfo2.category5Items;
         } else {
             // Find section items
             if (memoEditor.sectionId === targetTab.inboxSection?.id) {
@@ -124,279 +152,361 @@ export const useMemoEditor = (
     };
 
     const handleSaveMemo = () => {
-        if (memoEditor.id) {
-            const lines = memoEditor.value.trim().split('\n');
-            const firstLine = lines[0]?.trim() || '';
-            const titleLimit = 30;
-            const displayTitle = firstLine.length > titleLimit
-                ? firstLine.substring(0, titleLimit)
-                : firstLine;
+        if (!memoEditor.id) return;
 
-            if (memoEditor.type === 'checklist') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            parkingInfo: {
-                                ...t.parkingInfo,
-                                checklistItems: t.parkingInfo.checklistItems.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                checklistMemos: {
-                                    ...t.parkingInfo.checklistMemos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+        // 현재 수정 중인 페이지 내용을 allValues에 동기화
+        const updatedAllValues = [...memoEditor.allValues];
+        updatedAllValues[memoEditor.activePageIndex] = memoEditor.value;
+
+        // 모든 페이지를 하나의 문자열로 결합 (구분자: ===page-break===)
+        const finalValue = updatedAllValues.join('\n===page-break===\n');
+
+        const lines = memoEditor.value.trim().split('\n');
+        const firstLine = lines[0]?.trim() || '';
+        const titleLimit = 30;
+        const displayTitle = firstLine.length > titleLimit
+            ? firstLine.substring(0, titleLimit)
+            : firstLine;
+
+        if (memoEditor.type === 'section') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        memos: {
+                            ...t.memos,
+                            [memoEditor.id!]: finalValue
+                        }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'checklist') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        parkingInfo: {
+                            ...t.parkingInfo,
+                            checklistItems: t.parkingInfo.checklistItems.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            checklistMemos: {
+                                ...t.parkingInfo.checklistMemos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'shopping') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            parkingInfo: {
-                                ...t.parkingInfo,
-                                shoppingListItems: t.parkingInfo.shoppingListItems.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                shoppingListMemos: {
-                                    ...t.parkingInfo.shoppingListMemos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'shopping') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        parkingInfo: {
+                            ...t.parkingInfo,
+                            shoppingListItems: t.parkingInfo.shoppingListItems.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            shoppingListMemos: {
+                                ...t.parkingInfo.shoppingListMemos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'reminders') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            parkingInfo: {
-                                ...t.parkingInfo,
-                                remindersItems: t.parkingInfo.remindersItems.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                remindersMemos: {
-                                    ...t.parkingInfo.remindersMemos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'reminders') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        parkingInfo: {
+                            ...t.parkingInfo,
+                            remindersItems: t.parkingInfo.remindersItems.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            remindersMemos: {
+                                ...t.parkingInfo.remindersMemos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todo') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            parkingInfo: {
-                                ...t.parkingInfo,
-                                todoItems: t.parkingInfo.todoItems.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                todoMemos: {
-                                    ...t.parkingInfo.todoMemos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todo') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        parkingInfo: {
+                            ...t.parkingInfo,
+                            todoItems: t.parkingInfo.todoItems.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            todoMemos: {
+                                ...t.parkingInfo.todoMemos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todoCat1') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo: {
-                                ...t.todoManagementInfo,
-                                category1Items: t.todoManagementInfo.category1Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category1Memos: {
-                                    ...t.todoManagementInfo.category1Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'parkingCat5') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        parkingInfo: {
+                            ...t.parkingInfo,
+                            category5Items: t.parkingInfo.category5Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category5Memos: {
+                                ...t.parkingInfo.category5Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todoCat2') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo: {
-                                ...t.todoManagementInfo,
-                                category2Items: t.todoManagementInfo.category2Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category2Memos: {
-                                    ...t.todoManagementInfo.category2Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todoCat1') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: {
+                            ...t.todoManagementInfo,
+                            category1Items: t.todoManagementInfo.category1Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category1Memos: {
+                                ...t.todoManagementInfo.category1Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todoCat3') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo: {
-                                ...t.todoManagementInfo,
-                                category3Items: t.todoManagementInfo.category3Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category3Memos: {
-                                    ...t.todoManagementInfo.category3Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todoCat2') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: {
+                            ...t.todoManagementInfo,
+                            category2Items: t.todoManagementInfo.category2Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category2Memos: {
+                                ...t.todoManagementInfo.category2Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todoCat4') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo: {
-                                ...t.todoManagementInfo,
-                                category4Items: t.todoManagementInfo.category4Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category4Memos: {
-                                    ...t.todoManagementInfo.category4Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todoCat3') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: {
+                            ...t.todoManagementInfo,
+                            category3Items: t.todoManagementInfo.category3Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category3Memos: {
+                                ...t.todoManagementInfo.category3Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todo2Cat1') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo2: {
-                                ...t.todoManagementInfo2,
-                                category1Items: t.todoManagementInfo2.category1Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category1Memos: {
-                                    ...t.todoManagementInfo2.category1Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todoCat4') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: {
+                            ...t.todoManagementInfo,
+                            category4Items: t.todoManagementInfo.category4Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category4Memos: {
+                                ...t.todoManagementInfo.category4Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todo2Cat2') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo2: {
-                                ...t.todoManagementInfo2,
-                                category2Items: t.todoManagementInfo2.category2Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category2Memos: {
-                                    ...t.todoManagementInfo2.category2Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todoCat5') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: {
+                            ...t.todoManagementInfo,
+                            category5Items: t.todoManagementInfo.category5Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category5Memos: {
+                                ...t.todoManagementInfo.category5Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todo2Cat3') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo2: {
-                                ...t.todoManagementInfo2,
-                                category3Items: t.todoManagementInfo2.category3Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category3Memos: {
-                                    ...t.todoManagementInfo2.category3Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todo2Cat1') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo2: {
+                            ...t.todoManagementInfo2,
+                            category1Items: t.todoManagementInfo2.category1Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category1Memos: {
+                                ...t.todoManagementInfo2.category1Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else if (memoEditor.type === 'todo2Cat4') {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo2: {
-                                ...t.todoManagementInfo2,
-                                category4Items: t.todoManagementInfo2.category4Items.map(item =>
-                                    item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
-                                ),
-                                category4Memos: {
-                                    ...t.todoManagementInfo2.category4Memos,
-                                    [memoEditor.id!]: memoEditor.value
-                                }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todo2Cat2') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo2: {
+                            ...t.todoManagementInfo2,
+                            category2Items: t.todoManagementInfo2.category2Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category2Memos: {
+                                ...t.todoManagementInfo2.category2Memos,
+                                [memoEditor.id!]: finalValue
                             }
                         }
-                        : t
-                    )
-                });
-            } else {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
-                        ? {
-                            ...t,
-                            sections: t.sections.map(s => ({
-                                ...s,
-                                items: s.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
-                            })),
-                            inboxSection: t.inboxSection ? {
-                                ...t.inboxSection,
-                                items: t.inboxSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
-                            } : t.inboxSection,
-                            memos: { ...t.memos, [memoEditor.id!]: memoEditor.value }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todo2Cat3') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo2: {
+                            ...t.todoManagementInfo2,
+                            category3Items: t.todoManagementInfo2.category3Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category3Memos: {
+                                ...t.todoManagementInfo2.category3Memos,
+                                [memoEditor.id!]: finalValue
+                            }
                         }
-                        : t
-                    )
-                });
-            }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todo2Cat4') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo2: {
+                            ...t.todoManagementInfo2,
+                            category4Items: t.todoManagementInfo2.category4Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category4Memos: {
+                                ...t.todoManagementInfo2.category4Memos,
+                                [memoEditor.id!]: finalValue
+                            }
+                        }
+                    }
+                    : t
+                )
+            });
+        } else if (memoEditor.type === 'todo2Cat5') {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo2: {
+                            ...t.todoManagementInfo2,
+                            category5Items: t.todoManagementInfo2.category5Items.map(item =>
+                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                            ),
+                            category5Memos: {
+                                ...t.todoManagementInfo2.category5Memos,
+                                [memoEditor.id!]: finalValue
+                            }
+                        }
+                    }
+                    : t
+                )
+            });
+        } else {
+            updateData({
+                ...safeData,
+                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+                    ? {
+                        ...t,
+                        sections: t.sections.map(s => ({
+                            ...s,
+                            items: s.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+                        })),
+                        inboxSection: t.inboxSection ? {
+                            ...t.inboxSection,
+                            items: t.inboxSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+                        } : t.inboxSection,
+                        memos: { ...t.memos, [memoEditor.id!]: finalValue }
+                    }
+                    : t
+                )
+            });
         }
+
         if (memoEditor.value.trim()) {
             setMemoEditor(prev => ({ ...prev, isEditing: false }));
         } else {
-            setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
+            setMemoEditor({ id: null, value: '', allValues: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
         }
     };
 
@@ -414,108 +524,49 @@ export const useMemoEditor = (
                         if (t.id !== (memoEditor.tabId || safeData.activeTabId)) return t;
 
                         if (memoEditor.type === 'checklist') {
-                            const newChecklistMemos = { ...t.parkingInfo.checklistMemos };
-                            delete newChecklistMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                parkingInfo: {
-                                    ...t.parkingInfo,
-                                    checklistItems: t.parkingInfo.checklistItems.filter(i => i.id !== memoEditor.id),
-                                    checklistMemos: newChecklistMemos
-                                }
-                            };
+                            const newMemos = { ...t.parkingInfo.checklistMemos };
+                            delete newMemos[memoEditor.id!];
+                            return { ...t, parkingInfo: { ...t.parkingInfo, checklistItems: t.parkingInfo.checklistItems.filter(i => i.id !== memoEditor.id), checklistMemos: newMemos } };
                         } else if (memoEditor.type === 'shopping') {
-                            const newShoppingMemos = { ...t.parkingInfo.shoppingListMemos };
-                            delete newShoppingMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                parkingInfo: {
-                                    ...t.parkingInfo,
-                                    shoppingListItems: t.parkingInfo.shoppingListItems.filter(i => i.id !== memoEditor.id),
-                                    shoppingListMemos: newShoppingMemos
-                                }
-                            };
+                            const newMemos = { ...t.parkingInfo.shoppingListMemos };
+                            delete newMemos[memoEditor.id!];
+                            return { ...t, parkingInfo: { ...t.parkingInfo, shoppingListItems: t.parkingInfo.shoppingListItems.filter(i => i.id !== memoEditor.id), shoppingListMemos: newMemos } };
                         } else if (memoEditor.type === 'reminders') {
-                            const newRemindersMemos = { ...t.parkingInfo.remindersMemos };
-                            delete newRemindersMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                parkingInfo: {
-                                    ...t.parkingInfo,
-                                    remindersItems: t.parkingInfo.remindersItems.filter(i => i.id !== memoEditor.id),
-                                    remindersMemos: newRemindersMemos
-                                }
-                            };
+                            const newMemos = { ...t.parkingInfo.remindersMemos };
+                            delete newMemos[memoEditor.id!];
+                            return { ...t, parkingInfo: { ...t.parkingInfo, remindersItems: t.parkingInfo.remindersItems.filter(i => i.id !== memoEditor.id), remindersMemos: newMemos } };
                         } else if (memoEditor.type === 'todo') {
-                            const newTodoMemos = { ...t.parkingInfo.todoMemos };
-                            delete newTodoMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                parkingInfo: {
-                                    ...t.parkingInfo,
-                                    todoItems: t.parkingInfo.todoItems.filter(i => i.id !== memoEditor.id),
-                                    todoMemos: newTodoMemos
-                                }
-                            };
-                        } else if (memoEditor.type === 'todo2Cat1') {
-                            const newMemos = { ...t.todoManagementInfo2.category1Memos };
+                            const newMemos = { ...t.parkingInfo.todoMemos };
                             delete newMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo2: {
-                                    ...t.todoManagementInfo2,
-                                    category1Items: t.todoManagementInfo2.category1Items.filter(i => i.id !== memoEditor.id),
-                                    category1Memos: newMemos
-                                }
-                            };
-                        } else if (memoEditor.type === 'todo2Cat2') {
-                            const newMemos = { ...t.todoManagementInfo2.category2Memos };
+                            return { ...t, parkingInfo: { ...t.parkingInfo, todoItems: t.parkingInfo.todoItems.filter(i => i.id !== memoEditor.id), todoMemos: newMemos } };
+                        } else if (memoEditor.type === 'parkingCat5') {
+                            const newMemos = { ...t.parkingInfo.category5Memos };
                             delete newMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo2: {
-                                    ...t.todoManagementInfo2,
-                                    category2Items: t.todoManagementInfo2.category2Items.filter(i => i.id !== memoEditor.id),
-                                    category2Memos: newMemos
-                                }
-                            };
-                        } else if (memoEditor.type === 'todo2Cat3') {
-                            const newMemos = { ...t.todoManagementInfo2.category3Memos };
+                            return { ...t, parkingInfo: { ...t.parkingInfo, category5Items: t.parkingInfo.category5Items.filter(i => i.id !== memoEditor.id), category5Memos: newMemos } };
+                        } else if (memoEditor.type.startsWith('todoCat')) {
+                            const catNum = memoEditor.type.replace('todoCat', '');
+                            const catMemosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo;
+                            const catItemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo;
+                            const newMemos = { ...t.todoManagementInfo[catMemosKey] as any };
                             delete newMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo2: {
-                                    ...t.todoManagementInfo2,
-                                    category3Items: t.todoManagementInfo2.category3Items.filter(i => i.id !== memoEditor.id),
-                                    category3Memos: newMemos
-                                }
-                            };
-                        } else if (memoEditor.type === 'todo2Cat4') {
-                            const newMemos = { ...t.todoManagementInfo2.category4Memos };
+                            return { ...t, todoManagementInfo: { ...t.todoManagementInfo, [catItemsKey]: (t.todoManagementInfo[catItemsKey] as any).filter((i: any) => i.id !== memoEditor.id), [catMemosKey]: newMemos } };
+                        } else if (memoEditor.type.startsWith('todo2Cat')) {
+                            const catNum = memoEditor.type.replace('todo2Cat', '');
+                            const catMemosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo2;
+                            const catItemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo2;
+                            const newMemos = { ...t.todoManagementInfo2[catMemosKey] as any };
                             delete newMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo2: {
-                                    ...t.todoManagementInfo2,
-                                    category4Items: t.todoManagementInfo2.category4Items.filter(i => i.id !== memoEditor.id),
-                                    category4Memos: newMemos
-                                }
-                            };
+                            return { ...t, todoManagementInfo2: { ...t.todoManagementInfo2, [catItemsKey]: (t.todoManagementInfo2[catItemsKey] as any).filter((i: any) => i.id !== memoEditor.id), [catMemosKey]: newMemos } };
                         } else {
                             const newMemos = { ...t.memos };
                             delete newMemos[memoEditor.id!];
                             const updateItems = (items: ListItem[]) => items.filter(i => i.id !== memoEditor.id);
-                            return {
-                                ...t,
-                                memos: newMemos,
-                                inboxSection: t.inboxSection ? { ...t.inboxSection, items: updateItems(t.inboxSection.items) } : t.inboxSection,
-                                sections: t.sections.map(s => ({ ...s, items: updateItems(s.items) }))
-                            };
+                            return { ...t, memos: newMemos, inboxSection: t.inboxSection ? { ...t.inboxSection, items: updateItems(t.inboxSection.items) } : t.inboxSection, sections: t.sections.map(s => ({ ...s, items: updateItems(s.items) })) };
                         }
                     })
                 });
                 setModal(prev => ({ ...prev, isOpen: false }));
-                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
+                setMemoEditor({ id: null, value: '', allValues: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
             }
         });
     };
@@ -569,18 +620,6 @@ export const useMemoEditor = (
             element.dispatchEvent(event);
             return;
         }
-
-        // Fallback for textarea
-        const textarea = element as HTMLTextAreaElement;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const currentValue = memoEditor.value;
-        const newValue = currentValue.substring(0, start) + symbol + currentValue.substring(end);
-        setMemoEditor({ ...memoEditor, value: newValue });
-        requestAnimationFrame(() => {
-            textarea.focus();
-            textarea.selectionStart = textarea.selectionEnd = start + symbol.length;
-        });
     };
 
     const memoSymbols = [
@@ -598,12 +637,27 @@ export const useMemoEditor = (
         { label: '◆', value: '◆ ', title: '다이아' },
     ];
 
+    const handleChangePage = (index: number) => {
+        if (index === memoEditor.activePageIndex) return;
+        
+        const newAllValues = [...memoEditor.allValues];
+        newAllValues[memoEditor.activePageIndex] = memoEditor.value;
+
+        setMemoEditor({
+            ...memoEditor,
+            allValues: newAllValues,
+            activePageIndex: index,
+            value: newAllValues[index]
+        });
+    };
+
     return {
         handleShowMemo,
         handleSwipeMemo,
         handleSaveMemo,
         handleDeleteItemFromModal,
         handleInsertSymbol,
+        handleChangePage,
         memoSymbols
     };
 };

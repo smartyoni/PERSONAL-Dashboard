@@ -27,7 +27,10 @@ const defaultData: AppData = (() => {
                 checklistMemos: {},
                 shoppingListMemos: {},
                 remindersMemos: {},
-                todoMemos: {}
+                todoMemos: {},
+                category5Title: '항목 5',
+                category5Items: [],
+                category5Memos: {}
             },
             todoManagementInfo: {
                 title: '할일관리',
@@ -42,7 +45,10 @@ const defaultData: AppData = (() => {
                 category1Memos: {},
                 category2Memos: {},
                 category3Memos: {},
-                category4Memos: {}
+                category4Memos: {},
+                category5Title: '항목 5',
+                category5Items: [],
+                category5Memos: {}
             },
             todoManagementInfo2: {
                 title: '할일관리 2',
@@ -57,7 +63,10 @@ const defaultData: AppData = (() => {
                 category1Memos: {},
                 category2Memos: {},
                 category3Memos: {},
-                category4Memos: {}
+                category4Memos: {},
+                category5Title: '항목 5',
+                category5Items: [],
+                category5Memos: {}
             },
             inboxSection: {
                 id: inboxSectionId, title: 'IN-BOX', items: [], color: 'slate', isLocked: false
@@ -118,6 +127,9 @@ export const useAppState = () => {
                         shoppingListMemos: tab.parkingInfo?.shoppingListMemos || {},
                         remindersMemos: tab.parkingInfo?.remindersMemos || {},
                         todoMemos: tab.parkingInfo?.todoMemos || {},
+                        category5Title: tab.parkingInfo?.category5Title || '항목 5',
+                        category5Items: tab.parkingInfo?.category5Items || [],
+                        category5Memos: tab.parkingInfo?.category5Memos || {},
                     },
                     todoManagementInfo: {
                         ...tab.todoManagementInfo,
@@ -134,6 +146,9 @@ export const useAppState = () => {
                         category2Memos: tab.todoManagementInfo?.category2Memos || {},
                         category3Memos: tab.todoManagementInfo?.category3Memos || {},
                         category4Memos: tab.todoManagementInfo?.category4Memos || {},
+                        category5Title: tab.todoManagementInfo?.category5Title || '항목 5',
+                        category5Items: tab.todoManagementInfo?.category5Items || [],
+                        category5Memos: tab.todoManagementInfo?.category5Memos || {},
                     },
                     todoManagementInfo2: {
                         ...tab.todoManagementInfo2,
@@ -150,6 +165,9 @@ export const useAppState = () => {
                         category2Memos: tab.todoManagementInfo2?.category2Memos || {},
                         category3Memos: tab.todoManagementInfo2?.category3Memos || {},
                         category4Memos: tab.todoManagementInfo2?.category4Memos || {},
+                        category5Title: tab.todoManagementInfo2?.category5Title || '항목 5',
+                        category5Items: tab.todoManagementInfo2?.category5Items || [],
+                        category5Memos: tab.todoManagementInfo2?.category5Memos || {},
                     },
                 };
             })
@@ -210,7 +228,8 @@ export const useAppState = () => {
     }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
 
     const [memoEditor, setMemoEditor] = useState<MemoEditorState>({
-        id: null, value: '', type: 'section', isEditing: false, sectionId: null
+        id: null, value: '', allValues: ['', '', '', '', ''],
+        activePageIndex: 0, type: 'section', isEditing: false, sectionId: null
     });
     const memoTextareaRef = useRef<HTMLDivElement>(null);
 

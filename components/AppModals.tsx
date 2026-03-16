@@ -18,6 +18,7 @@ interface AppModalsProps {
     handleDeleteItemFromModal: () => void;
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
     handleInsertSymbol: (symbol: string) => void;
+    handleChangePage: (index: number) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     activeTab: Tab;
@@ -55,7 +56,7 @@ interface AppModalsProps {
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage, memoSymbols,
     setNavigationMapOpen, activeTab,
     tagSelectionContext, handleOpenTagSelection, safeData,
     modal, setModal,
@@ -139,7 +140,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                 element.innerHTML = html;
             }
         }
-    }, [memoEditor.isEditing, memoEditor.id]);
+    }, [memoEditor.isEditing, memoEditor.activePageIndex]);
 
     const currentItem = React.useMemo(() => {
         if (!memoEditor.id) return null;
@@ -179,6 +180,25 @@ const AppModals: React.FC<AppModalsProps> = ({
                         onTouchEnd={memoEditor.isEditing ? undefined : handleTouchEnd}
                         className="bg-white w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col relative"
                     >
+                        {/* 페이지 선택 세그먼트 탭 */}
+                        <div className="flex-none p-2 bg-slate-50 border-b border-black">
+                            <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
+                                {[0, 1, 2, 3, 4].map(idx => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleChangePage(idx)}
+                                        className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
+                                            memoEditor.activePageIndex === idx 
+                                            ? 'bg-white text-indigo-600 shadow-sm' 
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        P{idx + 1}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* 헤더 부분에 제목 추가 */}
                         {!memoEditor.isEditing && currentItem && (
                             <div className="flex-none px-4 py-2 bg-slate-100 border-b border-black flex items-center justify-between">

@@ -97,6 +97,8 @@ export interface DragState {
 export interface MemoEditorState {
   id: string | null;
   value: string;
+  allValues: string[]; // 추가: 3페이지 저장용 (length 3)
+  activePageIndex: number; // 추가: 현재 페이지 (0, 1, 2)
   type: 'section' | 'checklist' | 'shopping' | 'reminders' | 'todo' | 'memoBoard' | 'todoCat1' | 'todoCat2' | 'todoCat3' | 'todoCat4' | 'todoCat5' | 'todo2Cat1' | 'todo2Cat2' | 'todo2Cat3' | 'todo2Cat4' | 'todo2Cat5' | 'parkingCat5';
   isEditing: boolean;
   openedFromMap?: boolean;

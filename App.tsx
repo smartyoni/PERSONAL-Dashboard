@@ -60,7 +60,7 @@ const App: React.FC = () => {
   // Phase 3: 메모 에디터 훅
   const {
     handleShowMemo, handleSwipeMemo, handleSaveMemo, handleDeleteItemFromModal,
-    handleInsertSymbol, memoSymbols
+    handleInsertSymbol, memoSymbols, handleChangePage
   } = useMemoEditor(safeData, updateData, activeTab, memoEditor, setMemoEditor, memoTextareaRef, setModal);
 
   // Phase 4: 네비게이션 훅
@@ -216,6 +216,7 @@ const App: React.FC = () => {
         handleSwipeMemo={handleSwipeMemo}
         handleDeleteItemFromModal={handleDeleteItemFromModal}
         handleInsertSymbol={handleInsertSymbol} memoSymbols={memoSymbols}
+        handleChangePage={handleChangePage}
         setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
         handleMoveItem={handleMoveItem} safeData={safeData}
         handleOpenTagSelection={handleOpenTagSelection}
