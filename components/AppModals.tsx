@@ -365,16 +365,16 @@ const AppModals: React.FC<AppModalsProps> = ({
                             {/* 목차(App Map) 버튼 */}
                             <button
                                 onClick={() => { setNavigationMapOpen(true); setIsFabExpanded(false); }}
-                                className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all"
+                                className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all"
                                 title="전체 목차"
-                            >🗺️</button>
+                            >전체</button>
 
                             {/* 섹션 맵 버튼 */}
                             <button
                                 onClick={() => { handleOpenSectionMap(); setIsFabExpanded(false); }}
-                                className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all"
+                                className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all"
                                 title="현재 섹션 목차"
-                            >📋</button>
+                            >현재</button>
 
                             {/* 북마크 버튼 */}
                             <button
