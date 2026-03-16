@@ -74,29 +74,29 @@ const MainContent: React.FC<MainContentProps> = ({
 }) => {
     // 즐겨찾기 항목 수집
     const favoritedItems = useMemo(() => {
-        const items: (ListItem & { sectionId: string; type: MemoEditorState['type'] })[] = [];
+        const items: (ListItem & { sectionId: string; type: MemoEditorState['type']; tabId: string })[] = [];
         safeData.tabs.forEach(tab => {
             // IN-BOX 섹션
             if (tab.inboxSection) {
                 tab.inboxSection.items.forEach(item => {
-                    if (item.isFavorite) items.push({ ...item, sectionId: tab.inboxSection!.id, type: 'section' });
+                    if (item.isFavorite) items.push({ ...item, sectionId: tab.inboxSection!.id, type: 'section', tabId: tab.id });
                 });
             }
             // 일반 섹션들
             tab.sections.forEach(sec => {
                 sec.items.forEach(item => {
-                    if (item.isFavorite) items.push({ ...item, sectionId: sec.id, type: 'section' });
+                    if (item.isFavorite) items.push({ ...item, sectionId: sec.id, type: 'section', tabId: tab.id });
                 });
             });
             // 주차 위젯 및 할일관리 위젯 항목들 추가
-            if (isMainTab) {
+            if (isMainTab && tab.id === activeTab.id) {
                 const p = tab.parkingInfo;
                 const tm1 = tab.todoManagementInfo;
                 const tm2 = tab.todoManagementInfo2;
 
                 const pushFavs = (list: ListItem[] | undefined, secId: string, memoType: MemoEditorState['type']) => {
                     (list || []).forEach(item => {
-                        if (item.isFavorite) items.push({ ...item, sectionId: secId, type: memoType });
+                        if (item.isFavorite) items.push({ ...item, sectionId: secId, type: memoType, tabId: tab.id });
                     });
                 };
 
@@ -120,7 +120,7 @@ const MainContent: React.FC<MainContentProps> = ({
             }
         });
         return items;
-    }, [safeData]);
+    }, [safeData, isMainTab, activeTab.id]);
 
     return (
         <>
@@ -240,7 +240,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 }}
                                                 onShowItemMemo={(id) => {
                                                     const orig = favoritedItems.find(i => i.id === id);
-                                                    if (orig) handleShowMemo(id, orig.type, orig.sectionId, undefined, activeTab.id);
+                                                    if (orig) handleShowMemo(id, orig.type, orig.sectionId, undefined, orig.tabId);
                                                 }}
                                                 onMoveItem={() => { }}
                                                 onAddToCalendar={handleAddToCalendarClick}
