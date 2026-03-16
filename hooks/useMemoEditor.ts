@@ -536,6 +536,8 @@ export const useMemoEditor = (
 
     const memoSymbols = [
         { label: '•', value: '• ', title: '불렛' },
+        { label: ':', value: ': ', title: '콜론' },
+        { label: '―', value: '\n---divider---\n', title: '구분선' },
         { label: '-', value: '- ', title: '하이픈' },
         { label: '▸', value: '▸ ', title: '삼각' },
         { label: '✓', value: '✓ ', title: '체크' },

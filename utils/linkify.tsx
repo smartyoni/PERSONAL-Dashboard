@@ -6,8 +6,11 @@ const URL_REGEX = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
 // 한국 휴대폰 번호 정규식: 010-xxxx-xxxx, 010 xxxx xxxx, 01xxxxxxxx
 const PHONE_REGEX = /010[-\s]?\d{4}[-\s]?\d{4}/g;
 
+// 구분선 정규식
+const DIVIDER_REGEX = /---divider---/g;
+
 interface Match {
-  type: 'url' | 'phone';
+  type: 'url' | 'phone' | 'divider';
   content: string;
   index: number;
   length: number;
@@ -56,6 +59,17 @@ export const linkifyText = (text: string): React.ReactNode[] => {
     }
   }
 
+  // 구분선 찾기
+  DIVIDER_REGEX.lastIndex = 0;
+  while ((match = DIVIDER_REGEX.exec(text)) !== null) {
+    matches.push({
+      type: 'divider',
+      content: match[0],
+      index: match.index,
+      length: match[0].length,
+    });
+  }
+
   // 인덱스 기준으로 정렬
   matches.sort((a, b) => a.index - b.index);
 
@@ -98,6 +112,13 @@ export const linkifyText = (text: string): React.ReactNode[] => {
         >
           {m.content}
         </a>
+      );
+    } else if (m.type === 'divider') {
+      result.push(
+        <hr 
+          key={`divider-${keyIndex++}`}
+          className="w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid" 
+        />
       );
     }
 
