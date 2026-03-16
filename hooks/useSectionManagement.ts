@@ -407,6 +407,62 @@ export const useSectionManagement = (
 
     };
 
+    const handleToggleItemFavorite = (itemId: string, sectionId: string) => {
+        updateData({
+            ...safeData,
+            tabs: safeData.tabs.map(t => {
+                if (t.id !== safeData.activeTabId) return t;
+
+                const updateItems = (items: ListItem[]) => 
+                    items.map(i => i.id === itemId ? { ...i, isFavorite: !i.isFavorite } : i);
+
+                // 1. IN-BOX 섹션 체크
+                if (t.inboxSection && t.inboxSection.id === sectionId) {
+                    return {
+                        ...t,
+                        inboxSection: {
+                            ...t.inboxSection,
+                            items: updateItems(t.inboxSection.items)
+                        }
+                    };
+                }
+
+                // 2. 특수 섹션 체크 (주차, 할일관리)
+                const p = t.parkingInfo;
+                const tm1 = t.todoManagementInfo;
+                const tm2 = t.todoManagementInfo2;
+
+                if (sectionId === 'checklist') return { ...t, parkingInfo: { ...p, checklistItems: updateItems(p.checklistItems) } };
+                if (sectionId === 'shopping') return { ...t, parkingInfo: { ...p, shoppingListItems: updateItems(p.shoppingListItems) } };
+                if (sectionId === 'reminders') return { ...t, parkingInfo: { ...p, remindersItems: updateItems(p.remindersItems) } };
+                if (sectionId === 'todo') return { ...t, parkingInfo: { ...p, todoItems: updateItems(p.todoItems) } };
+                if (sectionId === 'parkingCat5') return { ...t, parkingInfo: { ...p, category5Items: updateItems(p.category5Items || []) } };
+
+                if (sectionId === 'todoCat1') return { ...t, todoManagementInfo: { ...tm1, category1Items: updateItems(tm1.category1Items) } };
+                if (sectionId === 'todoCat2') return { ...t, todoManagementInfo: { ...tm1, category2Items: updateItems(tm1.category2Items) } };
+                if (sectionId === 'todoCat3') return { ...t, todoManagementInfo: { ...tm1, category3Items: updateItems(tm1.category3Items) } };
+                if (sectionId === 'todoCat4') return { ...t, todoManagementInfo: { ...tm1, category4Items: updateItems(tm1.category4Items) } };
+                if (sectionId === 'todoCat5') return { ...t, todoManagementInfo: { ...tm1, category5Items: updateItems(tm1.category5Items || []) } };
+
+                if (sectionId === 'todo2Cat1') return { ...t, todoManagementInfo2: { ...tm2, category1Items: updateItems(tm2.category1Items) } };
+                if (sectionId === 'todo2Cat2') return { ...t, todoManagementInfo2: { ...tm2, category2Items: updateItems(tm2.category2Items) } };
+                if (sectionId === 'todo2Cat3') return { ...t, todoManagementInfo2: { ...tm2, category3Items: updateItems(tm2.category3Items) } };
+                if (sectionId === 'todo2Cat4') return { ...t, todoManagementInfo2: { ...tm2, category4Items: updateItems(tm2.category4Items) } };
+                if (sectionId === 'todo2Cat5') return { ...t, todoManagementInfo2: { ...tm2, category5Items: updateItems(tm2.category5Items || []) } };
+
+                // 3. 일반 섹션 체크
+                return {
+                    ...t,
+                    sections: t.sections.map(s => 
+                        s.id === sectionId 
+                            ? { ...s, items: updateItems(s.items) } 
+                            : s
+                    )
+                };
+            })
+        });
+    };
+
     return {
         dragState,
         setDragState,
@@ -420,6 +476,7 @@ export const useSectionManagement = (
         onSectionDragEnd,
         handleCrossSectionItemDrop,
         handleClearAll,
-        handleMoveItem
+        handleMoveItem,
+        handleToggleItemFavorite
     };
 };

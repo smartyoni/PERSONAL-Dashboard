@@ -53,7 +53,7 @@ const App: React.FC = () => {
     handleDeleteSection,
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleClearAll,
-    handleMoveItem
+    handleMoveItem, handleToggleItemFavorite
   } = useSectionManagement(safeData, updateData, activeTab, setModal);
 
   // Phase 3: 메모 에디터 훅
@@ -78,6 +78,57 @@ const App: React.FC = () => {
   } = useNavigation(safeData, activeTab, handleSelectTab, setMemoEditor, handleMoveItem);
 
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
+
+  // 메인 탭의 특수 섹션(개인, 업무루틴, 만드는것)에 5번째 카테고리 추가
+  const autoAddRef = React.useRef(false);
+  React.useEffect(() => {
+    if (loading || !safeData || autoAddRef.current) return;
+    
+    let needsUpdate = false;
+    const newTabs = [...safeData.tabs];
+    const mainTab = { ...newTabs[0] };
+
+    if (!mainTab) return;
+
+    // 1. TodoManagementInfo (개인 섹션 등)
+    if (!mainTab.todoManagementInfo.category5Title) {
+        mainTab.todoManagementInfo = {
+            ...mainTab.todoManagementInfo,
+            category5Title: '항목 5',
+            category5Items: [],
+            category5Memos: {}
+        };
+        needsUpdate = true;
+    }
+
+    // 2. TodoManagementInfo2 (만드는것 섹션 등)
+    if (!mainTab.todoManagementInfo2.category5Title) {
+        mainTab.todoManagementInfo2 = {
+            ...mainTab.todoManagementInfo2,
+            category5Title: '항목 5',
+            category5Items: [],
+            category5Memos: {}
+        };
+        needsUpdate = true;
+    }
+
+    // 3. ParkingInfo (업무루틴 섹션 등)
+    if (!mainTab.parkingInfo.category5Title) {
+        mainTab.parkingInfo = {
+            ...mainTab.parkingInfo,
+            category5Title: '항목 5',
+            category5Items: [],
+            category5Memos: {}
+        };
+        needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+        autoAddRef.current = true;
+        newTabs[0] = mainTab;
+        updateData({ ...safeData, tabs: newTabs });
+    }
+  }, [loading, safeData, updateData]);
 
   // 로딩 상태
   if (loading) {
@@ -126,6 +177,7 @@ const App: React.FC = () => {
         handleOpenTagSelection={handleOpenTagSelection}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
         onToggleBookmarkView={handleToggleBookmarkView}
+        onToggleFavorite={handleToggleItemFavorite}
         highlightedSectionId={highlightedSectionId} activeTabColorConfig={activeTabColorConfig}
         lastSectionBeforeInbox={lastSectionBeforeInbox} handleReturnFromInbox={handleReturnFromInbox}
         handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}

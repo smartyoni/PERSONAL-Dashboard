@@ -1,5 +1,5 @@
-import React from 'react';
-import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo, MemoEditorState } from '../types';
+import React, { useMemo } from 'react';
+import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo, MemoEditorState, ListItem } from '../types';
 import SectionCard from './SectionCard';
 import ParkingWidget from './ParkingWidget';
 import TodoWidget from './TodoWidget';
@@ -41,6 +41,7 @@ interface MainContentProps {
     setNavigationMapOpen: (open: boolean) => void;
     handleNavigateToInbox: () => void;
     onToggleBookmarkView: () => void;
+    onToggleFavorite: (itemId: string, sectionId: string) => void;
     highlightedSectionId: string | null;
     activeTabColorConfig: { text: string; bgLight: string };
     lastSectionBeforeInbox: { tabId: string; sectionId: string } | null;
@@ -68,8 +69,59 @@ const MainContent: React.FC<MainContentProps> = ({
     handleTodoManagementChange,
     handleTodoManagement2Change,
     setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
+    onToggleFavorite,
     isOnline
 }) => {
+    // 즐겨찾기 항목 수집
+    const favoritedItems = useMemo(() => {
+        const items: (ListItem & { sectionId: string; type: MemoEditorState['type'] })[] = [];
+        safeData.tabs.forEach(tab => {
+            // IN-BOX 섹션
+            if (tab.inboxSection) {
+                tab.inboxSection.items.forEach(item => {
+                    if (item.isFavorite) items.push({ ...item, sectionId: tab.inboxSection!.id, type: 'section' });
+                });
+            }
+            // 일반 섹션들
+            tab.sections.forEach(sec => {
+                sec.items.forEach(item => {
+                    if (item.isFavorite) items.push({ ...item, sectionId: sec.id, type: 'section' });
+                });
+            });
+            // 주차 위젯 및 할일관리 위젯 항목들 추가
+            if (isMainTab) {
+                const p = tab.parkingInfo;
+                const tm1 = tab.todoManagementInfo;
+                const tm2 = tab.todoManagementInfo2;
+
+                const pushFavs = (list: ListItem[] | undefined, secId: string, memoType: MemoEditorState['type']) => {
+                    (list || []).forEach(item => {
+                        if (item.isFavorite) items.push({ ...item, sectionId: secId, type: memoType });
+                    });
+                };
+
+                pushFavs(p.checklistItems, 'checklist', 'checklist');
+                pushFavs(p.shoppingListItems, 'shopping', 'shopping');
+                pushFavs(p.remindersItems, 'reminders', 'reminders');
+                pushFavs(p.todoItems, 'todo', 'todo');
+                pushFavs(p.category5Items, 'parkingCat5', 'parkingCat5');
+
+                pushFavs(tm1.category1Items, 'todoCat1', 'todoCat1');
+                pushFavs(tm1.category2Items, 'todoCat2', 'todoCat2');
+                pushFavs(tm1.category3Items, 'todoCat3', 'todoCat3');
+                pushFavs(tm1.category4Items, 'todoCat4', 'todoCat4');
+                pushFavs(tm1.category5Items, 'todoCat5', 'todoCat5');
+
+                pushFavs(tm2.category1Items, 'todo2Cat1', 'todo2Cat1');
+                pushFavs(tm2.category2Items, 'todo2Cat2', 'todo2Cat2');
+                pushFavs(tm2.category3Items, 'todo2Cat3', 'todo2Cat3');
+                pushFavs(tm2.category4Items, 'todo2Cat4', 'todo2Cat4');
+                pushFavs(tm2.category5Items, 'todo2Cat5', 'todo2Cat5');
+            }
+        });
+        return items;
+    }, [safeData]);
+
     return (
         <>
             {/* 오프라인 배너 */}
@@ -108,6 +160,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={{}}
                                             onUpdateSection={handleUpdateBookmarkSection}
                                             onDeleteSection={() => { }}
+                                            onToggleFavorite={onToggleFavorite}
                                             onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
                                             onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}
@@ -136,12 +189,13 @@ const MainContent: React.FC<MainContentProps> = ({
                                 }`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab && (
                                     <>
-                                        <div className="h-[calc(100vh-160px)] xl:col-span-2">
+                                        <div className="h-[calc(100vh-160px)] xl:col-span-1">
                                             <SectionCard
                                                 section={activeTab.inboxSection}
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateInboxSection}
                                                 onDeleteSection={() => { }}
+                                                onToggleFavorite={onToggleFavorite}
                                                 onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue, activeTab.id)}
                                                 onMoveItem={() => { }}
                                                 onAddToCalendar={handleAddToCalendarClick}
@@ -169,6 +223,40 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
+                                        <div className="h-[calc(100vh-160px)] xl:col-span-1">
+                                            <SectionCard
+                                                section={{
+                                                    id: 'favorites-section',
+                                                    title: '⭐ 즐겨찾기',
+                                                    items: favoritedItems,
+                                                    isLocked: true
+                                                }}
+                                                itemMemos={activeTab.memos}
+                                                onUpdateSection={() => { }} // 읽기 전용 느낌이나 토글은 아이템 레벨에서 처리됨
+                                                onDeleteSection={() => { }}
+                                                onToggleFavorite={(itemId) => {
+                                                    const orig = favoritedItems.find(i => i.id === itemId);
+                                                    if (orig) onToggleFavorite(itemId, orig.sectionId);
+                                                }}
+                                                onShowItemMemo={(id) => {
+                                                    const orig = favoritedItems.find(i => i.id === id);
+                                                    if (orig) handleShowMemo(id, orig.type, orig.sectionId, undefined, activeTab.id);
+                                                }}
+                                                onMoveItem={() => { }}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onSectionDragStart={() => { }}
+                                                onSectionDragOver={() => { }}
+                                                onSectionDrop={() => { }}
+                                                onSectionDragEnd={() => { }}
+                                                isHighlighted={false}
+                                                tabColorText="text-yellow-900"
+                                                tabColorBg="bg-yellow-50"
+                                                isMobileLayout={isMobileLayout}
+                                            />
+                                        </div>
+
                                         <div data-section-id="parking-section" className="h-[calc(100vh-160px)]">
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
@@ -177,6 +265,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping', undefined, activeTab.id)}
                                                 onShowRemindersMemo={(id) => handleShowMemo(id, 'reminders', 'reminders', undefined, activeTab.id)}
                                                 onShowTodoMemo={(id) => handleShowMemo(id, 'todo', 'todo', undefined, activeTab.id)}
+                                                onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
+                                                onToggleFavorite={onToggleFavorite}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>
@@ -189,6 +279,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todoCat2', 'todoCat2', undefined, activeTab.id)}
                                                 onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3', undefined, activeTab.id)}
                                                 onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4', undefined, activeTab.id)}
+                                                onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todoCat5', 'todoCat5', undefined, activeTab.id)}
+                                                onToggleFavorite={(itemId, type) => onToggleFavorite?.(itemId, type)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
                                                 subHeaderClass="text-[17px] font-bold text-blue-600"
@@ -204,6 +296,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todo2Cat2', 'todo2Cat2', undefined, activeTab.id)}
                                                 onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todo2Cat3', 'todo2Cat3', undefined, activeTab.id)}
                                                 onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todo2Cat4', 'todo2Cat4', undefined, activeTab.id)}
+                                                onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todo2Cat5', 'todo2Cat5', undefined, activeTab.id)}
+                                                onToggleFavorite={(itemId, type) => onToggleFavorite?.(itemId, type)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>
@@ -217,6 +311,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             itemMemos={activeTab.memos}
                                             onUpdateSection={handleUpdateSection}
                                             onDeleteSection={handleDeleteSection}
+                                            onToggleFavorite={onToggleFavorite}
                                             onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
                                             onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}

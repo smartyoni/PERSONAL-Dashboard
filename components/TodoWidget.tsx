@@ -10,6 +10,8 @@ interface TodoWidgetProps {
     onShowTodoCat2Memo: (itemId: string) => void;
     onShowTodoCat3Memo: (itemId: string) => void;
     onShowTodoCat4Memo: (itemId: string) => void;
+    onShowTodoCat5Memo: (itemId: string) => void;
+    onToggleFavorite?: (itemId: string, sectionId: string) => void;
     onAddToCalendar: (itemText: string) => void;
     mainHeaderClass?: string;
     subHeaderClass?: string;
@@ -23,6 +25,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     onShowTodoCat2Memo,
     onShowTodoCat3Memo,
     onShowTodoCat4Memo,
+    onShowTodoCat5Memo,
+    onToggleFavorite,
     onAddToCalendar,
     mainHeaderClass,
     subHeaderClass,
@@ -34,7 +38,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         isOpen: boolean;
         itemId: string | null;
         itemText: string;
-        type: 1 | 2 | 3 | 4
+        type: 1 | 2 | 3 | 4 | 5
     }>({
         isOpen: false,
         itemId: null,
@@ -73,12 +77,12 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         setOpenMenuId(openMenuId === itemId ? null : itemId);
     };
 
-    const updateList = (type: 1 | 2 | 3 | 4, newItems: ListItem[]) => {
+    const updateList = (type: 1 | 2 | 3 | 4 | 5, newItems: ListItem[]) => {
         const key = `category${type}Items` as keyof TodoManagementInfo;
         onChange({ ...info, [key]: newItems });
     };
 
-    const handleAddItem = (type: 1 | 2 | 3 | 4) => {
+    const handleAddItem = (type: 1 | 2 | 3 | 4 | 5) => {
         const newItemId = Math.random().toString(36).substr(2, 9);
         const newItem: ListItem = { id: newItemId, text: '', completed: false };
         const key = `category${type}Items` as keyof TodoManagementInfo;
@@ -90,32 +94,33 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         else if (type === 2) onShowTodoCat2Memo(newItemId);
         else if (type === 3) onShowTodoCat3Memo(newItemId);
         else if (type === 4) onShowTodoCat4Memo(newItemId);
+        else if (type === 5) onShowTodoCat5Memo(newItemId);
     };
 
-    const handleDeleteItem = (type: 1 | 2 | 3 | 4, itemId: string) => {
+    const handleDeleteItem = (type: 1 | 2 | 3 | 4 | 5, itemId: string) => {
         const key = `category${type}Items` as keyof TodoManagementInfo;
         const currentItems = info[key] as ListItem[];
         updateList(type, currentItems.filter(i => i.id !== itemId));
     };
 
-    const handleToggleItem = (type: 1 | 2 | 3 | 4, itemId: string) => {
+    const handleToggleItem = (type: 1 | 2 | 3 | 4 | 5, itemId: string) => {
         const key = `category${type}Items` as keyof TodoManagementInfo;
-        const currentItems = info[key] as ListItem[];
+        const currentItems = (info[key] as ListItem[]) || [];
         updateList(type, currentItems.map(i => i.id === itemId ? { ...i, completed: !i.completed } : i));
     };
 
-    const handleUpdateText = (type: 1 | 2 | 3 | 4, itemId: string, text: string) => {
+    const handleUpdateText = (type: 1 | 2 | 3 | 4 | 5, itemId: string, text: string) => {
         const key = `category${type}Items` as keyof TodoManagementInfo;
-        const currentItems = info[key] as ListItem[];
+        const currentItems = (info[key] as ListItem[]) || [];
         updateList(type, currentItems.map(i => i.id === itemId ? { ...i, text } : i));
     };
 
-    const handleUpdateTitle = (type: 1 | 2 | 3 | 4, title: string) => {
+    const handleUpdateTitle = (type: 1 | 2 | 3 | 4 | 5, title: string) => {
         const key = `category${type}Title` as keyof TodoManagementInfo;
         onChange({ ...info, [key]: title });
     };
 
-    const handleReorder = (type: 1 | 2 | 3 | 4, draggedId: string, targetId: string) => {
+    const handleReorder = (type: 1 | 2 | 3 | 4 | 5, draggedId: string, targetId: string) => {
         const key = `category${type}Items` as keyof TodoManagementInfo;
         const currentItems = info[key] as ListItem[];
         const draggedIdx = currentItems.findIndex(i => i.id === draggedId);
@@ -129,7 +134,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
     const SubSection = ({ title, type, items, memos, onShowMemo }: {
         title: string,
-        type: 1 | 2 | 3 | 4,
+        type: 1 | 2 | 3 | 4 | 5,
         items: ListItem[],
         memos: { [key: string]: string },
         onShowMemo: (id: string) => void
@@ -151,7 +156,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
                 </div>
                 <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
-                    {[...items].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(item => (
+                    {[...(items || [])].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(item => (
                         <div
                             key={item.id}
                             draggable={!editingItemIds.has(item.id)}
@@ -165,7 +170,10 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                 ref={el => triggerRefs.current[item.id] = el}
                                 onClick={(e) => toggleMenu(e, item.id)}
                                 className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-sky-400 hover:text-sky-500 transition-colors"
-                            >•</button>
+                                title={item.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 등록"}
+                            >
+                                {item.isFavorite ? <span className="text-yellow-500">★</span> : "•"}
+                            </button>
                             <div className="flex-1 min-w-0" onClick={() => onShowMemo(item.id)}>
                                 <EditableText
                                     value={item.text}
@@ -199,24 +207,27 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
 
             <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
-                <SubSection title={info.category1Title} type={1} items={info.category1Items} memos={info.category1Memos} onShowMemo={onShowTodoCat1Memo} />
-                <SubSection title={info.category2Title} type={2} items={info.category2Items} memos={info.category2Memos} onShowMemo={onShowTodoCat2Memo} />
-                <SubSection title={info.category3Title} type={3} items={info.category3Items} memos={info.category3Memos} onShowMemo={onShowTodoCat3Memo} />
-                <SubSection title={info.category4Title} type={4} items={info.category4Items} memos={info.category4Memos} onShowMemo={onShowTodoCat4Memo} />
+                <SubSection title={info.category1Title} type={1} items={info.category1Items || []} memos={info.category1Memos} onShowMemo={onShowTodoCat1Memo} />
+                <SubSection title={info.category2Title} type={2} items={info.category2Items || []} memos={info.category2Memos} onShowMemo={onShowTodoCat2Memo} />
+                <SubSection title={info.category3Title} type={3} items={info.category3Items || []} memos={info.category3Memos} onShowMemo={onShowTodoCat3Memo} />
+                <SubSection title={info.category4Title} type={4} items={info.category4Items || []} memos={info.category4Memos} onShowMemo={onShowTodoCat4Memo} />
+                <SubSection title={info.category5Title} type={5} items={info.category5Items || []} memos={info.category5Memos} onShowMemo={onShowTodoCat5Memo} />
             </div>
 
             {openMenuId && (() => {
-                const type1Items = info.category1Items;
-                const type2Items = info.category2Items;
-                const type3Items = info.category3Items;
-                const type4Items = info.category4Items;
-                const allItems = [...type1Items, ...type2Items, ...type3Items, ...type4Items];
+                const type1Items = info.category1Items || [];
+                const type2Items = info.category2Items || [];
+                const type3Items = info.category3Items || [];
+                const type4Items = info.category4Items || [];
+                const type5Items = info.category5Items || [];
+                const allItems = [...type1Items, ...type2Items, ...type3Items, ...type4Items, ...type5Items];
                 const item = allItems.find(i => i.id === openMenuId);
                 if (!item) return null;
 
                 const type = type1Items.some(i => i.id === openMenuId) ? 1 :
                     type2Items.some(i => i.id === openMenuId) ? 2 :
-                        type3Items.some(i => i.id === openMenuId) ? 3 : 4;
+                        type3Items.some(i => i.id === openMenuId) ? 3 : 
+                            type4Items.some(i => i.id === openMenuId) ? 4 : 5;
 
                 const isMobile = window.innerWidth < 768;
                 return (
@@ -230,6 +241,18 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                         }}
                     >
                         <button onClick={() => { navigator.clipboard.writeText(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📋 복사</button>
+                        {onToggleFavorite && (
+                            <button 
+                                onClick={() => { 
+                                    const sectionBase = info.category1Title === '다짐' ? 'todo' : 'todo2';
+                                    onToggleFavorite(item.id, `${sectionBase}Cat${type}`); 
+                                    setOpenMenuId(null); 
+                                }} 
+                                className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50"
+                            >
+                                {item.isFavorite ? '⭐ 즐겨찾기 해제' : '⭐ 즐겨찾기 등록'}
+                            </button>
+                        )}
                         <button onClick={() => { onAddToCalendar(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📅 캘린더</button>
                         <button onClick={() => handleToggleItem(type, item.id)} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">{item.completed ? '⭕ 미완료' : '✅ 완료'}</button>
                         <button onClick={() => { setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 border-t-2 border-slate-100">🗑️ 삭제</button>
