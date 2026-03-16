@@ -145,13 +145,13 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         const itemsKey2 = `category${targetType}Items` as keyof TodoManagementInfo;
         const memosKey2 = `category${targetType}Memos` as keyof TodoManagementInfo;
 
-        const tempTitle = info[titleKey1];
-        const tempItems = info[itemsKey1];
-        const tempMemos = info[memosKey1];
+        const tempTitle = info[titleKey1] !== undefined ? info[titleKey1] : '';
+        const tempItems = info[itemsKey1] !== undefined ? info[itemsKey1] : [];
+        const tempMemos = info[memosKey1] !== undefined ? info[memosKey1] : {};
 
-        (newInfo as any)[titleKey1] = info[titleKey2];
-        (newInfo as any)[itemsKey1] = info[itemsKey2];
-        (newInfo as any)[memosKey1] = info[memosKey2];
+        (newInfo as any)[titleKey1] = info[titleKey2] !== undefined ? info[titleKey2] : '';
+        (newInfo as any)[itemsKey1] = info[itemsKey2] !== undefined ? info[itemsKey2] : [];
+        (newInfo as any)[memosKey1] = info[memosKey2] !== undefined ? info[memosKey2] : {};
 
         (newInfo as any)[titleKey2] = tempTitle;
         (newInfo as any)[itemsKey2] = tempItems;
