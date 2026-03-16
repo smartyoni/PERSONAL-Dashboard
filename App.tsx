@@ -9,6 +9,7 @@ import FooterTabs from './components/FooterTabs';
 import MainContent from './components/MainContent';
 import AppModals from './components/AppModals';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
+import { useBackButton } from './hooks/useBackButton';
 
 const App: React.FC = () => {
   // Core state & effects
@@ -76,6 +77,17 @@ const App: React.FC = () => {
     handleNavigateFromTag, handleReturnToLastSection,
     handleOpenTagSelection, tagSelectionContext
   } = useNavigation(safeData, activeTab, handleSelectTab, setMemoEditor, handleMoveItem);
+
+  // Phase 6: 뒤로가기 연동 훅
+  useBackButton({
+    memoEditor, setMemoEditor,
+    modal, setModal,
+    navigationMapOpen, setNavigationMapOpen,
+    sectionMapOpen, setSectionMapOpen,
+    tagSelectionModalOpen, setTagSelectionModalOpen,
+    calendarModal, setCalendarModal,
+    isBookmarkView, setIsBookmarkView
+  });
 
   const isMainTab = activeTab.id === (safeData.tabs[0]?.id || '');
 
