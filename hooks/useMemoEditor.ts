@@ -135,7 +135,7 @@ export const useMemoEditor = (
             if (memoEditor.type === 'checklist') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             parkingInfo: {
@@ -155,7 +155,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'shopping') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             parkingInfo: {
@@ -175,7 +175,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'reminders') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             parkingInfo: {
@@ -195,7 +195,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todo') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             parkingInfo: {
@@ -215,7 +215,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todoCat1') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo: {
@@ -235,7 +235,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todoCat2') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo: {
@@ -255,7 +255,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todoCat3') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo: {
@@ -275,7 +275,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todoCat4') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo: {
@@ -295,7 +295,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todo2Cat1') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo2: {
@@ -315,7 +315,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todo2Cat2') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo2: {
@@ -335,7 +335,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todo2Cat3') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo2: {
@@ -355,7 +355,7 @@ export const useMemoEditor = (
             } else if (memoEditor.type === 'todo2Cat4') {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             todoManagementInfo2: {
@@ -375,7 +375,7 @@ export const useMemoEditor = (
             } else {
                 updateData({
                     ...safeData,
-                    tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+                    tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
                         ? {
                             ...t,
                             sections: t.sections.map(s => ({
@@ -411,7 +411,7 @@ export const useMemoEditor = (
                 updateData({
                     ...safeData,
                     tabs: safeData.tabs.map(t => {
-                        if (t.id !== safeData.activeTabId) return t;
+                        if (t.id !== (memoEditor.tabId || safeData.activeTabId)) return t;
 
                         if (memoEditor.type === 'checklist') {
                             const newChecklistMemos = { ...t.parkingInfo.checklistMemos };
