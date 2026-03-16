@@ -71,7 +71,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   // 공통 헬퍼: 아이템 추가/수정/삭제/정렬
-  const updateList = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'category5', newItems: ListItem[]) => {
+  const updateList = (type: string, newItems: ListItem[]) => {
     const key = type === 'checklist' ? 'checklistItems' :
       type === 'shopping' ? 'shoppingListItems' :
         type === 'reminders' ? 'remindersItems' : 
@@ -79,7 +79,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     onChange({ ...info, [key]: newItems });
   };
 
-  const handleAddItem = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'category5') => {
+  const handleAddItem = (type: string) => {
     const newItemId = Math.random().toString(36).substr(2, 9);
     const newItem: ListItem = { id: newItemId, text: '', completed: false };
     const currentItems = type === 'checklist' ? info.checklistItems :
@@ -96,7 +96,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     else if (type === 'parkingCat5') onShowCategory5Memo(newItemId);
   };
 
-  const handleDeleteItem = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5', itemId: string) => {
+  const handleDeleteItem = (type: string, itemId: string) => {
     const currentItems = type === 'checklist' ? info.checklistItems :
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
@@ -104,7 +104,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     updateList(type, currentItems.filter(i => i.id !== itemId));
   };
 
-  const handleToggleItem = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5', itemId: string) => {
+  const handleToggleItem = (type: string, itemId: string) => {
     const currentItems = type === 'checklist' ? info.checklistItems :
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
@@ -112,7 +112,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     updateList(type, currentItems.map(i => i.id === itemId ? { ...i, completed: !i.completed } : i));
   };
 
-  const handleUpdateText = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5', itemId: string, text: string) => {
+  const handleUpdateText = (type: string, itemId: string, text: string) => {
     const currentItems = type === 'checklist' ? info.checklistItems :
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
@@ -120,7 +120,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     updateList(type, currentItems.map(i => i.id === itemId ? { ...i, text } : i));
   };
 
-  const handleReorder = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5', draggedId: string, targetId: string) => {
+  const handleReorder = (type: string, draggedId: string, targetId: string) => {
     const currentItems = type === 'checklist' ? info.checklistItems :
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
@@ -134,7 +134,56 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     updateList(type, newItems);
   };
 
-  const handleUpdateSubTitle = (type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5', title: string) => {
+  const handleReorderSubSections = (draggedType: string, targetType: string) => {
+    if (draggedType === targetType) return;
+    
+    // Helper to get data for a type
+    const getData = (type: string) => {
+      const itemKey = type === 'checklist' ? 'checklistItems' :
+                     type === 'shopping' ? 'shoppingListItems' :
+                     type === 'reminders' ? 'remindersItems' :
+                     type === 'todo' ? 'todoItems' : 'category5Items';
+      const titleKey = type === 'parkingCat5' ? 'category5Title' : `${type}Title` as keyof ParkingInfo;
+      const memoKey = type === 'checklist' ? 'checklistMemos' :
+                     type === 'shopping' ? 'shoppingListMemos' :
+                     type === 'reminders' ? 'remindersMemos' :
+                     type === 'todo' ? 'todoMemos' : 'category5Memos';
+      
+      return {
+        items: (info as any)[itemKey] || [],
+        title: (info as any)[titleKey] || '',
+        memos: (info as any)[memoKey] || {}
+      };
+    };
+
+    const sourceData = getData(draggedType);
+    const targetData = getData(targetType);
+
+    const newInfo = { ...info };
+
+    const setData = (obj: any, type: string, data: any) => {
+      const itemKey = type === 'checklist' ? 'checklistItems' :
+                     type === 'shopping' ? 'shoppingListItems' :
+                     type === 'reminders' ? 'remindersItems' :
+                     type === 'todo' ? 'todoItems' : 'category5Items';
+      const titleKey = type === 'parkingCat5' ? 'category5Title' : `${type}Title` as keyof ParkingInfo;
+      const memoKey = type === 'checklist' ? 'checklistMemos' :
+                     type === 'shopping' ? 'shoppingListMemos' :
+                     type === 'reminders' ? 'remindersMemos' :
+                     type === 'todo' ? 'todoMemos' : 'category5Memos';
+      
+      obj[itemKey] = data.items;
+      obj[titleKey] = data.title;
+      obj[memoKey] = data.memos;
+    };
+
+    setData(newInfo, draggedType, targetData);
+    setData(newInfo, targetType, sourceData);
+
+    onChange(newInfo);
+  };
+
+  const handleUpdateSubTitle = (type: string, title: string) => {
     const titleKey = type === 'parkingCat5' ? 'category5Title' : `${type}Title` as keyof ParkingInfo;
     onChange({ ...info, [titleKey]: title });
   };
@@ -148,31 +197,77 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     onShowMemo: (id: string) => void,
     onTitleChange: (newTitle: string) => void
   }) => {
-    const [dragState, setDragState] = useState<{ draggedItemId: string | null; dragOverItemId: string | null }>({
-      draggedItemId: null, dragOverItemId: null
+    const [dragState, setDragState] = useState<{ 
+      draggedItemId: string | null; 
+      dragOverItemId: string | null;
+      isDraggingSection: boolean;
+      isDragOverSection: boolean;
+    }>({
+      draggedItemId: null, dragOverItemId: null, isDraggingSection: false, isDragOverSection: false
     });
 
     return (
-      <div className="flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0">
-        <div className="flex items-center justify-between mb-1 px-1">
+      <div 
+        className={`flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0 transition-all ${dragState.isDraggingSection ? 'opacity-30 bg-green-50' : dragState.isDragOverSection ? 'bg-green-100/50 scale-[1.02] border-l-4 border-l-green-600' : ''}`}
+        draggable={true}
+        onDragStart={(e) => {
+          // 아이템 드래그 중인 경우는 무시
+          if ((e.target as HTMLElement).draggable && (e.target as HTMLElement).tagName !== 'DIV') return;
+          e.dataTransfer.setData('sectionType', type);
+          setDragState(p => ({ ...p, isDraggingSection: true }));
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (e.dataTransfer.types.includes('sectionType')) {
+            if (!dragState.isDragOverSection) setDragState(p => ({ ...p, isDragOverSection: true }));
+          }
+        }}
+        onDragLeave={() => {
+          setDragState(p => ({ ...p, isDragOverSection: false }));
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const draggedType = e.dataTransfer.getData('sectionType');
+          if (draggedType && draggedType !== type) {
+            handleReorderSubSections(draggedType, type);
+          }
+          setDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+        }}
+        onDragEnd={() => {
+          setDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+        }}
+      >
+        <div className="flex items-center justify-between mb-1 px-1 cursor-grab active:cursor-grabbing">
           <EditableText
             value={title}
             onChange={onTitleChange}
             placeholder="제목 입력..."
-            className="text-[17px] font-bold text-red-600"
+            className="text-[17px] font-bold text-red-600 pointer-events-auto"
             compact
           />
-          <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold">+ 추가</button>
+          <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold pointer-events-auto">+ 추가</button>
         </div>
         <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
-          {[...(items || [])].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(item => (
+          {[...(items || [])].map(item => (
             <div
               key={item.id}
               draggable={!editingItemIds.has(item.id)}
-              onDragStart={() => setDragState({ draggedItemId: item.id, dragOverItemId: null })}
-              onDragOver={(e) => { e.preventDefault(); if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); }}
-              onDrop={() => { if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); setDragState({ draggedItemId: null, dragOverItemId: null }); }}
-              onDragEnd={() => setDragState({ draggedItemId: null, dragOverItemId: null })}
+              onDragStart={(e) => {
+                e.stopPropagation();
+                setDragState(p => ({ ...p, draggedItemId: item.id, dragOverItemId: null }));
+              }}
+              onDragOver={(e) => { 
+                e.preventDefault(); 
+                e.stopPropagation();
+                if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); 
+              }}
+              onDrop={(e) => { 
+                e.preventDefault(); 
+                e.stopPropagation();
+                if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); 
+                setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null })); 
+              }}
+              onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
               className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
             >
               <button

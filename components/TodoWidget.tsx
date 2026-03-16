@@ -132,6 +132,34 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         updateList(type, newItems);
     };
 
+    const handleReorderSubSections = (draggedType: number, targetType: number) => {
+        if (draggedType === targetType) return;
+
+        const newInfo = { ...info };
+        
+        const titleKey1 = `category${draggedType}Title` as keyof TodoManagementInfo;
+        const itemsKey1 = `category${draggedType}Items` as keyof TodoManagementInfo;
+        const memosKey1 = `category${draggedType}Memos` as keyof TodoManagementInfo;
+        
+        const titleKey2 = `category${targetType}Title` as keyof TodoManagementInfo;
+        const itemsKey2 = `category${targetType}Items` as keyof TodoManagementInfo;
+        const memosKey2 = `category${targetType}Memos` as keyof TodoManagementInfo;
+
+        const tempTitle = info[titleKey1];
+        const tempItems = info[itemsKey1];
+        const tempMemos = info[memosKey1];
+
+        (newInfo as any)[titleKey1] = info[titleKey2];
+        (newInfo as any)[itemsKey1] = info[itemsKey2];
+        (newInfo as any)[memosKey1] = info[memosKey2];
+
+        (newInfo as any)[titleKey2] = tempTitle;
+        (newInfo as any)[itemsKey2] = tempItems;
+        (newInfo as any)[memosKey2] = tempMemos;
+
+        onChange(newInfo);
+    };
+
     const SubSection = ({ title, type, items, memos, onShowMemo }: {
         title: string,
         type: 1 | 2 | 3 | 4 | 5,
@@ -139,13 +167,50 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         memos: { [key: string]: string },
         onShowMemo: (id: string) => void
     }) => {
-        const [dragState, setDragState] = useState<{ draggedItemId: string | null; dragOverItemId: string | null }>({
-            draggedItemId: null, dragOverItemId: null
+        const [dragState, setDragState] = useState<{ 
+            draggedItemId: string | null; 
+            dragOverItemId: string | null;
+            isDraggingSection: boolean;
+            isDragOverSection: boolean;
+        }>({
+            draggedItemId: null, dragOverItemId: null, isDraggingSection: false, isDragOverSection: false
         });
 
         return (
-            <div className="flex-1 flex flex-col min-h-0 border-b border-sky-400 last:border-b-0 py-1 first:pt-0">
-                <div className="flex items-center justify-between mb-1 px-1">
+            <div 
+                className={`flex-1 flex flex-col min-h-0 border-b border-sky-400 last:border-b-0 py-1 first:pt-0 transition-all ${dragState.isDraggingSection ? 'opacity-30 bg-sky-50' : dragState.isDragOverSection ? 'bg-sky-100/50 scale-[1.02] border-l-4 border-l-sky-600' : ''}`}
+                draggable={true}
+                onDragStart={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.draggable && target.tagName !== 'DIV') return;
+                    e.dataTransfer.setData('todoSectionType', type.toString());
+                    setDragState(p => ({ ...p, isDraggingSection: true }));
+                }}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.types.includes('todoSectionType')) {
+                        if (!dragState.isDragOverSection) setDragState(p => ({ ...p, isDragOverSection: true }));
+                    }
+                }}
+                onDragLeave={() => {
+                    setDragState(p => ({ ...p, isDragOverSection: false }));
+                }}
+                onDrop={(e) => {
+                    e.preventDefault();
+                    const draggedTypeStr = e.dataTransfer.getData('todoSectionType');
+                    if (draggedTypeStr) {
+                        const draggedType = parseInt(draggedTypeStr) as 1 | 2 | 3 | 4 | 5;
+                        if (draggedType !== type) {
+                            handleReorderSubSections(draggedType, type);
+                        }
+                    }
+                    setDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+                }}
+                onDragEnd={() => {
+                    setDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+                }}
+            >
+                <div className="flex items-center justify-between mb-1 px-1 cursor-grab active:cursor-grabbing">
                     <EditableText
                         value={title}
                         onChange={(txt) => handleUpdateTitle(type, txt)}
@@ -156,14 +221,26 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
                 </div>
                 <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
-                    {[...(items || [])].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(item => (
+                    {[...(items || [])].map(item => (
                         <div
                             key={item.id}
                             draggable={!editingItemIds.has(item.id)}
-                            onDragStart={() => setDragState({ draggedItemId: item.id, dragOverItemId: null })}
-                            onDragOver={(e) => { e.preventDefault(); if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); }}
-                            onDrop={() => { if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); setDragState({ draggedItemId: null, dragOverItemId: null }); }}
-                            onDragEnd={() => setDragState({ draggedItemId: null, dragOverItemId: null })}
+                            onDragStart={(e) => {
+                                e.stopPropagation();
+                                setDragState(p => ({ ...p, draggedItemId: item.id, dragOverItemId: null }));
+                            }}
+                            onDragOver={(e) => { 
+                                e.preventDefault(); 
+                                e.stopPropagation();
+                                if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); 
+                            }}
+                            onDrop={(e) => { 
+                                e.preventDefault(); 
+                                e.stopPropagation();
+                                if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); 
+                                setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null })); 
+                            }}
+                            onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
                             className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
                         >
                             <button
