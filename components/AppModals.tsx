@@ -376,12 +376,12 @@ const AppModals: React.FC<AppModalsProps> = ({
                                 title="현재 섹션 목차"
                             >현재</button>
 
-                            {/* 북마크 버튼 */}
+                            {/* 인박스 바로가기 버튼 */}
                             <button
-                                onClick={() => { handleToggleBookmarkView(); setIsFabExpanded(false); }}
-                                className={`w-12 h-12 border-2 border-black rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-all ${isBookmarkView ? 'bg-amber-400 text-white' : 'bg-white text-black'}`}
-                                title="북마크 보기 토글"
-                            >🔖</button>
+                                onClick={() => { handleNavigateToInbox(); setIsFabExpanded(false); }}
+                                className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all"
+                                title="인박스로 이동"
+                            >인박스</button>
                         </div>
                     )}
 
