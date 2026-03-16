@@ -11,9 +11,9 @@ interface EditableTextProps {
   disabled?: boolean;
 }
 
-const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholder, className = "", compact = false, onEditingChange, disabled = false }) => {
+const EditableText: React.FC<EditableTextProps> = ({ value = "", onChange, placeholder, className = "", compact = false, onEditingChange, disabled = false }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [tempValue, setTempValue] = useState(value);
+  const [tempValue, setTempValue] = useState(value || "");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const autoResize = useCallback(() => {
@@ -28,7 +28,7 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
     if (isEditing) {
       textareaRef.current?.focus();
       // 커서를 텍스트 끝으로 이동
-      const len = tempValue.length;
+      const len = (tempValue || "").length;
       textareaRef.current?.setSelectionRange(len, len);
       autoResize();
     }
@@ -44,18 +44,18 @@ const EditableText: React.FC<EditableTextProps> = ({ value, onChange, placeholde
     if (disabled) return;
     e.stopPropagation();
     setIsEditing(true);
-    setTempValue(value);
+    setTempValue(value || "");
     onEditingChange?.(true);
   };
 
   const handleSave = () => {
-    onChange(tempValue);
+    onChange(tempValue || "");
     setIsEditing(false);
     onEditingChange?.(false);
   };
 
   const handleCancel = () => {
-    setTempValue(value);
+    setTempValue(value || "");
     setIsEditing(false);
     onEditingChange?.(false);
   };
