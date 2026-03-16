@@ -16,5 +16,10 @@
 
 ## 배포 절차
 
-- GitHub Pages로 배포 (`npm run deploy`)
-- 배포 전 `npx tsc --noEmit`으로 타입 체크 필수
+배포는 GitHub 레포지토리에 설정된 GitHub Actions 워크플로우(`deploy.yml`)를 통해 자동으로 진행됩니다.
+
+1. 로컬에서 작업 후 검증 완료 (배포 전 `npx tsc --noEmit`으로 타입 체크 필수)
+2. 변경 사항을 모두 커밋
+3. `git push origin main` 명령어로 코드를 `main` 브랜치에 푸시
+4. 코드가 푸시되면 자동으로 `Deploy to GitHub Pages` 액션이 실행되어 반영됨
+   - 호스팅 URL: https://smartyoni.github.io/PERSONAL-Dashboard/
