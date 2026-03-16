@@ -209,17 +209,25 @@ export const useAppState = () => {
         isOpen: boolean; title: string; message: string; onConfirm: () => void;
     }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
 
-    // 메모 에디터 상태
     const [memoEditor, setMemoEditor] = useState<MemoEditorState>({
         id: null, value: '', type: 'section', isEditing: false, sectionId: null
     });
-    const memoTextareaRef = useRef<HTMLTextAreaElement>(null);
+    const memoTextareaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (memoEditor.isEditing && memoTextareaRef.current) {
-            const len = memoEditor.value.length;
-            memoTextareaRef.current.focus();
-            memoTextareaRef.current.setSelectionRange(len, len);
+            const el = memoTextareaRef.current;
+            el.focus();
+            
+            // contentEditable 용 커서 끝으로 보내기
+            const selection = window.getSelection();
+            if (selection) {
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
         }
     }, [memoEditor.isEditing]);
 
