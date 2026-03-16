@@ -180,24 +180,6 @@ const AppModals: React.FC<AppModalsProps> = ({
                         onTouchEnd={memoEditor.isEditing ? undefined : handleTouchEnd}
                         className="bg-white w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2 border-black flex flex-col relative"
                     >
-                        {/* 페이지 선택 세그먼트 탭 */}
-                        <div className="flex-none p-2 bg-slate-50 border-b border-black">
-                            <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
-                                {[0, 1, 2, 3, 4].map(idx => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => handleChangePage(idx)}
-                                        className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
-                                            memoEditor.activePageIndex === idx 
-                                            ? 'bg-white text-indigo-600 shadow-sm' 
-                                            : 'text-slate-500 hover:text-slate-700'
-                                        }`}
-                                    >
-                                        P{idx + 1}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
 
                         {/* 헤더 부분에 제목 추가 */}
                         {!memoEditor.isEditing && currentItem && (
@@ -227,6 +209,24 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     )}
                                 </div>
                                 <div className="p-3 bg-slate-50 border-t border-slate-200">
+                                    {/* 페이지 선택 세그먼트 탭 (푸터 상단) */}
+                                    <div className="mb-2">
+                                        <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1 border border-slate-200/50">
+                                            {[0, 1, 2, 3, 4].map(idx => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => handleChangePage(idx)}
+                                                    className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
+                                                        memoEditor.activePageIndex === idx 
+                                                        ? 'bg-white text-indigo-600 shadow-sm' 
+                                                        : 'text-slate-500 hover:text-slate-700'
+                                                    }`}
+                                                >
+                                                    P{idx + 1}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                     <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
                                         <button
                                             onClick={() => {
@@ -319,6 +319,24 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     >Tab</button>
                                 </div>
                                 <div className="p-3 bg-slate-50 border-t border-slate-200">
+                                    {/* 페이지 선택 세그먼트 탭 (푸터 상단) */}
+                                    <div className="mb-2">
+                                        <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1 border border-slate-200/50">
+                                            {[0, 1, 2, 3, 4].map(idx => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => handleChangePage(idx)}
+                                                    className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
+                                                        memoEditor.activePageIndex === idx 
+                                                        ? 'bg-white text-indigo-600 shadow-sm' 
+                                                        : 'text-slate-500 hover:text-slate-700'
+                                                    }`}
+                                                >
+                                                    P{idx + 1}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                     <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
                                         {memoEditor.openedFromMap && (
                                             <button
