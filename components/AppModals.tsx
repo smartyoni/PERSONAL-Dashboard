@@ -277,7 +277,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     onKeyDown={(e) => {
                                         if (e.key === 'Tab') {
                                             e.preventDefault();
-                                            handleInsertSymbol('  ');
+                                            handleInsertSymbol('• ');
                                         } else if (e.key === 'Enter' && e.shiftKey) {
                                             e.preventDefault();
                                             handleSaveMemo();
@@ -312,10 +312,10 @@ const AppModals: React.FC<AppModalsProps> = ({
                                     ))}
                                     <div className="w-px h-5 bg-slate-300 mx-1 flex-none" />
                                     <button
-                                        title="들여쓰기"
-                                        onMouseDown={(e) => { e.preventDefault(); handleInsertSymbol('  '); }}
-                                        onTouchEnd={(e) => { e.preventDefault(); handleInsertSymbol('  '); }}
-                                        className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-medium transition-colors select-none"
+                                        title="불렛(Tab)"
+                                        onMouseDown={(e) => { e.preventDefault(); handleInsertSymbol('• '); }}
+                                        onTouchEnd={(e) => { e.preventDefault(); handleInsertSymbol('• '); }}
+                                        className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-bold transition-colors select-none"
                                     >Tab</button>
                                 </div>
                                 <div className="p-3 bg-slate-50 border-t border-slate-200">
