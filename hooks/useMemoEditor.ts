@@ -521,8 +521,57 @@ export const useMemoEditor = (
     };
 
     const handleInsertSymbol = (symbol: string) => {
-        const textarea = memoTextareaRef.current;
-        if (!textarea) return;
+        const element = memoTextareaRef.current;
+        if (!element) return;
+
+        // If it's a contentEditable div
+        if (element.tagName === 'DIV') {
+            element.focus();
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+
+            if (symbol === '\n---divider---\n') {
+                // Insert visual divider
+                const hr = document.createElement('hr');
+                hr.className = "w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid pointer-events-none";
+                hr.setAttribute('contenteditable', 'false');
+                hr.setAttribute('data-type', 'divider');
+                
+                // Add newlines around hr if needed
+                const container = document.createElement('div');
+                container.appendChild(document.createElement('br'));
+                container.appendChild(hr);
+                container.appendChild(document.createElement('br'));
+                
+                const fragment = document.createDocumentFragment();
+                while (container.firstChild) fragment.appendChild(container.firstChild);
+                
+                range.insertNode(fragment);
+                
+                // Move cursor after the inserted fragment
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            } else {
+                const textNode = document.createTextNode(symbol);
+                range.insertNode(textNode);
+                range.setStartAfter(textNode);
+                range.setEndAfter(textNode);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            
+            // Trigger input event to update state
+            const event = new Event('input', { bubbles: true });
+            element.dispatchEvent(event);
+            return;
+        }
+
+        // Fallback for textarea
+        const textarea = element as HTMLTextAreaElement;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const currentValue = memoEditor.value;

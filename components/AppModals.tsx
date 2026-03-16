@@ -6,12 +6,13 @@ import SectionMapModal from './SectionMapModal';
 import TagSelectionModal from './TagSelectionModal';
 import AddToCalendarModal from './AddToCalendarModal';
 import LinkifiedText from './LinkifiedText';
+import { contentToHtml, htmlToContent } from '../utils/memoEditorUtils';
 
 interface AppModalsProps {
     // Memo editor
     memoEditor: MemoEditorState;
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
-    memoTextareaRef: React.RefObject<HTMLTextAreaElement>;
+    memoTextareaRef: React.RefObject<HTMLDivElement>;
     handleSaveMemo: () => void;
     handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
@@ -129,6 +130,17 @@ const AppModals: React.FC<AppModalsProps> = ({
         };
     }, []);
 
+    // contentEditable 초기값 설정을 위한 Effect
+    useEffect(() => {
+        if (memoEditor.isEditing && memoTextareaRef.current && memoTextareaRef.current.tagName === 'DIV') {
+            const element = memoTextareaRef.current;
+            const html = contentToHtml(memoEditor.value);
+            if (element.innerHTML !== html) {
+                element.innerHTML = html;
+            }
+        }
+    }, [memoEditor.isEditing, memoEditor.id]);
+
     const currentItem = React.useMemo(() => {
         if (!memoEditor.id) return null;
         if (memoEditor.type === 'checklist') return activeTab.parkingInfo.checklistItems.find(i => i.id === memoEditor.id);
@@ -139,6 +151,17 @@ const AppModals: React.FC<AppModalsProps> = ({
 
     return (
         <>
+            <style dangerouslySetInnerHTML={{ __html: `
+                [contenteditable]:empty:before {
+                    content: attr(placeholder);
+                    color: #94a3b8;
+                    font-style: italic;
+                    pointer-events: none;
+                }
+                [contenteditable] hr {
+                    cursor: default;
+                }
+            `}} />
             {memoEditor.id && (
                 <div
                     onClick={() => {
@@ -222,19 +245,21 @@ const AppModals: React.FC<AppModalsProps> = ({
                         {/* 편집 모드 */}
                         {memoEditor.isEditing && (
                             <>
-                                <textarea
-                                    ref={memoTextareaRef}
-                                    autoFocus
-                                    value={memoEditor.value}
-                                    onChange={(e) => setMemoEditor({ ...memoEditor, value: e.target.value })}
+                                <div
+                                    ref={memoTextareaRef as any}
+                                    contentEditable
+                                    placeholder="여기에 메모를 작성하세요..."
+                                    onInput={(e) => {
+                                        const html = (e.target as HTMLDivElement).innerHTML;
+                                        const content = htmlToContent(html);
+                                        setMemoEditor({ ...memoEditor, value: content });
+                                    }}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Tab') {
                                             e.preventDefault();
-                                            handleInsertSymbol('• ');
+                                            handleInsertSymbol('  ');
                                         } else if (e.key === 'Enter' && e.shiftKey) {
-                                            if (e.nativeEvent.isComposing) return;
                                             e.preventDefault();
-                                            e.stopPropagation();
                                             handleSaveMemo();
                                         }
                                     }}
@@ -242,9 +267,8 @@ const AppModals: React.FC<AppModalsProps> = ({
                                         if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
                                         handleSaveMemo();
                                     }}
-                                    className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base resize-none p-4"
+                                    className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base p-4 whitespace-pre-wrap"
                                     style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
-                                    placeholder="여기에 메모를 작성하세요..."
                                 />
                                 {/* 심볼 바: 모바일 키보드 위에 고정되거나 모달 하단에 위치 */}
                                 <div
