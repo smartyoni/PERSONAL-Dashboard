@@ -11,7 +11,6 @@ interface TodoWidgetProps {
     onShowTodoCat3Memo: (itemId: string) => void;
     onShowTodoCat4Memo: (itemId: string) => void;
     onShowTodoCat5Memo: (itemId: string) => void;
-    onToggleFavorite?: (itemId: string, sectionId: string) => void;
     onAddToCalendar: (itemText: string) => void;
     mainHeaderClass?: string;
     subHeaderClass?: string;
@@ -26,7 +25,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     onShowTodoCat3Memo,
     onShowTodoCat4Memo,
     onShowTodoCat5Memo,
-    onToggleFavorite,
     onAddToCalendar,
     mainHeaderClass,
     subHeaderClass,
@@ -246,10 +244,10 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             <button
                                 ref={el => triggerRefs.current[item.id] = el}
                                 onClick={(e) => toggleMenu(e, item.id)}
-                                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-sky-400 hover:text-sky-500 transition-colors"
-                                title={item.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 등록"}
+                                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-blue-400 hover:text-blue-500 transition-colors"
+                                title="메뉴 열기"
                             >
-                                {item.isFavorite ? <span className="text-yellow-500">★</span> : "•"}
+                                •
                             </button>
                             <div className="flex-1 min-w-0" onClick={() => onShowMemo(item.id)}>
                                 <EditableText
@@ -318,18 +316,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                         }}
                     >
                         <button onClick={() => { navigator.clipboard.writeText(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📋 복사</button>
-                        {onToggleFavorite && (
-                            <button 
-                                onClick={() => { 
-                                    const sectionBase = info.category1Title === '다짐' ? 'todo' : 'todo2';
-                                    onToggleFavorite(item.id, `${sectionBase}Cat${type}`); 
-                                    setOpenMenuId(null); 
-                                }} 
-                                className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50"
-                            >
-                                {item.isFavorite ? '⭐ 즐겨찾기 해제' : '⭐ 즐겨찾기 등록'}
-                            </button>
-                        )}
                         <button onClick={() => { onAddToCalendar(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📅 캘린더</button>
                         <button onClick={() => handleToggleItem(type, item.id)} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">{item.completed ? '⭕ 미완료' : '✅ 완료'}</button>
                         <button onClick={() => { setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 border-t-2 border-slate-100">🗑️ 삭제</button>

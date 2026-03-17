@@ -4,7 +4,6 @@ export interface ListItem {
   text: string;
   completed: boolean;
   url?: string; // 추가: 북마크 이동 주소
-  isFavorite?: boolean; // 추가: 즐겨찾기 여부
 }
 
 export interface Section {
@@ -42,8 +41,6 @@ export interface Bookmark {
   color: string;
 }
 
-
-
 export interface TodoManagementInfo {
   title?: string;
   category1Title: string;
@@ -74,10 +71,10 @@ export interface Tab {
   parkingInfo: ParkingInfo; // 섹션 2: 주차
   todoManagementInfo: TodoManagementInfo; // 섹션 3: 할일 관리 1
   todoManagementInfo2: TodoManagementInfo; // 섹션 4: 할일 관리 2
+  todoManagementInfo3: TodoManagementInfo; // 섹션 5: 할일 관리 3 (추가)
   inboxSection?: Section;  // 섹션 1: IN-BOX (메인탭만)
   isLocked?: boolean;
 }
-
 
 export interface AppData {
   tabs: Tab[];
@@ -99,7 +96,7 @@ export interface MemoEditorState {
   value: string;
   allValues: string[]; // 추가: 3페이지 저장용 (length 3)
   activePageIndex: number; // 추가: 현재 페이지 (0, 1, 2)
-  type: 'section' | 'checklist' | 'shopping' | 'reminders' | 'todo' | 'memoBoard' | 'todoCat1' | 'todoCat2' | 'todoCat3' | 'todoCat4' | 'todoCat5' | 'todo2Cat1' | 'todo2Cat2' | 'todo2Cat3' | 'todo2Cat4' | 'todo2Cat5' | 'parkingCat5';
+  type: 'section' | 'checklist' | 'shopping' | 'reminders' | 'todo' | 'memoBoard' | 'todoCat1' | 'todoCat2' | 'todoCat3' | 'todoCat4' | 'todoCat5' | 'todo2Cat1' | 'todo2Cat2' | 'todo2Cat3' | 'todo2Cat4' | 'todo2Cat5' | 'parkingCat5' | 'todo3Cat1' | 'todo3Cat2' | 'todo3Cat3' | 'todo3Cat4' | 'todo3Cat5';
   isEditing: boolean;
   openedFromMap?: boolean;
   sectionId?: string | null;

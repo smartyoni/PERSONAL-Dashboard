@@ -68,6 +68,24 @@ const defaultData: AppData = (() => {
                 category5Items: [],
                 category5Memos: {}
             },
+            todoManagementInfo3: {
+                title: '할일관리 3',
+                category1Title: '항목 1',
+                category2Title: '항목 2',
+                category3Title: '항목 3',
+                category4Title: '항목 4',
+                category1Items: [],
+                category2Items: [],
+                category3Items: [],
+                category4Items: [],
+                category1Memos: {},
+                category2Memos: {},
+                category3Memos: {},
+                category4Memos: {},
+                category5Title: '항목 5',
+                category5Items: [],
+                category5Memos: {}
+            },
             inboxSection: {
                 id: inboxSectionId, title: 'IN-BOX', items: [], color: 'slate', isLocked: false
             },
@@ -168,6 +186,25 @@ export const useAppState = () => {
                         category5Title: tab.todoManagementInfo2?.category5Title || '항목 5',
                         category5Items: tab.todoManagementInfo2?.category5Items || [],
                         category5Memos: tab.todoManagementInfo2?.category5Memos || {},
+                    },
+                    todoManagementInfo3: {
+                        ...tab.todoManagementInfo3,
+                        title: tab.todoManagementInfo3?.title || '할일관리 3',
+                        category1Title: tab.todoManagementInfo3?.category1Title || '항목 1',
+                        category2Title: tab.todoManagementInfo3?.category2Title || '항목 2',
+                        category3Title: tab.todoManagementInfo3?.category3Title || '항목 3',
+                        category4Title: tab.todoManagementInfo3?.category4Title || '항목 4',
+                        category1Items: tab.todoManagementInfo3?.category1Items || [],
+                        category2Items: tab.todoManagementInfo3?.category2Items || [],
+                        category3Items: tab.todoManagementInfo3?.category3Items || [],
+                        category4Items: tab.todoManagementInfo3?.category4Items || [],
+                        category1Memos: tab.todoManagementInfo3?.category1Memos || {},
+                        category2Memos: tab.todoManagementInfo3?.category2Memos || {},
+                        category3Memos: tab.todoManagementInfo3?.category3Memos || {},
+                        category4Memos: tab.todoManagementInfo3?.category4Memos || {},
+                        category5Title: tab.todoManagementInfo3?.category5Title || '항목 5',
+                        category5Items: tab.todoManagementInfo3?.category5Items || [],
+                        category5Memos: tab.todoManagementInfo3?.category5Memos || {},
                     },
                 };
             })
@@ -276,6 +313,13 @@ export const useAppState = () => {
             tabs: safeData.tabs.map(t => t.id === safeData.activeTabId ? { ...t, todoManagementInfo2: newInfo } : t)
         });
     };
+    
+    const handleTodoManagement3Change = (newInfo: any) => {
+        updateData({
+            ...safeData,
+            tabs: safeData.tabs.map(t => t.id === safeData.activeTabId ? { ...t, todoManagementInfo3: newInfo } : t)
+        });
+    };
 
     const handleAddToCalendarClick = (itemText: string) => {
         if (!googleCalendar.isAuthorized) { googleCalendar.login(); return; }
@@ -308,6 +352,6 @@ export const useAppState = () => {
         modal, setModal,
         memoEditor, setMemoEditor, memoTextareaRef,
         calendarModal, setCalendarModal,
-        handleParkingChange, handleTodoManagementChange, handleTodoManagement2Change, handleAddToCalendarClick, handleConfirmCalendar
+        handleParkingChange, handleTodoManagementChange, handleTodoManagement2Change, handleTodoManagement3Change, handleAddToCalendarClick, handleConfirmCalendar
     };
 };

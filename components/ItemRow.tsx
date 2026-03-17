@@ -20,7 +20,6 @@ interface ItemRowProps {
   onEditingChange?: (isEditing: boolean) => void;
   isBookmark?: boolean; // 추가
   onUpdateUrl?: (newUrl: string) => void; // 추가
-  onToggleFavorite?: () => void; // 추가
   onDoubleClickItem?: () => void;
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
@@ -43,7 +42,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onEditingChange,
   isBookmark = false,
   onUpdateUrl,
-  onToggleFavorite,
   onDoubleClickItem,
   dragState,
   onDragStart,
@@ -130,8 +128,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <button
             ref={triggerRef}
             onClick={toggleMenu}
-            className={`text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none ${item.isFavorite ? 'text-yellow-500 hover:text-yellow-600' : 'text-red-400 hover:text-red-500'}`}
-            title={item.isFavorite ? "즐겨찾기 해제" : "메뉴 열기"}
+            className="text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none text-red-400 hover:text-red-500"
+            title="메뉴 열기"
           >
             •
           </button>
@@ -250,12 +248,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => { onToggleFavorite?.(); setShowMenu(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors font-medium"
-              >
-                {item.isFavorite ? '⭐ 즐겨찾기 해제' : '⭐ 즐겨찾기 등록'}
-              </button>
               <button
                 onClick={() => { onCopy(); setShowMenu(false); }}
                 className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"

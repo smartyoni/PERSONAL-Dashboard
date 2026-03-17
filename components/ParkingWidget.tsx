@@ -10,7 +10,6 @@ interface ParkingWidgetProps {
   onShowShoppingMemo: (itemId: string) => void;
   onShowRemindersMemo: (itemId: string) => void;
   onShowCategory5Memo: (itemId: string) => void;
-  onToggleFavorite?: (itemId: string, sectionId: string) => void;
   onAddToCalendar: (itemText: string) => void;
 }
 
@@ -22,7 +21,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   onShowRemindersMemo,
   onShowTodoMemo,
   onShowCategory5Memo,
-  onToggleFavorite,
   onAddToCalendar
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -274,9 +272,9 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                 ref={el => triggerRefs.current[item.id] = el}
                 onClick={(e) => toggleMenu(e, item.id)}
                 className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
-                title={item.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 등록"}
+                title="메뉴 열기"
               >
-                {item.isFavorite ? <span className="text-yellow-500">★</span> : "•"}
+                •
               </button>
               <div className="flex-1 min-w-0" onClick={() => onShowMemo(item.id)}>
                 <EditableText
@@ -337,17 +335,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
             }}
           >
             <button onClick={() => { navigator.clipboard.writeText(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📋 복사</button>
-            {onToggleFavorite && (
-              <button 
-                onClick={() => { 
-                  onToggleFavorite(item.id, type); 
-                  setOpenMenuId(null); 
-                }} 
-                className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50"
-              >
-                {item.isFavorite ? '⭐ 즐겨찾기 해제' : '⭐ 즐겨찾기 등록'}
-              </button>
-            )}
             <button onClick={() => { onAddToCalendar(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📅 캘린더</button>
             <button onClick={() => handleToggleItem(type, item.id)} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">{item.completed ? '⭕ 미완료' : '✅ 완료'}</button>
             <button onClick={() => { setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 border-t-2 border-slate-100">🗑️ 삭제</button>

@@ -20,7 +20,7 @@ const App: React.FC = () => {
     modal, setModal,
     memoEditor, setMemoEditor, memoTextareaRef,
     calendarModal, setCalendarModal,
-    handleParkingChange, handleTodoManagementChange, handleTodoManagement2Change, handleAddToCalendarClick, handleConfirmCalendar
+    handleParkingChange, handleTodoManagementChange, handleTodoManagement2Change, handleTodoManagement3Change, handleAddToCalendarClick, handleConfirmCalendar
   } = useAppState();
 
   // Phase 5: 북마크 훅
@@ -54,7 +54,7 @@ const App: React.FC = () => {
     handleDeleteSection,
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleClearAll,
-    handleMoveItem, handleToggleItemFavorite
+    handleMoveItem
   } = useSectionManagement(safeData, updateData, activeTab, setModal);
 
   // Phase 3: 메모 에디터 훅
@@ -124,6 +124,30 @@ const App: React.FC = () => {
         needsUpdate = true;
     }
 
+    // 4. TodoManagementInfo3 (신규 추가된 할일관리 3)
+    if (!mainTab.todoManagementInfo3 || !mainTab.todoManagementInfo3.category5Title) {
+        mainTab.todoManagementInfo3 = {
+            ...mainTab.todoManagementInfo3,
+            title: mainTab.todoManagementInfo3?.title || '할일관리 3',
+            category1Title: mainTab.todoManagementInfo3?.category1Title || '항목 1',
+            category2Title: mainTab.todoManagementInfo3?.category2Title || '항목 2',
+            category3Title: mainTab.todoManagementInfo3?.category3Title || '항목 3',
+            category4Title: mainTab.todoManagementInfo3?.category4Title || '항목 4',
+            category5Title: '항목 5',
+            category1Items: mainTab.todoManagementInfo3?.category1Items || [],
+            category2Items: mainTab.todoManagementInfo3?.category2Items || [],
+            category3Items: mainTab.todoManagementInfo3?.category3Items || [],
+            category4Items: mainTab.todoManagementInfo3?.category4Items || [],
+            category5Items: [],
+            category1Memos: mainTab.todoManagementInfo3?.category1Memos || {},
+            category2Memos: mainTab.todoManagementInfo3?.category2Memos || {},
+            category3Memos: mainTab.todoManagementInfo3?.category3Memos || {},
+            category4Memos: mainTab.todoManagementInfo3?.category4Memos || {},
+            category5Memos: {}
+        };
+        needsUpdate = true;
+    }
+
     // 3. ParkingInfo (업무루틴 섹션 등)
     if (!mainTab.parkingInfo.category5Title) {
         mainTab.parkingInfo = {
@@ -184,12 +208,12 @@ const App: React.FC = () => {
         handleParkingChange={handleParkingChange}
         handleTodoManagementChange={handleTodoManagementChange}
         handleTodoManagement2Change={handleTodoManagement2Change}
+        handleTodoManagement3Change={handleTodoManagement3Change}
         handleShowMemo={handleShowMemo}
         handleAddToCalendarClick={handleAddToCalendarClick}
         handleOpenTagSelection={handleOpenTagSelection}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
         onToggleBookmarkView={handleToggleBookmarkView}
-        onToggleFavorite={handleToggleItemFavorite}
         highlightedSectionId={highlightedSectionId} activeTabColorConfig={activeTabColorConfig}
         lastSectionBeforeInbox={lastSectionBeforeInbox} handleReturnFromInbox={handleReturnFromInbox}
         handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}

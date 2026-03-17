@@ -31,7 +31,6 @@ interface SectionCardProps {
   onReturnFromInbox?: () => void;
   isReturnVisible?: boolean;
   isBookmarkTab?: boolean; // 추가
-  onToggleFavorite?: (itemId: string, sectionId: string) => void; // 추가
   onItemDoubleClick?: (itemId: string) => void; // 추가
   onItemTagClick?: (itemId: string, itemText: string) => void; // 추가
   autoFocusQuickAdd?: boolean;
@@ -64,7 +63,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onReturnFromInbox,
   isReturnVisible = false,
   isBookmarkTab = false,
-  onToggleFavorite,
   onItemDoubleClick,
   onItemTagClick,
   autoFocusQuickAdd,
@@ -426,7 +424,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onDragOver={(e) => onItemDragOver(e, item.id)}
             onDrop={(e) => onItemDrop(e, item.id)}
             onDragEnd={onItemDragEnd}
-            onToggleFavorite={() => onToggleFavorite?.(item.id, section.id)}
             onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
             onTagClick={() => onItemTagClick?.(item.id, item.text)}
           />
