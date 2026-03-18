@@ -3,6 +3,7 @@ import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo, Memo
 import SectionCard from './SectionCard';
 import ParkingWidget from './ParkingWidget';
 import TodoWidget from './TodoWidget';
+import TocWidget from './TocWidget';
 import Header from './Header';
 
 interface MainContentProps {
@@ -51,6 +52,8 @@ interface MainContentProps {
     focusQuickAddSectionId: string | null;
     setFocusQuickAddSectionId: (id: string | null) => void;
     isOnline: boolean;
+    onTocNavigate: (tabId: string, sectionId: string) => void;
+    onTocNavigateAndFocus: (tabId: string, sectionId: string) => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -70,7 +73,9 @@ const MainContent: React.FC<MainContentProps> = ({
     handleTodoManagement2Change,
     handleTodoManagement3Change,
     setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
-    isOnline
+    isOnline,
+    onTocNavigate,
+    onTocNavigateAndFocus,
 }) => {
 
     return (
@@ -139,6 +144,15 @@ const MainContent: React.FC<MainContentProps> = ({
                                 }`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab && (
                                     <>
+                                        <div data-section-id="toc-section" className="h-[calc(100vh-160px)]">
+                                            <TocWidget
+                                                tabs={safeData.tabs}
+                                                activeTabId={activeTab.id}
+                                                onNavigate={onTocNavigate}
+                                                onNavigateAndFocus={onTocNavigateAndFocus}
+                                            />
+                                        </div>
+
                                         <div className="h-[calc(100vh-160px)] xl:col-span-1">
                                             <SectionCard
                                                 section={activeTab.inboxSection}
@@ -210,19 +224,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todo2Cat3', 'todo2Cat3', undefined, activeTab.id)}
                                                 onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todo2Cat4', 'todo2Cat4', undefined, activeTab.id)}
                                                 onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todo2Cat5', 'todo2Cat5', undefined, activeTab.id)}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                            />
-                                        </div>
-
-                                        <div data-section-id="todo-section-3" className="h-[calc(100vh-160px)]">
-                                            <TodoWidget
-                                                info={activeTab.todoManagementInfo3}
-                                                onChange={handleTodoManagement3Change}
-                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todo3Cat1', 'todo3Cat1', undefined, activeTab.id)}
-                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todo3Cat2', 'todo3Cat2', undefined, activeTab.id)}
-                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todo3Cat3', 'todo3Cat3', undefined, activeTab.id)}
-                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todo3Cat4', 'todo3Cat4', undefined, activeTab.id)}
-                                                onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todo3Cat5', 'todo3Cat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                             />
                                         </div>

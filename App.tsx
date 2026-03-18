@@ -219,6 +219,8 @@ const App: React.FC = () => {
         handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}
         focusQuickAddSectionId={focusQuickAddSectionId} setFocusQuickAddSectionId={setFocusQuickAddSectionId}
         isOnline={isOnline}
+        onTocNavigate={handleNavigateFromMap}
+        onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
       />
 
       <div className="flex-none">
