@@ -443,6 +443,13 @@ const AppModals: React.FC<AppModalsProps> = ({
                                 className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all"
                                 title="인박스로 이동"
                             >인박스</button>
+
+                            {/* 북마크 버튼 */}
+                            <button
+                                onClick={() => { handleToggleBookmarkView(); setIsFabExpanded(false); }}
+                                className={`w-12 h-12 border-2 border-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all ${isBookmarkView ? 'bg-sky-400 text-white' : 'bg-white text-black'}`}
+                                title="북마크 뷰 전환"
+                            >북마크</button>
                         </div>
                     )}
 
