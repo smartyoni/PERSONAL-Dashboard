@@ -123,6 +123,24 @@ const TocWidget: React.FC<TocWidgetProps> = ({
           isVirtual: true,
         },
       });
+
+      // 할일관리 3
+      const todo3Count =
+        (tab.todoManagementInfo3?.category1Items?.length ?? 0) +
+        (tab.todoManagementInfo3?.category2Items?.length ?? 0) +
+        (tab.todoManagementInfo3?.category3Items?.length ?? 0) +
+        (tab.todoManagementInfo3?.category4Items?.length ?? 0) +
+        (tab.todoManagementInfo3?.category5Items?.length ?? 0);
+      result.push({
+        isVirtual: true,
+        virtual: {
+          id: 'todo-section-3',
+          title: tab.todoManagementInfo3?.title || '할일관리3',
+          emoji: '📋',
+          itemCount: todo3Count,
+          isVirtual: true,
+        },
+      });
     }
 
     // 일반 섹션들
@@ -237,7 +255,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                           );
                         } else {
                           // 일반 섹션
-                          const { section, isInbox } = item;
+                          const { section, isInbox } = item as { section: Section; isInbox: boolean };
                           return (
                             <div key={section.id} className="relative flex items-center group pl-3 py-0.5">
                               <div className="absolute left-0 top-1/2 w-3 h-0.5 bg-slate-200 -translate-y-1/2" />

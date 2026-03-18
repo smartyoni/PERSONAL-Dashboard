@@ -74,6 +74,7 @@ export interface Tab {
   todoManagementInfo3: TodoManagementInfo; // 섹션 5: 할일 관리 3 (추가)
   inboxSection?: Section;  // 섹션 1: IN-BOX (메인탭만)
   isLocked?: boolean;
+  isFavorite?: boolean;    // 추가: 즐겨찾기 (하단 고정) 지원
 }
 
 export interface AppData {

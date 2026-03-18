@@ -43,11 +43,14 @@ export const useTabManagement = (
                 remindersTitle: '기억하고 확인할것',
                 remindersItems: [],
                 todoTitle: '잊지말고 할일',
+                category5Title: '항목 5',
                 todoItems: [],
+                category5Items: [],
                 checklistMemos: {},
                 shoppingListMemos: {},
                 remindersMemos: {},
-                todoMemos: {}
+                todoMemos: {},
+                category5Memos: {}
             },
             todoManagementInfo: {
                 title: '할일관리',
@@ -55,14 +58,17 @@ export const useTabManagement = (
                 category2Title: '항목 2',
                 category3Title: '항목 3',
                 category4Title: '항목 4',
+                category5Title: '항목 5',
                 category1Items: [],
                 category2Items: [],
                 category3Items: [],
                 category4Items: [],
+                category5Items: [],
                 category1Memos: {},
                 category2Memos: {},
                 category3Memos: {},
-                category4Memos: {}
+                category4Memos: {},
+                category5Memos: {}
             },
             todoManagementInfo2: {
                 title: '할일관리 2',
@@ -70,14 +76,35 @@ export const useTabManagement = (
                 category2Title: '항목 2',
                 category3Title: '항목 3',
                 category4Title: '항목 4',
+                category5Title: '항목 5',
                 category1Items: [],
                 category2Items: [],
                 category3Items: [],
                 category4Items: [],
+                category5Items: [],
                 category1Memos: {},
                 category2Memos: {},
                 category3Memos: {},
-                category4Memos: {}
+                category4Memos: {},
+                category5Memos: {}
+            },
+            todoManagementInfo3: {
+                title: '할일관리 3',
+                category1Title: '항목 1',
+                category2Title: '항목 2',
+                category3Title: '항목 3',
+                category4Title: '항목 4',
+                category5Title: '항목 5',
+                category1Items: [],
+                category2Items: [],
+                category3Items: [],
+                category4Items: [],
+                category5Items: [],
+                category1Memos: {},
+                category2Memos: {},
+                category3Memos: {},
+                category4Memos: {},
+                category5Memos: {}
             },
             isLocked: false
         };
@@ -100,6 +127,13 @@ export const useTabManagement = (
         updateData({
             ...safeData,
             tabs: safeData.tabs.map(t => t.id === id ? { ...t, isLocked: !t.isLocked } : t)
+        });
+    };
+
+    const handleToggleFavoriteTab = (id: string) => {
+        updateData({
+            ...safeData,
+            tabs: safeData.tabs.map(t => t.id === id ? { ...t, isFavorite: !t.isFavorite } : t)
         });
     };
 
@@ -160,6 +194,7 @@ export const useTabManagement = (
         handleAddTab,
         handleRenameTab,
         handleToggleLockTab,
+        handleToggleFavoriteTab,
         handleReorderTabs,
         handleDeleteTab,
         handleSelectTab,
