@@ -426,17 +426,16 @@ const AppModals: React.FC<AppModalsProps> = ({
                         <div className="flex flex-col gap-3 mb-2 animate-in slide-in-from-bottom-4 duration-300">
                             {/* 목차(App Map) 버튼 */}
                             <button
-                                onClick={() => { setNavigationMapOpen(true); setIsFabExpanded(false); }}
+                                onClick={() => {
+                                    const mainTabId = safeData.tabs[0]?.id;
+                                    if (mainTabId) handleNavigateFromMap(mainTabId, 'toc-section');
+                                    setIsFabExpanded(false);
+                                }}
                                 className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all"
-                                title="전체 목차"
-                            >전체</button>
+                                title="목차 섹션으로 이동"
+                            >목차</button>
 
-                            {/* 섹션 맵 버튼 */}
-                            <button
-                                onClick={() => { handleOpenSectionMap(); setIsFabExpanded(false); }}
-                                className="w-12 h-12 bg-white border-2 border-black text-black rounded-full shadow-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-all"
-                                title="현재 섹션 목차"
-                            >현재</button>
+
 
                             {/* 인박스 바로가기 버튼 */}
                             <button
