@@ -18,6 +18,8 @@ interface AppModalsProps {
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
     handleInsertSymbol: (symbol: string) => void;
     handleChangePage: (index: number) => void;
+    handleUpdateTitle: (newTitle: string) => void;
+    handleUpdateItemText: (newText: string) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     activeTab: Tab;
@@ -55,7 +57,7 @@ interface AppModalsProps {
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage, memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage, handleUpdateTitle, handleUpdateItemText, memoSymbols,
     setNavigationMapOpen, activeTab,
     tagSelectionContext, handleOpenTagSelection, safeData,
     modal, setModal,
@@ -92,9 +94,12 @@ const AppModals: React.FC<AppModalsProps> = ({
                     handleOpenTagSelection={handleOpenTagSelection}
                     handleInsertSymbol={handleInsertSymbol}
                     handleChangePage={handleChangePage}
+                    handleUpdateTitle={handleUpdateTitle}
+                    handleUpdateItemText={handleUpdateItemText}
                     memoSymbols={memoSymbols}
                     setNavigationMapOpen={setNavigationMapOpen}
                     activeTab={activeTab}
+                    safeData={safeData}
                     isMobileLayout={isMobileLayout}
                     isDesktopSplit={false}
                 />

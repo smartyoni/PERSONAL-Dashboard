@@ -61,7 +61,8 @@ const App: React.FC = () => {
   // Phase 3: 메모 에디터 훅
   const {
     handleShowMemo, handleSwipeMemo, handleSaveMemo, handleDeleteItemFromModal,
-    handleInsertSymbol, memoSymbols, handleChangePage
+    handleInsertSymbol, memoSymbols, handleChangePage, handleUpdateTitle,
+    handleUpdateItemText
   } = useMemoEditor(safeData, updateData, activeTab, memoEditor, setMemoEditor, memoTextareaRef, setModal);
 
   // Phase 4: 네비게이션 훅
@@ -196,7 +197,7 @@ const App: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
       <div className="flex-1 flex flex-row overflow-hidden relative">
-        <div className={`transition-all duration-300 overflow-hidden relative flex flex-col ${isDesktopMemoOpen ? 'w-[70%]' : 'w-full'}`}>
+        <div className={`transition-all duration-300 overflow-hidden relative flex flex-col ${!isMobileLayout ? 'w-[70%]' : 'w-full'}`}>
           <MainContent
         safeData={safeData} activeTab={activeTab} isMainTab={isMainTab}
         isBookmarkView={isBookmarkView} isMobileLayout={isMobileLayout}
@@ -229,7 +230,7 @@ const App: React.FC = () => {
       />
         </div>
         
-        {isDesktopMemoOpen && (
+        {!isMobileLayout && (
           <div className="w-[30%] bg-white border-l-2 border-slate-300 flex flex-col z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.1)]">
             <MemoEditorPanel
               memoEditor={memoEditor} setMemoEditor={setMemoEditor}
@@ -239,9 +240,12 @@ const App: React.FC = () => {
               handleOpenTagSelection={handleOpenTagSelection}
               handleInsertSymbol={handleInsertSymbol}
               handleChangePage={handleChangePage}
+              handleUpdateTitle={handleUpdateTitle}
+              handleUpdateItemText={handleUpdateItemText}
               memoSymbols={memoSymbols}
               setNavigationMapOpen={setNavigationMapOpen}
               activeTab={activeTab}
+              safeData={safeData}
               isMobileLayout={isMobileLayout}
               isDesktopSplit={true}
             />

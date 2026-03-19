@@ -8,6 +8,8 @@ interface ConfirmModal {
     onConfirm: () => void;
 }
 
+export const TITLE_SEPARATOR = '===memo-title-sep===';
+
 export const useMemoEditor = (
     safeData: AppData,
     updateData: (data: AppData) => void,
@@ -72,15 +74,26 @@ export const useMemoEditor = (
                 loadedValue = initialValue;
             }
             
-            // 페이지 분할 로직 (backward compatibility 포함)
+            // 페이지 및 제목 분할 로직 (첫 줄: 제목, 이후: 내용)
             const pages = loadedValue.split('\n===page-break===\n');
-            const allValues = [
-                pages[0] || '',
-                pages[1] || '',
-                pages[2] || '',
-                pages[3] || '',
-                pages[4] || ''
-            ];
+            const allTitles: string[] = [];
+            const allContents: string[] = [];
+            
+            for (let i = 0; i < 5; i++) {
+                const pageText = pages[i] || '';
+                
+                let title = '';
+                let content = pageText;
+
+                if (pageText.includes(TITLE_SEPARATOR)) {
+                    const parts = pageText.split(TITLE_SEPARATOR);
+                    title = parts[0];
+                    content = parts.slice(1).join(TITLE_SEPARATOR);
+                }
+
+                allTitles.push(title);
+                allContents.push(content);
+            }
 
             const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
                 type === 'todoCat1' || type === 'todoCat2' || type === 'todoCat3' || type === 'todoCat4' ||
@@ -89,11 +102,13 @@ export const useMemoEditor = (
 
             setMemoEditor({
                 id,
-                value: allValues[0],
-                allValues,
+                value: allContents[0],
+                title: allTitles[0],
+                allValues: allContents,
+                allTitles,
                 activePageIndex: 0,
                 type: type || 'section',
-                isEditing: !isParkingSub && allValues[0] === '' && !openedFromMap,
+                isEditing: !isParkingSub && allContents[0] === '' && allTitles[0] === '' && !openedFromMap,
                 openedFromMap,
                 sectionId: sectionId || null,
                 tabId: targetTabId
@@ -180,19 +195,19 @@ export const useMemoEditor = (
     const handleSaveMemo = () => {
         if (!memoEditor.id) return;
 
-        // 현재 수정 중인 페이지 내용을 allValues에 동기화
-        const updatedAllValues = [...memoEditor.allValues];
-        updatedAllValues[memoEditor.activePageIndex] = memoEditor.value;
+        // 현재 수정 중인 페이지 내용을 allValues 및 allTitles에 동기화
+        const updatedAllContents = [...memoEditor.allValues];
+        updatedAllContents[memoEditor.activePageIndex] = memoEditor.value;
 
-        // 모든 페이지를 하나의 문자열로 결합 (구분자: ===page-break===)
-        const finalValue = updatedAllValues.join('\n===page-break===\n');
+        const updatedAllTitles = [...memoEditor.allTitles];
+        updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
 
-        const lines = memoEditor.value.trim().split('\n');
-        const firstLine = lines[0]?.trim() || '';
-        const titleLimit = 30;
-        const displayTitle = firstLine.length > titleLimit
-            ? firstLine.substring(0, titleLimit)
-            : firstLine;
+        const finalPages = updatedAllContents.map((content, idx) => {
+            const title = updatedAllTitles[idx];
+            return title + TITLE_SEPARATOR + content;
+        });
+        const finalValue = finalPages.join('\n===page-break===\n');
+
 
         if (memoEditor.type === 'section') {
             updateData({
@@ -217,7 +232,7 @@ export const useMemoEditor = (
                         parkingInfo: {
                             ...t.parkingInfo,
                             checklistItems: t.parkingInfo.checklistItems.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             checklistMemos: {
                                 ...t.parkingInfo.checklistMemos,
@@ -237,7 +252,7 @@ export const useMemoEditor = (
                         parkingInfo: {
                             ...t.parkingInfo,
                             shoppingListItems: t.parkingInfo.shoppingListItems.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             shoppingListMemos: {
                                 ...t.parkingInfo.shoppingListMemos,
@@ -257,7 +272,7 @@ export const useMemoEditor = (
                         parkingInfo: {
                             ...t.parkingInfo,
                             remindersItems: t.parkingInfo.remindersItems.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             remindersMemos: {
                                 ...t.parkingInfo.remindersMemos,
@@ -277,7 +292,7 @@ export const useMemoEditor = (
                         parkingInfo: {
                             ...t.parkingInfo,
                             todoItems: t.parkingInfo.todoItems.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             todoMemos: {
                                 ...t.parkingInfo.todoMemos,
@@ -297,7 +312,7 @@ export const useMemoEditor = (
                         parkingInfo: {
                             ...t.parkingInfo,
                             category5Items: t.parkingInfo.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category5Memos: {
                                 ...t.parkingInfo.category5Memos,
@@ -317,7 +332,7 @@ export const useMemoEditor = (
                         todoManagementInfo: {
                             ...t.todoManagementInfo,
                             category1Items: t.todoManagementInfo.category1Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category1Memos: {
                                 ...t.todoManagementInfo.category1Memos,
@@ -337,7 +352,7 @@ export const useMemoEditor = (
                         todoManagementInfo: {
                             ...t.todoManagementInfo,
                             category2Items: t.todoManagementInfo.category2Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category2Memos: {
                                 ...t.todoManagementInfo.category2Memos,
@@ -357,7 +372,7 @@ export const useMemoEditor = (
                         todoManagementInfo: {
                             ...t.todoManagementInfo,
                             category3Items: t.todoManagementInfo.category3Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category3Memos: {
                                 ...t.todoManagementInfo.category3Memos,
@@ -377,7 +392,7 @@ export const useMemoEditor = (
                         todoManagementInfo: {
                             ...t.todoManagementInfo,
                             category4Items: t.todoManagementInfo.category4Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category4Memos: {
                                 ...t.todoManagementInfo.category4Memos,
@@ -397,7 +412,7 @@ export const useMemoEditor = (
                         todoManagementInfo: {
                             ...t.todoManagementInfo,
                             category5Items: t.todoManagementInfo.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category5Memos: {
                                 ...t.todoManagementInfo.category5Memos,
@@ -417,7 +432,7 @@ export const useMemoEditor = (
                         todoManagementInfo2: {
                             ...t.todoManagementInfo2,
                             category1Items: t.todoManagementInfo2.category1Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category1Memos: {
                                 ...t.todoManagementInfo2.category1Memos,
@@ -437,7 +452,7 @@ export const useMemoEditor = (
                         todoManagementInfo2: {
                             ...t.todoManagementInfo2,
                             category2Items: t.todoManagementInfo2.category2Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category2Memos: {
                                 ...t.todoManagementInfo2.category2Memos,
@@ -457,7 +472,7 @@ export const useMemoEditor = (
                         todoManagementInfo2: {
                             ...t.todoManagementInfo2,
                             category3Items: t.todoManagementInfo2.category3Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category3Memos: {
                                 ...t.todoManagementInfo2.category3Memos,
@@ -477,7 +492,7 @@ export const useMemoEditor = (
                         todoManagementInfo2: {
                             ...t.todoManagementInfo2,
                             category4Items: t.todoManagementInfo2.category4Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category4Memos: {
                                 ...t.todoManagementInfo2.category4Memos,
@@ -497,7 +512,7 @@ export const useMemoEditor = (
                         todoManagementInfo2: {
                             ...t.todoManagementInfo2,
                             category5Items: t.todoManagementInfo2.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category5Memos: {
                                 ...t.todoManagementInfo2.category5Memos,
@@ -517,7 +532,7 @@ export const useMemoEditor = (
                         todoManagementInfo3: {
                             ...t.todoManagementInfo3,
                             category1Items: t.todoManagementInfo3.category1Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category1Memos: {
                                 ...t.todoManagementInfo3.category1Memos,
@@ -537,7 +552,7 @@ export const useMemoEditor = (
                         todoManagementInfo3: {
                             ...t.todoManagementInfo3,
                             category2Items: t.todoManagementInfo3.category2Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category2Memos: {
                                 ...t.todoManagementInfo3.category2Memos,
@@ -557,7 +572,7 @@ export const useMemoEditor = (
                         todoManagementInfo3: {
                             ...t.todoManagementInfo3,
                             category3Items: t.todoManagementInfo3.category3Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category3Memos: {
                                 ...t.todoManagementInfo3.category3Memos,
@@ -577,7 +592,7 @@ export const useMemoEditor = (
                         todoManagementInfo3: {
                             ...t.todoManagementInfo3,
                             category4Items: t.todoManagementInfo3.category4Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category4Memos: {
                                 ...t.todoManagementInfo3.category4Memos,
@@ -597,7 +612,7 @@ export const useMemoEditor = (
                         todoManagementInfo3: {
                             ...t.todoManagementInfo3,
                             category5Items: t.todoManagementInfo3.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item, text: displayTitle || item.text } : item
+                                item.id === memoEditor.id ? { ...item } : item
                             ),
                             category5Memos: {
                                 ...t.todoManagementInfo3.category5Memos,
@@ -616,11 +631,11 @@ export const useMemoEditor = (
                         ...t,
                         sections: t.sections.map(s => ({
                             ...s,
-                            items: s.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+                            items: s.items.map(i => String(i.id) === String(memoEditor.id) ? { ...i } : i)
                         })),
                         inboxSection: t.inboxSection ? {
                             ...t.inboxSection,
-                            items: t.inboxSection.items.map(i => i.id === memoEditor.id ? { ...i, text: displayTitle || i.text } : i)
+                            items: t.inboxSection.items.map(i => String(i.id) === String(memoEditor.id) ? { ...i } : i)
                         } : t.inboxSection,
                         memos: { ...t.memos, [memoEditor.id!]: finalValue }
                     }
@@ -629,10 +644,10 @@ export const useMemoEditor = (
             });
         }
 
-        if (memoEditor.value.trim()) {
+        if (memoEditor.value.trim() || memoEditor.title.trim()) {
             setMemoEditor(prev => ({ ...prev, isEditing: false }));
         } else {
-            setMemoEditor({ id: null, value: '', allValues: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
+            setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
         }
     };
 
@@ -699,7 +714,7 @@ export const useMemoEditor = (
                     })
                 });
                 setModal(prev => ({ ...prev, isOpen: false }));
-                setMemoEditor({ id: null, value: '', allValues: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
+                setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
             }
         });
     };
@@ -776,12 +791,91 @@ export const useMemoEditor = (
         const newAllValues = [...memoEditor.allValues];
         newAllValues[memoEditor.activePageIndex] = memoEditor.value;
 
+        const newAllTitles = [...memoEditor.allTitles];
+        newAllTitles[memoEditor.activePageIndex] = memoEditor.title;
+
         setMemoEditor({
             ...memoEditor,
             allValues: newAllValues,
+            allTitles: newAllTitles,
             activePageIndex: index,
-            value: newAllValues[index]
+            value: newAllValues[index],
+            title: newAllTitles[index]
         });
+    };
+
+    const handleUpdateTitle = (newTitle: string) => {
+        setMemoEditor(prev => {
+            const newAllTitles = [...prev.allTitles];
+            newAllTitles[prev.activePageIndex] = newTitle;
+            return {
+                ...prev,
+                title: newTitle,
+                allTitles: newAllTitles
+            };
+        });
+    };
+
+    const handleUpdateItemText = (newText: string) => {
+        if (!memoEditor.id) return;
+        
+        const targetId = String(memoEditor.id);
+
+        updateData({
+            ...safeData,
+            // 1. Update items in all tabs (thorough approach)
+            tabs: safeData.tabs.map(t => ({
+                ...t,
+                inboxSection: t.inboxSection ? {
+                    ...t.inboxSection,
+                    items: t.inboxSection.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
+                } : undefined,
+                sections: t.sections.map(s => ({
+                    ...s,
+                    items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
+                })),
+                parkingInfo: {
+                    ...t.parkingInfo,
+                    checklistItems: t.parkingInfo.checklistItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    shoppingListItems: t.parkingInfo.shoppingListItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    remindersItems: t.parkingInfo.remindersItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    todoItems: t.parkingInfo.todoItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: t.parkingInfo.category5Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                },
+                todoManagementInfo: {
+                    ...t.todoManagementInfo,
+                    category1Items: t.todoManagementInfo.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category2Items: t.todoManagementInfo.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category3Items: t.todoManagementInfo.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category4Items: t.todoManagementInfo.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: (t.todoManagementInfo as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                },
+                todoManagementInfo2: t.todoManagementInfo2 ? {
+                    ...t.todoManagementInfo2,
+                    category1Items: t.todoManagementInfo2.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category2Items: t.todoManagementInfo2.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category3Items: t.todoManagementInfo2.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category4Items: t.todoManagementInfo2.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: (t.todoManagementInfo2 as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                } : undefined,
+                todoManagementInfo3: t.todoManagementInfo3 ? {
+                    ...t.todoManagementInfo3,
+                    category1Items: t.todoManagementInfo3.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category2Items: t.todoManagementInfo3.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category3Items: t.todoManagementInfo3.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category4Items: t.todoManagementInfo3.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: (t.todoManagementInfo3 as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                } : undefined,
+            })),
+            // 2. Update bookmark sections
+            bookmarkSections: safeData.bookmarkSections?.map(s => ({
+                ...s,
+                items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
+            })) || []
+        });
+
+        // Optional: Also sync the local memoEditor state so UI reflects it immediately
+        // setMemoEditor(prev => ({ ...prev })); // Not strictly necessary if safeData updates
     };
 
     return {
@@ -791,6 +885,8 @@ export const useMemoEditor = (
         handleDeleteItemFromModal,
         handleInsertSymbol,
         handleChangePage,
+        handleUpdateTitle,
+        handleUpdateItemText,
         memoSymbols
     };
 };

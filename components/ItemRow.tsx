@@ -256,16 +256,33 @@ const ItemRow: React.FC<ItemRowProps> = ({
           );
         })()}
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in fade-in duration-150">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm mx-4 animate-in zoom-in duration-200">
-              <h2 className="text-lg font-bold text-slate-800 mb-2">항목을 삭제하시겠습니까?</h2>
-              <p className="text-sm text-slate-600 mb-6">"<span className="font-medium line-through">{item.text}</span>"이(가) 삭제됩니다.</p>
-              <div className="flex gap-3 justify-end">
+        {/* Contextual Delete Confirmation Popover */}
+        {showDeleteConfirm && (() => {
+          const isMobile = window.innerWidth < 768;
+          return (
+            <div
+              ref={menuRef}
+              className={`${isMobile ? 'absolute' : 'fixed'} bg-white rounded-xl shadow-2xl border-2 border-black z-[100] p-4 w-52 animate-in zoom-in-95 duration-200`}
+              style={{
+                ...(isMobile ? {
+                  right: 0,
+                  top: '100%',
+                  marginTop: '4px'
+                } : {
+                  ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                  ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                  left: `${menuPos.left}px`
+                })
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-[13px] font-bold text-slate-800 mb-3 leading-tight">
+                {isBookmark ? '북마크를 삭제하시겠습니까?' : '항목을 삭제하시겠습니까?'}
+              </p>
+              <div className="flex gap-2">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  className="flex-1 py-1.5 text-[11px] font-bold border-2 border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   취소
                 </button>
@@ -274,14 +291,14 @@ const ItemRow: React.FC<ItemRowProps> = ({
                     onDelete();
                     setShowDeleteConfirm(false);
                   }}
-                  className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium border-2 border-black transition-colors"
+                  className="flex-1 py-1.5 text-[11px] font-bold bg-red-500 text-white border-2 border-black rounded-lg shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
                 >
                   삭제
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* URL Input Modal */}

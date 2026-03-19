@@ -342,18 +342,48 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         );
       })()}
 
-      {/* 삭제 확인 모달 */}
-      {deleteConfirm.isOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
-          <div className="bg-white border-2 border-black p-6 w-full max-w-[280px] shadow-2xl rounded-2xl animate-in zoom-in duration-200">
-            <p className="font-black text-slate-800 mb-4 text-center">"{deleteConfirm.itemText.substring(0, 20)}..."<br />항목을 삭제할까요?</p>
+      {/* Contextual Delete Confirmation Popover */}
+      {deleteConfirm.isOpen && (() => {
+        const isMobile = window.innerWidth < 768;
+        return (
+          <div
+            ref={menuRef}
+            className={`${isMobile ? 'absolute' : 'fixed'} bg-white rounded-xl shadow-2xl border-2 border-black z-[100] p-4 w-52 animate-in zoom-in-95 duration-200`}
+            style={{
+              ...(isMobile ? {
+                right: '20px',
+                top: '100px'
+              } : {
+                ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                left: `${menuPos.left}px`
+              })
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-[13px] font-bold text-slate-800 mb-3 leading-tight text-center">
+              항목을 삭제하시겠습니까?
+            </p>
             <div className="flex gap-2">
-              <button onClick={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })} className="flex-1 py-3 text-xs font-bold border-2 border-slate-200 rounded-xl hover:bg-slate-50">취소</button>
-              <button onClick={() => { handleDeleteItem(deleteConfirm.type, deleteConfirm.itemId!); setDeleteConfirm({ ...deleteConfirm, isOpen: false }); }} className="flex-1 py-3 text-xs font-bold bg-red-500 text-white border-2 border-black rounded-xl shadow-[4px_4px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all">삭제</button>
+              <button
+                onClick={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
+                className="flex-1 py-1.5 text-[11px] font-bold border-2 border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  handleDeleteItem(deleteConfirm.type, deleteConfirm.itemId!);
+                  setDeleteConfirm({ ...deleteConfirm, isOpen: false });
+                }}
+                className="flex-1 py-1.5 text-[11px] font-bold bg-red-500 text-white border-2 border-black rounded-lg shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+              >
+                삭제
+              </button>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
