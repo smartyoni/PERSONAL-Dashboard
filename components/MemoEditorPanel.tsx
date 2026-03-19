@@ -114,7 +114,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             onTouchStart={memoEditor.isEditing ? undefined : handleTouchStart}
             onTouchMove={memoEditor.isEditing ? undefined : handleTouchMove}
             onTouchEnd={memoEditor.isEditing ? undefined : handleTouchEnd}
-            className={`bg-white border-black flex flex-col relative ${isDesktopSplit ? 'w-full h-full' : 'w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2'}`}
+            className="bg-white flex flex-col relative w-full h-full"
         >
             {!memoEditor.isEditing && currentItem && (
                 <div className="flex-none px-4 py-2 bg-slate-100 flex items-center justify-between border-b" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
@@ -322,7 +322,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     setNavigationMapOpen(true);
                 }
             }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
         >
             {PanelContent}
         </div>
