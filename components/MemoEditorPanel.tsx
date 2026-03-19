@@ -358,16 +358,23 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                             <span className="text-xs truncate flex-1">{title.trim() || '목차없음'}</span>
                                         </button>
                                         {subItems.length > 0 && (
-                                            <div className="pb-1">
-                                                {subItems.map((sub, sIdx) => (
-                                                    <div 
-                                                        key={sIdx} 
-                                                        className="px-3 py-1 text-[11px] text-slate-900 font-medium truncate flex items-center gap-2 hover:bg-slate-50 transition-colors cursor-default"
-                                                    >
-                                                        <span className="text-indigo-600 flex-none font-bold text-[9px]">※</span>
-                                                        <span className="truncate">{sub}</span>
-                                                    </div>
-                                                ))}
+                                            <div className="pb-1 relative">
+                                                {subItems.map((sub, sIdx) => {
+                                                    const isLast = sIdx === subItems.length - 1;
+                                                    return (
+                                                        <div 
+                                                            key={sIdx} 
+                                                            className="relative pl-10 pr-3 py-1.5 text-[10px] text-slate-600 font-medium truncate flex items-center hover:bg-slate-50 transition-colors cursor-default group"
+                                                        >
+                                                            {/* Vertical Line */}
+                                                            <div className={`absolute left-5 w-px bg-slate-200 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
+                                                            {/* Horizontal Line Connector */}
+                                                            <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-200"></div>
+                                                            
+                                                            <span className="truncate group-hover:text-indigo-600 transition-colors">{sub}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
