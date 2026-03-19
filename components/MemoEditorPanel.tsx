@@ -313,7 +313,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     e.stopPropagation();
                                     setShowToC(true);
                                 }}
-                                className="flex-none ml-2 px-2 py-1 bg-slate-200/50 hover:bg-slate-200 text-slate-500 text-[10px] font-bold rounded transition-colors"
+                                className="flex-none ml-2 px-4 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded transition-colors border border-emerald-100/50"
                             >목차</button>
                         )}
                     </div>
