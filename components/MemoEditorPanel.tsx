@@ -1,0 +1,332 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Tab, MemoEditorState } from '../types';
+import LinkifiedText from './LinkifiedText';
+import { contentToHtml, htmlToContent } from '../utils/memoEditorUtils';
+
+export interface MemoEditorPanelProps {
+    memoEditor: MemoEditorState;
+    setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
+    memoTextareaRef: React.RefObject<HTMLDivElement>;
+    handleSaveMemo: () => void;
+    handleSwipeMemo: (direction: 'left' | 'right') => void;
+    handleDeleteItemFromModal: () => void;
+    handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
+    handleInsertSymbol: (symbol: string) => void;
+    handleChangePage: (index: number) => void;
+    memoSymbols: { label: string; value: string; title: string }[];
+    setNavigationMapOpen: (open: boolean) => void;
+    activeTab: Tab;
+    isMobileLayout: boolean;
+    isDesktopSplit?: boolean; 
+}
+
+const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
+    memoEditor, setMemoEditor, memoTextareaRef,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
+    handleOpenTagSelection, handleInsertSymbol, handleChangePage,
+    memoSymbols, setNavigationMapOpen, activeTab, isMobileLayout, isDesktopSplit
+}) => {
+    const touchStart = useRef<number | null>(null);
+    const touchEnd = useRef<number | null>(null);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStart.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        touchEnd.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart.current || !touchEnd.current) return;
+        const distance = touchStart.current - touchEnd.current;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe) handleSwipeMemo('left');
+        if (isRightSwipe) handleSwipeMemo('right');
+
+        touchStart.current = null;
+        touchEnd.current = null;
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!memoEditor.id || memoEditor.isEditing) return;
+
+            if (e.key === 'ArrowLeft') {
+                handleSwipeMemo('right'); 
+            } else if (e.key === 'ArrowRight') {
+                handleSwipeMemo('left'); 
+            } else if (e.key === 'Escape') {
+                setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+            } else if (e.key === 'Enter') {
+                setMemoEditor({ ...memoEditor, isEditing: true });
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [memoEditor.id, memoEditor.isEditing, handleSwipeMemo, setMemoEditor]);
+
+    useEffect(() => {
+        const vv = window.visualViewport;
+        if (!vv) return;
+        const onResize = () => {
+            const kbHeight = window.innerHeight - vv.height - vv.offsetTop;
+            setKeyboardHeight(kbHeight > 0 ? kbHeight : 0);
+        };
+        vv.addEventListener('resize', onResize);
+        vv.addEventListener('scroll', onResize);
+        return () => {
+            vv.removeEventListener('resize', onResize);
+            vv.removeEventListener('scroll', onResize);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (memoEditor.isEditing && memoTextareaRef.current && memoTextareaRef.current.tagName === 'DIV') {
+            const element = memoTextareaRef.current;
+            const html = contentToHtml(memoEditor.value);
+            if (element.innerHTML !== html) {
+                element.innerHTML = html;
+            }
+        }
+    }, [memoEditor.isEditing, memoEditor.activePageIndex]);
+
+    const currentItem = React.useMemo(() => {
+        if (!memoEditor.id) return null;
+        if (memoEditor.type === 'checklist') return activeTab.parkingInfo.checklistItems.find(i => i.id === memoEditor.id);
+        if (memoEditor.type === 'shopping') return activeTab.parkingInfo.shoppingListItems.find(i => i.id === memoEditor.id);
+        const section = [activeTab.inboxSection, ...activeTab.sections].find(s => s?.id === memoEditor.sectionId);
+        return section?.items.find(i => i.id === memoEditor.id);
+    }, [memoEditor.id, memoEditor.sectionId, activeTab]);
+
+    if (!memoEditor.id) return null;
+
+    const PanelContent = (
+        <div
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={memoEditor.isEditing ? undefined : handleTouchStart}
+            onTouchMove={memoEditor.isEditing ? undefined : handleTouchMove}
+            onTouchEnd={memoEditor.isEditing ? undefined : handleTouchEnd}
+            className={`bg-white border-black flex flex-col relative ${isDesktopSplit ? 'w-full h-full' : 'w-full max-w-2xl md:max-w-[800px] h-[90vh] shadow-2xl border-[1.5px] md:border-2'}`}
+        >
+            {!memoEditor.isEditing && currentItem && (
+                <div className="flex-none px-4 py-2 bg-slate-100 flex items-center justify-between border-b" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
+                    <span className="text-sm font-bold truncate max-w-[80%] text-slate-700">📌 {currentItem.text}</span>
+                    <div className="flex gap-1" >
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                    </div>
+                </div>
+            )}
+
+            {!memoEditor.isEditing ? (
+                <>
+                    <div
+                        onDoubleClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                        className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors duration-200"
+                    >
+                        {memoEditor.value ? (
+                            <div className="prose prose-sm max-w-none select-text">
+                                <LinkifiedText text={memoEditor.value} />
+                            </div>
+                        ) : (
+                            <p className="text-slate-400 italic">메모가 없습니다.</p>
+                        )}
+                    </div>
+                    <div className="p-3 bg-slate-50 border-t border-slate-200">
+                        <div className="mb-2">
+                            <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1 border border-slate-200/50">
+                                {[0, 1, 2, 3, 4].map(idx => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleChangePage(idx)}
+                                        className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
+                                            memoEditor.activePageIndex === idx 
+                                            ? 'bg-white text-indigo-600 shadow-sm' 
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        P{idx + 1}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
+                            {memoEditor.openedFromMap && (
+                                <button
+                                    onClick={() => {
+                                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
+                                        setNavigationMapOpen(true);
+                                    }}
+                                    className="flex-1 px-2 py-2.5 bg-indigo-50 hover:bg-white text-indigo-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-indigo-100"
+                                >🔙 목차</button>
+                            )}
+                            <button
+                                onClick={() => {
+                                    if (memoEditor.id && memoEditor.sectionId && currentItem) {
+                                        handleOpenTagSelection({
+                                            itemId: memoEditor.id,
+                                            sourceSectionId: memoEditor.sectionId,
+                                            sourceTabId: memoEditor.tabId || activeTab.id,
+                                            itemText: currentItem.text
+                                        });
+                                    }
+                                }}
+                                className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                            ># 태그</button>
+                            <button
+                                onClick={() => navigator.clipboard.writeText(memoEditor.value)}
+                                className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                            >📋 복사</button>
+                            <button
+                                onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                                className="flex-1 px-2 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-blue-600"
+                            >✏️ 수정</button>
+                            <button
+                                onClick={() => {
+                                    setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+                                    if (memoEditor.openedFromMap) setNavigationMapOpen(true);
+                                }}
+                                className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                            >닫기</button>
+                            <button
+                                onClick={handleDeleteItemFromModal}
+                                className="flex-1 px-2 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-all shadow-sm border border-red-100"
+                            >🗑️ 삭제</button>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <div className="flex flex-col flex-1 overflow-hidden">
+                    <div
+                        ref={memoTextareaRef as any}
+                        contentEditable
+                        placeholder="여기에 메모를 작성하세요..."
+                        onInput={(e) => {
+                            const html = (e.target as HTMLDivElement).innerHTML;
+                            const content = htmlToContent(html);
+                            setMemoEditor({ ...memoEditor, value: content });
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Tab') {
+                                e.preventDefault();
+                                handleInsertSymbol('• ');
+                            } else if (e.key === 'Enter' && e.shiftKey) {
+                                e.preventDefault();
+                                handleSaveMemo();
+                            }
+                        }}
+                        onBlur={(e) => {
+                            if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
+                            handleSaveMemo();
+                        }}
+                        className="flex-1 w-full overflow-y-auto custom-scrollbar focus:outline-none text-slate-700 text-base p-4 whitespace-pre-wrap leading-relaxed"
+                        style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
+                    />
+                    <div
+                        className={`memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-t border-slate-200 overflow-x-auto ${keyboardHeight > 0 ? 'fixed left-0 right-0 z-[1100] shadow-[0_-4px_12px_rgba(0,0,0,0.1)]' : 'relative z-10'}`}
+                        style={{ bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined }}
+                    >
+                        {memoSymbols.map((sym, idx) => (
+                            <button
+                                key={sym.label}
+                                title={sym.title}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleInsertSymbol(sym.value);
+                                }}
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    handleInsertSymbol(sym.value);
+                                }}
+                                className={`flex-none flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-medium transition-colors select-none ${idx < 3 ? 'w-10 h-10 text-2xl' : 'w-8 h-8 text-base'}`}
+                            >{sym.label}</button>
+                        ))}
+                        <div className="w-px h-5 bg-slate-300 mx-1 flex-none" />
+                        <button
+                            title="불렛(Tab)"
+                            onMouseDown={(e) => { e.preventDefault(); handleInsertSymbol('• '); }}
+                            onTouchEnd={(e) => { e.preventDefault(); handleInsertSymbol('• '); }}
+                            className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-bold transition-colors select-none"
+                        >Tab</button>
+                    </div>
+                    <div className="p-3 bg-slate-50 border-t border-slate-200">
+                        <div className="mb-2">
+                            <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1 border border-slate-200/50">
+                                {[0, 1, 2, 3, 4].map(idx => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleChangePage(idx)}
+                                        className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
+                                            memoEditor.activePageIndex === idx 
+                                            ? 'bg-white text-indigo-600 shadow-sm' 
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        P{idx + 1}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
+                            <button
+                                onClick={() => {
+                                    let originalMemo = '';
+                                    if (memoEditor.type === 'checklist') {
+                                        originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
+                                    } else if (memoEditor.type === 'shopping') {
+                                        originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
+                                    } else {
+                                        originalMemo = activeTab.memos?.[memoEditor.id!] || '';
+                                    }
+                                    if (originalMemo) {
+                                        setMemoEditor({ ...memoEditor, value: originalMemo, isEditing: false });
+                                    } else {
+                                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                                    }
+                                }}
+                                className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                            >취소</button>
+                            <button
+                                onClick={() => navigator.clipboard.writeText(memoEditor.value)}
+                                className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                            >📋 복사</button>
+                            <button
+                                onClick={handleSaveMemo}
+                                className="flex-1 px-2 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-green-600"
+                            >💾 저장</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+
+    if (isDesktopSplit) {
+        return <div className="w-full h-full animate-in slide-in-from-right-4 duration-300">{PanelContent}</div>;
+    }
+
+    return (
+        <div
+            onClick={() => {
+                setMemoEditor({ id: null, value: '', type: 'section', isEditing: false, sectionId: null });
+                if (memoEditor.openedFromMap) {
+                    setNavigationMapOpen(true);
+                }
+            }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+        >
+            {PanelContent}
+        </div>
+    );
+};
+
+export default MemoEditorPanel;

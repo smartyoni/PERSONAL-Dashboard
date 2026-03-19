@@ -53,7 +53,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isTextEditing, setIsTextEditing] = useState(false);
   const [isUrlModalOpen, setIsUrlModalOpen] = useState(false); // 추가
-  const [previewPos, setPreviewPos] = useState<'top' | 'bottom'>('bottom');
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -106,18 +105,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       ref={rowRef}
-      onMouseEnter={() => {
-        if (rowRef.current) {
-          const rect = rowRef.current.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-          // 하단 40% 영역에 있으면 위로 표시
-          if (rect.bottom > windowHeight * 0.6) {
-            setPreviewPos('top');
-          } else {
-            setPreviewPos('bottom');
-          }
-        }
-      }}
       className={`group flex items-start gap-1 py-1.5 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
         }`}
@@ -197,15 +184,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
             compact
             disabled={true}
           />
-
-          {/* 메모 미리보기 (사각 테두리, 작은 글씨) */}
-          {!isBookmark && memo && !isTextEditing && (
-            <div className={`hidden group-hover:block absolute right-0 ${previewPos === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'} z-50 bg-white border-[1.5px] border-slate-300 rounded shadow-lg p-2 max-w-xs w-64 animate-in fade-in zoom-in duration-150`}>
-              <p className="text-[11px] leading-tight text-slate-600 whitespace-pre-wrap">
-                {memo.length > 200 ? memo.substring(0, 200) + '...' : memo}
-              </p>
-            </div>
-          )}
         </div>
       </div>
 

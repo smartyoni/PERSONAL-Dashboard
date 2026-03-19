@@ -140,7 +140,7 @@ const MainContent: React.FC<MainContentProps> = ({
                         ) : (
                             <div className={`grid gap-1 h-full ${isMobileLayout
                                 ? 'grid-cols-1'
-                                : 'grid-cols-1 md:grid-cols-2 md:gap-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
+                                : 'grid-cols-1 md:grid-cols-2 md:gap-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
                                 }`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab && (
                                     <>

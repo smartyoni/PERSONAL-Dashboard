@@ -8,6 +8,7 @@ import { useBookmarks } from './hooks/useBookmarks';
 import FooterTabs from './components/FooterTabs';
 import MainContent from './components/MainContent';
 import AppModals from './components/AppModals';
+import MemoEditorPanel from './components/MemoEditorPanel';
 import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { useBackButton } from './hooks/useBackButton';
 
@@ -190,9 +191,13 @@ const App: React.FC = () => {
     );
   }
 
+  const isDesktopMemoOpen = !isMobileLayout && !!memoEditor.id;
+
   return (
     <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
-      <MainContent
+      <div className="flex-1 flex flex-row overflow-hidden relative">
+        <div className={`transition-all duration-300 overflow-hidden relative flex flex-col ${isDesktopMemoOpen ? 'w-[70%]' : 'w-full'}`}>
+          <MainContent
         safeData={safeData} activeTab={activeTab} isMainTab={isMainTab}
         isBookmarkView={isBookmarkView} isMobileLayout={isMobileLayout}
         sharedTextForInbox={sharedTextForInbox} handleClearSharedText={handleClearSharedText}
@@ -222,6 +227,27 @@ const App: React.FC = () => {
         onTocNavigate={handleNavigateFromMap}
         onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
       />
+        </div>
+        
+        {isDesktopMemoOpen && (
+          <div className="w-[30%] bg-white border-l-2 border-slate-300 flex flex-col z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.1)]">
+            <MemoEditorPanel
+              memoEditor={memoEditor} setMemoEditor={setMemoEditor}
+              memoTextareaRef={memoTextareaRef}
+              handleSaveMemo={handleSaveMemo} handleSwipeMemo={handleSwipeMemo}
+              handleDeleteItemFromModal={handleDeleteItemFromModal}
+              handleOpenTagSelection={handleOpenTagSelection}
+              handleInsertSymbol={handleInsertSymbol}
+              handleChangePage={handleChangePage}
+              memoSymbols={memoSymbols}
+              setNavigationMapOpen={setNavigationMapOpen}
+              activeTab={activeTab}
+              isMobileLayout={isMobileLayout}
+              isDesktopSplit={true}
+            />
+          </div>
+        )}
+      </div>
 
       <div className="flex-none">
         <FooterTabs
