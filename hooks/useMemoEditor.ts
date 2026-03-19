@@ -772,13 +772,13 @@ export const useMemoEditor = (
 
     const memoSymbols = [
         { label: '•', value: '• ', title: '불렛' },
+        { label: '※', value: '※ ', title: '참고' },
         { label: ':', value: ': ', title: '콜론' },
         { label: '―', value: '\n---divider---\n', title: '구분선' },
         { label: '-', value: '- ', title: '하이픈' },
         { label: '▸', value: '▸ ', title: '삼각' },
         { label: '✓', value: '✓ ', title: '체크' },
         { label: '★', value: '★ ', title: '별' },
-        { label: '※', value: '※ ', title: '참고' },
         { label: '→', value: '→ ', title: '화살표' },
         { label: '○', value: '○ ', title: '원' },
         { label: '■', value: '■ ', title: '사각' },
