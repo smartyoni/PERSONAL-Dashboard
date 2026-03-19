@@ -333,25 +333,46 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     >
                         <div className="p-1.5 space-y-0.5">
                             <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
-                            {memoEditor.allTitles.map((title, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => {
-                                        handleChangePage(idx);
-                                        setShowToC(false);
-                                    }}
-                                    className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-3 ${
-                                        memoEditor.activePageIndex === idx 
-                                        ? 'bg-indigo-50 text-indigo-600 font-bold' 
-                                        : 'hover:bg-slate-50 text-slate-600'
-                                    }`}
-                                >
-                                    <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
-                                        memoEditor.activePageIndex === idx ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
-                                    }`}>{idx + 1}</span>
-                                    <span className="text-xs truncate flex-1">{title.trim() || '목차없음'}</span>
-                                </button>
-                            ))}
+                            {memoEditor.allTitles.map((title, idx) => {
+                                const subItems = (memoEditor.allValues[idx] || '').split('\n')
+                                    .map(line => line.trim())
+                                    .filter(line => line.startsWith('※'))
+                                    .map(line => line.substring(1).trim());
+
+                                return (
+                                    <div key={idx} className="space-y-0.5">
+                                        <button
+                                            onClick={() => {
+                                                handleChangePage(idx);
+                                                setShowToC(false);
+                                            }}
+                                            className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-3 ${
+                                                memoEditor.activePageIndex === idx 
+                                                ? 'bg-indigo-50 text-indigo-600 font-bold' 
+                                                : 'hover:bg-slate-50 text-slate-600'
+                                            }`}
+                                        >
+                                            <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
+                                                memoEditor.activePageIndex === idx ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
+                                            }`}>{idx + 1}</span>
+                                            <span className="text-xs truncate flex-1">{title.trim() || '목차없음'}</span>
+                                        </button>
+                                        {subItems.length > 0 && (
+                                            <div className="pb-1">
+                                                {subItems.map((sub, sIdx) => (
+                                                    <div 
+                                                        key={sIdx} 
+                                                        className="pl-10 pr-3 py-1 text-[10px] text-slate-400 truncate flex items-center gap-2 border-l-2 border-slate-100/50 hover:bg-slate-50 transition-colors ml-5 cursor-default"
+                                                    >
+                                                        <span className="text-indigo-400 flex-none font-bold text-[8px]">※</span>
+                                                        <span className="truncate">{sub}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </>
