@@ -481,24 +481,43 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         >Tab</button>
                     </div>
                     <div className="p-3 bg-slate-50 border-t border-slate-200">
-                        <div className="mb-2">
-                            <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1 border border-slate-200/50">
-                                {[0, 1, 2, 3, 4].map(idx => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => handleChangePage(idx)}
-                                        className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-lg transition-all ${
-                                            memoEditor.activePageIndex === idx 
-                                            ? 'bg-white text-indigo-600 shadow-sm' 
-                                            : 'text-slate-500 hover:text-slate-700'
-                                        }`}
-                                    >
-                                        P{idx + 1}
-                                    </button>
-                                ))}
-                            </div>
+                        {/* Streamlined Navigation & Action Bar */}
+                        <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40 mb-2">
+                            {[0, 1, 2, 3, 4].map(idx => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleChangePage(idx)}
+                                    className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-xl transition-all ${
+                                        memoEditor.activePageIndex === idx 
+                                        ? 'bg-white text-indigo-600 shadow-sm' 
+                                        : 'text-slate-500 hover:text-slate-700'
+                                    }`}
+                                >
+                                    {idx + 1}
+                                </button>
+                            ))}
+                            <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
+                            <button 
+                                onClick={() => handleOpenTagSelection({
+                                    itemId: memoEditor.id!,
+                                    sourceTabId: activeTab.id,
+                                    sourceSectionId: memoEditor.sectionId!,
+                                    itemText: headerTitle
+                                })}
+                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-indigo-600 bg-white/80 backdrop-blur-sm shadow-sm rounded-xl hover:bg-white hover:text-indigo-700 transition-all border border-indigo-100"
+                            >
+                                태그
+                            </button>
+                            <button 
+                                onClick={() => setMemoEditor({ ...memoEditor, id: null, sectionId: null })}
+                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-slate-500 bg-white/80 backdrop-blur-sm shadow-sm rounded-xl hover:bg-white hover:text-red-500 transition-all border border-slate-200"
+                            >
+                                닫기
+                            </button>
                         </div>
-                        <div className="flex bg-slate-200/50 p-1 rounded-xl gap-1">
+
+                        {/* Secondary Action Bar (Save/Cancel) */}
+                        <div className="flex gap-2">
                             <button
                                 onClick={() => {
                                     let originalMemo = '';
@@ -515,11 +534,11 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                         setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
                                     }
                                 }}
-                                className="flex-1 px-2 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-all shadow-sm border border-slate-200"
+                                className="flex-1 py-2.5 bg-slate-100 text-slate-500 text-[11px] font-bold rounded-xl hover:bg-slate-200 transition-all"
                             >취소</button>
                             <button
                                 onClick={handleSaveMemo}
-                                className="flex-1 px-2 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm border border-green-600"
+                                className="flex-[2] py-2.5 bg-green-500 text-white text-[11px] font-bold rounded-xl hover:bg-green-600 shadow-[0_4px_12px_rgba(34,197,94,0.2)] border-b-4 border-green-700 active:border-b-0 active:translate-y-1 transition-all"
                             >💾 저장</button>
                         </div>
                     </div>
