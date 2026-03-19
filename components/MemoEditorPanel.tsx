@@ -364,12 +364,12 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                                     return (
                                                         <div 
                                                             key={sIdx} 
-                                                            className="relative pl-10 pr-3 py-1.5 text-[10px] text-slate-600 font-medium truncate flex items-center hover:bg-slate-50 transition-colors cursor-default group"
+                                                            className="relative pl-10 pr-3 py-1.5 text-[10px] text-slate-800 font-semibold truncate flex items-center hover:bg-slate-50 transition-colors cursor-default group"
                                                         >
                                                             {/* Vertical Line */}
-                                                            <div className={`absolute left-5 w-px bg-slate-200 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
+                                                            <div className={`absolute left-5 w-px bg-slate-300 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
                                                             {/* Horizontal Line Connector */}
-                                                            <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-200"></div>
+                                                            <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-300"></div>
                                                             
                                                             <span className="truncate group-hover:text-indigo-600 transition-colors">{sub}</span>
                                                         </div>
