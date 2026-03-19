@@ -362,9 +362,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                                 {subItems.map((sub, sIdx) => (
                                                     <div 
                                                         key={sIdx} 
-                                                        className="pl-10 pr-3 py-1 text-[10px] text-slate-400 truncate flex items-center gap-2 border-l-2 border-slate-100/50 hover:bg-slate-50 transition-colors ml-5 cursor-default"
+                                                        className="px-3 py-1 text-[11px] text-slate-900 font-medium truncate flex items-center gap-2 hover:bg-slate-50 transition-colors cursor-default"
                                                     >
-                                                        <span className="text-indigo-400 flex-none font-bold text-[8px]">※</span>
+                                                        <span className="text-indigo-600 flex-none font-bold text-[9px]">※</span>
                                                         <span className="truncate">{sub}</span>
                                                     </div>
                                                 ))}
