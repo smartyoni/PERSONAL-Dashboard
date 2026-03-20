@@ -610,6 +610,35 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 >{sym.label}</button>
                             ))}
                             <button
+                                title="복사"
+                                onMouseDown={async (e) => {
+                                    e.preventDefault();
+                                    const selection = window.getSelection();
+                                    const selectedText = selection?.toString();
+                                    if (selectedText) {
+                                        await navigator.clipboard.writeText(selectedText);
+                                    } else {
+                                        await navigator.clipboard.writeText(memoEditor.value);
+                                    }
+                                    setContextMenu(null);
+                                }}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-600 active:scale-95 text-slate-700 text-[10px] font-bold transition-all shadow-sm border border-slate-100/50"
+                            >복사</button>
+                            <button
+                                title="붙여넣기"
+                                onMouseDown={async (e) => {
+                                    e.preventDefault();
+                                    try {
+                                        const text = await navigator.clipboard.readText();
+                                        if (text) handleInsertSymbol(text);
+                                    } catch (err) {
+                                        console.error('Failed to paste:', err);
+                                    }
+                                    setContextMenu(null);
+                                }}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-orange-50 hover:text-orange-600 active:scale-95 text-slate-700 text-[10px] font-bold transition-all shadow-sm border border-slate-100/50"
+                            >붙여넣기</button>
+                            <button
                                 title="취소"
                                 onMouseDown={(e) => { 
                                     e.preventDefault(); 
