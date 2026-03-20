@@ -523,17 +523,17 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div className="p-3 bg-slate-50 border-t border-slate-200">
                         {/* Viewing Mode Action Bar */}
                         <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
-                            {[0, 1, 2, 3, 4].map(idx => (
+                            {['•', '※', '→', '■', '◆'].map((sym, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => handleChangePage(idx)}
-                                    className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-xl transition-all ${
+                                    className={`flex-1 py-1.5 text-base md:text-lg font-bold rounded-xl transition-all ${
                                         memoEditor.activePageIndex === idx 
                                         ? 'bg-white text-indigo-600 shadow-sm' 
                                         : 'text-slate-500 hover:text-slate-700'
                                     }`}
                                 >
-                                    {idx + 1}
+                                    {sym}
                                 </button>
                             ))}
                             <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
