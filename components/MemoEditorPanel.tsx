@@ -610,14 +610,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 >{sym.label}</button>
                             ))}
                             <button
-                                title="불렛(Tab)"
+                                title="취소"
                                 onMouseDown={(e) => { 
                                     e.preventDefault(); 
-                                    handleInsertSymbol('• '); 
                                     setContextMenu(null);
                                 }}
                                 className="flex-1 h-10 px-3 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-500 text-xs font-extrabold transition-all border border-slate-100/50 uppercase tracking-tight"
-                            >Tab</button>
+                            >취소</button>
                         </div>
                     )}
                     <div className="p-3 bg-slate-50 border-t border-slate-200">
