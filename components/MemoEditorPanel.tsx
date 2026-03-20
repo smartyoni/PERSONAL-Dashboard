@@ -323,13 +323,46 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             </span>
                         )}
                         {!isEditingTitle && (
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowToC(true);
-                                }}
-                                className="flex-none ml-2 px-4 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded transition-colors border border-emerald-100/50"
-                            >목차</button>
+                            <div className="flex items-center ml-2 bg-slate-100/80 rounded-lg border border-slate-200/60 p-0.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
+                                {/* Page Navigation Segment */}
+                                <div className="flex items-center">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (memoEditor.activePageIndex > 0) handleChangePage(memoEditor.activePageIndex - 1);
+                                        }}
+                                        disabled={memoEditor.activePageIndex === 0}
+                                        className={`p-1.5 transition-all rounded-md ${memoEditor.activePageIndex === 0 ? 'text-slate-300' : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'}`}
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
+                                    </button>
+                                    <span className="text-[10px] font-bold text-slate-600 min-w-[28px] text-center tabular-nums">
+                                        {memoEditor.activePageIndex + 1}<span className="text-slate-300 mx-0.5">/</span>5
+                                    </span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (memoEditor.activePageIndex < 4) handleChangePage(memoEditor.activePageIndex + 1);
+                                        }}
+                                        disabled={memoEditor.activePageIndex === 4}
+                                        className={`p-1.5 transition-all rounded-md ${memoEditor.activePageIndex === 4 ? 'text-slate-300' : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'}`}
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
+                                </div>
+                                
+                                {/* Vertical Divider */}
+                                <div className="w-px h-3 bg-slate-300/50 mx-0.5" />
+                                
+                                {/* ToC Button Segment */}
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowToC(true);
+                                    }}
+                                    className="px-3 py-1.5 text-emerald-600 text-[10px] font-bold rounded-md transition-all hover:bg-white hover:text-emerald-700 hover:shadow-sm"
+                                >목차</button>
+                            </div>
                         )}
                     </div>
                 </>
@@ -343,7 +376,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         onClick={() => setShowToC(false)}
                     />
                     <div 
-                        className="absolute right-4 top-[84px] z-[1100] bg-white w-48 rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                        className="absolute right-4 top-[84px] z-[1100] bg-white w-[250px] rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="p-1.5 space-y-0.5">
