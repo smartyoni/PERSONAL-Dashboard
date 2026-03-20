@@ -376,7 +376,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         onClick={() => setShowToC(false)}
                     />
                     <div 
-                        className="absolute right-4 top-[84px] z-[1100] bg-white w-[250px] rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                        className="absolute right-4 top-[84px] z-[1100] bg-white w-[504px] rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="p-1.5 space-y-0.5">
@@ -397,13 +397,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                             className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-3 ${
                                                 memoEditor.activePageIndex === idx 
                                                 ? 'bg-indigo-50 text-indigo-600 font-bold' 
-                                                : 'hover:bg-slate-50 text-slate-600'
+                                                : 'hover:bg-slate-50 text-slate-900 font-bold'
                                             }`}
                                         >
                                             <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
                                                 memoEditor.activePageIndex === idx ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
                                             }`}>{idx + 1}</span>
-                                            <span className="text-xs truncate flex-1">{title.trim() || '목차없음'}</span>
+                                            <span className="text-sm truncate flex-1">{title.trim() || '목차없음'}</span>
                                         </button>
                                         {subItems.length > 0 && (
                                             <div className="pb-1 relative">
@@ -412,7 +412,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                                     return (
                                                         <div 
                                                             key={sIdx} 
-                                                            className="relative pl-10 pr-3 py-1.5 text-[10px] text-slate-800 font-semibold truncate flex items-center hover:bg-slate-50 transition-colors cursor-default group"
+                                                            className="relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal truncate flex items-center hover:bg-slate-50 transition-colors cursor-default group"
                                                         >
                                                             {/* Vertical Line */}
                                                             <div className={`absolute left-5 w-px bg-slate-300 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
