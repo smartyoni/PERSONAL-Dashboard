@@ -39,6 +39,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const [showToC, setShowToC] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [highlightText, setHighlightText] = useState<string | null>(null);
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
     // 하이라이트된 텍스트로 스크롤
@@ -98,9 +99,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             } else if (e.key === 'ArrowRight') {
                 handleSwipeMemo('left'); 
             } else if (e.key === 'Escape') {
-                setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+                setMemoEditor(prev => ({ ...prev, id: null, sectionId: null }));
             } else if (e.key === 'Enter') {
-                setMemoEditor({ ...memoEditor, isEditing: true });
+                setMemoEditor(prev => ({ ...prev, isEditing: true }));
             }
         };
 
@@ -142,6 +143,26 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         return () => {
             vv.removeEventListener('resize', onResize);
             vv.removeEventListener('scroll', onResize);
+        };
+    }, []);
+    
+    // 이모지 컨텍스트 메뉴 핸들러
+    const handleContextMenu = (e: React.MouseEvent) => {
+        if (!memoEditor.isEditing) return;
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
+    useEffect(() => {
+        const handleCloseMenu = (e: MouseEvent | KeyboardEvent) => {
+            if (e instanceof KeyboardEvent && e.key !== 'Escape') return;
+            setContextMenu(null);
+        };
+        window.addEventListener('click', handleCloseMenu);
+        window.addEventListener('keydown', handleCloseMenu);
+        return () => {
+            window.removeEventListener('click', handleCloseMenu);
+            window.removeEventListener('keydown', handleCloseMenu);
         };
     }, []);
 
@@ -488,7 +509,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 <>
                     <div
                         ref={contentRef}
-                        onDoubleClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                        onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
                         className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors duration-200"
                     >
                         {memoEditor.value ? (
@@ -526,12 +547,12 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-indigo-600 bg-white shadow-sm rounded-xl hover:bg-indigo-50 transition-all border border-indigo-100"
                             >태그</button>
                             <button
-                                onClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
+                                onClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
                                 className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-blue-600 bg-white shadow-sm rounded-xl hover:bg-blue-50 transition-all border border-blue-100"
                             >수정</button>
                             <button 
                                 onClick={() => {
-                                    setMemoEditor({ ...memoEditor, id: null, sectionId: null });
+                                    setMemoEditor(prev => ({ ...prev, id: null, sectionId: null }));
                                     if (memoEditor.openedFromMap) setNavigationMapOpen(true);
                                 }}
                                 className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-slate-500 bg-white shadow-sm rounded-xl hover:bg-red-50 hover:text-red-500 transition-all border border-slate-200"
@@ -548,7 +569,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         onInput={(e) => {
                             const html = (e.target as HTMLDivElement).innerHTML;
                             const content = htmlToContent(html);
-                            setMemoEditor({ ...memoEditor, value: content });
+                            setMemoEditor(prev => ({ ...prev, value: content }));
                         }}
                         onKeyDown={(e) => {
                             if (e.key === 'Tab') {
@@ -556,40 +577,49 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 handleInsertSymbol('• ');
                             }
                         }}
+                        onContextMenu={handleContextMenu}
                         onBlur={(e) => {
-                            if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
+                            if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.emoji-context-menu')) return;
                             handleSaveMemo(false);
                         }}
                         className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 focus:outline-none text-slate-700 text-base p-4 whitespace-pre-wrap leading-relaxed"
                         style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
                     />
-                    <div
-                        className={`memo-symbol-toolbar flex-none flex items-center gap-1 px-2 py-1.5 bg-slate-100 border-t border-slate-200 overflow-x-auto ${keyboardHeight > 0 ? 'fixed left-0 right-0 z-[1100] shadow-[0_-4px_12px_rgba(0,0,0,0.1)]' : 'relative z-10'}`}
-                        style={{ bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined }}
-                    >
-                        {memoSymbols.map((sym, idx) => (
+
+                    {/* Emoji Context Menu Overlay */}
+                    {contextMenu && (
+                        <div 
+                            className="emoji-context-menu fixed z-[2000] bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2 flex flex-wrap gap-1.5 animate-in zoom-in-95 fade-in duration-200"
+                            style={{ 
+                                left: `${Math.min(contextMenu.x, window.innerWidth - 220)}px`, 
+                                top: `${Math.min(contextMenu.y, window.innerHeight - 100)}px`,
+                                width: '210px'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {memoSymbols.map((sym) => (
+                                <button
+                                    key={sym.label}
+                                    title={sym.title}
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        handleInsertSymbol(sym.value);
+                                        setContextMenu(null);
+                                    }}
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 active:scale-95 text-slate-700 text-xl font-medium transition-all shadow-sm border border-slate-100/50"
+                                >{sym.label}</button>
+                            ))}
                             <button
-                                key={sym.label}
-                                title={sym.title}
-                                onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    handleInsertSymbol(sym.value);
+                                title="불렛(Tab)"
+                                onMouseDown={(e) => { 
+                                    e.preventDefault(); 
+                                    handleInsertSymbol('• '); 
+                                    setContextMenu(null);
                                 }}
-                                onTouchEnd={(e) => {
-                                    e.preventDefault();
-                                    handleInsertSymbol(sym.value);
-                                }}
-                                className={`flex-none flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-medium transition-colors select-none ${idx < 3 ? 'w-10 h-10 text-2xl' : 'w-8 h-8 text-base'}`}
-                            >{sym.label}</button>
-                        ))}
-                        <div className="w-px h-5 bg-slate-300 mx-1 flex-none" />
-                        <button
-                            title="불렛(Tab)"
-                            onMouseDown={(e) => { e.preventDefault(); handleInsertSymbol('• '); }}
-                            onTouchEnd={(e) => { e.preventDefault(); handleInsertSymbol('• '); }}
-                            className="flex-none px-2 h-8 flex items-center justify-center rounded hover:bg-slate-200 active:bg-slate-300 text-slate-500 text-xs font-bold transition-colors select-none"
-                        >Tab</button>
-                    </div>
+                                className="flex-1 h-10 px-3 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-500 text-xs font-extrabold transition-all border border-slate-100/50 uppercase tracking-tight"
+                            >Tab</button>
+                        </div>
+                    )}
                     <div className="p-3 bg-slate-50 border-t border-slate-200">
                         {/* Editing Mode Action Bar */}
                         <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
@@ -618,9 +648,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                         originalMemo = activeTab.memos?.[memoEditor.id!] || '';
                                     }
                                     if (originalMemo) {
-                                        setMemoEditor({ ...memoEditor, value: originalMemo, isEditing: false });
+                                        setMemoEditor(prev => ({ ...prev, value: originalMemo, isEditing: false }));
                                     } else {
-                                        setMemoEditor({ id: null, value: '', type: 'section', isEditing: false });
+                                        setMemoEditor(prev => ({ ...prev, id: null, value: '', type: 'section' as const, isEditing: false }));
                                     }
                                 }}
                                 className="flex-none px-4 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-xl hover:bg-slate-100 transition-all shadow-sm border border-slate-200"

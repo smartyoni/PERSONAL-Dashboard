@@ -808,32 +808,29 @@ export const useMemoEditor = (
         { label: '※', value: '※ ', title: '참고' },
         { label: ':', value: ': ', title: '콜론' },
         { label: '―', value: '\n---divider---\n', title: '구분선' },
-        { label: '-', value: '- ', title: '하이픈' },
-        { label: '▸', value: '▸ ', title: '삼각' },
-        { label: '✓', value: '✓ ', title: '체크' },
-        { label: '★', value: '★ ', title: '별' },
         { label: '→', value: '→ ', title: '화살표' },
-        { label: '○', value: '○ ', title: '원' },
         { label: '■', value: '■ ', title: '사각' },
         { label: '◆', value: '◆ ', title: '다이아' },
     ];
 
     const handleChangePage = (index: number) => {
-        if (index === memoEditor.activePageIndex) return;
-        
-        const newAllValues = [...memoEditor.allValues];
-        newAllValues[memoEditor.activePageIndex] = memoEditor.value;
+        setMemoEditor(prev => {
+            if (index === prev.activePageIndex) return prev;
+            
+            const newAllValues = [...prev.allValues];
+            newAllValues[prev.activePageIndex] = prev.value;
 
-        const newAllTitles = [...memoEditor.allTitles];
-        newAllTitles[memoEditor.activePageIndex] = memoEditor.title;
+            const newAllTitles = [...prev.allTitles];
+            newAllTitles[prev.activePageIndex] = prev.title;
 
-        setMemoEditor({
-            ...memoEditor,
-            allValues: newAllValues,
-            allTitles: newAllTitles,
-            activePageIndex: index,
-            value: newAllValues[index],
-            title: newAllTitles[index]
+            return {
+                ...prev,
+                allValues: newAllValues,
+                allTitles: newAllTitles,
+                activePageIndex: index,
+                value: newAllValues[index],
+                title: newAllTitles[index]
+            };
         });
     };
 
