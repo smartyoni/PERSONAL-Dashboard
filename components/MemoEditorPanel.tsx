@@ -267,9 +267,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const PanelContent = (
         <div
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={isMobileLayout && !memoEditor.isEditing ? handleTouchStart : undefined}
+            onTouchMove={isMobileLayout && !memoEditor.isEditing ? handleTouchMove : undefined}
+            onTouchEnd={isMobileLayout && !memoEditor.isEditing ? handleTouchEnd : undefined}
             className="bg-white flex flex-col relative w-full h-full"
         >
             {currentItem && (
@@ -663,29 +663,27 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 </div>
             )}
 
-            {/* Desktop Navigation Arrows */}
-            {!isMobileLayout && (
-                <>
-                    {memoEditor.activePageIndex > 0 && (
-                        <button
-                            onClick={() => handleChangePage(memoEditor.activePageIndex - 1)}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 hidden md:flex items-center justify-center group"
-                            title="이전 페이지"
-                        >
-                            <svg className="w-6 h-6 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
-                        </button>
-                    )}
-                    {memoEditor.activePageIndex < 4 && (
-                        <button
-                            onClick={() => handleChangePage(memoEditor.activePageIndex + 1)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/50 backdrop-blur-sm border border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 hidden md:flex items-center justify-center group"
-                            title="다음 페이지"
-                        >
-                            <svg className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                        </button>
-                    )}
-                </>
-            )}
+            {/* Page Navigation Arrows (Desktop & Mobile) */}
+            <>
+                {memoEditor.activePageIndex > 0 && (
+                    <button
+                        onClick={() => handleChangePage(memoEditor.activePageIndex - 1)}
+                        className={`absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-9 h-14 md:w-10 md:h-10 rounded-r-xl md:rounded-full bg-white/40 md:bg-white/50 backdrop-blur-sm border border-slate-200/50 md:border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 flex items-center justify-center group ${isMobileLayout ? 'shadow-sm active:bg-white active:scale-95' : ''}`}
+                        title="이전 페이지"
+                    >
+                        <svg className="w-6 h-6 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                )}
+                {memoEditor.activePageIndex < 4 && (
+                    <button
+                        onClick={() => handleChangePage(memoEditor.activePageIndex + 1)}
+                        className={`absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-9 h-14 md:w-10 md:h-10 rounded-l-xl md:rounded-full bg-white/40 md:bg-white/50 backdrop-blur-sm border border-slate-200/50 md:border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 flex items-center justify-center group ${isMobileLayout ? 'shadow-sm active:bg-white active:scale-95' : ''}`}
+                        title="다음 페이지"
+                    >
+                        <svg className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                )}
+            </>
             
             {showCopyToast && (
                 <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs md:text-sm px-4 py-2 rounded-full shadow-xl z-[2000] animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-none whitespace-nowrap">
