@@ -108,6 +108,28 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [memoEditor.id, memoEditor.isEditing, handleSwipeMemo, setMemoEditor]);
 
+    // 단축키 처리 (Ctrl+Enter, Cmd+Enter, Shift+Enter로 저장)
+    useEffect(() => {
+        if (!memoEditor.isEditing || !memoEditor.id) return;
+
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey || e.shiftKey)) {
+                const activeEl = document.activeElement;
+                const isTitleInput = activeEl?.tagName === 'INPUT';
+                const isContentEditor = activeEl?.getAttribute('contenteditable') === 'true' || activeEl?.closest('[contenteditable="true"]');
+                
+                if (isTitleInput || isContentEditor) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveMemo();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleGlobalKeyDown, true);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown, true);
+    }, [memoEditor.isEditing, memoEditor.id, handleSaveMemo]);
+
     useEffect(() => {
         const vv = window.visualViewport;
         if (!vv) return;
@@ -330,12 +352,12 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 onChange={(e) => handleUpdateTitle(e.target.value)}
                                 onBlur={() => {
                                     setIsEditingTitle(false);
-                                    handleSaveMemo();
+                                    handleSaveMemo(false);
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                         setIsEditingTitle(false);
-                                        handleSaveMemo();
+                                        handleSaveMemo(false);
                                     }
                                     if (e.key === 'Escape') setIsEditingTitle(false);
                                 }}
@@ -532,14 +554,11 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             if (e.key === 'Tab') {
                                 e.preventDefault();
                                 handleInsertSymbol('• ');
-                            } else if (e.key === 'Enter' && e.shiftKey) {
-                                e.preventDefault();
-                                handleSaveMemo();
                             }
                         }}
                         onBlur={(e) => {
                             if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.memo-symbol-toolbar')) return;
-                            handleSaveMemo();
+                            handleSaveMemo(false);
                         }}
                         className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 focus:outline-none text-slate-700 text-base p-4 whitespace-pre-wrap leading-relaxed"
                         style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}

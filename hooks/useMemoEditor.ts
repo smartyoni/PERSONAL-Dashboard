@@ -192,7 +192,7 @@ export const useMemoEditor = (
         }
     };
 
-    const handleSaveMemo = () => {
+    const handleSaveMemo = (exitEditMode: boolean = true) => {
         if (!memoEditor.id) return;
 
         // 현재 수정 중인 페이지 내용을 allValues 및 allTitles에 동기화
@@ -644,10 +644,12 @@ export const useMemoEditor = (
             }));
         }
 
-        if (memoEditor.value.trim() || memoEditor.title.trim()) {
-            setMemoEditor(prev => ({ ...prev, isEditing: false }));
-        } else {
-            setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
+        if (exitEditMode) {
+            if (memoEditor.value.trim() || memoEditor.title.trim()) {
+                setMemoEditor(prev => ({ ...prev, isEditing: false }));
+            } else {
+                setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
+            }
         }
     };
 
