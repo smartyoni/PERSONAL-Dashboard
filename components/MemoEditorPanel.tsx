@@ -270,7 +270,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             onTouchStart={isMobileLayout && !memoEditor.isEditing ? handleTouchStart : undefined}
             onTouchMove={isMobileLayout && !memoEditor.isEditing ? handleTouchMove : undefined}
             onTouchEnd={isMobileLayout && !memoEditor.isEditing ? handleTouchEnd : undefined}
-            className="bg-white flex flex-col relative w-full h-full"
+            className="bg-white flex flex-col relative w-full h-full group"
         >
             {currentItem && (
                 <>
@@ -668,19 +668,19 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 {memoEditor.activePageIndex > 0 && (
                     <button
                         onClick={() => handleChangePage(memoEditor.activePageIndex - 1)}
-                        className={`absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-9 h-14 md:w-10 md:h-10 rounded-r-xl md:rounded-full bg-white/40 md:bg-white/50 backdrop-blur-sm border border-slate-200/50 md:border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 flex items-center justify-center group ${isMobileLayout ? 'shadow-sm active:bg-white active:scale-95' : ''}`}
+                        className={`absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-9 h-14 md:w-10 md:h-10 rounded-r-xl md:rounded-full bg-white/40 md:bg-white/50 backdrop-blur-sm border border-slate-200/50 md:border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 flex items-center justify-center group/nav ${isMobileLayout ? 'shadow-sm active:bg-white active:scale-95 opacity-80' : 'md:opacity-0 group-hover:opacity-100'}`}
                         title="이전 페이지"
                     >
-                        <svg className="w-6 h-6 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        <svg className="w-6 h-6 transform group-hover/nav:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
                     </button>
                 )}
                 {memoEditor.activePageIndex < 4 && (
                     <button
                         onClick={() => handleChangePage(memoEditor.activePageIndex + 1)}
-                        className={`absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-9 h-14 md:w-10 md:h-10 rounded-l-xl md:rounded-full bg-white/40 md:bg-white/50 backdrop-blur-sm border border-slate-200/50 md:border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 flex items-center justify-center group ${isMobileLayout ? 'shadow-sm active:bg-white active:scale-95' : ''}`}
+                        className={`absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-9 h-14 md:w-10 md:h-10 rounded-l-xl md:rounded-full bg-white/40 md:bg-white/50 backdrop-blur-sm border border-slate-200/50 md:border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-lg transition-all z-10 flex items-center justify-center group/nav ${isMobileLayout ? 'shadow-sm active:bg-white active:scale-95 opacity-80' : 'md:opacity-0 group-hover:opacity-100'}`}
                         title="다음 페이지"
                     >
-                        <svg className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
+                        <svg className="w-6 h-6 transform group-hover/nav:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 )}
             </>
