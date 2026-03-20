@@ -606,7 +606,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                         handleInsertSymbol(sym.value);
                                         setContextMenu(null);
                                     }}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 active:scale-95 text-slate-700 text-xl font-medium transition-all shadow-sm border border-slate-100/50"
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-indigo-50 hover:text-indigo-600 active:scale-95 text-slate-700 text-xl font-medium transition-all shadow-[2px_2px_0_0_rgba(15,23,42,0.05)] border border-slate-200 hover:border-indigo-200"
                                 >{sym.label}</button>
                             ))}
                             <button
@@ -615,7 +615,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     e.preventDefault(); 
                                     setContextMenu(null);
                                 }}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-500 text-[10px] font-extrabold transition-all border border-slate-100/50"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 active:scale-95 text-slate-500 text-[10px] font-extrabold transition-all shadow-[2px_2px_0_0_rgba(15,23,42,0.05)] border border-slate-200 hover:border-slate-300"
                             >취소</button>
                             <button
                                 title="붙여넣기"
@@ -629,7 +629,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     }
                                     setContextMenu(null);
                                 }}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-orange-50 hover:text-orange-600 active:scale-95 text-slate-700 text-[10px] font-bold transition-all shadow-sm border border-slate-100/50"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-orange-50 hover:text-orange-600 active:scale-95 text-slate-700 text-[10px] font-bold transition-all shadow-[2px_2px_0_0_rgba(15,23,42,0.05)] border border-slate-200 hover:border-orange-200"
                             >붙여넣기</button>
                             <button
                                 title="복사"
@@ -644,7 +644,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     }
                                     setContextMenu(null);
                                 }}
-                                className="flex-1 h-10 px-3 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-600 active:scale-95 text-slate-700 text-xs font-bold transition-all shadow-sm border border-slate-100/50"
+                                className="flex-1 h-10 px-3 flex items-center justify-center rounded-xl bg-white hover:bg-emerald-50 hover:text-emerald-600 active:scale-95 text-slate-700 text-xs font-bold transition-all shadow-[2px_2px_0_0_rgba(15,23,42,0.05)] border border-slate-200 hover:border-emerald-200"
                             >복사</button>
                         </div>
                     )}
