@@ -589,7 +589,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     {/* Emoji Context Menu Overlay */}
                     {contextMenu && (
                         <div 
-                            className="emoji-context-menu fixed z-[2000] bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-2 flex flex-wrap gap-1.5 animate-in zoom-in-95 fade-in duration-200"
+                            className="emoji-context-menu fixed z-[2000] bg-blue-600/90 backdrop-blur-md rounded-2xl shadow-2xl border border-blue-400/20 p-2 flex flex-wrap gap-1.5 animate-in zoom-in-95 fade-in duration-200"
                             style={{ 
                                 left: `${Math.min(contextMenu.x, window.innerWidth - 220)}px`, 
                                 top: `${Math.min(contextMenu.y, window.innerHeight - 100)}px`,
