@@ -38,6 +38,29 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const [headerValue, setHeaderValue] = useState("");
     const [showToC, setShowToC] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [highlightText, setHighlightText] = useState<string | null>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    // 하이라이트된 텍스트로 스크롤
+    useEffect(() => {
+        if (highlightText && contentRef.current) {
+            const timer = setTimeout(() => {
+                const mark = contentRef.current?.querySelector('mark');
+                if (mark) {
+                    mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            
+            const clearTimer = setTimeout(() => {
+                setHighlightText(null);
+            }, 5000);
+            
+            return () => {
+                clearTimeout(timer);
+                clearTimeout(clearTimer);
+            };
+        }
+    }, [highlightText]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(memoEditor.value);
@@ -376,7 +399,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         onClick={() => setShowToC(false)}
                     />
                     <div 
-                        className="absolute right-4 top-[84px] z-[1100] bg-white w-[504px] rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                        className="absolute z-[1100] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in slide-in-from-top-2 duration-200 right-[2.5%] left-[2.5%] md:left-auto md:right-4 w-auto md:w-[455px] max-h-[90vh] md:max-h-[80vh] overflow-y-auto custom-scrollbar top-[84px]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="p-1.5 space-y-0.5">
@@ -391,6 +414,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     <div key={idx} className="space-y-0.5">
                                         <button
                                             onClick={() => {
+                                                setHighlightText(null);
                                                 handleChangePage(idx);
                                                 setShowToC(false);
                                             }}
@@ -410,9 +434,14 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                                 {subItems.map((sub, sIdx) => {
                                                     const isLast = sIdx === subItems.length - 1;
                                                     return (
-                                                        <div 
+                                                        <button 
                                                             key={sIdx} 
-                                                            className="relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal truncate flex items-center hover:bg-slate-50 transition-colors cursor-default group"
+                                                            onClick={() => {
+                                                                handleChangePage(idx);
+                                                                setHighlightText(sub);
+                                                                setShowToC(false);
+                                                            }}
+                                                            className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal truncate flex items-center hover:bg-slate-50 transition-colors group text-left"
                                                         >
                                                             {/* Vertical Line */}
                                                             <div className={`absolute left-5 w-px bg-slate-300 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
@@ -420,7 +449,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                                             <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-300"></div>
                                                             
                                                             <span className="truncate group-hover:text-indigo-600 transition-colors">{sub}</span>
-                                                        </div>
+                                                        </button>
                                                     );
                                                 })}
                                             </div>
@@ -436,12 +465,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {!memoEditor.isEditing ? (
                 <>
                     <div
+                        ref={contentRef}
                         onDoubleClick={() => setMemoEditor({ ...memoEditor, isEditing: true })}
                         className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors duration-200"
                     >
                         {memoEditor.value ? (
                             <div className="prose prose-sm max-w-none select-text">
-                                <LinkifiedText text={memoEditor.value} />
+                                <LinkifiedText text={memoEditor.value} highlightText={highlightText} />
                             </div>
                         ) : (
                             <p className="text-slate-400 italic">메모가 없습니다.</p>
