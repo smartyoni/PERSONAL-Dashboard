@@ -110,7 +110,7 @@ const MainContent: React.FC<MainContentProps> = ({
                         {isBookmarkView ? (
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 md:gap-2 pt-1" style={{ gridAutoRows: 'auto' }}>
                                 {(safeData.bookmarkSections || []).map((section) => (
-                                    <div key={section.id} className="h-[480px] lg:h-[calc(100vh-160px)]">
+                                    <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[480px] lg:h-[calc(100vh-160px)]"}>
                                         <SectionCard
                                             section={section}
                                             itemMemos={{}}
@@ -144,7 +144,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 }`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab && (
                                     <>
-                                        <div data-section-id="toc-section" className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <TocWidget
                                                 tabs={safeData.tabs}
                                                 activeTabId={activeTab.id}
@@ -153,7 +153,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div className="h-[calc(100vh-160px)] xl:col-span-1">
+                                        <div className={`${isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"} xl:col-span-1`}>
                                             <SectionCard
                                                 section={activeTab.inboxSection}
                                                 itemMemos={activeTab.memos}
@@ -186,7 +186,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div data-section-id="parking-section" className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="parking-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
                                                 onChange={handleParkingChange}
@@ -199,7 +199,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div data-section-id="todo-section-1" className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="todo-section-1" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -215,7 +215,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div data-section-id="todo-section-2" className="h-[calc(100vh-160px)]">
+                                        <div data-section-id="todo-section-2" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo2}
                                                 onChange={handleTodoManagement2Change}
@@ -231,7 +231,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 )}
 
                                 {activeTab.sections.map(section => (
-                                    <div key={section.id} className="h-[calc(100vh-160px)]">
+                                    <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                         <SectionCard
                                             section={section}
                                             itemMemos={activeTab.memos}

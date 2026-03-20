@@ -296,7 +296,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-2 py-2 transition-all flex flex-col h-full cursor-default ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
+      className={`bg-white px-2 py-2 transition-all flex flex-col cursor-default ${isMobileLayout ? 'h-auto' : 'h-full'} ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
           isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
         }`}
@@ -397,7 +397,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       <div
-        className={`space-y-0.5 overflow-y-auto custom-scrollbar overflow-x-hidden flex-1 pr-1 rounded transition-colors ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60 border-2 border-dashed border-blue-300' : ''}`}
+        className={`space-y-0.5 overflow-y-auto custom-scrollbar overflow-x-hidden pr-1 rounded transition-colors ${isMobileLayout ? 'max-h-[360px]' : 'flex-1'} ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60 border-2 border-dashed border-blue-300' : ''}`}
         onDragOver={onEmptyAreaDragOver}
         onDrop={onEmptyAreaDrop}
       >
