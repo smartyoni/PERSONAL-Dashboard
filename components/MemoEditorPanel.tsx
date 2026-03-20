@@ -610,20 +610,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 >{sym.label}</button>
                             ))}
                             <button
-                                title="복사"
-                                onMouseDown={async (e) => {
-                                    e.preventDefault();
-                                    const selection = window.getSelection();
-                                    const selectedText = selection?.toString();
-                                    if (selectedText) {
-                                        await navigator.clipboard.writeText(selectedText);
-                                    } else {
-                                        await navigator.clipboard.writeText(memoEditor.value);
-                                    }
+                                title="취소"
+                                onMouseDown={(e) => { 
+                                    e.preventDefault(); 
                                     setContextMenu(null);
                                 }}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-600 active:scale-95 text-slate-700 text-[10px] font-bold transition-all shadow-sm border border-slate-100/50"
-                            >복사</button>
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-500 text-[10px] font-extrabold transition-all border border-slate-100/50"
+                            >취소</button>
                             <button
                                 title="붙여넣기"
                                 onMouseDown={async (e) => {
@@ -639,13 +632,20 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-orange-50 hover:text-orange-600 active:scale-95 text-slate-700 text-[10px] font-bold transition-all shadow-sm border border-slate-100/50"
                             >붙여넣기</button>
                             <button
-                                title="취소"
-                                onMouseDown={(e) => { 
-                                    e.preventDefault(); 
+                                title="복사"
+                                onMouseDown={async (e) => {
+                                    e.preventDefault();
+                                    const selection = window.getSelection();
+                                    const selectedText = selection?.toString();
+                                    if (selectedText) {
+                                        await navigator.clipboard.writeText(selectedText);
+                                    } else {
+                                        await navigator.clipboard.writeText(memoEditor.value);
+                                    }
                                     setContextMenu(null);
                                 }}
-                                className="flex-1 h-10 px-3 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-500 text-xs font-extrabold transition-all border border-slate-100/50 uppercase tracking-tight"
-                            >취소</button>
+                                className="flex-1 h-10 px-3 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-600 active:scale-95 text-slate-700 text-xs font-bold transition-all shadow-sm border border-slate-100/50"
+                            >복사</button>
                         </div>
                     )}
                     <div className="p-3 bg-slate-50 border-t border-slate-200">
