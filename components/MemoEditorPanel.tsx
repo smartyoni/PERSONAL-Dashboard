@@ -211,9 +211,17 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div 
                         className="flex-none px-4 py-2.5 bg-purple-100 flex items-center justify-between border-b min-h-[50px]" 
                         style={{ borderColor: 'rgba(0,0,0,0.1)' }}
+                        onClick={() => {
+                            if (isMobileLayout && !isEditingHeader) {
+                                setHeaderValue(headerTitle);
+                                setIsEditingHeader(true);
+                            }
+                        }}
                         onDoubleClick={() => {
-                            setHeaderValue(headerTitle);
-                            setIsEditingHeader(true);
+                            if (!isEditingHeader) {
+                                setHeaderValue(headerTitle);
+                                setIsEditingHeader(true);
+                            }
                         }}
                     >
                         <div className="flex-1 flex items-center mr-2">
@@ -287,6 +295,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div 
                         className="flex-none px-4 py-2.5 border-b bg-gradient-to-r from-slate-50 to-white flex items-center group cursor-text transition-all duration-200 hover:bg-slate-100/50 shadow-[inset_0_1px_3px_rgba(0,0,0,0.02)]"
                         style={{ borderBottomColor: 'rgba(99, 102, 241, 0.15)' }} // Subtle indigo border
+                        onClick={() => isMobileLayout && setIsEditingTitle(true)}
                         onDoubleClick={() => setIsEditingTitle(true)}
                     >
                         {isEditingTitle ? (
@@ -296,12 +305,18 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 value={memoEditor.title}
                                 placeholder={`목차${memoEditor.activePageIndex + 1}`}
                                 onChange={(e) => handleUpdateTitle(e.target.value)}
-                                onBlur={() => setIsEditingTitle(false)}
+                                onBlur={() => {
+                                    setIsEditingTitle(false);
+                                    handleSaveMemo();
+                                }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') setIsEditingTitle(false);
+                                    if (e.key === 'Enter') {
+                                        setIsEditingTitle(false);
+                                        handleSaveMemo();
+                                    }
                                     if (e.key === 'Escape') setIsEditingTitle(false);
                                 }}
-                            />
+                        />
                         ) : (
                             <span className={`text-sm truncate flex-1 text-left ${memoEditor.title ? 'text-slate-600 font-semibold' : 'text-slate-300 font-medium'}`}>
                                 {memoEditor.title || `목차${memoEditor.activePageIndex + 1}`}

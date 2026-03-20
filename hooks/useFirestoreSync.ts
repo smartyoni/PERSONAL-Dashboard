@@ -6,7 +6,7 @@ interface UseFirestoreSyncReturn {
   data: AppData | null;
   loading: boolean;
   error: Error | null;
-  updateData: (newData: AppData) => Promise<void>;
+  updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => Promise<void>;
 }
 
 export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
@@ -65,31 +65,38 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
   }, []);
 
   // 데이터 업데이트 함수 (디바운스 적용)
-  const updateData = useCallback(async (newData: AppData) => {
+  const updateData = useCallback(async (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => {
     if (isRemoteUpdate.current) return;
-
-    // 로컬 상태 즉시 업데이트
-    setData(newData);
-    isSaving.current = true; // 저장 프로세스 시작됨을 표시
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    saveTimeoutRef.current = setTimeout(async () => {
-      try {
-        await saveWorkspaceData(newData);
-        // 저장이 완료된 후 잠시 기다렸다가 플래그 해제 (리스너가 이 저장을 반영한 데이터를 받을 때까지)
-        setTimeout(() => {
-          isSaving.current = false;
-        }, 500);
-      } catch (err) {
-        setError(err as Error);
-        isSaving.current = false;
-        console.error('Failed to save to Firestore:', err);
-      }
-    }, 300);
-  }, []);
+    // 로컬 상태 즉시 업데이트 (함수형 업데이트 지원)
+    setData(prev => {
+        const currentData = prev || defaultData;
+        const resolvedData = typeof newDataOrUpdater === 'function' 
+            ? newDataOrUpdater(currentData) 
+            : newDataOrUpdater;
+        
+        isSaving.current = true; // 저장 프로세스 시작됨을 표시
+
+        saveTimeoutRef.current = setTimeout(async () => {
+            try {
+                await saveWorkspaceData(resolvedData);
+                setTimeout(() => {
+                    isSaving.current = false;
+                }, 500);
+            } catch (err) {
+                setError(err as Error);
+                isSaving.current = false;
+                console.error('Failed to save to Firestore:', err);
+            }
+        }, 300);
+
+        return resolvedData;
+    });
+  }, [defaultData]);
 
   return { data, loading, error, updateData };
 }

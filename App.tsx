@@ -275,6 +275,8 @@ const App: React.FC = () => {
         handleDeleteItemFromModal={handleDeleteItemFromModal}
         handleInsertSymbol={handleInsertSymbol} memoSymbols={memoSymbols}
         handleChangePage={handleChangePage}
+        handleUpdateTitle={handleUpdateTitle}
+        handleUpdateItemText={handleUpdateItemText}
         setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
         handleMoveItem={handleMoveItem} safeData={safeData}
         handleOpenTagSelection={handleOpenTagSelection}

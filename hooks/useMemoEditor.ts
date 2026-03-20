@@ -12,7 +12,7 @@ export const TITLE_SEPARATOR = '===memo-title-sep===';
 
 export const useMemoEditor = (
     safeData: AppData,
-    updateData: (data: AppData) => void,
+    updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => Promise<void>,
     activeTab: Tab,
     memoEditor: MemoEditorState,
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,
@@ -210,9 +210,9 @@ export const useMemoEditor = (
 
 
         if (memoEditor.type === 'section') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         memos: {
@@ -222,11 +222,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'checklist') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         parkingInfo: {
@@ -242,11 +242,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'shopping') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         parkingInfo: {
@@ -262,11 +262,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'reminders') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         parkingInfo: {
@@ -282,11 +282,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         parkingInfo: {
@@ -302,11 +302,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'parkingCat5') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         parkingInfo: {
@@ -322,11 +322,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todoCat1') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo: {
@@ -342,11 +342,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todoCat2') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo: {
@@ -362,11 +362,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todoCat3') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo: {
@@ -382,11 +382,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todoCat4') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo: {
@@ -402,11 +402,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todoCat5') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo: {
@@ -422,11 +422,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo2Cat1') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo2: {
@@ -442,11 +442,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo2Cat2') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo2: {
@@ -462,11 +462,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo2Cat3') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo2: {
@@ -482,11 +482,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo2Cat4') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo2: {
@@ -502,11 +502,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo2Cat5') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo2: {
@@ -522,11 +522,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo3Cat1') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo3: {
@@ -542,11 +542,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo3Cat2') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo3: {
@@ -562,11 +562,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo3Cat3') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo3: {
@@ -582,11 +582,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo3Cat4') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo3: {
@@ -602,11 +602,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else if (memoEditor.type === 'todo3Cat5') {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         todoManagementInfo3: {
@@ -622,11 +622,11 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         } else {
-            updateData({
-                ...safeData,
-                tabs: safeData.tabs.map(t => t.id === (memoEditor.tabId || safeData.activeTabId)
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
                     ? {
                         ...t,
                         sections: t.sections.map(s => ({
@@ -641,7 +641,7 @@ export const useMemoEditor = (
                     }
                     : t
                 )
-            });
+            }));
         }
 
         if (memoEditor.value.trim() || memoEditor.title.trim()) {
@@ -659,10 +659,10 @@ export const useMemoEditor = (
             title: '항목 삭제',
             message: '해당 항목을 삭제하시겠습니까? 관련 메모도 함께 삭제됩니다.',
             onConfirm: () => {
-                updateData({
-                    ...safeData,
-                    tabs: safeData.tabs.map(t => {
-                        if (t.id !== (memoEditor.tabId || safeData.activeTabId)) return t;
+                updateData(prev => ({
+                    ...prev,
+                    tabs: prev.tabs.map(t => {
+                        if (t.id !== (memoEditor.tabId || prev.activeTabId)) return t;
 
                         if (memoEditor.type === 'checklist') {
                             const newMemos = { ...t.parkingInfo.checklistMemos };
@@ -684,35 +684,66 @@ export const useMemoEditor = (
                             const newMemos = { ...t.parkingInfo.category5Memos };
                             delete newMemos[memoEditor.id!];
                             return { ...t, parkingInfo: { ...t.parkingInfo, category5Items: t.parkingInfo.category5Items.filter(i => i.id !== memoEditor.id), category5Memos: newMemos } };
-                        } else if (memoEditor.type.startsWith('todoCat')) {
+                        } else if (memoEditor.type?.startsWith('todoCat')) {
                             const catNum = memoEditor.type.replace('todoCat', '');
-                            const catMemosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo;
-                            const catItemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo;
-                            const newMemos = { ...t.todoManagementInfo[catMemosKey] as any };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, todoManagementInfo: { ...t.todoManagementInfo, [catItemsKey]: (t.todoManagementInfo[catItemsKey] as any).filter((i: any) => i.id !== memoEditor.id), [catMemosKey]: newMemos } };
-                        } else if (memoEditor.type.startsWith('todo2Cat')) {
+                            const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo;
+                            const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo;
+                            const newMemos = { ...(t.todoManagementInfo[memosKey] as object) };
+                            delete (newMemos as any)[memoEditor.id!];
+                            return {
+                                ...t,
+                                todoManagementInfo: {
+                                    ...t.todoManagementInfo,
+                                    [itemsKey]: (t.todoManagementInfo[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
+                                    [memosKey]: newMemos
+                                }
+                            };
+                        } else if (memoEditor.type?.startsWith('todo2Cat')) {
                             const catNum = memoEditor.type.replace('todo2Cat', '');
-                            const catMemosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo2;
-                            const catItemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo2;
-                            const newMemos = { ...t.todoManagementInfo2[catMemosKey] as any };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, todoManagementInfo2: { ...t.todoManagementInfo2, [catItemsKey]: (t.todoManagementInfo2[catItemsKey] as any).filter((i: any) => i.id !== memoEditor.id), [catMemosKey]: newMemos } };
-                        } else if (memoEditor.type.startsWith('todo3Cat')) {
+                            const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo2;
+                            const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo2;
+                            const newMemos = { ...(t.todoManagementInfo2[memosKey] as object) };
+                            delete (newMemos as any)[memoEditor.id!];
+                            return {
+                                ...t,
+                                todoManagementInfo2: {
+                                    ...t.todoManagementInfo2,
+                                    [itemsKey]: (t.todoManagementInfo2[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
+                                    [memosKey]: newMemos
+                                }
+                            };
+                        } else if (memoEditor.type?.startsWith('todo3Cat')) {
                             const catNum = memoEditor.type.replace('todo3Cat', '');
-                            const catMemosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo3;
-                            const catItemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo3;
-                            const newMemos = { ...t.todoManagementInfo3[catMemosKey] as any };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, todoManagementInfo3: { ...t.todoManagementInfo3, [catItemsKey]: (t.todoManagementInfo3[catItemsKey] as any).filter((i: any) => i.id !== memoEditor.id), [catMemosKey]: newMemos } };
+                            const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo3;
+                            const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo3;
+                            const newMemos = { ...(t.todoManagementInfo3[memosKey] as object) };
+                            delete (newMemos as any)[memoEditor.id!];
+                            return {
+                                ...t,
+                                todoManagementInfo3: {
+                                    ...t.todoManagementInfo3,
+                                    [itemsKey]: (t.todoManagementInfo3[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
+                                    [memosKey]: newMemos
+                                }
+                            };
                         } else {
                             const newMemos = { ...t.memos };
                             delete newMemos[memoEditor.id!];
-                            const updateItems = (items: ListItem[]) => items.filter(i => i.id !== memoEditor.id);
-                            return { ...t, memos: newMemos, inboxSection: t.inboxSection ? { ...t.inboxSection, items: updateItems(t.inboxSection.items) } : t.inboxSection, sections: t.sections.map(s => ({ ...s, items: updateItems(s.items) })) };
+                            return {
+                                ...t,
+                                sections: t.sections.map(s => ({
+                                    ...s,
+                                    items: s.items.filter(i => i.id !== memoEditor.id)
+                                })),
+                                inboxSection: t.inboxSection ? {
+                                    ...t.inboxSection,
+                                    items: t.inboxSection.items.filter(i => i.id !== memoEditor.id)
+                                } : t.inboxSection,
+                                memos: newMemos
+                            };
                         }
                     })
-                });
+                }));
                 setModal(prev => ({ ...prev, isOpen: false }));
                 setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
             }
@@ -821,10 +852,10 @@ export const useMemoEditor = (
         
         const targetId = String(memoEditor.id);
 
-        updateData({
-            ...safeData,
+        updateData(prevData => ({
+            ...prevData,
             // 1. Update items in all tabs (thorough approach)
-            tabs: safeData.tabs.map(t => ({
+            tabs: prevData.tabs.map(t => ({
                 ...t,
                 inboxSection: t.inboxSection ? {
                     ...t.inboxSection,
@@ -868,11 +899,11 @@ export const useMemoEditor = (
                 } : undefined,
             })),
             // 2. Update bookmark sections
-            bookmarkSections: safeData.bookmarkSections?.map(s => ({
+            bookmarkSections: prevData.bookmarkSections?.map(s => ({
                 ...s,
                 items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
             })) || []
-        });
+        }));
 
         // Optional: Also sync the local memoEditor state so UI reflects it immediately
         // setMemoEditor(prev => ({ ...prev })); // Not strictly necessary if safeData updates
