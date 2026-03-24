@@ -82,6 +82,35 @@ export interface MemoEditorPanelProps {
     isDesktopSplit?: boolean; 
 }
 
+const extractListItems = (html: string): string[] => {
+    if (!html || !/<[a-z][\s\S]*>/i.test(html)) return [];
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // body > ul > li or body > ol > li
+        // Since Tiptap might wrap everything in a div if not careful, we check both
+        const topLevelLists = doc.querySelectorAll('ul, ol');
+        const items: string[] = [];
+        
+        topLevelLists.forEach(list => {
+            // Only process lists that are NOT nested inside another li
+            if (list.parentElement?.tagName === 'LI') return;
+            
+            const directItems = list.querySelectorAll(':scope > li');
+            directItems.forEach(item => {
+                const clone = item.cloneNode(true) as HTMLElement;
+                clone.querySelectorAll('ul, ol').forEach(nested => nested.remove());
+                const text = clone.textContent?.trim();
+                if (text) items.push(text);
+            });
+        });
+        return items;
+    } catch (e) {
+        console.error('ToC parsing error:', e);
+        return [];
+    }
+};
+
 const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
     handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
@@ -588,10 +617,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         <div className="p-1.5 space-y-0.5">
                             <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
                             {memoEditor.allTitles.map((title, idx) => {
-                                const subItems = (memoEditor.allValues[idx] || '').split('\n')
-                                    .map(line => line.trim())
-                                    .filter(line => line.startsWith('※'))
-                                    .map(line => line.substring(1).trim());
+                                const subItems = extractListItems(memoEditor.allValues[idx] || '');
 
                                 return (
                                     <div key={idx} className="space-y-0.5">
