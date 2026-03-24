@@ -12,6 +12,7 @@ export interface Section {
   items: ListItem[];
   color?: string;
   isLocked?: boolean;
+  isPinned?: boolean;
 }
 
 export interface ParkingInfo {

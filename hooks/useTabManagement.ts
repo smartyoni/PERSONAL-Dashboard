@@ -130,13 +130,6 @@ export const useTabManagement = (
         });
     };
 
-    const handleToggleFavoriteTab = (id: string) => {
-        updateData({
-            ...safeData,
-            tabs: safeData.tabs.map(t => t.id === id ? { ...t, isFavorite: !t.isFavorite } : t)
-        });
-    };
-
     const handleReorderTabs = (fromIndex: number, toIndex: number) => {
         const newTabs = [...safeData.tabs];
         const [movedTab] = newTabs.splice(fromIndex, 1);
@@ -194,7 +187,6 @@ export const useTabManagement = (
         handleAddTab,
         handleRenameTab,
         handleToggleLockTab,
-        handleToggleFavoriteTab,
         handleReorderTabs,
         handleDeleteTab,
         handleSelectTab,

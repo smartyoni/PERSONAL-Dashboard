@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Tab } from '../types';
+import { Tab, Section } from '../types';
 import EditableText from './EditableText';
 import { useClickOutside } from '../hooks/useClickOutside';
 
@@ -17,8 +17,9 @@ interface FooterTabsProps {
   hasInbox: boolean;
   isBookmarkView: boolean;
   onToggleBookmarkView: () => void;
-  onToggleFavoriteTab: (id: string) => void;
   isMobileLayout?: boolean;
+  onNavigateToSection?: (tabId: string, sectionId: string) => void;
+  onOpenToc?: () => void;
 }
 
 export const TAB_COLORS = [
@@ -48,8 +49,9 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   hasInbox,
   isBookmarkView,
   onToggleBookmarkView,
-  onToggleFavoriteTab,
   isMobileLayout,
+  onNavigateToSection,
+  onOpenToc,
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -105,39 +107,129 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
     }
   };
 
-  // 모바일 레이아웃일 경우 하단 고정(즐겨찾기) 탭 우선순위로 최대 4개만 필터링
-  const getVisibleTabs = () => {
-    if (!isMobileLayout) return tabs;
-
-    const favoriteTabs = tabs.filter(t => t.isFavorite);
-    const nonFavoriteTabs = tabs.filter(t => !t.isFavorite);
-    
-    // 즐겨찾기된 탭 + 나머지 탭 순서대로 결합 후 최대 4개 자르기
-    const combinedTabs = [...favoriteTabs, ...nonFavoriteTabs];
-    return combinedTabs.slice(0, 4);
+  const getPinnedSections = () => {
+    const pinned: Array<{ tabId: string, section: Section }> = [];
+    tabs.forEach(tab => {
+      if (tab.inboxSection?.isPinned) {
+        pinned.push({ tabId: tab.id, section: tab.inboxSection });
+      }
+      tab.sections.forEach(s => {
+        if (s.isPinned) {
+          pinned.push({ tabId: tab.id, section: s });
+        }
+      });
+    });
+    return pinned.slice(0, 5); // Limit back to 5 to make room for ToC and Bookmark buttons
   };
 
-  const visibleTabs = getVisibleTabs();
+  const formatSectionTitle = (title: string) => {
+    if (title.length <= 3) return title;
+    const line1 = title.substring(0, 3);
+    const line2 = title.substring(3, 6);
+    const suffix = title.length > 6 ? '..' : ''; // '..' to save space for 7 tabs
+    return (
+      <div className="flex flex-col items-center leading-[1.0] text-[11.5px] tracking-[0.7px]">
+        <span>{line1}</span>
+        <span>{line2}{suffix}</span>
+      </div>
+    );
+  };
+
+  const RAINBOW_COLORS = [
+    'bg-[#F87171] text-white', // 0: Soft Red
+    'bg-[#FB923C] text-white', // 1: Soft Orange
+    'bg-[#FBBF24] text-white', // 2: Soft Yellow
+    'bg-[#4ADE80] text-white', // 3: Soft Green
+    'bg-[#60A5FA] text-white', // 4: Soft Blue
+    'bg-[#818CF8] text-white', // 5: Soft Indigo
+    'bg-[#A78BFA] text-white', // 6: Soft Purple
+  ];
+
+  const visibleTabs = tabs;
+  const pinnedSections = getPinnedSections();
 
   return (
     <div className="bg-white border-t border-slate-200 z-[100] h-16 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
-      <div className="w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap px-6 gap-1">
+      <div className={`w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap ${isMobileLayout ? 'px-1' : 'px-6 gap-1'}`}>
         {hasInbox && !isMobileLayout && (
           <button
             onClick={onNavigateToInbox}
-            className="md:hidden flex items-center justify-center w-8 h-8 text-lg leading-none hover:bg-blue-50 rounded-lg transition-all active:scale-95 flex-shrink-0"
+            className="flex items-center justify-center w-8 h-8 text-lg leading-none hover:bg-blue-50 rounded-lg transition-all active:scale-95 flex-shrink-0"
             title="메인 페이지의 IN-BOX 섹션으로 이동"
           >
             📥
           </button>
         )}
 
-        {(!isMobileLayout) && (
+        {!isMobileLayout && (
           <div className="h-6 w-px bg-slate-200 flex-shrink-0" />
         )}
 
-        <div className={`flex flex-1 ${isMobileLayout ? 'justify-around items-center h-full px-2 w-full gap-2' : 'gap-1'}`}>
-          {visibleTabs.map((tab) => {
+        <div className={`flex flex-1 h-full items-center ${isMobileLayout ? '' : 'gap-1'}`}>
+          {isMobileLayout ? (
+            <div className="flex w-full items-center justify-center h-full">
+              <div className="flex w-[96%] bg-slate-100 rounded-lg p-0.5 border border-slate-200 shadow-sm overflow-hidden gap-[1.5px]">
+                {[0, 1, 2, 3, 4, 5, 6].map((index) => {
+                  if (index === 0) {
+                    // 1st Slot: Table of Contents (ToC)
+                    return (
+                      <button
+                        key="toc-button"
+                        onClick={onOpenToc}
+                        className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${RAINBOW_COLORS[0]} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border border-black/20`}
+                      >
+                        <div className="flex flex-col items-center leading-[1.0] text-[11.5px] tracking-[0.7px]">
+                          <span>목</span>
+                          <span>차</span>
+                        </div>
+                      </button>
+                    );
+                  }
+
+                  if (index === 6) {
+                    // 7th Slot: Bookmark Button
+                    return (
+                      <button
+                        key="bookmark-button"
+                        onClick={onToggleBookmarkView}
+                        className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${RAINBOW_COLORS[6]} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border-2 ${isBookmarkView ? 'border-blue-600 ring-2 ring-blue-300 ring-inset ring-opacity-50' : 'border-black/20'}`}
+                      >
+                        <div className="flex flex-col items-center leading-[1.0] text-[11.5px] tracking-[0.7px]">
+                          <span>북마</span>
+                          <span>크</span>
+                        </div>
+                      </button>
+                    );
+                  }
+
+                  // Slots 1-5 (Indices 1, 2, 3, 4, 5): Pinned Sections 0-4
+                  const pinnedIndex = index - 1;
+                  const item = pinnedSections[pinnedIndex];
+                  const colorClass = RAINBOW_COLORS[index];
+
+                  if (item) {
+                    const { tabId, section } = item;
+                    return (
+                      <button
+                        key={section.id}
+                        onClick={() => onNavigateToSection?.(tabId, section.id)}
+                        className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${colorClass} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border border-black/20`}
+                      >
+                        {formatSectionTitle(section.title)}
+                      </button>
+                    );
+                  }
+                  return (
+                    <div
+                      key={`empty-${index}`}
+                      className="flex-1 h-11 rounded-md border border-dashed border-slate-300 bg-white/50 flex items-center justify-center"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            visibleTabs.map((tab) => {
             const originalIndex = tabs.findIndex(t => t.id === tab.id);
             const tabColor = getTabColor(originalIndex);
             const isActive = activeTabId === tab.id;
@@ -166,12 +258,6 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
                   } ${tab.isLocked ? 'cursor-default' : ''
                   }`}
               >
-                {/* 탭 즐겨찾기 표시자 (모바일) */}
-                {isMobileLayout && tab.isFavorite && (
-                  <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-[10px] shadow-sm border border-yellow-500 z-10">
-                    ⭐
-                  </div>
-                )}
 
                 <div draggable={false} onDragStart={(e) => e.stopPropagation()} className="w-full h-full flex items-center justify-center px-0.5">
                   <EditableText
@@ -193,16 +279,6 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button
-                      onClick={() => {
-                        onToggleFavoriteTab(tab.id);
-                        setOpenMenuId(null);
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-2"
-                    >
-                      <span className="text-sm leading-none">{tab.isFavorite ? '⭐' : '➕'}</span>
-                      <span className="font-bold">{tab.isFavorite ? '하단 고정 해제' : '하단 고정'}</span>
-                    </button>
 
                     <button
                       onClick={() => {
@@ -240,7 +316,7 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
                 )}
               </div>
             );
-          })}
+          }))}
         </div>
 
         {!isMobileLayout && (

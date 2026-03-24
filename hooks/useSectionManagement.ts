@@ -43,6 +43,20 @@ export const useSectionManagement = (
     };
 
     const handleUpdateSection = (updated: Section, newMemos?: { [key: string]: string }) => {
+        // 고정 로직 처리
+        const currentPinnedSections = safeData.tabs.reduce((acc, tab) => {
+            const pinnedInTab = tab.sections.filter(s => s.isPinned);
+            const pinnedInbox = tab.inboxSection?.isPinned ? [tab.inboxSection] : [];
+            return [...acc, ...pinnedInTab, ...pinnedInbox];
+        }, [] as Section[]);
+
+        const wasPinned = safeData.tabs.some(t => t.sections.some(s => s.id === updated.id && s.isPinned) || (t.inboxSection?.id === updated.id && t.inboxSection.isPinned));
+        
+        if (updated.isPinned && !wasPinned && currentPinnedSections.length >= 5) {
+            alert('고정 섹션은 최대 5개까지만 설정할 수 있습니다.');
+            return;
+        }
+
         updateData({
             ...safeData,
             tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
@@ -57,6 +71,20 @@ export const useSectionManagement = (
     };
 
     const handleUpdateInboxSection = (updated: Section, newMemos?: { [key: string]: string }) => {
+        // Inbox 고정 로직 처리
+        const currentPinnedSections = safeData.tabs.reduce((acc, tab) => {
+            const pinnedInTab = tab.sections.filter(s => s.isPinned);
+            const pinnedInbox = tab.inboxSection?.isPinned ? [tab.inboxSection] : [];
+            return [...acc, ...pinnedInTab, ...pinnedInbox];
+        }, [] as Section[]);
+
+        const wasPinned = safeData.tabs.some(t => t.inboxSection?.id === updated.id && t.inboxSection.isPinned);
+
+        if (updated.isPinned && !wasPinned && currentPinnedSections.length >= 6) {
+            alert('고정 섹션은 최대 6개까지만 설정할 수 있습니다.');
+            return;
+        }
+
         updateData({
             ...safeData,
             tabs: safeData.tabs.map(t => t.id === safeData.activeTabId

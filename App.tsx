@@ -35,7 +35,7 @@ const App: React.FC = () => {
   // Phase 1: 탭 관리 훅
   const {
     activeTab, currentTabIndex, activeTabColorConfig,
-    handleAddTab, handleRenameTab, handleToggleLockTab, handleToggleFavoriteTab,
+    handleAddTab, handleRenameTab, handleToggleLockTab,
     handleReorderTabs, handleDeleteTab, handleSelectTab,
     handleSwipeLeft, handleSwipeRight
   } = useTabManagement(safeData, updateData, setIsBookmarkView, setModal);
@@ -262,8 +262,12 @@ const App: React.FC = () => {
           onNavigateToInbox={handleNavigateToInbox}
           hasInbox={!!safeData.tabs[0]?.inboxSection}
           isBookmarkView={isBookmarkView} onToggleBookmarkView={handleToggleBookmarkView}
-          onToggleFavoriteTab={handleToggleFavoriteTab}
           isMobileLayout={isMobileLayout}
+          onNavigateToSection={handleNavigateFromMap}
+          onOpenToc={() => {
+            const mainTabId = safeData.tabs[0]?.id;
+            if (mainTabId) handleNavigateFromMap(mainTabId, 'toc-section');
+          }}
         />
       </div>
 

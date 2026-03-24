@@ -175,6 +175,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
     onUpdateSection({ ...section, isLocked: !section.isLocked });
   };
 
+  const handleTogglePin = () => {
+    onUpdateSection({ ...section, isPinned: !section.isPinned });
+  };
+
   const handleToggleItem = (itemId: string) => {
     const newItems = section.items.map(item =>
       item.id === itemId ? { ...item, completed: !item.completed } : item
@@ -313,14 +317,25 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </div>
 
         <div className="flex items-center border-[1.5px] border-black rounded-md overflow-hidden bg-white/50 backdrop-blur-sm self-center">
-          {isInboxSection && isReturnVisible && (
-            <button
-              onClick={onReturnFromInbox}
-              className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 hover:bg-slate-200/50 transition-all active:scale-95 text-xs md:text-sm"
-              title="이전 섹션으로 되돌아가기"
-            >
-              ↩️
-            </button>
+          {isInboxSection && (
+            <>
+              {isReturnVisible && (
+                <button
+                  onClick={onReturnFromInbox}
+                  className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 hover:bg-slate-200/50 transition-all active:scale-95 text-xs md:text-sm"
+                  title="이전 섹션으로 되돌아가기"
+                >
+                  ↩️
+                </button>
+              )}
+              <button
+                onClick={handleTogglePin}
+                className={`flex items-center justify-center px-1 md:px-1.5 h-6 md:h-7 border-l-[1.5px] border-black transition-all active:scale-95 text-[10px] font-bold ${section.isPinned ? 'bg-blue-500 text-white' : 'hover:bg-slate-200/50 text-blue-600'}`}
+                title={section.isPinned ? "고정 해제" : "모바일 하단 고정"}
+              >
+                {section.isPinned ? '고정됨' : '고정'}
+              </button>
+            </>
           )}
 
           {!isInboxSection && (
@@ -331,6 +346,13 @@ const SectionCard: React.FC<SectionCardProps> = ({
                 title="인박스로 바로가기"
               >
                 📥
+              </button>
+              <button
+                onClick={handleTogglePin}
+                className={`flex items-center justify-center px-1 md:px-1.5 h-6 md:h-7 border-l-[1.5px] border-black transition-all active:scale-95 text-[10px] font-bold ${section.isPinned ? 'bg-blue-500 text-white' : 'hover:bg-slate-200/50 text-blue-600'}`}
+                title={section.isPinned ? "고정 해제" : "모바일 하단 고정"}
+              >
+                {section.isPinned ? '고정됨' : '고정'}
               </button>
               <button
                 onClick={handleToggleLock}
