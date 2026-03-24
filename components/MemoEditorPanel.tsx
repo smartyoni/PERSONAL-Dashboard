@@ -82,27 +82,40 @@ export interface MemoEditorPanelProps {
     isDesktopSplit?: boolean; 
 }
 
-const extractListItems = (html: string): string[] => {
-    if (!html || !/<[a-z][\s\S]*>/i.test(html)) return [];
+const extractTocMarkers = (html: string): string[] => {
+    if (!html) return [];
+    
+    // Legacy support: if it's not HTML, check plain text
+    if (!/<[a-z][\s\S]*>/i.test(html)) {
+        return html.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.startsWith('#'))
+            .map(line => line.substring(1).trim());
+    }
+
     try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        // body > ul > li or body > ol > li
-        // Since Tiptap might wrap everything in a div if not careful, we check both
-        const topLevelLists = doc.querySelectorAll('ul, ol');
+        // Get all potential text blocks
+        const elements = doc.querySelectorAll('p, h1, h2, h3, li, div');
         const items: string[] = [];
         
-        topLevelLists.forEach(list => {
-            // Only process lists that are NOT nested inside another li
-            if (list.parentElement?.tagName === 'LI') return;
-            
-            const directItems = list.querySelectorAll(':scope > li');
-            directItems.forEach(item => {
-                const clone = item.cloneNode(true) as HTMLElement;
-                clone.querySelectorAll('ul, ol').forEach(nested => nested.remove());
-                const text = clone.textContent?.trim();
-                if (text) items.push(text);
-            });
+        elements.forEach(el => {
+            // Only process elements that are direct children of body or a main container
+            // to avoid duplicates from nested structures
+            if (el.parentElement?.tagName !== 'BODY' && el.parentElement?.tagName !== 'DIV') {
+                // Allow li even if nested in ul
+                if (el.tagName !== 'LI') return;
+            }
+
+            const text = el.textContent?.trim() || '';
+            if (text.startsWith('#')) {
+                const subText = text.substring(1).trim();
+                // Avoid adding the same text multiple times (e.g. from parent/child relationship)
+                if (subText && !items.includes(subText)) {
+                    items.push(subText);
+                }
+            }
         });
         return items;
     } catch (e) {
@@ -632,7 +645,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         <div className="p-1.5 space-y-0.5">
                             <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
                             {memoEditor.allTitles.map((title, idx) => {
-                                const subItems = extractListItems(memoEditor.allValues[idx] || '');
+                                const subItems = extractTocMarkers(memoEditor.allValues[idx] || '');
 
                                 return (
                                     <div key={idx} className="space-y-0.5">
@@ -844,7 +857,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div className="p-3 bg-slate-50 border-t border-slate-200" style={{ marginBottom: isMobileLayout ? `${keyboardHeight}px` : '0px' }}>
                         {/* Editing Mode Action Bar - Symbols */}
                         <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
-                            {['•', '※', '→', '■', '◆'].map((sym, idx) => (
+                            {['•', '※', '#', '→', '■', '◆'].map((sym, idx) => (
                                 <button
                                     key={idx}
                                     onMouseDown={(e) => {

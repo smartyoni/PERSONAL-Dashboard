@@ -796,6 +796,7 @@ export const useMemoEditor = (
         { label: '•', value: '• ', title: '불렛' },
         { label: '※', value: '※ ', title: '참고' },
         { label: ':', value: ': ', title: '콜론' },
+        { label: '#', value: '# ', title: '번호기호' },
         { label: '―', value: '\n---divider---\n', title: '구분선' },
         { label: '→', value: '→ ', title: '화살표' },
         { label: '■', value: '■ ', title: '사각' },
