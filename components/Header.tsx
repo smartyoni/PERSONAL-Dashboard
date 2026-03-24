@@ -128,7 +128,7 @@ const Header: React.FC<HeaderProps> = ({
               />
               <button
                 onClick={onAddSection}
-                className="md:hidden flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-lg shadow-sm border border-indigo-700 active:scale-95 transition-all ml-1"
+                className="md:hidden flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-indigo-600 text-white rounded-lg shadow-sm border border-indigo-700 active:scale-95 transition-all ml-1"
                 title="섹션 추가"
               >
                 <PlusIcon />
