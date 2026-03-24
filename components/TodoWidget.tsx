@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { TodoManagementInfo, ListItem } from '../types';
 import EditableText from './EditableText';
 import { useClickOutside } from '../hooks/useClickOutside';
+import { extractTocMarkers } from '../utils/memoEditorUtils';
 
 interface TodoWidgetProps {
     info: TodoManagementInfo;
@@ -44,6 +45,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         type: 1
     });
     const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
+    const [hoveredToC, setHoveredToC] = useState<{ id: string; toc: string[]; x: number; y: number } | null>(null);
 
     const menuRef = useRef<HTMLDivElement>(null);
     const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
@@ -249,7 +251,26 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             >
                                 •
                             </button>
-                            <div className="flex-1 min-w-0" onClick={() => onShowMemo(item.id)}>
+                            <div 
+                                className="flex-1 min-w-0" 
+                                onClick={() => onShowMemo(item.id)}
+                                onMouseEnter={(e) => {
+                                    const memo = memos[item.id];
+                                    if (memo) {
+                                        const toc = extractTocMarkers(memo);
+                                        if (toc.length > 0) {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            setHoveredToC({ 
+                                                id: item.id, 
+                                                toc, 
+                                                x: rect.left + (window.innerWidth < 768 ? 20 : rect.width / 2), 
+                                                y: rect.top - 10 
+                                            });
+                                        }
+                                    }
+                                }}
+                                onMouseLeave={() => setHoveredToC(null)}
+                            >
                                 <EditableText
                                     value={item.text}
                                     onChange={(txt) => handleUpdateText(type, item.id, txt)}
@@ -365,6 +386,28 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     </div>
                 );
             })()}
+            {/* ToC Hover Popover */}
+            {hoveredToC && (
+                <div 
+                    className="fixed z-[3000] bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-slate-200 p-2 pointer-events-none animate-in fade-in zoom-in-95 duration-200 min-w-[150px] max-w-[280px]"
+                    style={{ 
+                        left: `${Math.min(hoveredToC.x, window.innerWidth - 160)}px`, 
+                        top: `${hoveredToC.y}px`,
+                        transform: 'translate(-50%, -100%)'
+                    }}
+                >
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-1 border-b border-slate-100 pb-1">목차 미리보기</div>
+                    <div className="space-y-1">
+                        {hoveredToC.toc.map((item, i) => (
+                            <div key={i} className="text-[11px] text-slate-600 truncate flex items-center gap-1.5">
+                                <span className="w-1 h-1 rounded-full bg-sky-400 flex-none" />
+                                {item}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-2 text-[9px] text-sky-500 font-medium text-center italic">클릭하여 메모 편집</div>
+                </div>
+            )}
         </div>
     );
 };
