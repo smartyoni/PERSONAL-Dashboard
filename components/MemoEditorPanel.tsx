@@ -160,6 +160,21 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         },
     });
 
+    const onInsertSymbol = useCallback((symbol: string) => {
+        if (!editor) {
+            handleInsertSymbol(symbol);
+            return;
+        }
+
+        if (symbol === '\n---divider---\n') {
+            // Tiptap's horizontal rule
+            editor.chain().focus().setHorizontalRule().run();
+        } else {
+            // Tiptap's insertContent (handles both text and HTML)
+            editor.chain().focus().insertContent(symbol).run();
+        }
+    }, [editor, handleInsertSymbol]);
+
     const changeFontSize = useCallback((delta: number) => {
         if (!editor) return;
         const currentSize = (editor.getAttributes('textStyle').fontSize as string) || '16px';
@@ -781,7 +796,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     title={sym.title}
                                     onMouseDown={(e) => {
                                         e.preventDefault();
-                                        handleInsertSymbol(sym.value);
+                                        onInsertSymbol(sym.value);
                                         setContextMenu(null);
                                     }}
                                     className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-indigo-50 hover:text-indigo-600 active:scale-95 text-slate-700 text-xl font-medium transition-all shadow-[2px_2px_0_0_rgba(15,23,42,0.05)] border border-slate-200 hover:border-indigo-200"
@@ -801,7 +816,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     e.preventDefault();
                                     try {
                                         const text = await navigator.clipboard.readText();
-                                        if (text) handleInsertSymbol(text);
+                                        if (text) onInsertSymbol(text);
                                     } catch (err) {
                                         console.error('Failed to paste:', err);
                                     }
@@ -834,7 +849,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     key={idx}
                                     onMouseDown={(e) => {
                                         e.preventDefault();
-                                        handleInsertSymbol(sym);
+                                        onInsertSymbol(sym);
                                     }}
                                     className="flex-1 py-1.5 text-base md:text-lg font-bold rounded-xl transition-all hover:bg-white/80 active:bg-white text-slate-700 shadow-sm border border-transparent hover:border-slate-300/50"
                                 >
