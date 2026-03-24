@@ -68,7 +68,11 @@ export const useBackButton = ({
                 // If any modal is open, priority closing
                 if (modal.isOpen) setModal((prev: any) => ({ ...prev, isOpen: false }));
                 else if (calendarModal.isOpen) setCalendarModal((prev: any) => ({ ...prev, isOpen: false }));
-                else if (memoEditor.id !== null) setMemoEditor({ ...memoEditor, id: null, isEditing: false });
+                else if (memoEditor.id !== null) setMemoEditor({ 
+                    id: null, value: '', allValues: ['', '', '', '', ''], 
+                    allTitles: ['', '', '', '', ''], title: '', 
+                    activePageIndex: 0, type: 'section', isEditing: false, sectionId: null, tabId: null 
+                });
                 else if (tagSelectionModalOpen) setTagSelectionModalOpen(false);
                 else if (sectionMapOpen) setSectionMapOpen(false);
                 else if (navigationMapOpen) setNavigationMapOpen(false);

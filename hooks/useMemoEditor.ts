@@ -69,17 +69,16 @@ export const useMemoEditor = (
                 loadedValue = targetTab.memos?.[id] || '';
             }
 
-            // 만약 로드된 값이 비어있고 initialValue가 있다면 (빠른 입력 등에서 넘어온 경우)
             if (!loadedValue && initialValue) {
                 loadedValue = initialValue;
             }
             
-            // 페이지 및 제목 분할 로직 (첫 줄: 제목, 이후: 내용)
             const pages = loadedValue.split('\n===page-break===\n');
             const allTitles: string[] = [];
             const allContents: string[] = [];
             
-            for (let i = 0; i < 5; i++) {
+            const pageCount = Math.max(5, pages.length);
+            for (let i = 0; i < pageCount; i++) {
                 const pageText = pages[i] || '';
                 
                 let title = '';
@@ -164,7 +163,6 @@ export const useMemoEditor = (
         } else if (type === 'todo3Cat5') {
             items = targetTab.todoManagementInfo3.category5Items;
         } else {
-            // Find section items
             if (memoEditor.sectionId === targetTab.inboxSection?.id) {
                 items = targetTab.inboxSection.items;
             } else {
@@ -175,7 +173,6 @@ export const useMemoEditor = (
 
         if (items.length === 0) return;
 
-        // Sort items the same way as in SectionCard (uncompleted first)
         const sortedItems = [...items].sort((a, b) => {
             if (a.completed === b.completed) return 0;
             return a.completed ? 1 : -1;
@@ -195,7 +192,6 @@ export const useMemoEditor = (
     const handleSaveMemo = (exitEditMode: boolean = true) => {
         if (!memoEditor.id) return;
 
-        // 현재 수정 중인 페이지 내용을 allValues 및 allTitles에 동기화
         const updatedAllContents = [...memoEditor.allValues];
         updatedAllContents[memoEditor.activePageIndex] = memoEditor.value;
 
@@ -207,7 +203,6 @@ export const useMemoEditor = (
             return title + TITLE_SEPARATOR + content;
         });
         const finalValue = finalPages.join('\n===page-break===\n');
-
 
         if (memoEditor.type === 'section') {
             updateData(prev => ({
@@ -648,7 +643,7 @@ export const useMemoEditor = (
             if (memoEditor.value.trim() || memoEditor.title.trim()) {
                 setMemoEditor(prev => ({ ...prev, isEditing: false }));
             } else {
-                setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
+                setMemoEditor(prev => ({ ...prev, id: null, value: '', title: '', allValues: Array(prev.allValues.length).fill(''), allTitles: Array(prev.allTitles.length).fill(''), activePageIndex: 0, isEditing: false, sectionId: null }));
             }
         }
     };
@@ -747,7 +742,7 @@ export const useMemoEditor = (
                     })
                 }));
                 setModal(prev => ({ ...prev, isOpen: false }));
-                setMemoEditor({ id: null, value: '', title: '', allValues: ['', '', '', '', ''], allTitles: ['', '', '', '', ''], activePageIndex: 0, type: 'section', isEditing: false, sectionId: null });
+                setMemoEditor(prev => ({ ...prev, id: null, value: '', title: '', allValues: Array(prev.allValues.length).fill(''), allTitles: Array(prev.allTitles.length).fill(''), activePageIndex: 0, isEditing: false, sectionId: null }));
             }
         });
     };
@@ -756,7 +751,6 @@ export const useMemoEditor = (
         const element = memoTextareaRef.current;
         if (!element) return;
 
-        // If it's a contentEditable div
         if (element.tagName === 'DIV') {
             element.focus();
             const selection = window.getSelection();
@@ -766,13 +760,11 @@ export const useMemoEditor = (
             range.deleteContents();
 
             if (symbol === '\n---divider---\n') {
-                // Insert visual divider
                 const hr = document.createElement('hr');
                 hr.className = "w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid pointer-events-none";
                 hr.setAttribute('contenteditable', 'false');
                 hr.setAttribute('data-type', 'divider');
                 
-                // Add newlines around hr if needed
                 const container = document.createElement('div');
                 container.appendChild(document.createElement('br'));
                 container.appendChild(hr);
@@ -782,8 +774,6 @@ export const useMemoEditor = (
                 while (container.firstChild) fragment.appendChild(container.firstChild);
                 
                 range.insertNode(fragment);
-                
-                // Move cursor after the inserted fragment
                 range.collapse(false);
                 selection.removeAllRanges();
                 selection.addRange(range);
@@ -796,7 +786,6 @@ export const useMemoEditor = (
                 selection.addRange(range);
             }
             
-            // Trigger input event to update state
             const event = new Event('input', { bubbles: true });
             element.dispatchEvent(event);
             return;
@@ -853,7 +842,6 @@ export const useMemoEditor = (
 
         updateData(prevData => ({
             ...prevData,
-            // 1. Update items in all tabs (thorough approach)
             tabs: prevData.tabs.map(t => ({
                 ...t,
                 inboxSection: t.inboxSection ? {
@@ -894,18 +882,67 @@ export const useMemoEditor = (
                     category2Items: t.todoManagementInfo3.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
                     category3Items: t.todoManagementInfo3.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
                     category4Items: t.todoManagementInfo3.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category5Items: (t.todoManagementInfo3 as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                    category5Items: (t.todoManagementInfo3 as any).category5Items?.map((i: any = null) => i && String(i.id) === targetId ? { ...i, text: newText } : i) || [],
                 } : undefined,
             })),
-            // 2. Update bookmark sections
             bookmarkSections: prevData.bookmarkSections?.map(s => ({
                 ...s,
                 items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
             })) || []
         }));
+    };
 
-        // Optional: Also sync the local memoEditor state so UI reflects it immediately
-        // setMemoEditor(prev => ({ ...prev })); // Not strictly necessary if safeData updates
+    const handleAddPage = () => {
+        setMemoEditor(prev => {
+            if (!prev.id) return prev;
+            
+            const newAllValues = [...prev.allValues];
+            newAllValues[prev.activePageIndex] = prev.value;
+            
+            const newAllTitles = [...prev.allTitles];
+            newAllTitles[prev.activePageIndex] = prev.title;
+
+            const updatedAllValues = [...newAllValues, ''];
+            const updatedAllTitles = [...newAllTitles, ''];
+            
+            return {
+                ...prev,
+                allValues: updatedAllValues,
+                allTitles: updatedAllTitles,
+                activePageIndex: updatedAllValues.length - 1,
+                value: '',
+                title: ''
+            };
+        });
+    };
+
+    const handleDeletePage = () => {
+        setMemoEditor(prev => {
+            if (!prev.id) return prev;
+            if (prev.allValues.length <= 5) {
+                alert('최소 5페이지는 유지해야 합니다.');
+                return prev;
+            }
+
+            const newAllValues = [...prev.allValues];
+            const newAllTitles = [...prev.allTitles];
+            
+            // Remove current page
+            newAllValues.splice(prev.activePageIndex, 1);
+            newAllTitles.splice(prev.activePageIndex, 1);
+            
+            // Adjust active index if it was the last page
+            const newIndex = Math.min(prev.activePageIndex, newAllValues.length - 1);
+            
+            return {
+                ...prev,
+                allValues: newAllValues,
+                allTitles: newAllTitles,
+                activePageIndex: newIndex,
+                value: newAllValues[newIndex],
+                title: newAllTitles[newIndex]
+            };
+        });
     };
 
     return {
@@ -917,6 +954,8 @@ export const useMemoEditor = (
         handleChangePage,
         handleUpdateTitle,
         handleUpdateItemText,
+        handleAddPage,
+        handleDeletePage,
         memoSymbols
     };
 };

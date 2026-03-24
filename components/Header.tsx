@@ -128,10 +128,11 @@ const Header: React.FC<HeaderProps> = ({
               />
               <button
                 onClick={onAddSection}
-                className="md:hidden flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-indigo-600 text-white rounded-lg shadow-sm border border-indigo-700 active:scale-95 transition-all ml-1"
+                className="md:hidden flex items-center justify-center h-7 sm:h-8 px-2 bg-indigo-600 text-white text-[10px] sm:text-xs font-black rounded-lg shadow-sm border border-indigo-700 active:scale-95 transition-all ml-1"
                 title="섹션 추가"
               >
-                <PlusIcon />
+                <PlusIcon className="w-3 h-3" />
+                <span className="ml-0.5">추가</span>
               </button>
             </div>
           )}

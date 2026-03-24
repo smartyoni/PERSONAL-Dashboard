@@ -9,6 +9,7 @@ interface ParkingWidgetProps {
   onShowChecklistMemo: (itemId: string) => void;
   onShowShoppingMemo: (itemId: string) => void;
   onShowRemindersMemo: (itemId: string) => void;
+  onShowTodoMemo: (itemId: string) => void;
   onShowCategory5Memo: (itemId: string) => void;
   onAddToCalendar: (itemText: string) => void;
 }
@@ -29,7 +30,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     isOpen: boolean;
     itemId: string | null;
     itemText: string;
-    type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'category5'
+    type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5'
   }>({
     isOpen: false,
     itemId: null,
@@ -269,7 +270,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
             >
               <button
-                ref={el => triggerRefs.current[item.id] = el}
+                ref={el => { triggerRefs.current[item.id] = el; }}
                 onClick={(e) => toggleMenu(e, item.id)}
                 className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
                 title="메뉴 열기"

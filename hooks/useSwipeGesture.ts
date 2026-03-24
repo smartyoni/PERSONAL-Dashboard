@@ -9,7 +9,7 @@ interface SwipeConfig {
 }
 
 export function useSwipeGesture(config: SwipeConfig) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
 
   useEffect(() => {

@@ -14,35 +14,52 @@ interface LinkifiedTextProps {
 const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', highlightText }) => {
   if (!text) return null;
 
+  // HTML 감지 (태그가 포함되어 있거나 <br> 등이 있는 경우)
+  const isHtml = /<[a-z][\s\S]*>/i.test(text);
+
   const parts = text.split('---divider---');
   
   return (
     <span className={className}>
       {parts.map((part, index) => {
+        if (isHtml) {
+          // HTML인 경우 dangerouslySetInnerHTML 사용
+          let htmlContent = part;
+          if (highlightText) {
+            const regex = new RegExp(`(${highlightText})`, 'gi');
+            htmlContent = part.replace(regex, '<mark class="bg-yellow-100 text-slate-900 px-0.5 rounded shadow-sm ring-1 ring-yellow-300 font-bold animate-pulse">$1</mark>');
+          }
+          return (
+            <React.Fragment key={index}>
+              <div dangerouslySetInnerHTML={{ __html: htmlContent }} className="prose prose-sm max-w-none" />
+              {index < parts.length - 1 && (
+                <hr className="w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid pointer-events-none" />
+              )}
+            </React.Fragment>
+          );
+        }
+
+        // Legacy plain text handling
         const linkified = linkifyText(part);
-        
-        // 하이라이트 처리가 필요한 경우
         let finalContent = linkified;
         if (highlightText && typeof part === 'string' && part.includes(highlightText)) {
-          // linkifyText는 (string | JSX.Element)[]를 반환하므로 하이라이트 로직이 복잡함
-          // 간단하게 전체 linkified를 돌면서 string인 부분만 split/join 처리할 수 있음
           finalContent = linkified.map((node, nIdx) => {
              if (typeof node === 'string' && node.includes(highlightText)) {
-               const nodeParts = node.split(highlightText);
-               return (
-                 <React.Fragment key={nIdx}>
-                   {nodeParts.map((np, npIdx) => (
-                     <React.Fragment key={npIdx}>
-                       {np}
-                       {npIdx < nodeParts.length - 1 && (
-                         <mark className="bg-yellow-100 text-slate-900 px-0.5 rounded shadow-sm ring-1 ring-yellow-300 font-bold animate-pulse">
-                           {highlightText}
-                         </mark>
-                       )}
-                     </React.Fragment>
-                   ))}
-                 </React.Fragment>
-               );
+                const nodeParts = node.split(highlightText);
+                return (
+                  <React.Fragment key={nIdx}>
+                    {nodeParts.map((np, npIdx) => (
+                      <React.Fragment key={npIdx}>
+                        {np}
+                        {npIdx < nodeParts.length - 1 && (
+                          <mark className="bg-yellow-100 text-slate-900 px-0.5 rounded shadow-sm ring-1 ring-yellow-300 font-bold animate-pulse">
+                            {highlightText}
+                          </mark>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </React.Fragment>
+                );
              }
              return node;
           });

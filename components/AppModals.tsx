@@ -12,7 +12,7 @@ interface AppModalsProps {
     memoEditor: MemoEditorState;
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
     memoTextareaRef: React.RefObject<HTMLDivElement>;
-    handleSaveMemo: () => void;
+    handleSaveMemo: (isAutoSave?: boolean) => void;
     handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
@@ -20,6 +20,8 @@ interface AppModalsProps {
     handleChangePage: (index: number) => void;
     handleUpdateTitle: (newTitle: string) => void;
     handleUpdateItemText: (newText: string) => void;
+    handleAddPage: () => void;
+    handleDeletePage: () => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     activeTab: Tab;
@@ -53,11 +55,16 @@ interface AppModalsProps {
     calendarModal: { isOpen: boolean; itemText: string };
     setCalendarModal: React.Dispatch<React.SetStateAction<{ isOpen: boolean; itemText: string }>>;
     handleConfirmCalendar: (startDate: string, endDate: string, isAllDay: boolean) => void;
+    handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
 }
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage, handleUpdateTitle, handleUpdateItemText, memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage,        handleUpdateTitle,
+        handleUpdateItemText,
+        handleAddPage,
+        handleDeletePage,
+        memoSymbols,
     setNavigationMapOpen, activeTab,
     tagSelectionContext, handleOpenTagSelection, safeData,
     modal, setModal,
@@ -66,7 +73,7 @@ const AppModals: React.FC<AppModalsProps> = ({
     tagSelectionModalOpen, setTagSelectionModalOpen, handleNavigateFromTag,
     isMobileLayout, lastSectionPos, handleReturnToLastSection, handleOpenSectionMap,
     handleNavigateToInbox, handleToggleBookmarkView, isBookmarkView,
-    calendarModal, setCalendarModal, handleConfirmCalendar
+    calendarModal, setCalendarModal, handleConfirmCalendar, handleMoveItem
 }) => {
     const [isFabExpanded, setIsFabExpanded] = useState(false);
 
@@ -96,12 +103,15 @@ const AppModals: React.FC<AppModalsProps> = ({
                     handleChangePage={handleChangePage}
                     handleUpdateTitle={handleUpdateTitle}
                     handleUpdateItemText={handleUpdateItemText}
+                    handleAddPage={handleAddPage}
+                    handleDeletePage={handleDeletePage}
                     memoSymbols={memoSymbols}
                     setNavigationMapOpen={setNavigationMapOpen}
                     activeTab={activeTab}
                     safeData={safeData}
                     isMobileLayout={isMobileLayout}
                     isDesktopSplit={false}
+                    handleMoveItem={handleMoveItem}
                 />
             )}
 

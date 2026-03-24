@@ -1,13 +1,5 @@
-import React, { useState } from 'react';
-import { AppData, Tab } from '../types';
-
-interface MemoEditorState {
-    id: string | null;
-    value: string;
-    type: 'section' | 'checklist' | 'shopping' | 'memoBoard';
-    isEditing: boolean;
-    openedFromMap?: boolean;
-}
+import { useState } from 'react';
+import { AppData, Tab, MemoEditorState } from '../types';
 
 export const useNavigation = (
     safeData: AppData,
@@ -96,6 +88,10 @@ export const useNavigation = (
             setMemoEditor({
                 id: itemId,
                 value: memoValue,
+                allValues: ['', '', '', '', ''],
+                allTitles: ['', '', '', '', ''],
+                title: '',
+                activePageIndex: 0,
                 type: 'section',
                 isEditing: false,
                 openedFromMap: true,
@@ -132,7 +128,11 @@ export const useNavigation = (
             // 만약 현재 열려있는 메모 모달의 아이템을 이동한 것이라면 메모 모달을 닫습니다.
             setMemoEditor((prev: any) => 
                 prev.id === tagSelectionContext.itemId 
-                    ? { id: null, value: '', type: 'section', isEditing: false, sectionId: null } 
+                    ? { 
+                        id: null, value: '', allValues: ['', '', '', '', ''], 
+                        allTitles: ['', '', '', '', ''], title: '', 
+                        activePageIndex: 0, type: 'section', isEditing: false, sectionId: null, tabId: null 
+                    } 
                     : prev
             );
             

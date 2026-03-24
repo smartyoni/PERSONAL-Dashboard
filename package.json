@@ -11,6 +11,13 @@
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
+    "@tiptap/extension-link": "^3.20.4",
+    "@tiptap/extension-placeholder": "^3.20.4",
+    "@tiptap/extension-text-style": "^3.20.4",
+    "@tiptap/extension-underline": "^3.20.4",
+    "@tiptap/pm": "^3.20.4",
+    "@tiptap/react": "^3.20.4",
+    "@tiptap/starter-kit": "^3.20.4",
     "firebase": "^12.8.0",
     "gapi-script": "^1.0.0",
     "react": "^19.2.3",

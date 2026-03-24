@@ -266,7 +266,8 @@ export const useAppState = () => {
 
     const [memoEditor, setMemoEditor] = useState<MemoEditorState>({
         id: null, value: '', allValues: ['', '', '', '', ''],
-        activePageIndex: 0, type: 'section', isEditing: false, sectionId: null
+        allTitles: ['', '', '', '', ''], title: '',
+        activePageIndex: 0, type: 'section', isEditing: false, sectionId: null, tabId: null
     });
     const memoTextareaRef = useRef<HTMLDivElement>(null);
 

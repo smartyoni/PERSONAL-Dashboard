@@ -242,7 +242,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
                         >
                             <button
-                                ref={el => triggerRefs.current[item.id] = el}
+                                ref={el => { triggerRefs.current[item.id] = el; }}
                                 onClick={(e) => toggleMenu(e, item.id)}
                                 className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-blue-400 hover:text-blue-500 transition-colors"
                                 title="메뉴 열기"
