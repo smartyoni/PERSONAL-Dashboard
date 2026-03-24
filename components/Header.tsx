@@ -55,9 +55,9 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex-1">
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mt-1">
           <div className="flex items-center gap-3">
-            <p className="text-red-600 font-medium whitespace-nowrap text-xs sm:text-sm">{dateTime}</p>
+            <p className="hidden md:block text-red-600 font-medium whitespace-nowrap text-xs sm:text-sm">{dateTime}</p>
 
-            <div className="flex bg-slate-200/50 p-1 rounded-xl items-center gap-1 shadow-inner ml-1 sm:ml-2">
+            <div className="flex bg-slate-200/50 p-1 rounded-xl items-center gap-1 shadow-inner ml-1 sm:ml-2 md:inline-flex hidden">
               {onNavigateToInbox && (
                 <button
                   onClick={onNavigateToInbox}
@@ -126,6 +126,13 @@ const Header: React.FC<HeaderProps> = ({
                   : 'bg-white border-slate-200 focus:border-slate-400'
                   }`}
               />
+              <button
+                onClick={onAddSection}
+                className="md:hidden flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-lg shadow-sm border border-indigo-700 active:scale-95 transition-all ml-1"
+                title="섹션 추가"
+              >
+                <PlusIcon />
+              </button>
             </div>
           )}
         </div>
