@@ -462,7 +462,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
                       allValues,
                       rect,
                     });
-                    return; // 페이지 이동 팝업을 띄우고 직접 이동은 막음
                   }
                 }
                 onShowItemMemo(item.id);

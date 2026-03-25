@@ -270,7 +270,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                                 allValues,
                                                 rect,
                                             });
-                                            return;
                                         }
                                     }
                                     if (onShowMemo) onShowMemo(item.id);
