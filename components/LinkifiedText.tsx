@@ -20,7 +20,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
   const parts = text.split('---divider---');
   
   return (
-    <span className={`${className} leading-normal`} style={{ lineHeight: '1.5' }}>
+    <div className={`${className} leading-normal`} style={{ lineHeight: '1.55' }}>
       {parts.map((part, index) => {
         if (isHtml) {
           // HTML인 경우 dangerouslySetInnerHTML 사용
@@ -35,8 +35,6 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
             return `<${tag} style="font-size: 1.1em; font-weight: 700; color: #0f172a; margin-top: 4px; margin-bottom: 2px; line-height: 1.4;">${content}</${tag}>`;
           });
           
-          // 일반 단락 간격 축소
-          htmlContent = htmlContent.replace(/<p>/g, '<p style="margin-top: 2px; margin-bottom: 2px; line-height: 1.5;">');
           return (
             <React.Fragment key={index}>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} className="prose prose-sm max-w-none" />
@@ -82,7 +80,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
           </React.Fragment>
         );
       })}
-    </span>
+    </div>
   );
 };
 

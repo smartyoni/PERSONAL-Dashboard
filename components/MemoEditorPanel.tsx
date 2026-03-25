@@ -412,24 +412,23 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         >
             <style>{`
                 .memo-tiptap-editor p, .prose p {
-                    margin-top: 2px !important;
-                    margin-bottom: 2px !important;
-                    line-height: 1.5 !important;
+                    margin-top: 4px !important;
+                    margin-bottom: 4px !important;
+                    line-height: 1.55 !important;
+                    min-height: 1em; /* 빈 줄 보존을 위해 최소 높이 설정 */
                 }
                 .memo-tiptap-editor li, .prose li {
-                    margin-top: 1px !important;
-                    margin-bottom: 1px !important;
-                    line-height: 1.5 !important;
-                }
-                /* Tiptap 에디터 내에서 # 또는 ※로 시작하는 문단 강조 */
-                .memo-tiptap-editor p:has(br:first-child + #), 
-                .memo-tiptap-editor p:first-child:contains("#"),
-                .memo-tiptap-editor p:first-child:contains("※") {
-                   /* Note: CSS contains selector is not standard, but we'll use it as a hint for some environments */
+                    margin-top: 2px !important;
+                    margin-bottom: 2px !important;
+                    line-height: 1.55 !important;
                 }
                 .prose h1, .prose h2, .prose h3 {
-                    margin-top: 8px !important;
-                    margin-bottom: 4px !important;
+                    margin-top: 12px !important;
+                    margin-bottom: 6px !important;
+                }
+                /* 에디터 내부의 기본 여백 제거 */
+                .memo-tiptap-editor {
+                    outline: none !important;
                 }
             `}</style>
             {currentItem && (
