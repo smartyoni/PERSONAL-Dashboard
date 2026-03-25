@@ -163,9 +163,10 @@ export const useSectionManagement = (
         targetSectionId: string,
         sourceTabId: string = activeTab.id,
         targetTabId: string = activeTab.id,
-        targetItemId?: string | null
+        targetItemId?: string | null,
+        newActiveTabId?: string
     ) => {
-        if (sourceSectionId === targetSectionId && sourceTabId === targetTabId) return;
+        if (sourceSectionId === targetSectionId && sourceTabId === targetTabId && !newActiveTabId) return;
 
         // handleMoveItem을 재사용하되, targetItemId(상대적 위치) 처리가 필요하면 여기서 추가 로직 수행
         // 하지만 현재 handleMoveItem은 항상 맨 뒤에 추가하므로, reorder와 drop이 혼합된 정교한 로직이 필요함.
@@ -228,6 +229,7 @@ export const useSectionManagement = (
 
         updateData({
             ...safeData,
+            activeTabId: newActiveTabId || safeData.activeTabId,
             tabs: safeData.tabs.map(tab => {
                 let updatedTab = { ...tab };
                 const isSourceTab = tab.id === sourceTabId;
@@ -341,10 +343,8 @@ export const useSectionManagement = (
         targetSectionId: string,
         switchTab: boolean = false
     ) => {
-        handleCrossSectionItemDrop(itemId, sourceSectionId, targetSectionId, sourceTabId, targetTabId);
-        if (switchTab && sourceTabId !== targetTabId) {
-            updateData({ ...safeData, activeTabId: targetTabId });
-        }
+        const newActiveTabId = (switchTab && sourceTabId !== targetTabId) ? targetTabId : undefined;
+        handleCrossSectionItemDrop(itemId, sourceSectionId, targetSectionId, sourceTabId, targetTabId, null, newActiveTabId);
     };
 
     return {

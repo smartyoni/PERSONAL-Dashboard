@@ -122,7 +122,7 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
       ) : (
         tabs.map((tab, tabIdx) => {
           const isMainTab = tabIdx === 0;
-          const allSections: Array<{ section: Section; type: 'inbox' | 'general' | 'widget' }> = [
+          const allSections: Array<{ section: Section; type: 'inbox' | 'general' | 'widget'; groupName?: string }> = [
             ...(tab.inboxSection ? [{ section: tab.inboxSection, type: 'inbox' as const }] : []),
           ];
 
@@ -130,24 +130,25 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
             const pk = tab.parkingInfo;
             const td1 = tab.todoManagementInfo;
 
-            const addWidgetSec = (id: string, title: string, items: any[]) => {
+            const addWidgetSec = (id: string, title: string, items: any[], groupName: string) => {
                 allSections.push({ 
                     section: { id, title: title || '항목', items: items || [], isLocked: false }, 
-                    type: 'widget' as const 
+                    type: 'widget' as const,
+                    groupName
                 });
             };
 
-            addWidgetSec('checklist', pk.checklistTitle || '개인 루틴', pk.checklistItems);
-            addWidgetSec('shopping', pk.shoppingTitle || '구매 예정', pk.shoppingListItems);
-            addWidgetSec('reminders', pk.remindersTitle || '기억 확인', pk.remindersItems);
-            addWidgetSec('todo', pk.todoTitle || '개인 할일', pk.todoItems);
-            addWidgetSec('parkingCat5', pk.category5Title || '기타 개인', pk.category5Items);
+            addWidgetSec('checklist', pk.checklistTitle || '개인 루틴', pk.checklistItems, '개인');
+            addWidgetSec('shopping', pk.shoppingTitle || '구매 예정', pk.shoppingListItems, '개인');
+            addWidgetSec('reminders', pk.remindersTitle || '기억 확인', pk.remindersItems, '개인');
+            addWidgetSec('todo', pk.todoTitle || '개인 할일', pk.todoItems, '개인');
+            addWidgetSec('parkingCat5', pk.category5Title || '기타 개인', pk.category5Items, '개인');
 
-            addWidgetSec('todoCat1', td1.category1Title || '업무 1', td1.category1Items);
-            addWidgetSec('todoCat2', td1.category2Title || '업무 2', td1.category2Items);
-            addWidgetSec('todoCat3', td1.category3Title || '업무 3', td1.category3Items);
-            addWidgetSec('todoCat4', td1.category4Title || '업무 4', td1.category4Items);
-            addWidgetSec('todoCat5', td1.category5Title || '업무 5', td1.category5Items);
+            addWidgetSec('todoCat1', td1.category1Title || '업무 1', td1.category1Items, '업무');
+            addWidgetSec('todoCat2', td1.category2Title || '업무 2', td1.category2Items, '업무');
+            addWidgetSec('todoCat3', td1.category3Title || '업무 3', td1.category3Items, '업무');
+            addWidgetSec('todoCat4', td1.category4Title || '업무 4', td1.category4Items, '업무');
+            addWidgetSec('todoCat5', td1.category5Title || '업무 5', td1.category5Items, '업무');
           }
 
           allSections.push(...tab.sections.map(s => ({ section: s, type: 'general' as const })));
@@ -187,47 +188,70 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                   </div>
                 ) : (
                   <div className="ml-5 border-l-2 border-slate-200 mb-2">
-                    {allSections.map(({ section, type }, index) => {
+                    {allSections.map(({ section, type, groupName }, index) => {
                       const isLast = index === allSections.length - 1;
                       const isSelected = selectedSection?.section.id === section.id;
                       const isWidget = type === 'widget';
                       const isInbox = type === 'inbox';
+                      
+                      const prevGroup = index > 0 ? allSections[index-1].groupName : null;
+                      const showGroupHeader = isWidget && groupName !== prevGroup;
 
                       return (
-                        <div key={section.id} className="relative flex items-center group pl-4 py-0.5">
-                          <div className="absolute left-0 top-1/2 w-4 h-0.5 bg-slate-200 -translate-y-1/2 flex-shrink-0" />
-                          {isLast && (
-                            <div
-                              className="absolute left-[-2px] bottom-0 w-0.5 bg-white"
-                              style={{ top: '50%' }}
-                            />
+                        <React.Fragment key={section.id}>
+                          {showGroupHeader && (
+                            <div className="pl-4 py-2 flex items-center gap-2">
+                                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${
+                                    groupName === '개인' 
+                                    ? 'text-green-600 bg-green-50 border-green-100' 
+                                    : 'text-sky-600 bg-sky-50 border-sky-100'
+                                }`}>
+                                    {groupName} 위젯
+                                </span>
+                                <div className="h-px flex-1 bg-slate-100 ml-1"></div>
+                            </div>
                           )}
+                          <div className="relative flex items-center group pl-4 py-0.5">
+                            <div className="absolute left-0 top-1/2 w-4 h-0.5 bg-slate-200 -translate-y-1/2 flex-shrink-0" />
+                            {isLast && (
+                              <div
+                                className="absolute left-[-2px] bottom-0 w-0.5 bg-white"
+                                style={{ top: '50%' }}
+                              />
+                            )}
 
-                          <button
-                            onClick={() => handleSectionSelect(tab.id, section)}
-                            className={`flex-1 text-left px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${isSelected
-                              ? (isWidget ? 'bg-orange-100 border-orange-300' : 'bg-blue-100 border-blue-300')
-                              : 'hover:bg-slate-50 border-slate-200'
-                              }`}
-                          >
-                            <span className="text-sm grayscale">{isInbox ? '📥' : isWidget ? '⚙️' : '📋'}</span>
-                            <span className={`text-sm font-medium truncate ${isSelected ? (isWidget ? 'text-orange-800' : 'text-blue-800') : 'text-slate-700'}`}>
-                              {section.title}
-                            </span>
-                            {section.isLocked && <div className="scale-75 flex-shrink-0"><LockIcon /></div>}
-                            <span className="text-[11px] text-slate-400 ml-auto font-normal flex-shrink-0">
-                              {section.items.length}개
-                            </span>
-                          </button>
+                            <button
+                              onClick={() => handleSectionSelect(tab.id, section)}
+                              className={`flex-1 text-left px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${isSelected
+                                ? (isWidget 
+                                    ? (groupName === '개인' ? 'bg-green-100 border-green-300' : 'bg-sky-100 border-sky-300') 
+                                    : 'bg-blue-100 border-blue-300')
+                                : 'hover:bg-slate-50 border-slate-200'
+                                }`}
+                            >
+                              <span className="text-sm grayscale">{isInbox ? '📥' : isWidget ? '⚙️' : '📋'}</span>
+                              <span className={`text-sm font-medium truncate ${isSelected 
+                                ? (isWidget 
+                                    ? (groupName === '개인' ? 'text-green-800' : 'text-sky-800') 
+                                    : 'text-blue-800') 
+                                : 'text-slate-700'}`}>
+                                {section.title}
+                              </span>
+                              {section.isLocked && <div className="scale-75 flex-shrink-0"><LockIcon /></div>}
+                              <span className="text-[11px] text-slate-400 ml-auto font-normal flex-shrink-0">
+                                {section.items.length}개
+                              </span>
+                            </button>
 
-                          <button
-                            onClick={() => onNavigateAndFocus(tab.id, section.id)}
-                            className={`ml-1.5 p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                            title="이 섹션으로 이동 후 입력하기"
-                          >
-                            🚀
-                          </button>
-                        </div>
+                            <button
+                              onClick={() => onNavigateAndFocus(tab.id, section.id)}
+                              className={`ml-1.5 p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                              title="이 섹션으로 이동 후 입력하기"
+                            >
+                              🚀
+                            </button>
+                          </div>
+                        </React.Fragment>
                       );
                     })}
                   </div>
