@@ -614,6 +614,48 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             </div>
                         )}
                     </div>
+                    {/* Mobile Editing Toolbar - Moved to Top */}
+                    {isMobileLayout && memoEditor.isEditing && (
+                        <div className="flex-none px-3 py-2 bg-slate-50 border-b border-slate-200">
+                            <div className="flex bg-slate-200/60 p-1 rounded-xl gap-1 border border-slate-300/30">
+                                {['•', '※', '#', '→', '■', '◆'].map((sym, idx) => (
+                                    <button
+                                        key={idx}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            onInsertSymbol(sym);
+                                        }}
+                                        className="flex-1 py-1.5 text-base font-bold rounded-lg transition-all bg-white shadow-sm border border-slate-200 text-slate-700 active:bg-slate-100"
+                                    >
+                                        {sym}
+                                    </button>
+                                ))}
+                                <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
+                                <button
+                                    onClick={() => handleSaveMemo()}
+                                    className="flex-none px-4 py-1.5 bg-green-500 text-white text-[11px] font-bold rounded-lg hover:bg-green-600 shadow-sm active:scale-95 transition-all border border-green-600"
+                                >저장</button>
+                                <button
+                                    onClick={() => {
+                                        let originalMemo = '';
+                                        if (memoEditor.type === 'checklist') {
+                                            originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
+                                        } else if (memoEditor.type === 'shopping') {
+                                            originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
+                                        } else {
+                                            originalMemo = activeTab.memos?.[memoEditor.id!] || '';
+                                        }
+                                        if (originalMemo) {
+                                            setMemoEditor(prev => ({ ...prev, value: originalMemo, isEditing: false }));
+                                        } else {
+                                            setMemoEditor(prev => ({ ...prev, id: null, value: '', type: 'section' as const, isEditing: false }));
+                                        }
+                                    }}
+                                    className="flex-none px-3 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-lg border border-slate-200"
+                                >취소</button>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
 
@@ -840,46 +882,48 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             >복사</button>
                         </div>
                     )}
-                    <div className="p-3 bg-slate-50 border-t border-slate-200" style={{ marginBottom: isMobileLayout ? `${keyboardHeight}px` : '0px' }}>
-                        {/* Editing Mode Action Bar - Symbols */}
-                        <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
-                            {['•', '※', '#', '→', '■', '◆'].map((sym, idx) => (
+                    {!isMobileLayout && (
+                        <div className="p-3 bg-slate-50 border-t border-slate-200">
+                            {/* Editing Mode Action Bar - Symbols (Desktop Only) */}
+                            <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
+                                {['•', '※', '#', '→', '■', '◆'].map((sym, idx) => (
+                                    <button
+                                        key={idx}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            onInsertSymbol(sym);
+                                        }}
+                                        className="flex-1 py-1.5 text-base md:text-lg font-bold rounded-xl transition-all hover:bg-white/80 active:bg-white text-slate-700 shadow-sm border border-transparent hover:border-slate-300/50"
+                                    >
+                                        {sym}
+                                    </button>
+                                ))}
+                                <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
                                 <button
-                                    key={idx}
-                                    onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        onInsertSymbol(sym);
+                                    onClick={() => {
+                                        let originalMemo = '';
+                                        if (memoEditor.type === 'checklist') {
+                                            originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
+                                        } else if (memoEditor.type === 'shopping') {
+                                            originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
+                                        } else {
+                                            originalMemo = activeTab.memos?.[memoEditor.id!] || '';
+                                        }
+                                        if (originalMemo) {
+                                            setMemoEditor(prev => ({ ...prev, value: originalMemo, isEditing: false }));
+                                        } else {
+                                            setMemoEditor(prev => ({ ...prev, id: null, value: '', type: 'section' as const, isEditing: false }));
+                                        }
                                     }}
-                                    className="flex-1 py-1.5 text-base md:text-lg font-bold rounded-xl transition-all hover:bg-white/80 active:bg-white text-slate-700 shadow-sm border border-transparent hover:border-slate-300/50"
-                                >
-                                    {sym}
-                                </button>
-                            ))}
-                            <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
-                            <button
-                                onClick={() => {
-                                    let originalMemo = '';
-                                    if (memoEditor.type === 'checklist') {
-                                        originalMemo = activeTab.parkingInfo.checklistMemos?.[memoEditor.id!] || '';
-                                    } else if (memoEditor.type === 'shopping') {
-                                        originalMemo = activeTab.parkingInfo.shoppingListMemos?.[memoEditor.id!] || '';
-                                    } else {
-                                        originalMemo = activeTab.memos?.[memoEditor.id!] || '';
-                                    }
-                                    if (originalMemo) {
-                                        setMemoEditor(prev => ({ ...prev, value: originalMemo, isEditing: false }));
-                                    } else {
-                                        setMemoEditor(prev => ({ ...prev, id: null, value: '', type: 'section' as const, isEditing: false }));
-                                    }
-                                }}
-                                className="flex-none px-4 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-xl hover:bg-slate-100 transition-all shadow-sm border border-slate-200"
-                            >취소</button>
-                            <button
-                                onClick={() => handleSaveMemo()}
-                                className="flex-none px-6 py-1.5 bg-green-500 text-white text-[11px] font-bold rounded-xl hover:bg-green-600 shadow-[2px_2px_0_0_#15803d] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all border border-green-600"
-                            >저장</button>
+                                    className="flex-none px-4 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-xl hover:bg-slate-100 transition-all shadow-sm border border-slate-200"
+                                >취소</button>
+                                <button
+                                    onClick={() => handleSaveMemo()}
+                                    className="flex-none px-6 py-1.5 bg-green-500 text-white text-[11px] font-bold rounded-xl hover:bg-green-600 shadow-[2px_2px_0_0_#15803d] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all border border-green-600"
+                                >저장</button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             )}
 
