@@ -32,7 +32,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
 
           // 소항목(#, ※) 스타일링 및 줄간격 조정
           htmlContent = htmlContent.replace(/<(p|li|h[1-6])>\s*([#※]\s*.*?)<\/\1>/g, (match, tag, content) => {
-            return `<${tag} style="font-size: 1.1em; font-weight: 700; color: #0f172a; margin-top: 4px; margin-bottom: 2px; line-height: 1.4;">${content}</${tag}>`;
+            return `<${tag} style="font-size: 1.1em; font-weight: 700; color: #0f172a; margin-top: 2px; margin-bottom: 1px; line-height: 1.4;">${content}</${tag}>`;
           });
           
           return (

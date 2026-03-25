@@ -412,19 +412,19 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         >
             <style>{`
                 .memo-tiptap-editor p, .prose p {
-                    margin-top: 4px !important;
-                    margin-bottom: 4px !important;
-                    line-height: 1.55 !important;
-                    min-height: 1em; /* 빈 줄 보존을 위해 최소 높이 설정 */
+                    margin-top: 0px !important;
+                    margin-bottom: 0px !important;
+                    line-height: 1.5 !important;
+                    min-height: 1.25em; /* 빈 줄 보존을 위해 최소 높이 확보 */
                 }
                 .memo-tiptap-editor li, .prose li {
-                    margin-top: 2px !important;
-                    margin-bottom: 2px !important;
-                    line-height: 1.55 !important;
+                    margin-top: 0px !important;
+                    margin-bottom: 0px !important;
+                    line-height: 1.5 !important;
                 }
                 .prose h1, .prose h2, .prose h3 {
-                    margin-top: 12px !important;
-                    margin-bottom: 6px !important;
+                    margin-top: 8px !important;
+                    margin-bottom: 4px !important;
                 }
                 /* 에디터 내부의 기본 여백 제거 */
                 .memo-tiptap-editor {
