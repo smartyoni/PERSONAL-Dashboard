@@ -165,12 +165,12 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 h-full ${isMobileLayout ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1fr_1fr_1.2fr_1fr_1fr]'}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 h-full ${isMobileLayout ? 'grid-cols-1' : (isMainTab ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[0.7fr_1.3fr_1.2fr_1fr_1fr]' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1fr_1fr_1.2fr_1fr_1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 1. ToC 및 나머지 섹션들 */}
                                         <div className="flex flex-col gap-1.5 h-full">
-                                            <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(40vh)]"}>
+                                            <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                 <TocWidget
                                                     tabs={safeData.tabs}
                                                     activeTabId={activeTab.id}

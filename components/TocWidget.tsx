@@ -147,13 +147,13 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                   className={`w-full text-left px-2 py-1.5 rounded-md mb-0.5 transition-all flex items-center gap-1.5 ${
                     isActive
                       ? 'bg-indigo-50 border border-indigo-300'
-                      : 'hover:bg-slate-100 border border-slate-200'
+                      : 'hover:bg-slate-100 border border-slate-400'
                   }`}
                 >
                   <ChevronIcon isExpanded={isExpanded} />
                   <span className="text-sm">📑</span>
                   <span
-                    className={`text-xs font-semibold truncate flex-1 ${
+                    className={`text-sm font-semibold truncate flex-1 ${
                       isActive ? 'text-indigo-800' : 'text-slate-700'
                     }`}
                   >
@@ -164,7 +164,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                       <LockIcon />
                     </span>
                   )}
-                  <span className="text-[10px] text-slate-400 flex-shrink-0">
+                  <span className="text-[11px] text-slate-400 flex-shrink-0">
                     {displaySections.length}
                   </span>
                 </button>
@@ -180,7 +180,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                   }}
                 >
                   {displaySections.length === 0 ? (
-                    <div className="ml-4 pl-4 py-1.5 text-[10px] text-slate-400 italic border-l-2 border-slate-200">
+                    <div className="ml-4 pl-4 py-1.5 text-[11px] text-slate-400 italic border-l-2 border-slate-200">
                       섹션 없음
                     </div>
                   ) : (
@@ -198,14 +198,14 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                               )}
                               <button
                                 onClick={() => onNavigate(tab.id, v.id)}
-                                className="flex-1 text-left px-2 py-1 rounded border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-1.5 min-w-0"
+                                className="flex-1 text-left px-2 py-1 rounded border border-slate-400 hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-1.5 min-w-0"
                                 title={v.title}
                               >
-                                <span className="text-xs">{v.emoji}</span>
-                                <span className="text-[11px] font-medium text-slate-500 truncate flex-1 italic">
+                                <span className="text-sm">{v.emoji}</span>
+                                <span className="text-xs font-medium text-slate-500 truncate flex-1 italic">
                                   {v.title}
                                 </span>
-                                <span className="text-[10px] text-slate-400 flex-shrink-0">
+                                <span className="text-[11px] text-slate-400 flex-shrink-0">
                                   {v.itemCount}
                                 </span>
                               </button>
@@ -229,17 +229,17 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                               )}
                               <button
                                 onClick={() => onNavigate(tab.id, section.id)}
-                                className="flex-1 text-left px-2 py-1 rounded border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-1.5 min-w-0"
+                                className="flex-1 text-left px-2 py-1 rounded border border-slate-400 hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-1.5 min-w-0"
                                 title={section.title}
                               >
-                                <span className="text-xs grayscale">{isInbox ? '📥' : '📋'}</span>
-                                <span className="text-[11px] font-medium text-slate-700 truncate flex-1">
+                                <span className="text-sm grayscale">{isInbox ? '📥' : '📋'}</span>
+                                <span className="text-xs font-medium text-slate-700 truncate flex-1">
                                   {section.title}
                                 </span>
                                 {section.isLocked && (
                                   <span className="scale-75 flex-shrink-0"><LockIcon /></span>
                                 )}
-                                <span className="text-[10px] text-slate-400 flex-shrink-0">
+                                <span className="text-[11px] text-slate-400 flex-shrink-0">
                                   {section.items.length}
                                 </span>
                               </button>
