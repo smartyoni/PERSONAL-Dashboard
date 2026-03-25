@@ -315,19 +315,18 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     if (!memoEditor.id) {
         if (isDesktopSplit) {
             return (
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[#F8FAFC]">
-                    <div className="w-20 h-20 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center justify-center mb-6 text-indigo-100 group">
-                        <svg className="w-10 h-10 text-indigo-400/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-gradient-to-b from-slate-50 to-white h-full">
+                    <div className="w-24 h-24 bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(79,70,229,0.1)] flex items-center justify-center mb-8 text-indigo-500 animate-pulse-subtle">
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </div>
-                    <h3 className="text-slate-700 font-bold text-lg mb-2">상세 정보</h3>
-                    <p className="text-slate-400 text-sm leading-relaxed">항목을 더블클릭하거나 선택하여<br/>상세 메모와 목차를 관리해 보세요.</p>
-                    <div className="mt-8 flex gap-2">
-                        <div className="w-2 h-2 rounded-full bg-indigo-200 animate-pulse"></div>
-                        <div className="w-2 h-2 rounded-full bg-indigo-200 animate-pulse delay-75"></div>
-                        <div className="w-2 h-2 rounded-full bg-indigo-200 animate-pulse delay-150"></div>
-                    </div>
+                    <h3 className="text-slate-800 font-extrabold text-xl mb-3 tracking-tight">상세 메모 편집기</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed max-w-[240px]">
+                        왼쪽 또는 오른쪽 섹션의 항목을<br/>
+                        <span className="text-indigo-600 font-bold">더블클릭</span>하거나 선택하여<br/>
+                        상세 내용을 기록해 보세요.
+                    </p>
                 </div>
             );
         }
@@ -343,10 +342,17 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             className="bg-white flex flex-col relative w-full h-full group"
         >
             <style>{`
+                @keyframes pulse-subtle {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.8; transform: scale(1.02); }
+                }
+                .animate-pulse-subtle {
+                    animation: pulse-subtle 3s infinite ease-in-out;
+                }
                 .memo-editor-textarea {
                     width: 100%;
                     height: 100%;
-                    padding: 0 1rem 1rem 12px;
+                    padding: 0 1.5rem 1.5rem 12px;
                     border: none;
                     outline: none;
                     font-size: 15px;
@@ -379,8 +385,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {currentItem && (
                 <>
                     <div 
-                        className="flex-none px-4 py-2.5 bg-purple-100 flex items-center justify-between border-b min-h-[50px]" 
-                        style={{ borderColor: 'rgba(0,0,0,0.1)' }}
+                        className="flex-none px-4 py-3 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between border-b min-h-[56px] shadow-sm" 
+                        style={{ borderColor: 'rgba(99, 102, 241, 0.1)' }}
                         onClick={() => {
                             if (isMobileLayout && !isEditingHeader) {
                                 setHeaderValue(headerTitle);
@@ -395,7 +401,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         }}
                     >
                         <div className="flex-1 flex items-center mr-2">
-                            <span className="text-slate-500 mr-2 flex-none">📌</span>
+                            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mr-3 flex-none border border-indigo-100 shadow-sm">
+                                <span className="text-sm">📌</span>
+                            </div>
                             {isEditingHeader ? (
                                 <textarea
                                     autoFocus

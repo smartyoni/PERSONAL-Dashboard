@@ -199,7 +199,7 @@ const App: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-[#F8FAFC] overflow-hidden text-slate-900">
       <div className="flex-1 flex flex-row overflow-hidden relative">
-        <div className={`transition-all duration-300 overflow-hidden relative flex flex-col ${!isMobileLayout ? 'w-[70%]' : 'w-full'}`}>
+        <div className="transition-all duration-300 overflow-hidden relative flex flex-col w-full">
           <MainContent
         safeData={safeData} activeTab={activeTab} isMainTab={isMainTab}
         isBookmarkView={isBookmarkView} isMobileLayout={isMobileLayout}
@@ -229,6 +229,22 @@ const App: React.FC = () => {
         isOnline={isOnline}
         onTocNavigate={handleNavigateFromMap}
         onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
+        // 상세 화면 관련 프롭스 추가
+        memoEditor={memoEditor}
+        setMemoEditor={setMemoEditor}
+        memoTextareaRef={memoTextareaRef}
+        handleSaveMemo={handleSaveMemo}
+        handleSwipeMemo={handleSwipeMemo}
+        handleDeleteItemFromModal={handleDeleteItemFromModal}
+        handleOpenTagSelectionFromMain={handleOpenTagSelection}
+        handleInsertSymbol={handleInsertSymbol}
+        handleChangePage={handleChangePage}
+        handleUpdateTitle={handleUpdateTitle}
+        handleUpdateItemText={handleUpdateItemText}
+        handleAddPage={handleAddPage}
+        handleDeletePage={handleDeletePage}
+        memoSymbols={memoSymbols}
+        handleMoveItem={handleMoveItem}
         onOpenItemMemoAtPage={(itemId, pageIndex, highlightText) => {
           // 1. 일반 섹션 탐색
           const allSections = [activeTab.inboxSection, ...activeTab.sections];
@@ -284,31 +300,6 @@ const App: React.FC = () => {
         }}
       />
         </div>
-        
-        {!isMobileLayout && (
-          <div className="w-[30%] bg-white border-l-2 border-slate-300 flex flex-col z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.1)]">
-            <MemoEditorPanel
-              memoEditor={memoEditor} setMemoEditor={setMemoEditor}
-              memoTextareaRef={memoTextareaRef}
-              handleSaveMemo={handleSaveMemo} handleSwipeMemo={handleSwipeMemo}
-              handleDeleteItemFromModal={handleDeleteItemFromModal}
-              handleOpenTagSelection={handleOpenTagSelection}
-              handleInsertSymbol={handleInsertSymbol}
-              handleChangePage={handleChangePage}
-              handleUpdateTitle={handleUpdateTitle}
-              handleUpdateItemText={handleUpdateItemText}
-              handleAddPage={handleAddPage}
-              handleDeletePage={handleDeletePage}
-              memoSymbols={memoSymbols}
-              setNavigationMapOpen={setNavigationMapOpen}
-              activeTab={activeTab}
-              safeData={safeData}
-              isMobileLayout={isMobileLayout}
-              isDesktopSplit={true}
-              handleMoveItem={handleMoveItem}
-            />
-          </div>
-        )}
       </div>
 
       <div className="flex-none">

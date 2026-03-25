@@ -4,6 +4,7 @@ import SectionCard from './SectionCard';
 import ParkingWidget from './ParkingWidget';
 import TodoWidget from './TodoWidget';
 import TocWidget from './TocWidget';
+import MemoEditorPanel from './MemoEditorPanel';
 import Header from './Header';
 
 interface MainContentProps {
@@ -55,6 +56,23 @@ interface MainContentProps {
     onTocNavigate: (tabId: string, sectionId: string) => void;
     onTocNavigateAndFocus: (tabId: string, sectionId: string) => void;
     onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
+
+    // Memo Editor Panel Props
+    memoEditor: MemoEditorState;
+    setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
+    memoTextareaRef: React.RefObject<HTMLDivElement>;
+    handleSaveMemo: (isAutoSave?: boolean, newValue?: string) => void;
+    handleSwipeMemo: (direction: 'left' | 'right') => void;
+    handleDeleteItemFromModal: () => void;
+    handleOpenTagSelectionFromMain: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
+    handleInsertSymbol: (symbol: string) => void;
+    handleChangePage: (index: number) => void;
+    handleUpdateTitle: (title: string) => void;
+    handleUpdateItemText: (newText: string) => void;
+    handleAddPage: () => void;
+    handleDeletePage: () => void;
+    memoSymbols: { label: string; value: string; title: string }[];
+    handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -78,6 +96,12 @@ const MainContent: React.FC<MainContentProps> = ({
     onTocNavigate,
     onTocNavigateAndFocus,
     onOpenItemMemoAtPage,
+    // New Props
+    memoEditor, setMemoEditor, memoTextareaRef,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
+    handleOpenTagSelectionFromMain, handleInsertSymbol, handleChangePage,
+    handleUpdateTitle, handleUpdateItemText, handleAddPage, handleDeletePage,
+    memoSymbols, handleMoveItem,
 }) => {
 
     return (
@@ -108,9 +132,9 @@ const MainContent: React.FC<MainContentProps> = ({
                         />
                     </div>
 
-                    <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-2 pb-20">
+                    <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-0.5 pb-20">
                         {isBookmarkView ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 md:gap-2 pt-1" style={{ gridAutoRows: 'auto' }}>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0.5 md:gap-1 pt-1" style={{ gridAutoRows: 'auto' }}>
                                 {(safeData.bookmarkSections || []).map((section) => (
                                     <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[480px] lg:h-[calc(100vh-160px)]"}>
                                         <SectionCard
@@ -141,22 +165,57 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 h-full ${isMobileLayout
-                                ? 'grid-cols-1'
-                                : 'grid-cols-1 md:grid-cols-2 md:gap-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
-                                }`} style={{ gridAutoRows: 'auto' }}>
-                                {isMainTab && (
+                            <div className={`grid gap-1 md:gap-1.5 h-full ${isMobileLayout ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1fr_1fr_1.2fr_1fr_1fr]'}`} style={{ gridAutoRows: 'auto' }}>
+                                {isMainTab ? (
                                     <>
-                                        <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                            <TocWidget
-                                                tabs={safeData.tabs}
-                                                activeTabId={activeTab.id}
-                                                onNavigate={onTocNavigate}
-                                                onNavigateAndFocus={onTocNavigateAndFocus}
-                                            />
+                                        {/* 1. ToC 및 나머지 섹션들 */}
+                                        <div className="flex flex-col gap-1.5 h-full">
+                                            <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(40vh)]"}>
+                                                <TocWidget
+                                                    tabs={safeData.tabs}
+                                                    activeTabId={activeTab.id}
+                                                    onNavigate={onTocNavigate}
+                                                    onNavigateAndFocus={onTocNavigateAndFocus}
+                                                />
+                                            </div>
+                                            {activeTab.sections.map((section, idx) => (
+                                                <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                    <SectionCard
+                                                        bgIndex={idx + 1}
+                                                        section={section}
+                                                        itemMemos={activeTab.memos}
+                                                        onUpdateSection={handleUpdateSection}
+                                                        onDeleteSection={handleDeleteSection}
+                                                        onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
+                                                        onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                        onMoveItem={() => { }}
+                                                        onAddToCalendar={handleAddToCalendarClick}
+                                                        dragState={dragState}
+                                                        setDragState={setDragState}
+                                                        onSectionDragStart={() => onSectionDragStart(section.id)}
+                                                        onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
+                                                        onSectionDrop={(e) => onSectionDrop(e, section.id)}
+                                                        onSectionDragEnd={onSectionDragEnd}
+                                                        isHighlighted={section.id === highlightedSectionId}
+                                                        isFullHeight={true}
+                                                        tabColorText={activeTabColorConfig.text}
+                                                        tabColorBg={activeTabColorConfig.bgLight}
+                                                        onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                        onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
+                                                        onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                        onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
+                                                        isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
+                                                        onReturnFromInbox={handleReturnFromInbox}
+                                                        autoFocusQuickAdd={focusQuickAddSectionId === section.id}
+                                                        onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                        isMobileLayout={isMobileLayout}
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
 
-                                        <div className={`${isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"} xl:col-span-1`}>
+                                        {/* 2. IN-BOX */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <SectionCard
                                                 bgIndex={0}
                                                 section={activeTab.inboxSection}
@@ -191,14 +250,40 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div data-section-id="parking-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                        {/* 3. 상세 화면 (MemoEditorPanel) - 중앙 배치 (1.2x 확대) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
+                                            <MemoEditorPanel
+                                                memoEditor={memoEditor}
+                                                setMemoEditor={setMemoEditor}
+                                                memoTextareaRef={memoTextareaRef}
+                                                handleSaveMemo={handleSaveMemo}
+                                                handleSwipeMemo={handleSwipeMemo}
+                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
+                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
+                                                handleInsertSymbol={handleInsertSymbol}
+                                                handleChangePage={handleChangePage}
+                                                handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdateItemText={handleUpdateItemText}
+                                                handleAddPage={handleAddPage}
+                                                handleDeletePage={handleDeletePage}
+                                                memoSymbols={memoSymbols}
+                                                setNavigationMapOpen={setNavigationMapOpen}
+                                                activeTab={activeTab}
+                                                safeData={safeData}
+                                                isMobileLayout={isMobileLayout}
+                                                isDesktopSplit={true}
+                                                handleMoveItem={handleMoveItem}
+                                            />
+                                        </div>
+
+                                        {/* 4. 업무 위젯 */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
                                                 onChange={handleParkingChange}
                                                 onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                // Added props
                                                 dragState={dragState}
                                                 setDragState={setDragState}
                                                 onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
@@ -206,7 +291,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div data-section-id="todo-section-1" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                        {/* 5. 개인 위젯 */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -215,59 +301,131 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 subHeaderClass="text-[17px] font-bold text-blue-600"
                                                 todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                // Added props
                                                 dragState={dragState}
                                                 setDragState={setDragState}
                                                 onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
+                                    </>
+                                ) : (
+                                    /* 일반 탭 레이아웃 - 섹션들 가운데 상세 화면 배치 */
+                                    <>
+                                        {/* 컬럼 1-2: 처음 두 섹션 */}
+                                        {activeTab.sections.slice(0, 2).map((section, idx) => (
+                                            <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                <SectionCard
+                                                    bgIndex={idx + 1}
+                                                    section={section}
+                                                    itemMemos={activeTab.memos}
+                                                    onUpdateSection={handleUpdateSection}
+                                                    onDeleteSection={handleDeleteSection}
+                                                    onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
+                                                    onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                    onMoveItem={() => { }}
+                                                    onAddToCalendar={handleAddToCalendarClick}
+                                                    dragState={dragState}
+                                                    setDragState={setDragState}
+                                                    onSectionDragStart={() => onSectionDragStart(section.id)}
+                                                    onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
+                                                    onSectionDrop={(e) => onSectionDrop(e, section.id)}
+                                                    onSectionDragEnd={onSectionDragEnd}
+                                                    isHighlighted={section.id === highlightedSectionId}
+                                                    isFullHeight={true}
+                                                    tabColorText={activeTabColorConfig.text}
+                                                    tabColorBg={activeTabColorConfig.bgLight}
+                                                    onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                    onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
+                                                    onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                    onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
+                                                    isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
+                                                    onReturnFromInbox={handleReturnFromInbox}
+                                                    autoFocusQuickAdd={focusQuickAddSectionId === section.id}
+                                                    onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                    isMobileLayout={isMobileLayout}
+                                                />
+                                            </div>
+                                        ))}
 
+                                        {/* 컬럼 3: 상세 화면 (MemoEditorPanel) - 1.2x 확대 */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
+                                            <MemoEditorPanel
+                                                memoEditor={memoEditor}
+                                                setMemoEditor={setMemoEditor}
+                                                memoTextareaRef={memoTextareaRef}
+                                                handleSaveMemo={handleSaveMemo}
+                                                handleSwipeMemo={handleSwipeMemo}
+                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
+                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
+                                                handleInsertSymbol={handleInsertSymbol}
+                                                handleChangePage={handleChangePage}
+                                                handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdateItemText={handleUpdateItemText}
+                                                handleAddPage={handleAddPage}
+                                                handleDeletePage={handleDeletePage}
+                                                memoSymbols={memoSymbols}
+                                                setNavigationMapOpen={setNavigationMapOpen}
+                                                activeTab={activeTab}
+                                                safeData={safeData}
+                                                isMobileLayout={isMobileLayout}
+                                                isDesktopSplit={true}
+                                                handleMoveItem={handleMoveItem}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 4-5...: 나머지 섹션들 */}
+                                        {activeTab.sections.slice(2).map((section, idx) => (
+                                            <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                <SectionCard
+                                                    bgIndex={idx + 3}
+                                                    section={section}
+                                                    itemMemos={activeTab.memos}
+                                                    onUpdateSection={handleUpdateSection}
+                                                    onDeleteSection={handleDeleteSection}
+                                                    onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
+                                                    onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                    onMoveItem={() => { }}
+                                                    onAddToCalendar={handleAddToCalendarClick}
+                                                    dragState={dragState}
+                                                    setDragState={setDragState}
+                                                    onSectionDragStart={() => onSectionDragStart(section.id)}
+                                                    onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
+                                                    onSectionDrop={(e) => onSectionDrop(e, section.id)}
+                                                    onSectionDragEnd={onSectionDragEnd}
+                                                    isHighlighted={section.id === highlightedSectionId}
+                                                    isFullHeight={true}
+                                                    tabColorText={activeTabColorConfig.text}
+                                                    tabColorBg={activeTabColorConfig.bgLight}
+                                                    onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                    onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
+                                                    onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                    onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
+                                                    isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
+                                                    onReturnFromInbox={handleReturnFromInbox}
+                                                    autoFocusQuickAdd={focusQuickAddSectionId === section.id}
+                                                    onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                    isMobileLayout={isMobileLayout}
+                                                />
+                                            </div>
+                                        ))}
                                     </>
                                 )}
-                                {activeTab.sections.map((section, idx) => (
-                                    <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                        <SectionCard
-                                            bgIndex={idx + 1}
-                                            section={section}
-                                            itemMemos={activeTab.memos}
-                                            onUpdateSection={handleUpdateSection}
-                                            onDeleteSection={handleDeleteSection}
-                                            onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
-                                            onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                            onMoveItem={() => { }}
-                                            onAddToCalendar={handleAddToCalendarClick}
-                                            dragState={dragState}
-                                            setDragState={setDragState}
-                                            onSectionDragStart={() => onSectionDragStart(section.id)}
-                                            onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
-                                            onSectionDrop={(e) => onSectionDrop(e, section.id)}
-                                            onSectionDragEnd={onSectionDragEnd}
-                                            isHighlighted={section.id === highlightedSectionId}
-                                            isFullHeight={!isMainTab}
-                                            tabColorText={activeTabColorConfig.text}
-                                            tabColorBg={activeTabColorConfig.bgLight}
-                                            onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                            onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
-                                            onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                            onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
-                                            isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
-                                            onReturnFromInbox={handleReturnFromInbox}
-                                            autoFocusQuickAdd={focusQuickAddSectionId === section.id}
-                                            onClearFocus={() => setFocusQuickAddSectionId(null)}
-                                            isMobileLayout={isMobileLayout}
-                                        />
-                                    </div>
-                                ))}
+                            </div>
+                        )}
 
-                                {activeTab.sections.length === 0 && (!isMainTab || activeTab.sections.length === 0) && (
-                                    <div className="col-span-full text-center py-16 text-slate-400">
-                                        <p className="text-sm italic">
-                                            {isMainTab && activeTab.sections.length === 0 ? '추가된 섹션이 없습니다. "+항목" 버튼을 눌러 섹션을 추가하세요.' :
-                                                activeTab.sections.length === 0 ? '이 페이지는 비어있습니다. 새로운 섹션을 추가해 보세요.' : ''}
-                                        </p>
+                        {isMainTab && (
+                            <div className="mt-8 mb-12 flex justify-center">
+                                <button
+                                    onClick={handleAddSection}
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-dashed border-slate-300 text-slate-500 rounded-2xl font-bold hover:border-indigo-400 hover:text-indigo-50/30 transition-all group"
+                                >
+                                    <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+                                        </svg>
                                     </div>
-                                )}
+                                    <span>새 섹션 추가</span>
+                                </button>
                             </div>
                         )}
                     </main>
