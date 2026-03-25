@@ -56,7 +56,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         type: 1
     });
     const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-    const [activeToC, setActiveToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
+    const [activeToC, setActiveToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect; type: 1 | 2 | 3 | 4 | 5 } | null>(null);
     const tocPopupRef = useRef<HTMLDivElement>(null);
 
     const menuRef = useRef<HTMLDivElement>(null);
@@ -189,7 +189,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
         return (
             <div 
-                className={`flex-1 flex flex-col min-h-0 border-b border-sky-400 last:border-b-0 py-1 first:pt-0 transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-sky-50' : isOverThisSection ? 'bg-sky-100/50 scale-[1.02] border-l-4 border-l-sky-600' : ''}`}
+                className={`flex flex-col min-h-0 border-b border-sky-400 last:border-b-0 py-0 transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-sky-50' : isOverThisSection ? 'bg-sky-100/50 scale-[1.02] border-l-4 border-l-sky-600' : ''}`}
                 draggable={true}
                 onDragStart={(e) => {
                     const target = e.target as HTMLElement;
@@ -239,12 +239,12 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverSectionId: null, dragOverTabId: null });
                 }}
             >
-                <div className="flex items-center justify-between mb-1 px-1 cursor-grab active:cursor-grabbing">
+                <div className="flex items-center justify-between mb-0 px-1 cursor-grab active:cursor-grabbing">
                     <EditableText
                         value={title}
                         onChange={(txt) => handleUpdateTitle(type, txt)}
                         placeholder="제목 입력..."
-                        className={subHeaderClass || "text-[17px] font-bold text-green-600"}
+                        className={subHeaderClass || "text-[16px] font-bold text-green-600"}
                         compact
                     />
                     <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
@@ -296,7 +296,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                     }
                                     setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
                                 }}
-                                className={`flex items-start gap-1 py-1 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
+                                className={`flex items-start gap-1 py-0 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
                             >
                                 <button
                                     ref={el => { triggerRefs.current[item.id] = el; }}
@@ -320,6 +320,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                                     allTitles,
                                                     allValues,
                                                     rect,
+                                                    type
                                                 });
                                             }
                                         }
@@ -368,7 +369,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                 <span className={todoTagClass || "text-[10px] font-normal text-sky-600 font-mono"}>TODO</span>
             </h2>
 
-            <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 flex flex-col min-h-0 space-y-0 overflow-y-auto custom-scrollbar">
                 <SubSection sectionId="todoCat1" title={info.category1Title} type={1} items={info.category1Items || []} memos={info.category1Memos} onShowMemo={onShowTodoCat1Memo} />
                 <SubSection sectionId="todoCat2" title={info.category2Title} type={2} items={info.category2Items || []} memos={info.category2Memos} onShowMemo={onShowTodoCat2Memo} />
                 <SubSection sectionId="todoCat3" title={info.category3Title} type={3} items={info.category3Items || []} memos={info.category3Memos} onShowMemo={onShowTodoCat3Memo} />
@@ -503,7 +504,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                                 if (onOpenItemMemoAtPage) {
                                                     onOpenItemMemoAtPage(activeToC.itemId, idx);
                                                 } else {
-                                                    const showMemo = [onShowTodoCat1Memo, onShowTodoCat2Memo, onShowTodoCat3Memo, onShowTodoCat4Memo, onShowTodoCat5Memo][type - 1];
+                                                    const showMemo = [onShowTodoCat1Memo, onShowTodoCat2Memo, onShowTodoCat3Memo, onShowTodoCat4Memo, onShowTodoCat5Memo][activeToC.type - 1];
                                                     if (showMemo) showMemo(activeToC.itemId); 
                                                 }
                                                 setActiveToC(null);
@@ -530,7 +531,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                                                 if (onOpenItemMemoAtPage) {
                                                                     onOpenItemMemoAtPage(activeToC.itemId, idx, sub);
                                                                 } else {
-                                                                    const showMemo = [onShowTodoCat1Memo, onShowTodoCat2Memo, onShowTodoCat3Memo, onShowTodoCat4Memo, onShowTodoCat5Memo][type - 1];
+                                                                    const showMemo = [onShowTodoCat1Memo, onShowTodoCat2Memo, onShowTodoCat3Memo, onShowTodoCat4Memo, onShowTodoCat5Memo][activeToC.type - 1];
                                                                     if (showMemo) showMemo(activeToC.itemId);
                                                                 }
                                                                 setActiveToC(null);

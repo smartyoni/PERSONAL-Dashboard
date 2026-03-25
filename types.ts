@@ -89,8 +89,10 @@ export interface DragState {
   draggedItemId: string | null;
   dragOverItemId: string | null;
   sourceSectionId: string | null;
-  draggedSectionId: string | null;
-  dragOverSectionId: string | null;
+  draggedSectionId?: string | null;
+  dragOverSectionId?: string | null;
+  sourceTabId?: string | null;
+  dragOverTabId?: string | null;
 }
 
 export interface MemoEditorState {

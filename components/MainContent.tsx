@@ -158,6 +158,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
                                         <div className={`${isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"} xl:col-span-1`}>
                                             <SectionCard
+                                                bgIndex={0}
                                                 section={activeTab.inboxSection}
                                                 itemMemos={activeTab.memos}
                                                 onUpdateSection={handleUpdateInboxSection}
@@ -172,7 +173,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onSectionDragOver={() => { }}
                                                 onSectionDrop={() => { }}
                                                 onSectionDragEnd={() => { }}
-                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onReturnFromInbox={handleReturnFromInbox}
                                                 isReturnVisible={!!lastSectionBeforeInbox}
                                                 isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
@@ -200,7 +201,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 // Added props
                                                 dragState={dragState}
                                                 setDragState={setDragState}
-                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
@@ -217,7 +218,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 // Added props
                                                 dragState={dragState}
                                                 setDragState={setDragState}
-                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
@@ -233,16 +234,16 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 // Added props
                                                 dragState={dragState}
                                                 setDragState={setDragState}
-                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
                                     </>
                                 )}
-
-                                {activeTab.sections.map(section => (
+                                {activeTab.sections.map((section, idx) => (
                                     <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                         <SectionCard
+                                            bgIndex={idx + 1}
                                             section={section}
                                             itemMemos={activeTab.memos}
                                             onUpdateSection={handleUpdateSection}
@@ -261,7 +262,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             isFullHeight={!isMainTab}
                                             tabColorText={activeTabColorConfig.text}
                                             tabColorBg={activeTabColorConfig.bgLight}
-                                            onCrossSectionDrop={handleCrossSectionItemDrop}
+                                            onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                             onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
                                             onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                             onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}

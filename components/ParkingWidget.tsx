@@ -220,7 +220,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
     return (
       <div 
-        className={`flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0 transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-green-50' : isOverThisSection ? 'bg-green-100/50 scale-[1.02] border-l-4 border-l-green-600' : ''}`}
+        className={`flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-0 transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-green-50' : isOverThisSection ? 'bg-green-100/50 scale-[1.02] border-l-4 border-l-green-600' : ''}`}
         draggable={true}
         onDragStart={(e) => {
           const target = e.target as HTMLElement;
@@ -266,12 +266,12 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
             setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverSectionId: null, dragOverTabId: null });
         }}
       >
-        <div className="flex items-center justify-between mb-1 px-1 cursor-grab active:cursor-grabbing">
+        <div className="flex items-center justify-between mb-0 px-1 cursor-grab active:cursor-grabbing">
           <EditableText
             value={title}
             onChange={onTitleChange}
             placeholder="제목 입력..."
-            className="text-[17px] font-bold text-red-600 pointer-events-auto"
+            className="text-[16px] font-bold text-red-600 pointer-events-auto"
             compact
           />
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold pointer-events-auto">+ 추가</button>
@@ -322,7 +322,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
                 }}
                 onDragEnd={() => setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null })}
-                className={`flex items-start gap-1 py-1 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
+                className={`flex items-start gap-1 py-0 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
                 >
                 <button
                     ref={el => { triggerRefs.current[item.id] = el; }}
@@ -395,7 +395,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
       </h2>
 
-      <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 flex flex-col min-h-0 space-y-0 overflow-y-auto custom-scrollbar">
         <SubSection sectionId="checklist" title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems || []} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} />
         <SubSection sectionId="shopping" title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems || []} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} />
         <SubSection sectionId="reminders" title={info.remindersTitle || "기억하고 확인할것"} type="reminders" items={info.remindersItems || []} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />

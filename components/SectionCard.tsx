@@ -39,6 +39,7 @@ interface SectionCardProps {
   onClearFocus?: () => void;
   isMobileLayout?: boolean;
   onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
+  bgIndex?: number;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -72,6 +73,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onClearFocus,
   isMobileLayout = false,
   onOpenItemMemoAtPage,
+  bgIndex = 0,
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
@@ -429,10 +431,20 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       <div
-        className={`space-y-0.5 overflow-y-auto custom-scrollbar overflow-x-hidden pr-1 rounded transition-colors ${isMobileLayout ? 'max-h-[360px]' : 'flex-1'} ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60 border-2 border-dashed border-blue-300' : ''}`}
+        className={`relative overflow-y-auto custom-scrollbar overflow-x-hidden pr-0 transition-colors ${isMobileLayout ? 'max-h-[360px]' : 'flex-1'} ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60' : ''}`}
+        style={{
+          backgroundColor: bgIndex % 2 === 0 ? '#fffbeb' : '#f0fdf4',
+          backgroundImage: `
+            linear-gradient(90deg, transparent 28px, rgba(239, 68, 68, 0.4) 28px, rgba(239, 68, 68, 0.4) 29px, transparent 29px),
+            repeating-linear-gradient(transparent, transparent 27px, rgba(59, 130, 246, 0.25) 27px, rgba(59, 130, 246, 0.25) 28px)
+          `,
+          backgroundSize: '100% 100%, 100% 28px'
+        }}
         onDragOver={onEmptyAreaDragOver}
         onDrop={onEmptyAreaDrop}
       >
+        {/* Red line is now in the background gradient above for better performance and consistency */}
+        
         {[...section.items].sort((a, b) => {
           if (a.completed === b.completed) return 0;
           return a.completed ? 1 : -1;

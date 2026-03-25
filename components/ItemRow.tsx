@@ -105,39 +105,39 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       ref={rowRef}
-      className={`group flex items-start gap-1 py-1.5 px-1 border-b border-slate-200 last:border-0 transition-all cursor-default relative min-h-0 ${isDragging ? 'opacity-50 bg-slate-100' :
-        isDragOver ? 'bg-blue-50 border-l-2 border-blue-400' : 'hover:bg-slate-50'
+      className={`group flex items-start gap-0 py-0 pl-0 pr-1 border-b border-blue-400/25 last:border-0 transition-all cursor-default relative h-[28px] overflow-hidden ${isDragging ? 'opacity-50 bg-slate-100' :
+        isDragOver ? 'bg-blue-400/10 border-l-2 border-blue-400' : 'hover:bg-black/[0.02]'
         }`}
     >
       {/* 1. Checkbox or Bookmark Icon */}
       {!isBookmark ? (
-        <div className="h-5 flex items-center justify-center flex-shrink-0 w-5">
+        <div className="h-5 flex items-center justify-center flex-shrink-0 w-[28px]">
           <button
             ref={triggerRef}
             onClick={toggleMenu}
-            className="text-3xl leading-none mb-2 hover:scale-110 transition-transform focus:outline-none text-red-400 hover:text-red-500"
+            className="text-3xl leading-none mb-1.5 hover:scale-110 transition-transform focus:outline-none text-red-500/80 hover:text-red-600"
             title="메뉴 열기"
           >
             •
           </button>
         </div>
       ) : (
-        <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+        <div className="w-[28px] h-5 flex items-center justify-center flex-shrink-0">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setIsUrlModalOpen(true);
             }}
-            className="w-3 h-3 rounded-full bg-purple-600 hover:scale-125 transition-transform focus:outline-none shadow-sm"
+            className="w-2.5 h-2.5 rounded-full bg-purple-600/80 hover:scale-125 transition-transform focus:outline-none shadow-sm"
             title="북마크 수정"
           />
         </div>
       )}
 
       {/* 2. Text Area & Memo Preview */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pl-3">
         <div
-          className={`leading-snug ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
+          className={`leading-[28px] ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onDoubleClickItem?.();
