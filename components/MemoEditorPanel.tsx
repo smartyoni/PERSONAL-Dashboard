@@ -47,6 +47,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const [highlightText, setHighlightText] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
     const [marginMenu, setMarginMenu] = useState<{ x: number, y: number, lineIndex: number } | null>(null);
+    const [hoverLine, setHoverLine] = useState<number | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
 
@@ -664,38 +665,61 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
 
             {memoEditor.isEditing ? (
                 <div className="flex flex-col flex-1 overflow-hidden relative regal-pad-bg">
-                    {/* Clickable Margin Area & Symbol Overlay */}
-                    <div className="absolute left-0 top-0 bottom-0 w-[31px] z-10 select-none pointer-events-none">
-                        {memoEditor.value.split('\n').map((line, idx) => {
-                            const symbolMatch = line.match(/^([#•\-])\s/);
-                            const symbol = symbolMatch ? symbolMatch[1] : '';
-                            return (
-                                <div 
-                                    key={idx} 
-                                    className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm"
-                                >
-                                    {symbol}
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    <div 
-                        className="absolute left-0 top-0 bottom-0 w-[31px] cursor-pointer z-20 hover:bg-black/[0.02]"
-                        onClick={(e) => {
-                            const container = e.currentTarget.parentElement;
-                            const scrollable = container?.querySelector('.overflow-y-auto');
-                            if (!scrollable) return;
-                            
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            const clickY = e.clientY - rect.top + scrollable.scrollTop;
-                            const lineIndex = Math.floor(clickY / 28);
-                            
-                            setMarginMenu({ x: rect.right + 5, y: e.clientY, lineIndex });
-                        }}
-                    />
-                    
                     <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative pl-[31px]">
+                        {/* Margin Symbol Overlay & Hover Highlight Inside Scrollable */}
+                        <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 pointer-events-none">
+                            {memoEditor.value.split('\n').map((line, idx) => {
+                                const symbolMatch = line.match(/^([#•\-])\s/);
+                                const symbol = symbolMatch ? symbolMatch[1] : '';
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm pr-[11px]"
+                                    >
+                                        {symbol}
+                                    </div>
+                                );
+                            })}
+                            {hoverLine !== null && (
+                                <div 
+                                    className="absolute left-0 w-[31px] bg-indigo-500/20 border-r-2 border-indigo-400"
+                                    style={{ 
+                                        height: '28px', 
+                                        top: `${hoverLine * 28}px` 
+                                    }}
+                                />
+                            )}
+                        </div>
+
+                        {/* Interactive Click Area for Margin */}
+                        <div 
+                            className="absolute left-0 top-0 bottom-0 w-[31px] cursor-pointer z-20 hover:bg-black/[0.02]"
+                            onMouseMove={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const clickY = e.clientY - rect.top; // Relative to the scrollable content's visible top
+                                const scrollable = e.currentTarget.parentElement;
+                                if (!scrollable) return;
+                                
+                                // Since this is inside the scrollable, clientY - rect.top is the relative position within the view.
+                                // But we want the logical line index.
+                                // logicalY = (e.clientY - rect.top) + scrollable.scrollTop ??
+                                // Wait, rect.top is the top of the *entire* scrolled content container if it's absolute?
+                                // No, getBoundingClientRect is viewport-relative.
+                                // So clickY_relative_to_gutter_top = e.clientY - rect.top.
+                                // Since the gutter is top-0 bottom-0 within the relative parent (the scrollable div), 
+                                // it already accounts for scroll if we use lineIndex = Math.floor((e.clientY - rect.top + scrollable.scrollTop) / 28)
+                                
+                                const lineIndex = Math.floor((e.clientY - rect.top + scrollable.scrollTop) / 28);
+                                setHoverLine(lineIndex);
+                            }}
+                            onMouseLeave={() => setHoverLine(null)}
+                            onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const scrollable = e.currentTarget.parentElement;
+                                if (!scrollable || hoverLine === null) return;
+                                setMarginMenu({ x: rect.right + 5, y: e.clientY, lineIndex: hoverLine });
+                            }}
+                        />
                         <textarea
                             ref={memoTextareaRef as any}
                             className="memo-editor-textarea"
