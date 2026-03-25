@@ -14,7 +14,7 @@ const defaultData: AppData = (() => {
             sections: [],
             memos: {},
             parkingInfo: {
-                title: '주차',
+                title: '개인',
                 text: '',
                 checklistTitle: '업무루틴',
                 checklistItems: [],
@@ -33,7 +33,7 @@ const defaultData: AppData = (() => {
                 category5Memos: {}
             },
             todoManagementInfo: {
-                title: '할일관리',
+                title: '업무',
                 category1Title: '항목 1',
                 category2Title: '항목 2',
                 category3Title: '항목 3',
@@ -130,7 +130,7 @@ export const useAppState = () => {
                         : undefined,
                     parkingInfo: {
                         ...tab.parkingInfo,
-                        title: tab.parkingInfo?.title || '주차',
+                        title: tab.parkingInfo?.title || '개인',
                         checklistTitle: tab.parkingInfo?.checklistTitle || '업무루틴',
                         checklistItems: tab.parkingInfo?.checklistItems || [],
                         shoppingTitle: tab.parkingInfo?.shoppingTitle || '구매예정',
@@ -151,7 +151,7 @@ export const useAppState = () => {
                     },
                     todoManagementInfo: {
                         ...tab.todoManagementInfo,
-                        title: tab.todoManagementInfo?.title || '할일관리',
+                        title: tab.todoManagementInfo?.title || '업무',
                         category1Title: tab.todoManagementInfo?.category1Title || '항목 1',
                         category2Title: tab.todoManagementInfo?.category2Title || '항목 2',
                         category3Title: tab.todoManagementInfo?.category3Title || '항목 3',

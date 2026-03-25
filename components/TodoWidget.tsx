@@ -358,9 +358,9 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
-            <h2 className={mainHeaderClass || "text-sm font-black text-sky-900 bg-sky-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"} title={info.title || "할일관리"}>
+            <h2 className={mainHeaderClass || "text-sm font-black text-sky-900 bg-sky-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"} title={info.title || "업무"}>
                 <EditableText
-                    value={info.title || "할일관리"}
+                    value={info.title || "업무"}
                     onChange={(newTitle) => onChange({ ...info, title: newTitle })}
                     placeholder="제목 입력..."
                     className="flex-1"

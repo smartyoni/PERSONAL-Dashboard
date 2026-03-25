@@ -81,7 +81,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
         isVirtual: true,
         virtual: {
           id: 'parking-section',
-          title: tab.parkingInfo.title || '오늘 할 일',
+          title: tab.parkingInfo.title || '개인',
           emoji: '🚗',
           itemCount: parkingCount,
           isVirtual: true,
@@ -99,7 +99,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
         isVirtual: true,
         virtual: {
           id: 'todo-section-1',
-          title: tab.todoManagementInfo.title || '할일관리',
+          title: tab.todoManagementInfo.title || '업무',
           emoji: '📋',
           itemCount: todo1Count,
           isVirtual: true,

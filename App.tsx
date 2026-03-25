@@ -132,7 +132,7 @@ const App: React.FC = () => {
     if (!mainTab.todoManagementInfo3 || !mainTab.todoManagementInfo3.category5Title) {
         mainTab.todoManagementInfo3 = {
             ...mainTab.todoManagementInfo3,
-            title: mainTab.todoManagementInfo3?.title || '할일관리 3',
+            title: mainTab.todoManagementInfo3?.title || '업무 2',
             category1Title: mainTab.todoManagementInfo3?.category1Title || '항목 1',
             category2Title: mainTab.todoManagementInfo3?.category2Title || '항목 2',
             category3Title: mainTab.todoManagementInfo3?.category3Title || '항목 3',

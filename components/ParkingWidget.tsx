@@ -384,9 +384,9 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
-      <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title={info.title || "주차"}>
+      <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title={info.title || "개인"}>
         <EditableText
-          value={info.title || "주차"}
+          value={info.title || "개인"}
           onChange={(newTitle) => onChange({ ...info, title: newTitle })}
           placeholder="제목 입력..."
           className="flex-1"
