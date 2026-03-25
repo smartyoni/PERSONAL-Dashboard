@@ -194,12 +194,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <ParkingWidget
                                                 info={activeTab.parkingInfo}
                                                 onChange={handleParkingChange}
-                                                onShowChecklistMemo={(id) => handleShowMemo(id, 'checklist', 'checklist', undefined, activeTab.id)}
-                                                onShowShoppingMemo={(id) => handleShowMemo(id, 'shopping', 'shopping', undefined, activeTab.id)}
-                                                onShowRemindersMemo={(id) => handleShowMemo(id, 'reminders', 'reminders', undefined, activeTab.id)}
-                                                onShowTodoMemo={(id) => handleShowMemo(id, 'todo', 'todo', undefined, activeTab.id)}
                                                 onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                             />
                                         </div>
 
@@ -207,15 +204,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
-                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todoCat1', 'todoCat1', undefined, activeTab.id)}
-                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todoCat2', 'todoCat2', undefined, activeTab.id)}
-                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todoCat3', 'todoCat3', undefined, activeTab.id)}
-                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todoCat4', 'todoCat4', undefined, activeTab.id)}
-                                                onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todoCat5', 'todoCat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
                                                 subHeaderClass="text-[17px] font-bold text-blue-600"
                                                 todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                             />
                                         </div>
 
@@ -223,12 +216,10 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo2}
                                                 onChange={handleTodoManagement2Change}
-                                                onShowTodoCat1Memo={(id) => handleShowMemo(id, 'todo2Cat1', 'todo2Cat1', undefined, activeTab.id)}
-                                                onShowTodoCat2Memo={(id) => handleShowMemo(id, 'todo2Cat2', 'todo2Cat2', undefined, activeTab.id)}
-                                                onShowTodoCat3Memo={(id) => handleShowMemo(id, 'todo2Cat3', 'todo2Cat3', undefined, activeTab.id)}
                                                 onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todo2Cat4', 'todo2Cat4', undefined, activeTab.id)}
                                                 onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todo2Cat5', 'todo2Cat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                             />
                                         </div>
                                     </>

@@ -230,14 +230,53 @@ const App: React.FC = () => {
         onTocNavigate={handleNavigateFromMap}
         onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
         onOpenItemMemoAtPage={(itemId, pageIndex, highlightText) => {
-          // itemId가 속한 sectionId를 직접 탐색
+          // 1. 일반 섹션 탐색
           const allSections = [activeTab.inboxSection, ...activeTab.sections];
           const foundSection = allSections.find(s => s?.items.some(i => i.id === itemId));
-          const sectionId = foundSection?.id || null;
-          handleShowMemo(itemId, 'section', sectionId, undefined, activeTab.id);
+          
+          if (foundSection) {
+            handleShowMemo(itemId, 'section', foundSection.id, undefined, activeTab.id);
+          } else {
+            // 2. 특수 위젯 탐색 (Parking, Todo)
+            const pk = activeTab.parkingInfo;
+            const td1 = activeTab.todoManagementInfo;
+            const td2 = activeTab.todoManagementInfo2;
+            const td3 = activeTab.todoManagementInfo3;
+
+            let type: any = null;
+            let sectionId: string | null = null;
+
+            if (pk.checklistItems?.some(i => i.id === itemId)) { type = 'checklist'; sectionId = 'checklist'; }
+            else if (pk.shoppingListItems?.some(i => i.id === itemId)) { type = 'shopping'; sectionId = 'shopping'; }
+            else if (pk.remindersItems?.some(i => i.id === itemId)) { type = 'reminders'; sectionId = 'reminders'; }
+            else if (pk.todoItems?.some(i => i.id === itemId)) { type = 'todo'; sectionId = 'todo'; }
+            else if (pk.category5Items?.some(i => i.id === itemId)) { type = 'parkingCat5'; sectionId = 'parkingCat5'; }
+            
+            else if (td1.category1Items?.some(i => i.id === itemId)) { type = 'todoCat1'; sectionId = 'todoCat1'; }
+            else if (td1.category2Items?.some(i => i.id === itemId)) { type = 'todoCat2'; sectionId = 'todoCat2'; }
+            else if (td1.category3Items?.some(i => i.id === itemId)) { type = 'todoCat3'; sectionId = 'todoCat3'; }
+            else if (td1.category4Items?.some(i => i.id === itemId)) { type = 'todoCat4'; sectionId = 'todoCat4'; }
+            else if (td1.category5Items?.some(i => i.id === itemId)) { type = 'todoCat5'; sectionId = 'todoCat5'; }
+
+            else if (td2.category1Items?.some(i => i.id === itemId)) { type = 'todo2Cat1'; sectionId = 'todo2Cat1'; }
+            else if (td2.category2Items?.some(i => i.id === itemId)) { type = 'todo2Cat2'; sectionId = 'todo2Cat2'; }
+            else if (td2.category3Items?.some(i => i.id === itemId)) { type = 'todo2Cat3'; sectionId = 'todo2Cat3'; }
+            else if (td2.category4Items?.some(i => i.id === itemId)) { type = 'todo2Cat4'; sectionId = 'todo2Cat4'; }
+            else if (td2.category5Items?.some(i => i.id === itemId)) { type = 'todo2Cat5'; sectionId = 'todo2Cat5'; }
+
+            else if (td3?.category1Items?.some(i => i.id === itemId)) { type = 'todo3Cat1'; sectionId = 'todo3Cat1'; }
+            else if (td3?.category2Items?.some(i => i.id === itemId)) { type = 'todo3Cat2'; sectionId = 'todo3Cat2'; }
+            else if (td3?.category3Items?.some(i => i.id === itemId)) { type = 'todo3Cat3'; sectionId = 'todo3Cat3'; }
+            else if (td3?.category4Items?.some(i => i.id === itemId)) { type = 'todo3Cat4'; sectionId = 'todo3Cat4'; }
+            else if (td3?.category5Items?.some(i => i.id === itemId)) { type = 'todo3Cat5'; sectionId = 'todo3Cat5'; }
+
+            if (type && sectionId) {
+              handleShowMemo(itemId, type, sectionId, undefined, activeTab.id);
+            }
+          }
+
           setTimeout(() => {
             handleChangePage(pageIndex);
-            // 소항목 하이라이트 주입
             if (highlightText) {
               setMemoEditor(prev => ({ ...prev, highlightText }));
             }

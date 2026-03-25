@@ -2,17 +2,18 @@ import React, { useState, useRef } from 'react';
 import { ParkingInfo, ListItem } from '../types';
 import EditableText from './EditableText';
 import { useClickOutside } from '../hooks/useClickOutside';
-import { extractTocMarkers } from '../utils/memoEditorUtils';
+import { extractTocMarkers, parseMemoPages } from '../utils/memoEditorUtils';
 
 interface ParkingWidgetProps {
   info: ParkingInfo;
   onChange: (newInfo: ParkingInfo) => void;
-  onShowChecklistMemo: (itemId: string) => void;
-  onShowShoppingMemo: (itemId: string) => void;
-  onShowRemindersMemo: (itemId: string) => void;
-  onShowTodoMemo: (itemId: string) => void;
-  onShowCategory5Memo: (itemId: string) => void;
+  onShowChecklistMemo?: (itemId: string) => void;
+  onShowShoppingMemo?: (itemId: string) => void;
+  onShowRemindersMemo?: (itemId: string) => void;
+  onShowTodoMemo?: (itemId: string) => void;
+  onShowCategory5Memo?: (itemId: string) => void;
   onAddToCalendar: (itemText: string) => void;
+  onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
 }
 
 const ParkingWidget: React.FC<ParkingWidgetProps> = ({
@@ -23,7 +24,8 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   onShowRemindersMemo,
   onShowTodoMemo,
   onShowCategory5Memo,
-  onAddToCalendar
+  onAddToCalendar,
+  onOpenItemMemoAtPage,
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -39,7 +41,16 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     type: 'checklist'
   });
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-  const [hoveredToC, setHoveredToC] = useState<{ id: string; items: string[]; x: number; y: number } | null>(null);
+  const [hoveredToC, setHoveredToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearHideTimer = () => {
+    if (hideTimerRef.current) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
+  };
+  const scheduleHide = () => {
+    clearHideTimer();
+    hideTimerRef.current = setTimeout(() => setHoveredToC(null), 150);
+  };
 
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
@@ -195,7 +206,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5',
     items: ListItem[],
     memos: { [key: string]: string },
-    onShowMemo: (id: string) => void,
+    onShowMemo?: (id: string) => void,
     onTitleChange: (newTitle: string) => void
   }) => {
     const [dragState, setDragState] = useState<{ 
@@ -270,21 +281,17 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               }}
               onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
               onMouseEnter={(e) => {
+                clearHideTimer();
                 const memo = memos[item.id];
                 if (memo) {
-                  const toc = extractTocMarkers(memo);
-                  if (toc.length > 0) {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    setHoveredToC({ 
-                      id: item.id, 
-                      items: toc, 
-                      x: rect.left + rect.width / 2, 
-                      y: rect.top 
-                    });
-                  }
+                  const { allTitles, allValues } = parseMemoPages(memo);
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredToC({ itemId: item.id, allTitles, allValues, rect });
+                } else {
+                  scheduleHide();
                 }
               }}
-              onMouseLeave={() => setHoveredToC(null)}
+              onMouseLeave={scheduleHide}
               className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
             >
               <button
@@ -297,7 +304,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               </button>
               <div 
                 className="flex-1 min-w-0" 
-                onClick={() => onShowMemo(item.id)}
+                onClick={() => {
+                  if (onShowMemo) onShowMemo(item.id);
+                  else if (onOpenItemMemoAtPage) onOpenItemMemoAtPage(item.id, 0);
+                }}
               >
                 <EditableText
                   value={item.text}
@@ -407,30 +417,91 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         );
       })()}
       {/* ToC Hover Popover */}
-      {hoveredToC && (
-        <div 
-          className="fixed z-[3000] bg-white/95 backdrop-blur-sm border-2 border-indigo-500 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] p-3 pointer-events-none animate-in fade-in zoom-in-95 duration-200 min-w-[160px]"
-          style={{ 
-            left: `${Math.min(hoveredToC.x, window.innerWidth - 80)}px`, 
-            top: `${hoveredToC.y}px`,
-            transform: 'translate(-50%, -100%)'
-          }}
-        >
-          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-indigo-100">
-            <span className="text-sm">📋</span>
-            <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">목차 미리보기</span>
+      {hoveredToC && (() => {
+        const POP_W = 260;
+        const POP_H = Math.min(
+          48 + hoveredToC.allTitles.length * 40 +
+          hoveredToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
+          window.innerHeight * 0.6
+        );
+        const GAP = 8;
+        const { rect } = hoveredToC;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        let popLeft = 0, popTop = 0;
+        if (rect.right + GAP + POP_W <= vw) {
+          popLeft = rect.right + GAP;
+          popTop = Math.max(GAP, Math.min(rect.top, vh - POP_H - GAP));
+        } else if (rect.left - GAP - POP_W >= 0) {
+          popLeft = rect.left - GAP - POP_W;
+          popTop = Math.max(GAP, Math.min(rect.top, vh - POP_H - GAP));
+        } else if (rect.top - GAP - POP_H >= 0) {
+          popLeft = Math.max(GAP, Math.min(rect.left + rect.width / 2 - POP_W / 2, vw - POP_W - GAP));
+          popTop = rect.top - GAP - POP_H;
+        } else {
+          popLeft = Math.max(GAP, Math.min(rect.left + rect.width / 2 - POP_W / 2, vw - POP_W - GAP));
+          popTop = rect.bottom + GAP;
+        }
+        return (
+          <div
+            className="fixed z-[3000] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto"
+            style={{ left: `${popLeft}px`, top: `${popTop}px`, width: `${POP_W}px`, maxHeight: `${Math.floor(vh * 0.6)}px` }}
+            onMouseEnter={clearHideTimer}
+            onMouseLeave={scheduleHide}
+          >
+            <div className="p-1.5 space-y-0.5">
+              <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
+              {hoveredToC.allTitles.map((title, idx) => {
+                const subItems = extractTocMarkers(hoveredToC.allValues[idx] || '');
+                const isActivePage = idx === 0;
+                return (
+                  <div key={idx} className="space-y-0.5">
+                    <button
+                      onClick={() => {
+                        onOpenItemMemoAtPage
+                          ? onOpenItemMemoAtPage(hoveredToC.itemId, idx)
+                          : onShowChecklistMemo(hoveredToC.itemId);
+                        setHoveredToC(null);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
+                        isActivePage ? 'bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100' : 'text-slate-900 font-bold hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
+                        isActivePage ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
+                      }`}>{idx + 1}</span>
+                      <span className="text-sm truncate flex-1">{title.trim() || '목차없음'}</span>
+                    </button>
+                    {subItems.length > 0 && (
+                      <div className="pb-1 relative">
+                        {subItems.map((sub, sIdx) => {
+                          const isLast = sIdx === subItems.length - 1;
+                          return (
+                            <button
+                              key={sIdx}
+                              onClick={() => {
+                                onOpenItemMemoAtPage
+                                  ? onOpenItemMemoAtPage(hoveredToC.itemId, idx, sub)
+                                  : onShowChecklistMemo(hoveredToC.itemId);
+                                setHoveredToC(null);
+                              }}
+                              className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
+                            >
+                              <div className={`absolute left-5 w-px bg-slate-300 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
+                              <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-300"></div>
+                              <span className="truncate">{sub}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="space-y-1.5">
-            {hoveredToC.items.map((text, idx) => (
-              <div key={idx} className="flex items-start gap-2 group">
-                <span className="text-indigo-400 mt-1 text-[10px]">#</span>
-                <span className="text-[13px] font-medium text-slate-700 leading-tight">{text}</span>
-              </div>
-            ))}
-          </div>
-          <div className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 bg-white border-r-2 border-b-2 border-indigo-500 rotate-45"></div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
