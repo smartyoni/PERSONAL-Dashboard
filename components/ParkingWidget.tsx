@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ParkingInfo, ListItem } from '../types';
+import { ParkingInfo, ListItem, DragState } from '../types';
 import EditableText from './EditableText';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { extractTocMarkers, parseMemoPages } from '../utils/memoEditorUtils';
@@ -14,6 +14,11 @@ interface ParkingWidgetProps {
   onShowCategory5Memo?: (itemId: string) => void;
   onAddToCalendar: (itemText: string) => void;
   onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
+  // New props for cross-section movement
+  dragState: DragState;
+  setDragState: (state: DragState) => void;
+  onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string) => void;
+  onItemTagClick: (itemId: string, sectionId: string, itemText: string) => void;
 }
 
 const ParkingWidget: React.FC<ParkingWidgetProps> = ({
@@ -26,6 +31,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   onShowCategory5Memo,
   onAddToCalendar,
   onOpenItemMemoAtPage,
+  dragState,
+  setDragState,
+  onCrossSectionDrop,
+  onItemTagClick
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -75,7 +84,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     setOpenMenuId(openMenuId === itemId ? null : itemId);
   };
 
-  // 공통 헬퍼: 아이템 추가/수정/삭제/정렬
   const updateList = (type: string, newItems: ListItem[]) => {
     const key = type === 'checklist' ? 'checklistItems' :
       type === 'shopping' ? 'shoppingListItems' :
@@ -91,14 +99,13 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
           type === 'todo' ? info.todoItems : info.category5Items;
-    updateList(type, [...currentItems, newItem]);
+    updateList(type, [...(currentItems || []), newItem]);
 
-    // 신규 추가 후 즉시 메모 모달 오픈
-    if (type === 'checklist') onShowChecklistMemo(newItemId);
-    else if (type === 'shopping') onShowShoppingMemo(newItemId);
-    else if (type === 'reminders') onShowRemindersMemo(newItemId);
-    else if (type === 'todo') onShowTodoMemo(newItemId);
-    else if (type === 'parkingCat5') onShowCategory5Memo(newItemId);
+    if (type === 'checklist' && onShowChecklistMemo) onShowChecklistMemo(newItemId);
+    else if (type === 'shopping' && onShowShoppingMemo) onShowShoppingMemo(newItemId);
+    else if (type === 'reminders' && onShowRemindersMemo) onShowRemindersMemo(newItemId);
+    else if (type === 'todo' && onShowTodoMemo) onShowTodoMemo(newItemId);
+    else if (type === 'parkingCat5' && onShowCategory5Memo) onShowCategory5Memo(newItemId);
   };
 
   const handleDeleteItem = (type: string, itemId: string) => {
@@ -106,7 +113,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
           type === 'todo' ? info.todoItems : info.category5Items;
-    updateList(type, currentItems.filter(i => i.id !== itemId));
+    updateList(type, (currentItems || []).filter(i => i.id !== itemId));
   };
 
   const handleToggleItem = (type: string, itemId: string) => {
@@ -114,7 +121,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
           type === 'todo' ? info.todoItems : info.category5Items;
-    updateList(type, currentItems.map(i => i.id === itemId ? { ...i, completed: !i.completed } : i));
+    updateList(type, (currentItems || []).map(i => i.id === itemId ? { ...i, completed: !i.completed } : i));
   };
 
   const handleUpdateText = (type: string, itemId: string, text: string) => {
@@ -122,7 +129,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
           type === 'todo' ? info.todoItems : info.category5Items;
-    updateList(type, currentItems.map(i => i.id === itemId ? { ...i, text } : i));
+    updateList(type, (currentItems || []).map(i => i.id === itemId ? { ...i, text } : i));
   };
 
   const handleReorder = (type: string, draggedId: string, targetId: string) => {
@@ -130,10 +137,11 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
           type === 'todo' ? info.todoItems : info.category5Items;
-    const draggedIdx = currentItems.findIndex(i => i.id === draggedId);
-    const targetIdx = currentItems.findIndex(i => i.id === targetId);
+    const items = currentItems || [];
+    const draggedIdx = items.findIndex(i => i.id === draggedId);
+    const targetIdx = items.findIndex(i => i.id === targetId);
     if (draggedIdx === -1 || targetIdx === -1) return;
-    const newItems = [...currentItems];
+    const newItems = [...items];
     const [draggedItem] = newItems.splice(draggedIdx, 1);
     newItems.splice(targetIdx, 0, draggedItem);
     updateList(type, newItems);
@@ -142,7 +150,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   const handleReorderSubSections = (draggedType: string, targetType: string) => {
     if (draggedType === targetType) return;
     
-    // Helper to get data for a type
     const getData = (type: string) => {
       const itemKey = type === 'checklist' ? 'checklistItems' :
                      type === 'shopping' ? 'shoppingListItems' :
@@ -193,53 +200,70 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     onChange({ ...info, [titleKey]: title });
   };
 
-  // 섹션 렌더링 컴포넌트
-  const SubSection = ({ title, type, items, memos, onShowMemo, onTitleChange }: {
+  const SubSection = ({ title, type, items, memos, onShowMemo, onTitleChange, sectionId }: {
     title: string,
     type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5',
     items: ListItem[],
     memos: { [key: string]: string },
     onShowMemo?: (id: string) => void,
-    onTitleChange: (newTitle: string) => void
+    onTitleChange: (newTitle: string) => void,
+    sectionId: string
   }) => {
-    const [dragState, setDragState] = useState<{ 
-      draggedItemId: string | null; 
-      dragOverItemId: string | null;
-      isDraggingSection: boolean;
-      isDragOverSection: boolean;
+    const [localDragState, setLocalDragState] = useState<{ 
+        isDraggingSection: boolean;
+        isDragOverSection: boolean;
     }>({
-      draggedItemId: null, dragOverItemId: null, isDraggingSection: false, isDragOverSection: false
+        isDraggingSection: false, isDragOverSection: false
     });
+
+    const isOverThisSection = dragState.dragOverSectionId === sectionId;
 
     return (
       <div 
-        className={`flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0 transition-all ${dragState.isDraggingSection ? 'opacity-30 bg-green-50' : dragState.isDragOverSection ? 'bg-green-100/50 scale-[1.02] border-l-4 border-l-green-600' : ''}`}
+        className={`flex-1 flex flex-col min-h-0 border-b border-green-400 last:border-b-0 py-1 first:pt-0 transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-green-50' : isOverThisSection ? 'bg-green-100/50 scale-[1.02] border-l-4 border-l-green-600' : ''}`}
         draggable={true}
         onDragStart={(e) => {
-          // 아이템 드래그 중인 경우는 무시
-          if ((e.target as HTMLElement).draggable && (e.target as HTMLElement).tagName !== 'DIV') return;
+          const target = e.target as HTMLElement;
+          if (target.draggable && target.tagName !== 'DIV') return;
           e.dataTransfer.setData('sectionType', type);
-          setDragState(p => ({ ...p, isDraggingSection: true }));
+          setLocalDragState(p => ({ ...p, isDraggingSection: true }));
         }}
         onDragOver={(e) => {
-          e.preventDefault();
-          if (e.dataTransfer.types.includes('sectionType')) {
-            if (!dragState.isDragOverSection) setDragState(p => ({ ...p, isDragOverSection: true }));
-          }
+            e.preventDefault();
+            if (e.dataTransfer.types.includes('sectionType')) {
+                if (!localDragState.isDragOverSection) setLocalDragState(p => ({ ...p, isDragOverSection: true }));
+            } else {
+                if (!isOverThisSection) {
+                    setDragState({ ...dragState, dragOverSectionId: sectionId, dragOverTabId: 'main' });
+                }
+            }
         }}
         onDragLeave={() => {
-          setDragState(p => ({ ...p, isDragOverSection: false }));
+            setLocalDragState(p => ({ ...p, isDragOverSection: false }));
+            if (isOverThisSection) {
+                setDragState({ ...dragState, dragOverSectionId: null, dragOverTabId: null });
+            }
         }}
         onDrop={(e) => {
           e.preventDefault();
           const draggedType = e.dataTransfer.getData('sectionType');
           if (draggedType && draggedType !== type) {
             handleReorderSubSections(draggedType, type);
+          } else if (dragState.draggedItemId && dragState.sourceSectionId) {
+            onCrossSectionDrop(
+                dragState.draggedItemId,
+                dragState.sourceSectionId,
+                sectionId,
+                dragState.sourceTabId || 'main',
+                'main'
+            );
           }
-          setDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+          setLocalDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+          setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverSectionId: null, dragOverTabId: null });
         }}
         onDragEnd={() => {
-          setDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+            setLocalDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
+            setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverSectionId: null, dragOverTabId: null });
         }}
       >
         <div className="flex items-center justify-between mb-1 px-1 cursor-grab active:cursor-grabbing">
@@ -253,71 +277,106 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold pointer-events-auto">+ 추가</button>
         </div>
         <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
-          {[...(items || [])].map(item => (
-            <div
-              key={item.id}
-              draggable={!editingItemIds.has(item.id)}
-              onDragStart={(e) => {
-                e.stopPropagation();
-                setDragState(p => ({ ...p, draggedItemId: item.id, dragOverItemId: null }));
-              }}
-              onDragOver={(e) => { 
-                e.preventDefault(); 
-                e.stopPropagation();
-                if (dragState.dragOverItemId !== item.id) setDragState(p => ({ ...p, dragOverItemId: item.id })); 
-              }}
-              onDrop={(e) => { 
-                e.preventDefault(); 
-                e.stopPropagation();
-                if (dragState.draggedItemId && dragState.draggedItemId !== item.id) handleReorder(type, dragState.draggedItemId, item.id); 
-                setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null })); 
-              }}
-              onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
-              className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
-            >
-              <button
-                ref={el => { triggerRefs.current[item.id] = el; }}
-                onClick={(e) => toggleMenu(e, item.id)}
-                className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
-                title="메뉴 열기"
-              >
-                •
-              </button>
-              <div 
-                className="flex-1 min-w-0" 
-                onClick={(e) => {
-                  const memo = memos[item.id];
-                  if (memo) {
-                    const { allTitles, allValues } = parseMemoPages(memo);
-                    const markers = allValues.flatMap(v => extractTocMarkers(v));
-                    // 페이지가 여러개이거나 markers(※, #)가 있는 경우 팝업 트리거
-                    if (allTitles.length > 1 || markers.length > 0) {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setActiveToC({
-                        itemId: item.id,
-                        allTitles,
-                        allValues,
-                        rect,
-                        type
-                      });
-                    }
-                  }
-
-                  if (onShowMemo) onShowMemo(item.id);
-                  else if (onOpenItemMemoAtPage) onOpenItemMemoAtPage(item.id, 0);
+          {[...(items || [])].map(item => {
+            const isDraggingThis = dragState.draggedItemId === item.id;
+            const isOverThis = dragState.dragOverItemId === item.id;
+            
+            return (
+                <div
+                key={item.id}
+                draggable={!editingItemIds.has(item.id)}
+                onDragStart={(e) => {
+                    e.stopPropagation();
+                    setDragState({
+                        draggedItemId: item.id,
+                        sourceSectionId: sectionId,
+                        sourceTabId: 'main',
+                        dragOverItemId: null,
+                        dragOverSectionId: null,
+                        dragOverTabId: null
+                    });
                 }}
-              >
-                <EditableText
-                  value={item.text}
-                  onChange={(txt) => handleUpdateText(type, item.id, txt)}
-                  onEditingChange={(ed) => handleEditingChange(item.id, ed)}
-                  placeholder="항목 입력..."
-                  className={`text-[15px] ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
-                  compact
-                />
-              </div>
-            </div>
-          ))}
+                onDragOver={(e) => { 
+                    e.preventDefault(); 
+                    e.stopPropagation();
+                    if (dragState.dragOverItemId !== item.id) {
+                        setDragState({ ...dragState, dragOverItemId: item.id });
+                    }
+                }}
+                onDrop={(e) => { 
+                    e.preventDefault(); 
+                    e.stopPropagation();
+                    if (dragState.draggedItemId && dragState.sourceSectionId === sectionId) {
+                        if (dragState.draggedItemId !== item.id) {
+                            handleReorder(type, dragState.draggedItemId, item.id);
+                        }
+                    } else if (dragState.draggedItemId && dragState.sourceSectionId) {
+                        onCrossSectionDrop(
+                            dragState.draggedItemId,
+                            dragState.sourceSectionId,
+                            sectionId,
+                            dragState.sourceTabId || 'main',
+                            'main'
+                        );
+                    }
+                    setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
+                }}
+                onDragEnd={() => setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null })}
+                className={`flex items-start gap-1 py-1 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
+                >
+                <button
+                    ref={el => { triggerRefs.current[item.id] = el; }}
+                    onClick={(e) => toggleMenu(e, item.id)}
+                    className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
+                    title="메뉴 열기"
+                >
+                    •
+                </button>
+                <div 
+                    className="flex-1 min-w-0" 
+                    onClick={(e) => {
+                    const memo = memos[item.id];
+                    if (memo) {
+                        const { allTitles, allValues } = parseMemoPages(memo);
+                        const markers = allValues.flatMap(v => extractTocMarkers(v));
+                        if (allTitles.length > 1 || markers.length > 0) {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setActiveToC({
+                            itemId: item.id,
+                            allTitles,
+                            allValues,
+                            rect,
+                            type
+                        });
+                        }
+                    }
+                    if (onShowMemo) onShowMemo(item.id);
+                    else if (onOpenItemMemoAtPage) onOpenItemMemoAtPage(item.id, 0);
+                    }}
+                >
+                    <EditableText
+                    value={item.text}
+                    onChange={(txt) => handleUpdateText(type, item.id, txt)}
+                    onEditingChange={(ed) => handleEditingChange(item.id, ed)}
+                    placeholder="항목 입력..."
+                    className={`text-[15px] ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
+                    compact
+                    />
+                </div>
+                {/* Tag button for movement */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onItemTagClick(item.id, sectionId, item.text);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all"
+                    title="태그 (이동)"
+                >
+                    <span className="text-xs font-bold">#</span>
+                </button>
+                </div>
+            );
+          })}
           {items.length === 0 && <div className="text-center py-2 text-slate-300 text-[10px] italic">항목이 없습니다</div>}
         </div>
       </div>
@@ -336,23 +395,21 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
       </h2>
 
-      {/* 4분할 섹션 */}
       <div className="flex-1 flex flex-col min-h-0 space-y-2 overflow-y-auto custom-scrollbar">
-        <SubSection title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems || []} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} />
-        <SubSection title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems || []} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} />
-        <SubSection title={info.remindersTitle || "기억하고 확인할것"} type="reminders" items={info.remindersItems || []} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />
-        <SubSection title={info.todoTitle || "잊지말고 할일"} type="todo" items={info.todoItems || []} memos={info.todoMemos} onShowMemo={onShowTodoMemo} onTitleChange={(t) => handleUpdateSubTitle('todo', t)} />
-        <SubSection title={info.category5Title || "항목 5"} type="parkingCat5" items={info.category5Items || []} memos={info.category5Memos} onShowMemo={onShowCategory5Memo} onTitleChange={(t) => handleUpdateSubTitle('parkingCat5', t)} />
+        <SubSection sectionId="checklist" title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems || []} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} />
+        <SubSection sectionId="shopping" title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems || []} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} />
+        <SubSection sectionId="reminders" title={info.remindersTitle || "기억하고 확인할것"} type="reminders" items={info.remindersItems || []} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />
+        <SubSection sectionId="todo" title={info.todoTitle || "잊지말고 할일"} type="todo" items={info.todoItems || []} memos={info.todoMemos} onShowMemo={onShowTodoMemo} onTitleChange={(t) => handleUpdateSubTitle('todo', t)} />
+        <SubSection sectionId="parkingCat5" title={info.category5Title || "항목 5"} type="parkingCat5" items={info.category5Items || []} memos={info.category5Memos} onShowMemo={onShowCategory5Memo} onTitleChange={(t) => handleUpdateSubTitle('parkingCat5', t)} />
       </div>
 
-      {/* 메뉴 팝업 (포탈 개념의 fixed 유지) */}
       {openMenuId && (() => {
         const item = [...(info.checklistItems || []), ...(info.shoppingListItems || []), ...(info.remindersItems || []), ...(info.todoItems || []), ...(info.category5Items || [])].find(i => i.id === openMenuId);
         if (!item) return null;
-        const type = info.checklistItems.some(i => i.id === openMenuId) ? 'checklist' as const :
-          info.shoppingListItems.some(i => i.id === openMenuId) ? 'shopping' as const :
-            info.remindersItems.some(i => i.id === openMenuId) ? 'reminders' as const : 
-              info.todoItems.some(i => i.id === openMenuId) ? 'todo' as const : 'parkingCat5' as const;
+        const type = (info.checklistItems || []).some(i => i.id === openMenuId) ? 'checklist' as const :
+          (info.shoppingListItems || []).some(i => i.id === openMenuId) ? 'shopping' as const :
+            (info.remindersItems || []).some(i => i.id === openMenuId) ? 'reminders' as const : 
+              (info.todoItems || []).some(i => i.id === openMenuId) ? 'todo' as const : 'parkingCat5' as const;
         const isMobile = window.innerWidth < 768;
         return (
           <div
@@ -372,7 +429,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         );
       })()}
 
-      {/* Contextual Delete Confirmation Popover */}
       {deleteConfirm.isOpen && (() => {
         const isMobile = window.innerWidth < 768;
         return (
@@ -414,7 +470,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           </div>
         );
       })()}
-      {/* ToC Click Popover */}
       {activeToC && (() => {
         const POP_W = 260;
         const POP_H = Math.min(
@@ -457,10 +512,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                       onClick={() => {
                         onOpenItemMemoAtPage
                           ? onOpenItemMemoAtPage(activeToC.itemId, idx)
-                          : (activeToC.type === 'checklist' ? onShowChecklistMemo(activeToC.itemId) : 
-                             activeToC.type === 'shopping' ? onShowShoppingMemo(activeToC.itemId) :
-                             activeToC.type === 'reminders' ? onShowRemindersMemo(activeToC.itemId) :
-                             activeToC.type === 'todo' ? onShowTodoMemo(activeToC.itemId) : onShowCategory5Memo(activeToC.itemId));
+                          : (activeToC.type === 'checklist' ? (onShowChecklistMemo && onShowChecklistMemo(activeToC.itemId)) : 
+                             activeToC.type === 'shopping' ? (onShowShoppingMemo && onShowShoppingMemo(activeToC.itemId)) :
+                             activeToC.type === 'reminders' ? (onShowRemindersMemo && onShowRemindersMemo(activeToC.itemId)) :
+                             activeToC.type === 'todo' ? (onShowTodoMemo && onShowTodoMemo(activeToC.itemId)) : (onShowCategory5Memo && onShowCategory5Memo(activeToC.itemId)));
                         setActiveToC(null);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
@@ -482,10 +537,10 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                               onClick={() => {
                                 onOpenItemMemoAtPage
                                   ? onOpenItemMemoAtPage(activeToC.itemId, idx, sub)
-                                  : (activeToC.type === 'checklist' ? onShowChecklistMemo(activeToC.itemId) : 
-                                     activeToC.type === 'shopping' ? onShowShoppingMemo(activeToC.itemId) :
-                                     activeToC.type === 'reminders' ? onShowRemindersMemo(activeToC.itemId) :
-                                     activeToC.type === 'todo' ? onShowTodoMemo(activeToC.itemId) : onShowCategory5Memo(activeToC.itemId));
+                                  : (activeToC.type === 'checklist' ? (onShowChecklistMemo && onShowChecklistMemo(activeToC.itemId)) : 
+                                     activeToC.type === 'shopping' ? (onShowShoppingMemo && onShowShoppingMemo(activeToC.itemId)) :
+                                     activeToC.type === 'reminders' ? (onShowRemindersMemo && onShowRemindersMemo(activeToC.itemId)) :
+                                     activeToC.type === 'todo' ? (onShowTodoMemo && onShowTodoMemo(activeToC.itemId)) : (onShowCategory5Memo && onShowCategory5Memo(activeToC.itemId)));
                                 setActiveToC(null);
                               }}
                               className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"

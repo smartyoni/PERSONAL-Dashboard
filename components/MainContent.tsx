@@ -28,7 +28,7 @@ interface MainContentProps {
     onSectionDragOver: (e: React.DragEvent, id: string) => void;
     onSectionDrop: (e: React.DragEvent, id: string) => void;
     onSectionDragEnd: () => void;
-    handleCrossSectionItemDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, targetItemId?: string | null) => void;
+    handleCrossSectionItemDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string, targetItemId?: string | null) => void;
     handleCrossBookmarkSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, targetItemId?: string | null) => void;
     // Parking
     handleParkingChange: (newInfo: ParkingInfo) => void;
@@ -197,6 +197,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                // Added props
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
 
@@ -209,6 +214,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 subHeaderClass="text-[17px] font-bold text-blue-600"
                                                 todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                // Added props
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
 
@@ -220,6 +230,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todo2Cat5', 'todo2Cat5', undefined, activeTab.id)}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                // Added props
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
                                     </>

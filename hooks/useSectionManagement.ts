@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppData, Section, DragState, Tab, ListItem } from '../types';
+import { AppData, Section, DragState, Tab, ListItem, ParkingInfo, TodoManagementInfo } from '../types';
 
 interface ConfirmModal {
     isOpen: boolean;
@@ -19,8 +19,10 @@ export const useSectionManagement = (
         draggedItemId: null,
         dragOverItemId: null,
         sourceSectionId: null,
+        sourceTabId: null,
         draggedSectionId: null,
-        dragOverSectionId: null
+        dragOverSectionId: null,
+        dragOverTabId: null
     });
 
 
@@ -43,7 +45,6 @@ export const useSectionManagement = (
     };
 
     const handleUpdateSection = (updated: Section, newMemos?: { [key: string]: string }) => {
-        // 고정 로직 처리
         const currentPinnedSections = safeData.tabs.reduce((acc, tab) => {
             const pinnedInTab = tab.sections.filter(s => s.isPinned);
             const pinnedInbox = tab.inboxSection?.isPinned ? [tab.inboxSection] : [];
@@ -71,7 +72,6 @@ export const useSectionManagement = (
     };
 
     const handleUpdateInboxSection = (updated: Section, newMemos?: { [key: string]: string }) => {
-        // Inbox 고정 로직 처리
         const currentPinnedSections = safeData.tabs.reduce((acc, tab) => {
             const pinnedInTab = tab.sections.filter(s => s.isPinned);
             const pinnedInbox = tab.inboxSection?.isPinned ? [tab.inboxSection] : [];
@@ -156,60 +156,167 @@ export const useSectionManagement = (
         setDragState(prev => ({ ...prev, draggedSectionId: null, dragOverSectionId: null }));
     };
 
-    // 섹션 간 아이템 이동 (Trello style)
+    // 섹션 간 아이템 이동 (Trello style) - 모든 섹션(위젯 포함) 대응
     const handleCrossSectionItemDrop = (
         draggedItemId: string,
         sourceSectionId: string,
         targetSectionId: string,
+        sourceTabId: string = activeTab.id,
+        targetTabId: string = activeTab.id,
         targetItemId?: string | null
     ) => {
-        if (sourceSectionId === targetSectionId) return;
+        if (sourceSectionId === targetSectionId && sourceTabId === targetTabId) return;
 
-        const getAllSections = (tab: typeof activeTab) => {
-            const all: Section[] = [];
-            if (tab.inboxSection) all.push(tab.inboxSection);
-            all.push(...tab.sections);
-            return all;
+        // handleMoveItem을 재사용하되, targetItemId(상대적 위치) 처리가 필요하면 여기서 추가 로직 수행
+        // 하지만 현재 handleMoveItem은 항상 맨 뒤에 추가하므로, reorder와 drop이 혼합된 정교한 로직이 필요함.
+        // 여기서는 handleMoveItem의 로직을 확장하여 targetItemId 위치에 삽입하도록 구현.
+
+        const sourceTab = safeData.tabs.find(t => t.id === (sourceTabId || activeTab.id));
+        const targetTab = safeData.tabs.find(t => t.id === (targetTabId || activeTab.id));
+        if (!sourceTab || !targetTab) return;
+
+        // Helper to find items and memo in ANY section type
+        const findInSection = (tab: Tab, secId: string) => {
+            let items: ListItem[] = [];
+            let memos: { [key: string]: string } = {};
+            let type: 'normal' | 'inbox' | 'parking' | 'todo' = 'normal';
+            let subType: string = '';
+
+            if (tab.inboxSection?.id === secId) { items = tab.inboxSection.items; memos = tab.memos; type = 'inbox'; }
+            else if (tab.sections.some(s => s.id === secId)) { 
+                const s = tab.sections.find(s => s.id === secId)!;
+                items = s.items; memos = tab.memos; type = 'normal'; 
+            }
+            else {
+                type = 'parking'; // Default to parking/todo categories
+                const p = tab.parkingInfo;
+                const t = tab.todoManagementInfo;
+                const t2 = tab.todoManagementInfo2;
+                const t3 = tab.todoManagementInfo3;
+
+                if (secId === 'checklist') { items = p.checklistItems; memos = p.checklistMemos; subType = 'checklist'; }
+                else if (secId === 'shopping') { items = p.shoppingListItems; memos = p.shoppingListMemos; subType = 'shopping'; }
+                else if (secId === 'reminders') { items = p.remindersItems; memos = p.remindersMemos; subType = 'reminders'; }
+                else if (secId === 'todo') { items = p.todoItems; memos = p.todoMemos; subType = 'todo'; }
+                else if (secId === 'parkingCat5') { items = p.category5Items; memos = p.category5Memos; subType = 'parkingCat5'; }
+                else if (secId === 'todoCat1') { items = t.category1Items; memos = t.category1Memos; type='todo'; subType = 'todoCat1'; }
+                else if (secId === 'todoCat2') { items = t.category2Items; memos = t.category2Memos; type='todo'; subType = 'todoCat2'; }
+                else if (secId === 'todoCat3') { items = t.category3Items; memos = t.category3Memos; type='todo'; subType = 'todoCat3'; }
+                else if (secId === 'todoCat4') { items = t.category4Items; memos = t.category4Memos; type='todo'; subType = 'todoCat4'; }
+                else if (secId === 'todoCat5') { items = t.category5Items; memos = t.category5Memos; type='todo'; subType = 'todoCat5'; }
+                else if (secId === 'todo2Cat1') { items = t2.category1Items; memos = t2.category1Memos; type='todo'; subType = 'todo2Cat1'; }
+                else if (secId === 'todo2Cat2') { items = t2.category2Items; memos = t2.category2Memos; type='todo'; subType = 'todo2Cat2'; }
+                else if (secId === 'todo2Cat3') { items = t2.category3Items; memos = t2.category3Memos; type='todo'; subType = 'todo2Cat3'; }
+                else if (secId === 'todo2Cat4') { items = t2.category4Items; memos = t2.category4Memos; type='todo'; subType = 'todo2Cat4'; }
+                else if (secId === 'todo2Cat5') { items = t2.category5Items; memos = t2.category5Memos; type='todo'; subType = 'todo2Cat5'; }
+                else if (secId === 'todo3Cat1') { items = t3.category1Items; memos = t3.category1Memos; type='todo'; subType = 'todo3Cat1'; }
+                else if (secId === 'todo3Cat2') { items = t3.category2Items; memos = t3.category2Memos; type='todo'; subType = 'todo3Cat2'; }
+                else if (secId === 'todo3Cat3') { items = t3.category3Items; memos = t3.category3Memos; type='todo'; subType = 'todo3Cat3'; }
+                else if (secId === 'todo3Cat4') { items = t3.category4Items; memos = t3.category4Memos; type='todo'; subType = 'todo3Cat4'; }
+                else if (secId === 'todo3Cat5') { items = t3.category5Items; memos = t3.category5Memos; type='todo'; subType = 'todo3Cat5'; }
+            }
+            return { items: items || [], memos: memos || {}, type, subType };
         };
+
+        const source = findInSection(sourceTab, sourceSectionId);
+        const target = findInSection(targetTab, targetSectionId);
+
+        const itemToMove = source.items.find(i => i.id === draggedItemId);
+        if (!itemToMove) return;
+
+        const sourceMemo = source.memos[draggedItemId];
 
         updateData({
             ...safeData,
-            tabs: safeData.tabs.map(t => {
-                if (t.id !== safeData.activeTabId) return t;
+            tabs: safeData.tabs.map(tab => {
+                let updatedTab = { ...tab };
+                const isSourceTab = tab.id === sourceTabId;
+                const isTargetTab = tab.id === targetTabId;
 
-                const allSections = getAllSections(t);
-                const sourceSection = allSections.find(s => s.id === sourceSectionId);
-                const targetSection = allSections.find(s => s.id === targetSectionId);
-                if (!sourceSection || !targetSection) return t;
-
-                const draggedItem = sourceSection.items.find(i => i.id === draggedItemId);
-                if (!draggedItem) return t;
-
-                const newSourceItems = sourceSection.items.filter(i => i.id !== draggedItemId);
-                let newTargetItems = [...targetSection.items];
-
-                if (targetItemId) {
-                    const targetIdx = newTargetItems.findIndex(i => i.id === targetItemId);
-                    if (targetIdx !== -1) {
-                        newTargetItems.splice(targetIdx, 0, draggedItem);
+                // 1. Remove from source
+                if (isSourceTab) {
+                    if (source.type === 'inbox') {
+                        updatedTab.inboxSection = { ...tab.inboxSection!, items: tab.inboxSection!.items.filter(i => i.id !== draggedItemId) };
+                        const { [draggedItemId]: rem, ...rest } = updatedTab.memos; updatedTab.memos = rest;
+                    } else if (source.type === 'normal') {
+                        updatedTab.sections = tab.sections.map(s => s.id === sourceSectionId ? { ...s, items: s.items.filter(i => i.id !== draggedItemId) } : s);
+                        const { [draggedItemId]: rem, ...rest } = updatedTab.memos; updatedTab.memos = rest;
                     } else {
-                        newTargetItems.unshift(draggedItem);
+                        // Widget removal
+                        const p = updatedTab.parkingInfo; const t1 = updatedTab.todoManagementInfo; const t2 = updatedTab.todoManagementInfo2; const t3 = updatedTab.todoManagementInfo3;
+                        const filterItems = (items: ListItem[]) => (items || []).filter(i => i.id !== draggedItemId);
+                        const filterMemos = (memos: any) => { const { [draggedItemId]: rm, ...rst } = (memos || {}); return rst; };
+
+                        if (source.subType === 'checklist') updatedTab.parkingInfo = { ...p, checklistItems: filterItems(p.checklistItems), checklistMemos: filterMemos(p.checklistMemos) };
+                        else if (source.subType === 'shopping') updatedTab.parkingInfo = { ...p, shoppingListItems: filterItems(p.shoppingListItems), shoppingListMemos: filterMemos(p.shoppingListMemos) };
+                        else if (source.subType === 'reminders') updatedTab.parkingInfo = { ...p, remindersItems: filterItems(p.remindersItems), remindersMemos: filterMemos(p.remindersMemos) };
+                        else if (source.subType === 'todo') updatedTab.parkingInfo = { ...p, todoItems: filterItems(p.todoItems), todoMemos: filterMemos(p.todoMemos) };
+                        else if (source.subType === 'parkingCat5') updatedTab.parkingInfo = { ...p, category5Items: filterItems(p.category5Items), category5Memos: filterMemos(p.category5Memos) };
+                        else if (source.subType === 'todoCat1') updatedTab.todoManagementInfo = { ...t1, category1Items: filterItems(t1.category1Items), category1Memos: filterMemos(t1.category1Memos) };
+                        else if (source.subType === 'todoCat2') updatedTab.todoManagementInfo = { ...t1, category2Items: filterItems(t1.category2Items), category2Memos: filterMemos(t1.category2Memos) };
+                        else if (source.subType === 'todoCat3') updatedTab.todoManagementInfo = { ...t1, category3Items: filterItems(t1.category3Items), category3Memos: filterMemos(t1.category3Memos) };
+                        else if (source.subType === 'todoCat4') updatedTab.todoManagementInfo = { ...t1, category4Items: filterItems(t1.category4Items), category4Memos: filterMemos(t1.category4Memos) };
+                        else if (source.subType === 'todoCat5') updatedTab.todoManagementInfo = { ...t1, category5Items: filterItems(t1.category5Items), category5Memos: filterMemos(t1.category5Memos) };
+                        else if (source.subType === 'todo2Cat1') updatedTab.todoManagementInfo2 = { ...t2, category1Items: filterItems(t2.category1Items), category1Memos: filterMemos(t2.category1Memos) };
+                        else if (source.subType === 'todo2Cat2') updatedTab.todoManagementInfo2 = { ...t2, category2Items: filterItems(t2.category2Items), category2Memos: filterMemos(t2.category2Memos) };
+                        else if (source.subType === 'todo2Cat3') updatedTab.todoManagementInfo2 = { ...t2, category3Items: filterItems(t2.category3Items), category3Memos: filterMemos(t2.category3Memos) };
+                        else if (source.subType === 'todo2Cat4') updatedTab.todoManagementInfo2 = { ...t2, category4Items: filterItems(t2.category4Items), category4Memos: filterMemos(t2.category4Memos) };
+                        else if (source.subType === 'todo2Cat5') updatedTab.todoManagementInfo2 = { ...t2, category5Items: filterItems(t2.category5Items), category5Memos: filterMemos(t2.category5Memos) };
+                        else if (source.subType === 'todo3Cat1') updatedTab.todoManagementInfo3 = { ...t3, category1Items: filterItems(t3.category1Items), category1Memos: filterMemos(t3.category1Memos) };
+                        else if (source.subType === 'todo3Cat2') updatedTab.todoManagementInfo3 = { ...t3, category2Items: filterItems(t3.category2Items), category2Memos: filterMemos(t3.category2Memos) };
+                        else if (source.subType === 'todo3Cat3') updatedTab.todoManagementInfo3 = { ...t3, category3Items: filterItems(t3.category3Items), category3Memos: filterMemos(t3.category3Memos) };
+                        else if (source.subType === 'todo3Cat4') updatedTab.todoManagementInfo3 = { ...t3, category4Items: filterItems(t3.category4Items), category4Memos: filterMemos(t3.category4Memos) };
+                        else if (source.subType === 'todo3Cat5') updatedTab.todoManagementInfo3 = { ...t3, category5Items: filterItems(t3.category5Items), category5Memos: filterMemos(t3.category5Memos) };
                     }
-                } else {
-                    newTargetItems.unshift(draggedItem);
                 }
 
-                const updateSec = (sec: Section) => {
-                    if (sec.id === sourceSectionId) return { ...sec, items: newSourceItems };
-                    if (sec.id === targetSectionId) return { ...sec, items: newTargetItems };
-                    return sec;
-                };
+                // 2. Add to target
+                if (isTargetTab) {
+                    const insertItems = (items: ListItem[]) => {
+                        const newItems = [...(items || [])];
+                        if (targetItemId) {
+                            const idx = newItems.findIndex(i => i.id === targetItemId);
+                            if (idx !== -1) newItems.splice(idx, 0, itemToMove);
+                            else newItems.unshift(itemToMove);
+                        } else {
+                            newItems.unshift(itemToMove); // Default to start for target sections
+                        }
+                        return newItems;
+                    };
 
-                return {
-                    ...t,
-                    inboxSection: t.inboxSection ? updateSec(t.inboxSection) : t.inboxSection,
-                    sections: t.sections.map(updateSec),
-                };
+                    if (target.type === 'inbox') {
+                        updatedTab.inboxSection = { ...updatedTab.inboxSection!, items: insertItems(updatedTab.inboxSection!.items) };
+                        if (sourceMemo) updatedTab.memos = { ...updatedTab.memos, [draggedItemId]: sourceMemo };
+                    } else if (target.type === 'normal') {
+                        updatedTab.sections = updatedTab.sections.map(s => s.id === targetSectionId ? { ...s, items: insertItems(s.items) } : s);
+                        if (sourceMemo) updatedTab.memos = { ...updatedTab.memos, [draggedItemId]: sourceMemo };
+                    } else {
+                        // Widget addition
+                        const p = updatedTab.parkingInfo; const t1 = updatedTab.todoManagementInfo; const t2 = updatedTab.todoManagementInfo2; const t3 = updatedTab.todoManagementInfo3;
+                        if (target.subType === 'checklist') { updatedTab.parkingInfo = { ...p, checklistItems: insertItems(p.checklistItems) }; if (sourceMemo) updatedTab.parkingInfo.checklistMemos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'shopping') { updatedTab.parkingInfo = { ...p, shoppingListItems: insertItems(p.shoppingListItems) }; if (sourceMemo) updatedTab.parkingInfo.shoppingListMemos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'reminders') { updatedTab.parkingInfo = { ...p, remindersItems: insertItems(p.remindersItems) }; if (sourceMemo) updatedTab.parkingInfo.remindersMemos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo') { updatedTab.parkingInfo = { ...p, todoItems: insertItems(p.todoItems) }; if (sourceMemo) updatedTab.parkingInfo.todoMemos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'parkingCat5') { updatedTab.parkingInfo = { ...p, category5Items: insertItems(p.category5Items) }; if (sourceMemo) updatedTab.parkingInfo.category5Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todoCat1') { updatedTab.todoManagementInfo = { ...t1, category1Items: insertItems(t1.category1Items) }; if (sourceMemo) updatedTab.todoManagementInfo.category1Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todoCat2') { updatedTab.todoManagementInfo = { ...t1, category2Items: insertItems(t1.category2Items) }; if (sourceMemo) updatedTab.todoManagementInfo.category2Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todoCat3') { updatedTab.todoManagementInfo = { ...t1, category3Items: insertItems(t1.category3Items) }; if (sourceMemo) updatedTab.todoManagementInfo.category3Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todoCat4') { updatedTab.todoManagementInfo = { ...t1, category4Items: insertItems(t1.category4Items) }; if (sourceMemo) updatedTab.todoManagementInfo.category4Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todoCat5') { updatedTab.todoManagementInfo = { ...t1, category5Items: insertItems(t1.category5Items) }; if (sourceMemo) updatedTab.todoManagementInfo.category5Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo2Cat1') { updatedTab.todoManagementInfo2 = { ...t2, category1Items: insertItems(t2.category1Items) }; if (sourceMemo) updatedTab.todoManagementInfo2.category1Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo2Cat2') { updatedTab.todoManagementInfo2 = { ...t2, category2Items: insertItems(t2.category2Items) }; if (sourceMemo) updatedTab.todoManagementInfo2.category2Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo2Cat3') { updatedTab.todoManagementInfo2 = { ...t2, category3Items: insertItems(t2.category3Items) }; if (sourceMemo) updatedTab.todoManagementInfo2.category3Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo2Cat4') { updatedTab.todoManagementInfo2 = { ...t2, category4Items: insertItems(t2.category4Items) }; if (sourceMemo) updatedTab.todoManagementInfo2.category4Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo2Cat5') { updatedTab.todoManagementInfo2 = { ...t2, category5Items: insertItems(t2.category5Items) }; if (sourceMemo) updatedTab.todoManagementInfo2.category5Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo3Cat1') { updatedTab.todoManagementInfo3 = { ...t3, category1Items: insertItems(t3.category1Items) }; if (sourceMemo) updatedTab.todoManagementInfo3.category1Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo3Cat2') { updatedTab.todoManagementInfo3 = { ...t3, category2Items: insertItems(t3.category2Items) }; if (sourceMemo) updatedTab.todoManagementInfo3.category2Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo3Cat3') { updatedTab.todoManagementInfo3 = { ...t3, category3Items: insertItems(t3.category3Items) }; if (sourceMemo) updatedTab.todoManagementInfo3.category3Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo3Cat4') { updatedTab.todoManagementInfo3 = { ...t3, category4Items: insertItems(t3.category4Items) }; if (sourceMemo) updatedTab.todoManagementInfo3.category4Memos[draggedItemId] = sourceMemo; }
+                        else if (target.subType === 'todo3Cat5') { updatedTab.todoManagementInfo3 = { ...t3, category5Items: insertItems(t3.category5Items) }; if (sourceMemo) updatedTab.todoManagementInfo3.category5Memos[draggedItemId] = sourceMemo; }
+                    }
+                }
+
+                return updatedTab;
             })
         });
     };
@@ -234,269 +341,10 @@ export const useSectionManagement = (
         targetSectionId: string,
         switchTab: boolean = false
     ) => {
-        if (!itemId) return;
-
-        if (sourceTabId === targetTabId && sourceSectionId === targetSectionId) {
-            return;
+        handleCrossSectionItemDrop(itemId, sourceSectionId, targetSectionId, sourceTabId, targetTabId);
+        if (switchTab && sourceTabId !== targetTabId) {
+            updateData({ ...safeData, activeTabId: targetTabId });
         }
-
-        const sourceTab = safeData.tabs.find(t => t.id === sourceTabId);
-        if (!sourceTab) return;
-
-        // 소스 영역 찾기
-        let sourceItems: ListItem[] = [];
-        let sourceMemo = '';
-        let isSpecialSource = false;
-
-        let sourceSection = sourceTab.sections.find(s => s.id === sourceSectionId);
-        if (!sourceSection && sourceTab.inboxSection?.id === sourceSectionId) {
-            sourceSection = sourceTab.inboxSection;
-        }
-
-        if (sourceSection) {
-            sourceItems = sourceSection.items;
-            sourceMemo = sourceTab.memos[itemId] || '';
-        } else {
-            // 주차/할일관리에서 찾기
-            const p = sourceTab.parkingInfo;
-            const t = sourceTab.todoManagementInfo;
-            const t2 = sourceTab.todoManagementInfo2;
-            const t3 = sourceTab.todoManagementInfo3;
-
-            if (sourceSectionId === 'checklist') { sourceItems = p.checklistItems; sourceMemo = p.checklistMemos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'shopping') { sourceItems = p.shoppingListItems; sourceMemo = p.shoppingListMemos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'reminders') { sourceItems = p.remindersItems; sourceMemo = p.remindersMemos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo') { sourceItems = p.todoItems; sourceMemo = p.todoMemos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'parkingCat5') { sourceItems = p.category5Items; sourceMemo = p.category5Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todoCat1') { sourceItems = t.category1Items; sourceMemo = t.category1Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todoCat2') { sourceItems = t.category2Items; sourceMemo = t.category2Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todoCat3') { sourceItems = t.category3Items; sourceMemo = t.category3Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todoCat4') { sourceItems = t.category4Items; sourceMemo = t.category4Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todoCat5') { sourceItems = t.category5Items; sourceMemo = t.category5Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo2Cat1') { sourceItems = t2.category1Items; sourceMemo = t2.category1Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo2Cat2') { sourceItems = t2.category2Items; sourceMemo = t2.category2Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo2Cat3') { sourceItems = t2.category3Items; sourceMemo = t2.category3Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo2Cat4') { sourceItems = t2.category4Items; sourceMemo = t2.category4Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo2Cat5') { sourceItems = t2.category5Items; sourceMemo = t2.category5Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo3Cat1') { sourceItems = t3.category1Items; sourceMemo = t3.category1Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo3Cat2') { sourceItems = t3.category2Items; sourceMemo = t3.category2Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo3Cat3') { sourceItems = t3.category3Items; sourceMemo = t3.category3Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo3Cat4') { sourceItems = t3.category4Items; sourceMemo = t3.category4Memos[itemId] || ''; isSpecialSource = true; }
-            else if (sourceSectionId === 'todo3Cat5') { sourceItems = t3.category5Items; sourceMemo = t3.category5Memos[itemId] || ''; isSpecialSource = true; }
-        }
-
-        const itemToMove = sourceItems.find(i => i.id === itemId);
-        if (!itemToMove) return;
-
-        const targetTab = safeData.tabs.find(t => t.id === targetTabId);
-        if (!targetTab) return;
-
-        let targetSection = targetTab.sections.find(s => s.id === targetSectionId);
-        let isSpecialTarget = false;
-        if (!targetSection && targetTab.inboxSection?.id === targetSectionId) {
-            targetSection = targetTab.inboxSection;
-        }
-        if (!targetSection) {
-            // 특수 섹션(주차, 할일관리) 체크
-            const specialSectionIds = [
-                'checklist', 'shopping', 'reminders', 'todo', 'parkingCat5',
-                'todoCat1', 'todoCat2', 'todoCat3', 'todoCat4', 'todoCat5',
-                'todo2Cat1', 'todo2Cat2', 'todo2Cat3', 'todo2Cat4', 'todo2Cat5',
-                'todo3Cat1', 'todo3Cat2', 'todo3Cat3', 'todo3Cat4', 'todo3Cat5'
-            ];
-            if (specialSectionIds.includes(targetSectionId)) {
-                isSpecialTarget = true;
-            }
-        }
-
-        if (!targetSection && !isSpecialTarget) return;
-
-        updateData({
-            ...safeData,
-            tabs: safeData.tabs.map(tab => {
-                // 1. 소스 탭 처리
-                if (tab.id === sourceTabId) {
-                    let updatedTab = { ...tab };
-                    // 소스에서 아이템 제거
-                    if (sourceSection) {
-                        if (sourceSection.id === tab.inboxSection?.id) {
-                            updatedTab.inboxSection = { ...tab.inboxSection!, items: tab.inboxSection!.items.filter(i => i.id !== itemId) };
-                        } else {
-                            updatedTab.sections = tab.sections.map(s => s.id === sourceSectionId ? { ...s, items: s.items.filter(i => i.id !== itemId) } : s);
-                        }
-                        const { [itemId]: removed, ...rest } = updatedTab.memos;
-                        updatedTab.memos = rest;
-                    } else if (isSpecialSource) {
-                        const p = tab.parkingInfo;
-                        const t = tab.todoManagementInfo;
-                        const t2 = tab.todoManagementInfo2;
-                        const t3 = tab.todoManagementInfo3;
-                        if (sourceSectionId === 'checklist') {
-                            updatedTab.parkingInfo = { ...p, checklistItems: p.checklistItems.filter(i => i.id !== itemId), checklistMemos: (() => { const { [itemId]: r, ...rest } = p.checklistMemos; return rest; })() };
-                        } else if (sourceSectionId === 'shopping') {
-                            updatedTab.parkingInfo = { ...p, shoppingListItems: p.shoppingListItems.filter(i => i.id !== itemId), shoppingListMemos: (() => { const { [itemId]: r, ...rest } = p.shoppingListMemos; return rest; })() };
-                        } else if (sourceSectionId === 'reminders') {
-                            updatedTab.parkingInfo = { ...p, remindersItems: p.remindersItems.filter(i => i.id !== itemId), remindersMemos: (() => { const { [itemId]: r, ...rest } = p.remindersMemos; return rest; })() };
-                        } else if (sourceSectionId === 'todo') {
-                            updatedTab.parkingInfo = { ...p, todoItems: p.todoItems.filter(i => i.id !== itemId), todoMemos: (() => { const { [itemId]: r, ...rest } = p.todoMemos; return rest; })() };
-                        } else if (sourceSectionId === 'parkingCat5') {
-                            updatedTab.parkingInfo = { ...p, category5Items: p.category5Items.filter(i => i.id !== itemId), category5Memos: (() => { const { [itemId]: r, ...rest } = p.category5Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todoCat1') {
-                            updatedTab.todoManagementInfo = { ...t, category1Items: t.category1Items.filter(i => i.id !== itemId), category1Memos: (() => { const { [itemId]: r, ...rest } = t.category1Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todoCat2') {
-                            updatedTab.todoManagementInfo = { ...t, category2Items: t.category2Items.filter(i => i.id !== itemId), category2Memos: (() => { const { [itemId]: r, ...rest } = t.category2Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todoCat3') {
-                            updatedTab.todoManagementInfo = { ...t, category3Items: t.category3Items.filter(i => i.id !== itemId), category3Memos: (() => { const { [itemId]: r, ...rest } = t.category3Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todoCat4') {
-                            updatedTab.todoManagementInfo = { ...t, category4Items: t.category4Items.filter(i => i.id !== itemId), category4Memos: (() => { const { [itemId]: r, ...rest } = t.category4Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todoCat5') {
-                            updatedTab.todoManagementInfo = { ...t, category5Items: t.category5Items.filter(i => i.id !== itemId), category5Memos: (() => { const { [itemId]: r, ...rest } = t.category5Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo2Cat1') {
-                            updatedTab.todoManagementInfo2 = { ...t2, category1Items: t2.category1Items.filter(i => i.id !== itemId), category1Memos: (() => { const { [itemId]: r, ...rest } = t2.category1Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo2Cat2') {
-                            updatedTab.todoManagementInfo2 = { ...t2, category2Items: t2.category2Items.filter(i => i.id !== itemId), category2Memos: (() => { const { [itemId]: r, ...rest } = t2.category2Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo2Cat3') {
-                            updatedTab.todoManagementInfo2 = { ...t2, category3Items: t2.category3Items.filter(i => i.id !== itemId), category3Memos: (() => { const { [itemId]: r, ...rest } = t2.category3Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo2Cat4') {
-                            updatedTab.todoManagementInfo2 = { ...t2, category4Items: t2.category4Items.filter(i => i.id !== itemId), category4Memos: (() => { const { [itemId]: r, ...rest } = t2.category4Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo2Cat5') {
-                            updatedTab.todoManagementInfo2 = { ...t2, category5Items: t2.category5Items.filter(i => i.id !== itemId), category5Memos: (() => { const { [itemId]: r, ...rest } = t2.category5Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo3Cat1') {
-                            updatedTab.todoManagementInfo3 = { ...t3, category1Items: t3.category1Items.filter(i => i.id !== itemId), category1Memos: (() => { const { [itemId]: r, ...rest } = t3.category1Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo3Cat2') {
-                            updatedTab.todoManagementInfo3 = { ...t3, category2Items: t3.category2Items.filter(i => i.id !== itemId), category2Memos: (() => { const { [itemId]: r, ...rest } = t3.category2Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo3Cat3') {
-                            updatedTab.todoManagementInfo3 = { ...t3, category3Items: t3.category3Items.filter(i => i.id !== itemId), category3Memos: (() => { const { [itemId]: r, ...rest } = t3.category3Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo3Cat4') {
-                            updatedTab.todoManagementInfo3 = { ...t3, category4Items: t3.category4Items.filter(i => i.id !== itemId), category4Memos: (() => { const { [itemId]: r, ...rest } = t3.category4Memos; return rest; })() };
-                        } else if (sourceSectionId === 'todo3Cat5') {
-                            updatedTab.todoManagementInfo3 = { ...t3, category5Items: t3.category5Items.filter(i => i.id !== itemId), category5Memos: (() => { const { [itemId]: r, ...rest } = t3.category5Memos; return rest; })() };
-                        }
-                    }
-
-                    // 같은 탭 내 이동이면 타겟 처리도 여기서
-                    if (sourceTabId === targetTabId) {
-                        if (targetSection) {
-                            if (targetSection.id === updatedTab.inboxSection?.id) {
-                                updatedTab.inboxSection = { ...updatedTab.inboxSection!, items: [...updatedTab.inboxSection!.items, itemToMove] };
-                            } else {
-                                updatedTab.sections = updatedTab.sections.map(s => s.id === targetSectionId ? { ...s, items: [...s.items, itemToMove] } : s);
-                            }
-                        } else if (isSpecialTarget) {
-                            if (targetSectionId === 'checklist') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, checklistItems: [...updatedTab.parkingInfo.checklistItems, itemToMove] };
-                            else if (targetSectionId === 'shopping') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, shoppingListItems: [...updatedTab.parkingInfo.shoppingListItems, itemToMove] };
-                            else if (targetSectionId === 'reminders') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, remindersItems: [...updatedTab.parkingInfo.remindersItems, itemToMove] };
-                            else if (targetSectionId === 'todo') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, todoItems: [...updatedTab.parkingInfo.todoItems, itemToMove] };
-                            else if (targetSectionId === 'parkingCat5') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, category5Items: [...updatedTab.parkingInfo.category5Items, itemToMove] };
-                            else if (targetSectionId === 'todoCat1') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category1Items: [...updatedTab.todoManagementInfo.category1Items, itemToMove] };
-                            else if (targetSectionId === 'todoCat2') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category2Items: [...updatedTab.todoManagementInfo.category2Items, itemToMove] };
-                            else if (targetSectionId === 'todoCat3') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category3Items: [...updatedTab.todoManagementInfo.category3Items, itemToMove] };
-                            else if (targetSectionId === 'todoCat4') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category4Items: [...updatedTab.todoManagementInfo.category4Items, itemToMove] };
-                            else if (targetSectionId === 'todoCat5') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category5Items: [...updatedTab.todoManagementInfo.category5Items, itemToMove] };
-                            else if (targetSectionId === 'todo2Cat1') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category1Items: [...updatedTab.todoManagementInfo2.category1Items, itemToMove] };
-                            else if (targetSectionId === 'todo2Cat2') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category2Items: [...updatedTab.todoManagementInfo2.category2Items, itemToMove] };
-                            else if (targetSectionId === 'todo2Cat3') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category3Items: [...updatedTab.todoManagementInfo2.category3Items, itemToMove] };
-                            else if (targetSectionId === 'todo2Cat4') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category4Items: [...updatedTab.todoManagementInfo2.category4Items, itemToMove] };
-                            else if (targetSectionId === 'todo2Cat5') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category5Items: [...updatedTab.todoManagementInfo2.category5Items, itemToMove] };
-                            else if (targetSectionId === 'todo3Cat1') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category1Items: [...updatedTab.todoManagementInfo3.category1Items, itemToMove] };
-                            else if (targetSectionId === 'todo3Cat2') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category2Items: [...updatedTab.todoManagementInfo3.category2Items, itemToMove] };
-                            else if (targetSectionId === 'todo3Cat3') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category3Items: [...updatedTab.todoManagementInfo3.category3Items, itemToMove] };
-                            else if (targetSectionId === 'todo3Cat4') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category4Items: [...updatedTab.todoManagementInfo3.category4Items, itemToMove] };
-                            else if (targetSectionId === 'todo3Cat5') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category5Items: [...updatedTab.todoManagementInfo3.category5Items, itemToMove] };
-                        }
-
-                        if (sourceMemo) {
-                            if (targetSection) updatedTab.memos = { ...updatedTab.memos, [itemId]: sourceMemo };
-                            else if (isSpecialTarget) {
-                                if (targetSectionId === 'checklist') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, checklistMemos: { ...updatedTab.parkingInfo.checklistMemos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'shopping') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, shoppingListMemos: { ...updatedTab.parkingInfo.shoppingListMemos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'reminders') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, remindersMemos: { ...updatedTab.parkingInfo.remindersMemos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, todoMemos: { ...updatedTab.parkingInfo.todoMemos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'parkingCat5') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, category5Memos: { ...updatedTab.parkingInfo.category5Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todoCat1') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category1Memos: { ...updatedTab.todoManagementInfo.category1Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todoCat2') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category2Memos: { ...updatedTab.todoManagementInfo.category2Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todoCat3') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category3Memos: { ...updatedTab.todoManagementInfo.category3Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todoCat4') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category4Memos: { ...updatedTab.todoManagementInfo.category4Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todoCat5') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category5Memos: { ...updatedTab.todoManagementInfo.category5Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo2Cat1') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category1Memos: { ...updatedTab.todoManagementInfo2.category1Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo2Cat2') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category2Memos: { ...updatedTab.todoManagementInfo2.category2Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo2Cat3') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category3Memos: { ...updatedTab.todoManagementInfo2.category3Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo2Cat4') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category4Memos: { ...updatedTab.todoManagementInfo2.category4Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo2Cat5') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category5Memos: { ...updatedTab.todoManagementInfo2.category5Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo3Cat1') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category1Memos: { ...updatedTab.todoManagementInfo3.category1Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo3Cat2') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category2Memos: { ...updatedTab.todoManagementInfo3.category2Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo3Cat3') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category3Memos: { ...updatedTab.todoManagementInfo3.category3Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo3Cat4') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category4Memos: { ...updatedTab.todoManagementInfo3.category4Memos, [itemId]: sourceMemo } };
-                                else if (targetSectionId === 'todo3Cat5') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category5Memos: { ...updatedTab.todoManagementInfo3.category5Memos, [itemId]: sourceMemo } };
-                            }
-                        }
-                    }
-                    return updatedTab;
-                }
-                // 2. 다른 탭 타겟 처리
-                if (sourceTabId !== targetTabId && tab.id === targetTabId) {
-                    let updatedTab = { ...tab };
-                    if (targetSection) {
-                        if (targetSection.id === tab.inboxSection?.id) {
-                            updatedTab.inboxSection = { ...tab.inboxSection!, items: [...tab.inboxSection!.items, itemToMove] };
-                        } else {
-                            updatedTab.sections = tab.sections.map(s => s.id === targetSectionId ? { ...s, items: [...s.items, itemToMove] } : s);
-                        }
-                    } else if (isSpecialTarget) {
-                        if (targetSectionId === 'checklist') updatedTab.parkingInfo = { ...tab.parkingInfo, checklistItems: [...tab.parkingInfo.checklistItems, itemToMove] };
-                        else if (targetSectionId === 'shopping') updatedTab.parkingInfo = { ...tab.parkingInfo, shoppingListItems: [...tab.parkingInfo.shoppingListItems, itemToMove] };
-                        else if (targetSectionId === 'reminders') updatedTab.parkingInfo = { ...tab.parkingInfo, remindersItems: [...tab.parkingInfo.remindersItems, itemToMove] };
-                        else if (targetSectionId === 'todo') updatedTab.parkingInfo = { ...tab.parkingInfo, todoItems: [...tab.parkingInfo.todoItems, itemToMove] };
-                        else if (targetSectionId === 'parkingCat5') updatedTab.parkingInfo = { ...tab.parkingInfo, category5Items: [...tab.parkingInfo.category5Items, itemToMove] };
-                        else if (targetSectionId === 'todoCat1') updatedTab.todoManagementInfo = { ...tab.todoManagementInfo, category1Items: [...tab.todoManagementInfo.category1Items, itemToMove] };
-                        else if (targetSectionId === 'todoCat2') updatedTab.todoManagementInfo = { ...tab.todoManagementInfo, category2Items: [...tab.todoManagementInfo.category2Items, itemToMove] };
-                        else if (targetSectionId === 'todoCat3') updatedTab.todoManagementInfo = { ...tab.todoManagementInfo, category3Items: [...tab.todoManagementInfo.category3Items, itemToMove] };
-                        else if (targetSectionId === 'todoCat4') updatedTab.todoManagementInfo = { ...tab.todoManagementInfo, category4Items: [...tab.todoManagementInfo.category4Items, itemToMove] };
-                        else if (targetSectionId === 'todoCat5') updatedTab.todoManagementInfo = { ...tab.todoManagementInfo, category5Items: [...tab.todoManagementInfo.category5Items, itemToMove] };
-                        else if (targetSectionId === 'todo2Cat1') updatedTab.todoManagementInfo2 = { ...tab.todoManagementInfo2, category1Items: [...tab.todoManagementInfo2.category1Items, itemToMove] };
-                        else if (targetSectionId === 'todo2Cat2') updatedTab.todoManagementInfo2 = { ...tab.todoManagementInfo2, category2Items: [...tab.todoManagementInfo2.category2Items, itemToMove] };
-                        else if (targetSectionId === 'todo2Cat3') updatedTab.todoManagementInfo2 = { ...tab.todoManagementInfo2, category3Items: [...tab.todoManagementInfo2.category3Items, itemToMove] };
-                        else if (targetSectionId === 'todo2Cat4') updatedTab.todoManagementInfo2 = { ...tab.todoManagementInfo2, category4Items: [...tab.todoManagementInfo2.category4Items, itemToMove] };
-                        else if (targetSectionId === 'todo2Cat5') updatedTab.todoManagementInfo2 = { ...tab.todoManagementInfo2, category5Items: [...tab.todoManagementInfo2.category5Items, itemToMove] };
-                        else if (targetSectionId === 'todo3Cat1') updatedTab.todoManagementInfo3 = { ...tab.todoManagementInfo3, category1Items: [...tab.todoManagementInfo3.category1Items, itemToMove] };
-                        else if (targetSectionId === 'todo3Cat2') updatedTab.todoManagementInfo3 = { ...tab.todoManagementInfo3, category2Items: [...tab.todoManagementInfo3.category2Items, itemToMove] };
-                        else if (targetSectionId === 'todo3Cat3') updatedTab.todoManagementInfo3 = { ...tab.todoManagementInfo3, category3Items: [...tab.todoManagementInfo3.category3Items, itemToMove] };
-                        else if (targetSectionId === 'todo3Cat4') updatedTab.todoManagementInfo3 = { ...tab.todoManagementInfo3, category4Items: [...tab.todoManagementInfo3.category4Items, itemToMove] };
-                        else if (targetSectionId === 'todo3Cat5') updatedTab.todoManagementInfo3 = { ...tab.todoManagementInfo3, category5Items: [...tab.todoManagementInfo3.category5Items, itemToMove] };
-                    }
-
-                    if (sourceMemo) {
-                        if (targetSection) updatedTab.memos = { ...tab.memos, [itemId]: sourceMemo };
-                        else if (isSpecialTarget) {
-                            if (targetSectionId === 'checklist') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, checklistMemos: { ...tab.parkingInfo.checklistMemos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'shopping') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, shoppingListMemos: { ...tab.parkingInfo.shoppingListMemos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'reminders') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, remindersMemos: { ...tab.parkingInfo.remindersMemos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, todoMemos: { ...tab.parkingInfo.todoMemos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'parkingCat5') updatedTab.parkingInfo = { ...updatedTab.parkingInfo, category5Memos: { ...tab.parkingInfo.category5Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todoCat1') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category1Memos: { ...tab.todoManagementInfo.category1Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todoCat2') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category2Memos: { ...tab.todoManagementInfo.category2Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todoCat3') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category3Memos: { ...tab.todoManagementInfo.category3Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todoCat4') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category4Memos: { ...tab.todoManagementInfo.category4Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todoCat5') updatedTab.todoManagementInfo = { ...updatedTab.todoManagementInfo, category5Memos: { ...tab.todoManagementInfo.category5Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo2Cat1') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category1Memos: { ...tab.todoManagementInfo2.category1Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo2Cat2') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category2Memos: { ...tab.todoManagementInfo2.category2Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo2Cat3') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category3Memos: { ...tab.todoManagementInfo2.category3Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo2Cat4') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category4Memos: { ...tab.todoManagementInfo2.category4Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo2Cat5') updatedTab.todoManagementInfo2 = { ...updatedTab.todoManagementInfo2, category5Memos: { ...tab.todoManagementInfo2.category5Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo3Cat1') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category1Memos: { ...tab.todoManagementInfo3.category1Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo3Cat2') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category2Memos: { ...tab.todoManagementInfo3.category2Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo3Cat3') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category3Memos: { ...tab.todoManagementInfo3.category3Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo3Cat4') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category4Memos: { ...tab.todoManagementInfo3.category4Memos, [itemId]: sourceMemo } };
-                            else if (targetSectionId === 'todo3Cat5') updatedTab.todoManagementInfo3 = { ...updatedTab.todoManagementInfo3, category5Memos: { ...tab.todoManagementInfo3.category5Memos, [itemId]: sourceMemo } };
-                        }
-                    }
-                    return updatedTab;
-                }
-                return tab;
-            }),
-            activeTabId: switchTab ? targetTabId : safeData.activeTabId
-        });
-
     };
 
     return {

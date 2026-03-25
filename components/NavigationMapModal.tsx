@@ -61,14 +61,52 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
   if (!isOpen) return null;
 
   // Helper functions
-  const getSectionCount = (tab: Tab) => tab.sections.length + (tab.inboxSection ? 1 : 0);
-  const getItemCount = (tab: Tab) =>
-    tab.sections.reduce((sum, s) => sum + s.items.length, 0) +
-    (tab.inboxSection?.items.length || 0);
-  const getTotalSections = () =>
-    tabs.reduce((sum, t) => sum + getSectionCount(t), 0);
-  const getTotalItems = () =>
-    tabs.reduce((sum, t) => sum + getItemCount(t), 0);
+  const getSectionCount = (tab: Tab) => {
+    let count = tab.sections.length + (tab.inboxSection ? 1 : 0);
+    // Add widgets if it's the main tab
+    if (tab.id === tabs[0]?.id) {
+       count += 5; // Parking
+       count += 5; // Todo1
+       count += 5; // Todo2
+       if (tab.todoManagementInfo3) count += 5; // Todo3
+    }
+    return count;
+  };
+
+  const getItemCount = (tab: Tab) => {
+    let count = tab.sections.reduce((sum, s) => sum + s.items.length, 0) + (tab.inboxSection?.items.length || 0);
+    if (tab.id === tabs[0]?.id) {
+        count += (tab.parkingInfo.checklistItems?.length || 0);
+        count += (tab.parkingInfo.shoppingListItems?.length || 0);
+        count += (tab.parkingInfo.remindersItems?.length || 0);
+        count += (tab.parkingInfo.todoItems?.length || 0);
+        count += (tab.parkingInfo.category5Items?.length || 0);
+
+        count += (tab.todoManagementInfo.category1Items?.length || 0);
+        count += (tab.todoManagementInfo.category2Items?.length || 0);
+        count += (tab.todoManagementInfo.category3Items?.length || 0);
+        count += (tab.todoManagementInfo.category4Items?.length || 0);
+        count += (tab.todoManagementInfo.category5Items?.length || 0);
+
+        count += (tab.todoManagementInfo2.category1Items?.length || 0);
+        count += (tab.todoManagementInfo2.category2Items?.length || 0);
+        count += (tab.todoManagementInfo2.category3Items?.length || 0);
+        count += (tab.todoManagementInfo2.category4Items?.length || 0);
+        count += (tab.todoManagementInfo2.category5Items?.length || 0);
+
+        if (tab.todoManagementInfo3) {
+            count += (tab.todoManagementInfo3.category1Items?.length || 0);
+            count += (tab.todoManagementInfo3.category2Items?.length || 0);
+            count += (tab.todoManagementInfo3.category3Items?.length || 0);
+            count += (tab.todoManagementInfo3.category4Items?.length || 0);
+            count += (tab.todoManagementInfo3.category5Items?.length || 0);
+        }
+    }
+    return count;
+  };
+
+  const getTotalSections = () => tabs.reduce((sum, t) => sum + getSectionCount(t), 0);
+  const getTotalItems = () => tabs.reduce((sum, t) => sum + getItemCount(t), 0);
 
   // Toggle handlers
   const toggleTab = (tabId: string) => {
@@ -91,8 +129,6 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
     }
   };
 
-  // --- Shared sub-components ---
-
   const renderLeftPanel = () => (
     <div className={`${isMobile ? 'flex-1' : 'w-1/2 border-r border-slate-200'} overflow-y-auto custom-scrollbar p-4 sm:p-6 bg-white`}>
       {tabs.length === 0 ? (
@@ -100,16 +136,58 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
           <p className="italic">탭이 없습니다.</p>
         </div>
       ) : (
-        tabs.map((tab) => {
-          const allSections: Array<{ section: Section; isInbox: boolean }> = [
-            ...(tab.inboxSection ? [{ section: tab.inboxSection, isInbox: true }] : []),
-            ...tab.sections.map(s => ({ section: s, isInbox: false })),
+        tabs.map((tab, tabIdx) => {
+          const isMainTab = tabIdx === 0;
+          const allSections: Array<{ section: Section; type: 'inbox' | 'general' | 'widget' }> = [
+            ...(tab.inboxSection ? [{ section: tab.inboxSection, type: 'inbox' as const }] : []),
           ];
+
+          if (isMainTab) {
+            const pk = tab.parkingInfo;
+            const td1 = tab.todoManagementInfo;
+            const td2 = tab.todoManagementInfo2;
+            const td3 = tab.todoManagementInfo3;
+
+            const addWidgetSec = (id: string, title: string, items: any[]) => {
+                allSections.push({ 
+                    section: { id, title: title || '항목', items: items || [], isLocked: false }, 
+                    type: 'widget' as const 
+                });
+            };
+
+            addWidgetSec('checklist', pk.checklistTitle || '업무루틴', pk.checklistItems);
+            addWidgetSec('shopping', pk.shoppingTitle || '구매예정', pk.shoppingListItems);
+            addWidgetSec('reminders', pk.remindersTitle || '기억확인', pk.remindersItems);
+            addWidgetSec('todo', pk.todoTitle || '잊지말것', pk.todoItems);
+            addWidgetSec('parkingCat5', pk.category5Title || '항목 5', pk.category5Items);
+
+            addWidgetSec('todoCat1', td1.category1Title || '개인 1', td1.category1Items);
+            addWidgetSec('todoCat2', td1.category2Title || '개인 2', td1.category2Items);
+            addWidgetSec('todoCat3', td1.category3Title || '개인 3', td1.category3Items);
+            addWidgetSec('todoCat4', td1.category4Title || '개인 4', td1.category4Items);
+            addWidgetSec('todoCat5', td1.category5Title || '개인 5', td1.category5Items);
+
+            addWidgetSec('todo2Cat1', td2.category1Title || '만드는것 1', td2.category1Items);
+            addWidgetSec('todo2Cat2', td2.category2Title || '만드는것 2', td2.category2Items);
+            addWidgetSec('todo2Cat3', td2.category3Title || '만드는것 3', td2.category3Items);
+            addWidgetSec('todo2Cat4', td2.category4Title || '만드는것 4', td2.category4Items);
+            addWidgetSec('todo2Cat5', td2.category5Title || '만드는것 5', td2.category5Items);
+
+            if (td3) {
+                addWidgetSec('todo3Cat1', td3.category1Title || '할일3-1', td3.category1Items);
+                addWidgetSec('todo3Cat2', td3.category2Title || '할일3-2', td3.category2Items);
+                addWidgetSec('todo3Cat3', td3.category3Title || '할일3-3', td3.category3Items);
+                addWidgetSec('todo3Cat4', td3.category4Title || '할일3-4', td3.category4Items);
+                addWidgetSec('todo3Cat5', td3.category5Title || '할일3-5', td3.category5Items);
+            }
+          }
+
+          allSections.push(...tab.sections.map(s => ({ section: s, type: 'general' as const })));
+
           const isExpanded = expandedTabIds.has(tab.id);
 
           return (
             <div key={tab.id} className="mb-1">
-              {/* Tab Row - Accordion Header */}
               <button
                 onClick={() => toggleTab(tab.id)}
                 className={`w-full text-left px-3 py-2 rounded-lg mb-1 transition-all ${tab.id === activeTabId
@@ -123,12 +201,11 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                   <span className="font-semibold text-slate-800">{tab.name}</span>
                   {tab.isLocked && <LockIcon />}
                   <span className="text-xs text-slate-400 ml-auto font-normal">
-                    {getSectionCount(tab)}개 섹션
+                    {allSections.length}개 섹션
                   </span>
                 </div>
               </button>
 
-              {/* Tree Children — smooth max-height animation */}
               <div
                 style={{
                   maxHeight: isExpanded ? `${allSections.length * 56 + 16}px` : '0px',
@@ -141,17 +218,16 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                     추가 섹션이 없습니다
                   </div>
                 ) : (
-                  /* 트리 수직선 컨테이너 */
                   <div className="ml-5 border-l-2 border-slate-200 mb-2">
-                    {allSections.map(({ section, isInbox }, index) => {
+                    {allSections.map(({ section, type }, index) => {
                       const isLast = index === allSections.length - 1;
                       const isSelected = selectedSection?.section.id === section.id;
+                      const isWidget = type === 'widget';
+                      const isInbox = type === 'inbox';
 
                       return (
                         <div key={section.id} className="relative flex items-center group pl-4 py-0.5">
-                          {/* 수평 연결선 ── */}
                           <div className="absolute left-0 top-1/2 w-4 h-0.5 bg-slate-200 -translate-y-1/2 flex-shrink-0" />
-                          {/* 마지막 항목: 수직선 하단 절단 (흰색 오버레이) */}
                           {isLast && (
                             <div
                               className="absolute left-[-2px] bottom-0 w-0.5 bg-white"
@@ -159,16 +235,15 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                             />
                           )}
 
-                          {/* 섹션 버튼 */}
                           <button
                             onClick={() => handleSectionSelect(tab.id, section)}
                             className={`flex-1 text-left px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${isSelected
-                              ? 'bg-blue-100 border-blue-300'
+                              ? (isWidget ? 'bg-orange-100 border-orange-300' : 'bg-blue-100 border-blue-300')
                               : 'hover:bg-slate-50 border-slate-200'
                               }`}
                           >
-                            <span className="text-sm grayscale">{isInbox ? '📥' : '📋'}</span>
-                            <span className={`text-sm font-medium truncate ${isSelected ? 'text-blue-800' : 'text-slate-700'}`}>
+                            <span className="text-sm grayscale">{isInbox ? '📥' : isWidget ? '⚙️' : '📋'}</span>
+                            <span className={`text-sm font-medium truncate ${isSelected ? (isWidget ? 'text-orange-800' : 'text-blue-800') : 'text-slate-700'}`}>
                               {section.title}
                             </span>
                             {section.isLocked && <div className="scale-75 flex-shrink-0"><LockIcon /></div>}
@@ -177,7 +252,6 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                             </span>
                           </button>
 
-                          {/* 이동 버튼 🚀 */}
                           <button
                             onClick={() => onNavigateAndFocus(tab.id, section.id)}
                             className={`ml-1.5 p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
