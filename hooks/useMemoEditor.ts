@@ -189,11 +189,11 @@ export const useMemoEditor = (
         }
     };
 
-    const handleSaveMemo = (exitEditMode: boolean = true) => {
+    const handleSaveMemo = (exitEditMode: boolean = true, newValue?: string) => {
         if (!memoEditor.id) return;
 
         const updatedAllContents = [...memoEditor.allValues];
-        updatedAllContents[memoEditor.activePageIndex] = memoEditor.value;
+        updatedAllContents[memoEditor.activePageIndex] = newValue !== undefined ? newValue : memoEditor.value;
 
         const updatedAllTitles = [...memoEditor.allTitles];
         updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;

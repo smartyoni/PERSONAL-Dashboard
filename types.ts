@@ -108,4 +108,6 @@ export interface MemoEditorState {
   sectionId?: string | null;
   tabId?: string | null;
   highlightText?: string | null;
+  pureValue?: string;
+  tocLines?: number[]; // Indices of lines marked as ToC sub-items
 }

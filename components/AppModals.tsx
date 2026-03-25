@@ -12,7 +12,7 @@ interface AppModalsProps {
     memoEditor: MemoEditorState;
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
     memoTextareaRef: React.RefObject<HTMLDivElement>;
-    handleSaveMemo: (isAutoSave?: boolean) => void;
+    handleSaveMemo: (isAutoSave?: boolean, newValue?: string) => void;
     handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;

@@ -8,7 +8,7 @@ export interface MemoEditorPanelProps {
     memoEditor: MemoEditorState;
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>;
     memoTextareaRef: React.RefObject<HTMLDivElement>;
-    handleSaveMemo: (isAutoSave?: boolean) => void;
+    handleSaveMemo: (isAutoSave?: boolean, newValue?: string) => void;
     handleSwipeMemo: (direction: 'left' | 'right') => void;
     handleDeleteItemFromModal: () => void;
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
@@ -72,17 +72,15 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         }, 0);
     }, [memoEditor.value, setMemoEditor, memoTextareaRef]);
 
-    // Update editor content sync (no-op now since it's a controlled textarea)
     useEffect(() => {
         if (memoEditor.isEditing && memoTextareaRef.current) {
-            // textarea 높이 자동 조절 등 추가 가능
             const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
             if (textarea.tagName === 'TEXTAREA') {
                 textarea.style.height = 'auto';
                 textarea.style.height = `${textarea.scrollHeight}px`;
             }
         }
-    }, [memoEditor.value, memoEditor.isEditing]);
+    }, [memoEditor.pureValue, memoEditor.isEditing]);
 
     // Handle initial focus
     useEffect(() => {
@@ -100,6 +98,38 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             setMemoEditor(prev => ({ ...prev, highlightText: null }));
         }
     }, [memoEditor.highlightText]);
+
+    const prevIsEditing = useRef(memoEditor.isEditing);
+    const prevActivePage = useRef(memoEditor.activePageIndex);
+
+    // Sync pureValue and tocLines when entering edit mode or changing page
+    useEffect(() => {
+        if ((memoEditor.isEditing && !prevIsEditing.current) || (memoEditor.isEditing && memoEditor.activePageIndex !== prevActivePage.current)) {
+            const lines = memoEditor.value.split('\n');
+            const tocLines: number[] = [];
+            const pureValue = lines.map((l, idx) => {
+                const match = l.match(/^([#※])\s*/);
+                if (match) {
+                    tocLines.push(idx);
+                    return l.replace(/^([#※])\s*/, '');
+                }
+                return l;
+            }).join('\n');
+            setMemoEditor(prev => ({ ...prev, pureValue, tocLines }));
+        }
+        prevIsEditing.current = memoEditor.isEditing;
+        prevActivePage.current = memoEditor.activePageIndex;
+    }, [memoEditor.isEditing, memoEditor.activePageIndex, memoEditor.value]);
+
+    const handleToggleTocLine = (idx: number) => {
+        setMemoEditor(prev => {
+            const currentTocLines = prev.tocLines || [];
+            const newTocLines = currentTocLines.includes(idx)
+                ? currentTocLines.filter(i => i !== idx)
+                : [...currentTocLines, idx];
+            return { ...prev, tocLines: newTocLines };
+        });
+    };
 
     // 하이라이트된 텍스트로 스크롤
     useEffect(() => {
@@ -566,7 +596,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 ))}
                                 <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
                                 <button
-                                    onClick={() => handleSaveMemo()}
+                                    onClick={() => {
+                                        const mergedValue = (memoEditor.pureValue || '').split('\n').map((line, i) => {
+                                            const isToc = (memoEditor.tocLines || []).includes(i);
+                                            return isToc ? `※ ${line}` : line;
+                                        }).join('\n');
+                                        handleSaveMemo(true, mergedValue);
+                                    }}
                                     className="flex-none px-4 py-1.5 bg-green-500 text-white text-[11px] font-bold rounded-lg hover:bg-green-600 shadow-sm active:scale-95 transition-all border border-green-600"
                                 >저장</button>
                                 <button
@@ -664,12 +700,56 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {memoEditor.isEditing ? (
                 <div className="flex flex-col flex-1 overflow-hidden relative regal-pad-bg">
                     <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative pl-[31px]">
-                        {/* Textarea */}
+                        {/* Margin Checkboxes Phase */}
+                        <div className="absolute left-0 top-0 bottom-0 w-[31px] z-10 pointer-events-auto">
+                            {(memoEditor.pureValue || '').split('\n').map((_, idx) => (
+                                <div key={idx} className="h-[28px] flex items-center justify-center">
+                                    <input 
+                                        type="checkbox"
+                                        checked={(memoEditor.tocLines || []).includes(idx)}
+                                        onChange={() => handleToggleTocLine(idx)}
+                                        className="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                    />
+                                </div>
+                            ))}
+                        </div>
                         <textarea
                             ref={memoTextareaRef as any}
                             className="memo-editor-textarea"
-                            value={memoEditor.value}
-                            onChange={(e) => setMemoEditor(prev => ({ ...prev, value: e.target.value }))}
+                            value={memoEditor.pureValue || ''}
+                            onChange={(e) => {
+                                const newPureValue = e.target.value;
+                                const textarea = e.target;
+                                const cursorPosition = textarea.selectionStart;
+                                const oldPureValue = memoEditor.pureValue || '';
+                                const oldLinesCount = oldPureValue.split('\n').length;
+                                const newLinesCount = newPureValue.split('\n').length;
+                                
+                                let newTocLines = [...(memoEditor.tocLines || [])];
+                                
+                                if (newLinesCount !== oldLinesCount) {
+                                    const textBeforeCursor = newPureValue.substring(0, cursorPosition);
+                                    const currentLineIndex = textBeforeCursor.split('\n').length - 1;
+                                    
+                                    if (newLinesCount > oldLinesCount) {
+                                        const addedCount = newLinesCount - oldLinesCount;
+                                        newTocLines = newTocLines.map(lineIdx => 
+                                            lineIdx >= currentLineIndex ? lineIdx + addedCount : lineIdx
+                                        );
+                                    } else {
+                                        const removedCount = oldLinesCount - newLinesCount;
+                                        newTocLines = newTocLines
+                                            .filter(lineIdx => lineIdx < currentLineIndex || lineIdx >= currentLineIndex + removedCount)
+                                            .map(lineIdx => lineIdx >= currentLineIndex ? lineIdx - removedCount : lineIdx);
+                                    }
+                                }
+                                
+                                setMemoEditor(prev => ({ 
+                                    ...prev, 
+                                    pureValue: newPureValue,
+                                    tocLines: newTocLines
+                                }));
+                            }}
                             placeholder="여기에 메모를 작성하세요..."
                             style={{ 
                                 paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px',

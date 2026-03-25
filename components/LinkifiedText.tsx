@@ -99,7 +99,13 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
                 if (isHeader) {
                   return (
                     <div key={lIdx} style={{ fontSize: '1.1em', fontWeight: 700, color: '#0f172a', lineHeight: '1.4', margin: '2px 0 1px 0' }}>
-                      {finalLineContent}
+                      {/* Hide the marker character */}
+                      {typeof finalLineContent === 'string' 
+                        ? finalLineContent.replace(/^([#※])\s*/, '') 
+                        : (Array.isArray(finalLineContent) && typeof finalLineContent[0] === 'string')
+                          ? [finalLineContent[0].replace(/^([#※])\s*/, ''), ...finalLineContent.slice(1)]
+                          : finalLineContent
+                      }
                     </div>
                   );
                 }
