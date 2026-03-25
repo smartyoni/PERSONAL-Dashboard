@@ -25,10 +25,10 @@ const SectionMapModal: React.FC<SectionMapModalProps> = ({
     if (isMainTab) {
         if (activeTab.inboxSection) sections.push(activeTab.inboxSection);
 
-        // 섹션 2: 주차
+        // 섹션 2: 개인
         sections.push({
             id: 'parking-section',
-            title: activeTab.parkingInfo.title || '주차',
+            title: activeTab.parkingInfo.title || '개인',
             items: [
                 ...activeTab.parkingInfo.checklistItems,
                 ...activeTab.parkingInfo.shoppingListItems,
@@ -37,27 +37,15 @@ const SectionMapModal: React.FC<SectionMapModalProps> = ({
             ]
         } as Section);
 
-        // 섹션 3: 할일관리 1
+        // 섹션 3: 업무
         sections.push({
             id: 'todo-section-1',
-            title: activeTab.todoManagementInfo.title || '할일관리 1',
+            title: activeTab.todoManagementInfo.title || '업무',
             items: [
                 ...activeTab.todoManagementInfo.category1Items,
                 ...activeTab.todoManagementInfo.category2Items,
                 ...activeTab.todoManagementInfo.category3Items,
                 ...activeTab.todoManagementInfo.category4Items
-            ]
-        } as Section);
-
-        // 섹션 4: 할일관리 2
-        sections.push({
-            id: 'todo-section-2',
-            title: activeTab.todoManagementInfo2.title || '할일관리 2',
-            items: [
-                ...activeTab.todoManagementInfo2.category1Items,
-                ...activeTab.todoManagementInfo2.category2Items,
-                ...activeTab.todoManagementInfo2.category3Items,
-                ...activeTab.todoManagementInfo2.category4Items
             ]
         } as Section);
     }

@@ -65,10 +65,8 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
     let count = tab.sections.length + (tab.inboxSection ? 1 : 0);
     // Add widgets if it's the main tab
     if (tab.id === tabs[0]?.id) {
-       count += 5; // Parking
-       count += 5; // Todo1
-       count += 5; // Todo2
-       if (tab.todoManagementInfo3) count += 5; // Todo3
+       count += 5; // 개인
+       count += 5; // 업무
     }
     return count;
   };
@@ -87,20 +85,6 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
         count += (tab.todoManagementInfo.category3Items?.length || 0);
         count += (tab.todoManagementInfo.category4Items?.length || 0);
         count += (tab.todoManagementInfo.category5Items?.length || 0);
-
-        count += (tab.todoManagementInfo2.category1Items?.length || 0);
-        count += (tab.todoManagementInfo2.category2Items?.length || 0);
-        count += (tab.todoManagementInfo2.category3Items?.length || 0);
-        count += (tab.todoManagementInfo2.category4Items?.length || 0);
-        count += (tab.todoManagementInfo2.category5Items?.length || 0);
-
-        if (tab.todoManagementInfo3) {
-            count += (tab.todoManagementInfo3.category1Items?.length || 0);
-            count += (tab.todoManagementInfo3.category2Items?.length || 0);
-            count += (tab.todoManagementInfo3.category3Items?.length || 0);
-            count += (tab.todoManagementInfo3.category4Items?.length || 0);
-            count += (tab.todoManagementInfo3.category5Items?.length || 0);
-        }
     }
     return count;
   };
@@ -145,8 +129,6 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
           if (isMainTab) {
             const pk = tab.parkingInfo;
             const td1 = tab.todoManagementInfo;
-            const td2 = tab.todoManagementInfo2;
-            const td3 = tab.todoManagementInfo3;
 
             const addWidgetSec = (id: string, title: string, items: any[]) => {
                 allSections.push({ 
@@ -155,31 +137,17 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                 });
             };
 
-            addWidgetSec('checklist', pk.checklistTitle || '업무루틴', pk.checklistItems);
-            addWidgetSec('shopping', pk.shoppingTitle || '구매예정', pk.shoppingListItems);
-            addWidgetSec('reminders', pk.remindersTitle || '기억확인', pk.remindersItems);
-            addWidgetSec('todo', pk.todoTitle || '잊지말것', pk.todoItems);
-            addWidgetSec('parkingCat5', pk.category5Title || '항목 5', pk.category5Items);
+            addWidgetSec('checklist', pk.checklistTitle || '개인 루틴', pk.checklistItems);
+            addWidgetSec('shopping', pk.shoppingTitle || '구매 예정', pk.shoppingListItems);
+            addWidgetSec('reminders', pk.remindersTitle || '기억 확인', pk.remindersItems);
+            addWidgetSec('todo', pk.todoTitle || '개인 할일', pk.todoItems);
+            addWidgetSec('parkingCat5', pk.category5Title || '기타 개인', pk.category5Items);
 
-            addWidgetSec('todoCat1', td1.category1Title || '개인 1', td1.category1Items);
-            addWidgetSec('todoCat2', td1.category2Title || '개인 2', td1.category2Items);
-            addWidgetSec('todoCat3', td1.category3Title || '개인 3', td1.category3Items);
-            addWidgetSec('todoCat4', td1.category4Title || '개인 4', td1.category4Items);
-            addWidgetSec('todoCat5', td1.category5Title || '개인 5', td1.category5Items);
-
-            addWidgetSec('todo2Cat1', td2.category1Title || '만드는것 1', td2.category1Items);
-            addWidgetSec('todo2Cat2', td2.category2Title || '만드는것 2', td2.category2Items);
-            addWidgetSec('todo2Cat3', td2.category3Title || '만드는것 3', td2.category3Items);
-            addWidgetSec('todo2Cat4', td2.category4Title || '만드는것 4', td2.category4Items);
-            addWidgetSec('todo2Cat5', td2.category5Title || '만드는것 5', td2.category5Items);
-
-            if (td3) {
-                addWidgetSec('todo3Cat1', td3.category1Title || '할일3-1', td3.category1Items);
-                addWidgetSec('todo3Cat2', td3.category2Title || '할일3-2', td3.category2Items);
-                addWidgetSec('todo3Cat3', td3.category3Title || '할일3-3', td3.category3Items);
-                addWidgetSec('todo3Cat4', td3.category4Title || '할일3-4', td3.category4Items);
-                addWidgetSec('todo3Cat5', td3.category5Title || '할일3-5', td3.category5Items);
-            }
+            addWidgetSec('todoCat1', td1.category1Title || '업무 1', td1.category1Items);
+            addWidgetSec('todoCat2', td1.category2Title || '업무 2', td1.category2Items);
+            addWidgetSec('todoCat3', td1.category3Title || '업무 3', td1.category3Items);
+            addWidgetSec('todoCat4', td1.category4Title || '업무 4', td1.category4Items);
+            addWidgetSec('todoCat5', td1.category5Title || '업무 5', td1.category5Items);
           }
 
           allSections.push(...tab.sections.map(s => ({ section: s, type: 'general' as const })));

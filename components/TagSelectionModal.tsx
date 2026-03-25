@@ -33,34 +33,17 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
         if (isMainTab) {
             const pk = tab.parkingInfo;
             const td1 = tab.todoManagementInfo;
-            const td2 = tab.todoManagementInfo2;
-            const td3 = tab.todoManagementInfo3;
+            allSections.push({ section: { id: 'checklist', title: pk.checklistTitle || '개인 루틴' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'shopping', title: pk.shoppingTitle || '구매 예정' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'reminders', title: pk.remindersTitle || '기억 확인' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'todo', title: pk.todoTitle || '개인 할일' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'parkingCat5', title: pk.category5Title || '기타 개인' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
 
-            allSections.push({ section: { id: 'checklist', title: pk.checklistTitle || '업무루틴' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'shopping', title: pk.shoppingTitle || '구매예정' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'reminders', title: pk.remindersTitle || '기억확인' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todo', title: pk.todoTitle || '잊지말것' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'parkingCat5', title: pk.category5Title || '항목 5' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-
-            allSections.push({ section: { id: 'todoCat1', title: td1.category1Title || '개인 1' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todoCat2', title: td1.category2Title || '개인 2' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todoCat3', title: td1.category3Title || '개인 3' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todoCat4', title: td1.category4Title || '개인 4' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todoCat5', title: td1.category5Title || '개인 5' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-
-            allSections.push({ section: { id: 'todo2Cat1', title: td2.category1Title || '만드는것 1' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todo2Cat2', title: td2.category2Title || '만드는것 2' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todo2Cat3', title: td2.category3Title || '만드는것 3' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todo2Cat4', title: td2.category4Title || '만드는것 4' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            allSections.push({ section: { id: 'todo2Cat5', title: td2.category5Title || '만드는것 5' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-
-            if (td3) {
-                allSections.push({ section: { id: 'todo3Cat1', title: td3.category1Title || '할일3-1' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-                allSections.push({ section: { id: 'todo3Cat2', title: td3.category2Title || '할일3-2' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-                allSections.push({ section: { id: 'todo3Cat3', title: td3.category3Title || '할일3-3' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-                allSections.push({ section: { id: 'todo3Cat4', title: td3.category4Title || '할일3-4' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-                allSections.push({ section: { id: 'todo3Cat5', title: td3.category5Title || '할일3-5' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
-            }
+            allSections.push({ section: { id: 'todoCat1', title: td1.category1Title || '업무 1' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'todoCat2', title: td1.category2Title || '업무 2' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'todoCat3', title: td1.category3Title || '업무 3' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'todoCat4', title: td1.category4Title || '업무 4' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
+            allSections.push({ section: { id: 'todoCat5', title: td1.category5Title || '업무 5' }, tabName: tab.name, tabId: tab.id, type: 'widget' });
         }
 
         // General Sections
