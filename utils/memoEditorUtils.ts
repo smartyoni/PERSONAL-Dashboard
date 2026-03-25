@@ -60,7 +60,7 @@ export const extractTocMarkers = (html: string): string[] => {
     if (!/<[a-z][\s\S]*>/i.test(html)) {
         return html.split('\n')
             .map(line => line.trim())
-            .filter(line => line.startsWith('#'))
+            .filter(line => line.startsWith('#') || line.startsWith('※'))
             .map(line => line.substring(1).trim());
     }
 
@@ -73,7 +73,7 @@ export const extractTocMarkers = (html: string): string[] => {
         
         elements.forEach(el => {
             const text = el.textContent?.trim() || '';
-            if (text.startsWith('#')) {
+            if (text.startsWith('#') || text.startsWith('※')) {
                 const subText = text.substring(1).trim();
                 // De-duplicate by content to avoid issues with potential nested tags
                 if (subText && !items.includes(subText)) {

@@ -122,6 +122,11 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 setMemoEditor(prev => ({ ...prev, value: content }));
             }
         },
+        editorProps: {
+            attributes: {
+                class: 'prose prose-sm max-w-none focus:outline-none memo-tiptap-editor',
+            },
+        },
     });
 
     const onInsertSymbol = useCallback((symbol: string) => {
@@ -405,6 +410,28 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             onTouchEnd={isMobileLayout && !memoEditor.isEditing ? handleTouchEnd : undefined}
             className="bg-white flex flex-col relative w-full h-full group"
         >
+            <style>{`
+                .memo-tiptap-editor p, .prose p {
+                    margin-top: 2px !important;
+                    margin-bottom: 2px !important;
+                    line-height: 1.5 !important;
+                }
+                .memo-tiptap-editor li, .prose li {
+                    margin-top: 1px !important;
+                    margin-bottom: 1px !important;
+                    line-height: 1.5 !important;
+                }
+                /* Tiptap 에디터 내에서 # 또는 ※로 시작하는 문단 강조 */
+                .memo-tiptap-editor p:has(br:first-child + #), 
+                .memo-tiptap-editor p:first-child:contains("#"),
+                .memo-tiptap-editor p:first-child:contains("※") {
+                   /* Note: CSS contains selector is not standard, but we'll use it as a hint for some environments */
+                }
+                .prose h1, .prose h2, .prose h3 {
+                    margin-top: 8px !important;
+                    margin-bottom: 4px !important;
+                }
+            `}</style>
             {currentItem && (
                 <>
                     <div 

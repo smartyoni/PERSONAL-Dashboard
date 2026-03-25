@@ -20,7 +20,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
   const parts = text.split('---divider---');
   
   return (
-    <span className={className}>
+    <span className={`${className} leading-normal`} style={{ lineHeight: '1.5' }}>
       {parts.map((part, index) => {
         if (isHtml) {
           // HTML인 경우 dangerouslySetInnerHTML 사용
@@ -29,6 +29,14 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
             const regex = new RegExp(`(${highlightText})`, 'gi');
             htmlContent = part.replace(regex, '<mark class="bg-yellow-100 text-slate-900 px-0.5 rounded shadow-sm ring-1 ring-yellow-300 font-bold animate-pulse">$1</mark>');
           }
+
+          // 소항목(#, ※) 스타일링 및 줄간격 조정
+          htmlContent = htmlContent.replace(/<(p|li|h[1-6])>\s*([#※]\s*.*?)<\/\1>/g, (match, tag, content) => {
+            return `<${tag} style="font-size: 1.1em; font-weight: 700; color: #0f172a; margin-top: 4px; margin-bottom: 2px; line-height: 1.4;">${content}</${tag}>`;
+          });
+          
+          // 일반 단락 간격 축소
+          htmlContent = htmlContent.replace(/<p>/g, '<p style="margin-top: 2px; margin-bottom: 2px; line-height: 1.5;">');
           return (
             <React.Fragment key={index}>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} className="prose prose-sm max-w-none" />
