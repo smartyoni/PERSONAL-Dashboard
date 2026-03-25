@@ -46,6 +46,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [highlightText, setHighlightText] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
+    const [marginMenu, setMarginMenu] = useState<{ x: number, y: number, lineIndex: number } | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
 
@@ -335,11 +336,11 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 .memo-editor-textarea {
                     width: 100%;
                     height: 100%;
-                    padding: 1rem;
+                    padding: 0 1rem 1rem 12px;
                     border: none;
                     outline: none;
                     font-size: 15px;
-                    line-height: 1.55;
+                    line-height: 28px;
                     font-family: inherit;
                     resize: none;
                     background: transparent;
@@ -349,13 +350,20 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 .prose p {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
-                    line-height: 1.5 !important;
-                    min-height: 1.25em; /* 빈 줄 보존을 위해 최소 높이 확보 */
+                    line-height: 28px !important;
+                    min-height: 28px;
                 }
                 .prose li {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
-                    line-height: 1.5 !important;
+                    line-height: 28px !important;
+                }
+                .regal-pad-bg {
+                    background-color: white;
+                    background-image: 
+                        linear-gradient(90deg, transparent 27px, #ffb3b3 27px, #ffb3b3 28px, transparent 28px, transparent 30px, #ffb3b3 30px, #ffb3b3 31px, transparent 31px),
+                        repeating-linear-gradient(transparent, transparent 27px, rgba(59, 130, 246, 0.2) 27px, rgba(59, 130, 246, 0.2) 28px);
+                    background-size: 100% 100%, 100% 28px;
                 }
             `}</style>
             {currentItem && (
@@ -655,18 +663,104 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             )}
 
             {memoEditor.isEditing ? (
-                /* 편집 모드 */
-                <div className="flex flex-col flex-1 overflow-hidden relative">
-                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar">
+                <div className="flex flex-col flex-1 overflow-hidden relative regal-pad-bg">
+                    {/* Clickable Margin Area & Symbol Overlay */}
+                    <div className="absolute left-0 top-0 bottom-0 w-[31px] z-10 select-none pointer-events-none">
+                        {memoEditor.value.split('\n').map((line, idx) => {
+                            const symbolMatch = line.match(/^([#•\-])\s/);
+                            const symbol = symbolMatch ? symbolMatch[1] : '';
+                            return (
+                                <div 
+                                    key={idx} 
+                                    className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm"
+                                >
+                                    {symbol}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div 
+                        className="absolute left-0 top-0 bottom-0 w-[31px] cursor-pointer z-20 hover:bg-black/[0.02]"
+                        onClick={(e) => {
+                            const container = e.currentTarget.parentElement;
+                            const scrollable = container?.querySelector('.overflow-y-auto');
+                            if (!scrollable) return;
+                            
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const clickY = e.clientY - rect.top + scrollable.scrollTop;
+                            const lineIndex = Math.floor(clickY / 28);
+                            
+                            setMarginMenu({ x: rect.right + 5, y: e.clientY, lineIndex });
+                        }}
+                    />
+                    
+                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative pl-[31px]">
                         <textarea
                             ref={memoTextareaRef as any}
                             className="memo-editor-textarea"
                             value={memoEditor.value}
                             onChange={(e) => setMemoEditor(prev => ({ ...prev, value: e.target.value }))}
                             placeholder="여기에 메모를 작성하세요..."
-                            style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
+                            style={{ 
+                                paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px',
+                                paddingLeft: '12px',
+                                color: 'transparent',
+                                caretColor: '#334155', // slate-700
+                                textShadow: '0 0 0 #334155'
+                            }}
                         />
+                        {/* We use a transparent text layer trick to hide the symbols in the textarea but show them in the margin overlay */}
+                        {/* Actually, the 'color: transparent' trick is risky. 
+                            Let's just use regular text and let the symbols be in BOTH places for now, 
+                            or use a negative text-indent once we switch to contenteditable.
+                            For now, I will keep the symbols in the text but indented.
+                        */}
                     </div>
+
+                    {/* Margin Symbol Menu */}
+                    {marginMenu && (
+                        <>
+                            <div className="fixed inset-0 z-[2000]" onClick={() => setMarginMenu(null)} />
+                            <div 
+                                className="fixed z-[2001] bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-12 animate-in fade-in zoom-in-95 duration-100"
+                                style={{ left: `${marginMenu.x}px`, top: `${marginMenu.y}px` }}
+                            >
+                                {['#', '-', '•', 'X'].map(sym => (
+                                    <button
+                                        key={sym}
+                                        onClick={() => {
+                                            const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
+                                            if (textarea) {
+                                                const text = memoEditor.value;
+                                                const lines = text.split('\n');
+                                                const targetIdx = marginMenu.lineIndex ?? 0;
+                                                
+                                                if (targetIdx < lines.length) {
+                                                    let currentLine = lines[targetIdx];
+                                                    // Remove existing symbol
+                                                    currentLine = currentLine.replace(/^[#•\-]\s/, '');
+                                                    
+                                                    if (sym !== 'X') {
+                                                        lines[targetIdx] = sym + ' ' + currentLine;
+                                                    } else {
+                                                        lines[targetIdx] = currentLine;
+                                                    }
+                                                    
+                                                    const newValue = lines.join('\n');
+                                                    setMemoEditor(prev => ({ ...prev, value: newValue }));
+                                                }
+                                            }
+                                            setMarginMenu(null);
+                                        }}
+                                        className={`w-full py-2 hover:bg-slate-100 font-bold text-center ${sym === 'X' ? 'text-red-500 text-[10px]' : 'text-slate-800'}`}
+                                    >
+                                        {sym === 'X' ? '지우기' : sym}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    )}
 
                     {/* Emoji Context Menu Overlay */}
                     {contextMenu && (
@@ -780,8 +874,25 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div
                         ref={contentRef}
                         onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
-                        className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors duration-200"
+                        className="flex-1 w-full overflow-y-auto custom-scrollbar regal-pad-bg text-slate-700 text-base whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
+                        style={{ paddingLeft: '42px', paddingTop: '4px' }}
                     >
+                        {/* Margin Symbol Overlay for Viewer */}
+                        <div className="absolute left-0 top-[4px] bottom-0 w-[42px] z-10 select-none pointer-events-none">
+                            {memoEditor.value.split('\n').map((line, idx) => {
+                                const symbolMatch = line.match(/^([#•\-])\s/);
+                                const symbol = symbolMatch ? symbolMatch[1] : '';
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm pr-[11px]" // Pr to center in the 31px area before red lines
+                                    >
+                                        {symbol}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
                         {memoEditor.value ? (
                             <div className="prose prose-sm max-w-none select-text">
                                 <LinkifiedText text={memoEditor.value} highlightText={highlightText} />
