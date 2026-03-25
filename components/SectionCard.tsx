@@ -5,6 +5,7 @@ import EditableText from './EditableText';
 import { LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
 import { extractTocMarkers, parseMemoPages } from '../utils/memoEditorUtils';
+import { useClickOutside } from '../hooks/useClickOutside';
 
 interface SectionCardProps {
   section: Section;
@@ -75,22 +76,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-  const [hoveredToC, setHoveredToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
-  const hoveredToCRef = useRef<typeof hoveredToC>(null);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [activeToC, setActiveToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
+  const tocPopupRef = useRef<HTMLDivElement>(null);
   const quickInputRef = useRef<HTMLTextAreaElement>(null);
 
-  const clearHideTimer = () => {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-  };
-
-  const scheduleHide = () => {
-    clearHideTimer();
-    hideTimerRef.current = setTimeout(() => setHoveredToC(null), 150);
-  };
+  useClickOutside(tocPopupRef, () => setActiveToC(null));
 
   const LINE_HEIGHT = 20;
   const MAX_LINES = 3;
@@ -450,23 +440,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
           <div
             key={item.id}
             className="relative"
-            onMouseEnter={(e) => {
-              clearHideTimer();
-              const memo = itemMemos[item.id];
-              if (memo) {
-                const { allTitles, allValues } = parseMemoPages(memo);
-                const rect = e.currentTarget.getBoundingClientRect();
-                setHoveredToC({
-                  itemId: item.id,
-                  allTitles,
-                  allValues,
-                  rect,
-                });
-              } else {
-                scheduleHide();
-              }
-            }}
-            onMouseLeave={scheduleHide}
           >
             <ItemRow
               item={item}
@@ -475,7 +448,25 @@ const SectionCard: React.FC<SectionCardProps> = ({
               onToggle={() => handleToggleItem(item.id)}
               onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
               onDelete={() => handleDeleteItem(item.id)}
-              onAddMemo={() => onShowItemMemo(item.id)}
+              onAddMemo={(e) => {
+                const memo = itemMemos[item.id];
+                if (memo) {
+                  const { allTitles, allValues } = parseMemoPages(memo);
+                  const markers = allValues.flatMap(v => extractTocMarkers(v));
+                  // 페이지가 여러개이거나 markers(※, #)가 있는 경우 팝업 트리거
+                  if (allTitles.length > 1 || markers.length > 0) {
+                    const rect = (e?.currentTarget as HTMLElement)?.getBoundingClientRect() || (e?.target as HTMLElement)?.getBoundingClientRect();
+                    setActiveToC({
+                      itemId: item.id,
+                      allTitles,
+                      allValues,
+                      rect,
+                    });
+                    return; // 페이지 이동 팝업을 띄우고 직접 이동은 막음
+                  }
+                }
+                onShowItemMemo(item.id);
+              }}
               onCopy={() => handleCopyItem(item.id)}
               onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
               onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
@@ -499,16 +490,16 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
     </section>
 
-      {hoveredToC && (() => {
+      {activeToC && (() => {
         // 팝업 추정 크기
         const POP_W = 260;
         const POP_H = Math.min(
-          48 + hoveredToC.allTitles.length * 40 +
-          hoveredToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
+          48 + activeToC.allTitles.length * 40 +
+          activeToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
           window.innerHeight * 0.6
         );
         const GAP = 8;
-        const { rect } = hoveredToC;
+        const { rect } = activeToC;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
@@ -538,6 +529,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
         return (
           <div
+            ref={tocPopupRef}
             className="fixed z-[3000] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto"
             style={{
               left: `${popLeft}px`,
@@ -545,22 +537,20 @@ const SectionCard: React.FC<SectionCardProps> = ({
               width: `${POP_W}px`,
               maxHeight: `${Math.floor(vh * 0.6)}px`,
             }}
-            onMouseEnter={clearHideTimer}
-            onMouseLeave={scheduleHide}
           >
             <div className="p-1.5 space-y-0.5">
               <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
-              {hoveredToC.allTitles.map((title, idx) => {
-                const subItems = extractTocMarkers(hoveredToC.allValues[idx] || '');
+              {activeToC.allTitles.map((title, idx) => {
+                const subItems = extractTocMarkers(activeToC.allValues[idx] || '');
                 const isActivePage = idx === 0;
                 return (
                   <div key={idx} className="space-y-0.5">
                     <button
                       onClick={() => {
                         onOpenItemMemoAtPage
-                          ? onOpenItemMemoAtPage(hoveredToC.itemId, idx)
-                          : onShowItemMemo(hoveredToC.itemId);
-                        setHoveredToC(null);
+                          ? onOpenItemMemoAtPage(activeToC.itemId, idx)
+                          : onShowItemMemo(activeToC.itemId);
+                        setActiveToC(null);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
                         isActivePage
@@ -582,9 +572,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
                               key={sIdx}
                               onClick={() => {
                                 onOpenItemMemoAtPage
-                                  ? onOpenItemMemoAtPage(hoveredToC.itemId, idx, sub)
-                                  : onShowItemMemo(hoveredToC.itemId);
-                                setHoveredToC(null);
+                                  ? onOpenItemMemoAtPage(activeToC.itemId, idx, sub)
+                                  : onShowItemMemo(activeToC.itemId);
+                                setActiveToC(null);
                               }}
                               className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
                             >

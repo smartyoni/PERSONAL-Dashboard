@@ -41,21 +41,14 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     type: 'checklist'
   });
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-  const [hoveredToC, setHoveredToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearHideTimer = () => {
-    if (hideTimerRef.current) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
-  };
-  const scheduleHide = () => {
-    clearHideTimer();
-    hideTimerRef.current = setTimeout(() => setHoveredToC(null), 150);
-  };
+  const [activeToC, setActiveToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect; type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5' } | null>(null);
+  const tocPopupRef = useRef<HTMLDivElement>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   useClickOutside(menuRef, () => setOpenMenuId(null));
+  useClickOutside(tocPopupRef, () => setActiveToC(null));
 
   const handleEditingChange = (itemId: string, isEditing: boolean) => {
     setEditingItemIds(prev => {
@@ -280,18 +273,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                 setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null })); 
               }}
               onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
-              onMouseEnter={(e) => {
-                clearHideTimer();
-                const memo = memos[item.id];
-                if (memo) {
-                  const { allTitles, allValues } = parseMemoPages(memo);
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setHoveredToC({ itemId: item.id, allTitles, allValues, rect });
-                } else {
-                  scheduleHide();
-                }
-              }}
-              onMouseLeave={scheduleHide}
               className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
             >
               <button
@@ -304,7 +285,25 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               </button>
               <div 
                 className="flex-1 min-w-0" 
-                onClick={() => {
+                onClick={(e) => {
+                  const memo = memos[item.id];
+                  if (memo) {
+                    const { allTitles, allValues } = parseMemoPages(memo);
+                    const markers = allValues.flatMap(v => extractTocMarkers(v));
+                    // 페이지가 여러개이거나 markers(※, #)가 있는 경우 팝업 트리거
+                    if (allTitles.length > 1 || markers.length > 0) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setActiveToC({
+                        itemId: item.id,
+                        allTitles,
+                        allValues,
+                        rect,
+                        type
+                      });
+                      return; // 페이지 이동 팝업을 띄우고 직접 이동은 막음
+                    }
+                  }
+
                   if (onShowMemo) onShowMemo(item.id);
                   else if (onOpenItemMemoAtPage) onOpenItemMemoAtPage(item.id, 0);
                 }}
@@ -416,16 +415,16 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           </div>
         );
       })()}
-      {/* ToC Hover Popover */}
-      {hoveredToC && (() => {
+      {/* ToC Click Popover */}
+      {activeToC && (() => {
         const POP_W = 260;
         const POP_H = Math.min(
-          48 + hoveredToC.allTitles.length * 40 +
-          hoveredToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
+          48 + activeToC.allTitles.length * 40 +
+          activeToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
           window.innerHeight * 0.6
         );
         const GAP = 8;
-        const { rect } = hoveredToC;
+        const { rect } = activeToC;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         let popLeft = 0, popTop = 0;
@@ -444,24 +443,26 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
         }
         return (
           <div
+            ref={tocPopupRef}
             className="fixed z-[3000] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto"
             style={{ left: `${popLeft}px`, top: `${popTop}px`, width: `${POP_W}px`, maxHeight: `${Math.floor(vh * 0.6)}px` }}
-            onMouseEnter={clearHideTimer}
-            onMouseLeave={scheduleHide}
           >
             <div className="p-1.5 space-y-0.5">
               <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
-              {hoveredToC.allTitles.map((title, idx) => {
-                const subItems = extractTocMarkers(hoveredToC.allValues[idx] || '');
+              {activeToC.allTitles.map((title, idx) => {
+                const subItems = extractTocMarkers(activeToC.allValues[idx] || '');
                 const isActivePage = idx === 0;
                 return (
                   <div key={idx} className="space-y-0.5">
                     <button
                       onClick={() => {
                         onOpenItemMemoAtPage
-                          ? onOpenItemMemoAtPage(hoveredToC.itemId, idx)
-                          : onShowChecklistMemo(hoveredToC.itemId);
-                        setHoveredToC(null);
+                          ? onOpenItemMemoAtPage(activeToC.itemId, idx)
+                          : (activeToC.type === 'checklist' ? onShowChecklistMemo(activeToC.itemId) : 
+                             activeToC.type === 'shopping' ? onShowShoppingMemo(activeToC.itemId) :
+                             activeToC.type === 'reminders' ? onShowRemindersMemo(activeToC.itemId) :
+                             activeToC.type === 'todo' ? onShowTodoMemo(activeToC.itemId) : onShowCategory5Memo(activeToC.itemId));
+                        setActiveToC(null);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
                         isActivePage ? 'bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100' : 'text-slate-900 font-bold hover:bg-slate-50'
@@ -481,9 +482,12 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                               key={sIdx}
                               onClick={() => {
                                 onOpenItemMemoAtPage
-                                  ? onOpenItemMemoAtPage(hoveredToC.itemId, idx, sub)
-                                  : onShowChecklistMemo(hoveredToC.itemId);
-                                setHoveredToC(null);
+                                  ? onOpenItemMemoAtPage(activeToC.itemId, idx, sub)
+                                  : (activeToC.type === 'checklist' ? onShowChecklistMemo(activeToC.itemId) : 
+                                     activeToC.type === 'shopping' ? onShowShoppingMemo(activeToC.itemId) :
+                                     activeToC.type === 'reminders' ? onShowRemindersMemo(activeToC.itemId) :
+                                     activeToC.type === 'todo' ? onShowTodoMemo(activeToC.itemId) : onShowCategory5Memo(activeToC.itemId));
+                                setActiveToC(null);
                               }}
                               className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
                             >

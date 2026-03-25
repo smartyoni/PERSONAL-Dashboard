@@ -3,61 +3,6 @@ import { AppData, Tab, MemoEditorState, TodoManagementInfo } from '../types';
 import LinkifiedText from './LinkifiedText';
 import { contentToHtml, htmlToContent, extractTocMarkers } from '../utils/memoEditorUtils';
 
-// Tiptap Imports
-import { useEditor, EditorContent } from '@tiptap/react';
-import { BubbleMenu } from '@tiptap/react/menus';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import { TextStyle } from '@tiptap/extension-text-style';
-import Placeholder from '@tiptap/extension-placeholder';
-import Link from '@tiptap/extension-link';
-import { Extension } from '@tiptap/core';
-
-const FontSize = Extension.create({
-    name: 'fontSize',
-    addOptions() {
-        return {
-            types: ['textStyle'],
-        };
-    },
-    addGlobalAttributes() {
-        return [
-            {
-                types: this.options.types,
-                attributes: {
-                    fontSize: {
-                        default: null,
-                        parseHTML: element => element.style.fontSize.replace(/['"]+/g, ''),
-                        renderHTML: attributes => {
-                            if (!attributes.fontSize) {
-                                return {};
-                            }
-                            return {
-                                style: `font-size: ${attributes.fontSize}`,
-                            };
-                        },
-                    },
-                },
-            },
-        ];
-    },
-    addCommands() {
-        return {
-            setFontSize: (fontSize: string) => ({ chain }: any) => {
-                return chain()
-                    .setMark('textStyle', { fontSize })
-                    .run();
-            },
-            unsetFontSize: () => ({ chain }: any) => {
-                return chain()
-                    .setMark('textStyle', { fontSize: null })
-                    .removeEmptyTextStyle()
-                    .run();
-            },
-        } as any;
-    },
-});
-
 
 export interface MemoEditorPanelProps {
     memoEditor: MemoEditorState;
@@ -104,72 +49,48 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const contentRef = useRef<HTMLDivElement>(null);
 
 
-    // Tiptap Editor Initialization
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            TextStyle,
-            FontSize,
-            Placeholder.configure({
-                placeholder: '여기에 메모를 작성하세요...',
-            }),
-        ],
-        content: contentToHtml(memoEditor.value),
-        onUpdate: ({ editor }) => {
-            const html = editor.getHTML();
-            const content = htmlToContent(html);
-            if (content !== memoEditor.value) {
-                setMemoEditor(prev => ({ ...prev, value: content }));
-            }
-        },
-        editorProps: {
-            attributes: {
-                class: 'prose prose-sm max-w-none focus:outline-none memo-tiptap-editor',
-            },
-        },
-    });
-
     const onInsertSymbol = useCallback((symbol: string) => {
-        if (!editor) {
-            handleInsertSymbol(symbol);
-            return;
-        }
+        const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
+        if (!textarea) return;
 
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = memoEditor.value;
+        
+        let insertVal = symbol;
         if (symbol === '\n---divider---\n') {
-            // Tiptap's horizontal rule
-            editor.chain().focus().setHorizontalRule().run();
-        } else {
-            // Tiptap's insertContent (handles both text and HTML)
-            editor.chain().focus().insertContent(symbol).run();
+            insertVal = '\n---divider---\n';
         }
-    }, [editor, handleInsertSymbol]);
 
-    const changeFontSize = useCallback((delta: number) => {
-        if (!editor) return;
-        const currentSize = (editor.getAttributes('textStyle').fontSize as string) || '16px';
-        const currentSizeNumeric = parseInt(currentSize.replace('px', '')) || 16;
-        const newSize = Math.max(8, Math.min(72, currentSizeNumeric + delta));
-        (editor.chain().focus() as any).setFontSize(`${newSize}px`).run();
-    }, [editor]);
+        const newValue = text.substring(0, start) + insertVal + text.substring(end);
+        setMemoEditor(prev => ({ ...prev, value: newValue }));
 
+        // Selection restoration after state update
+        setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(start + insertVal.length, start + insertVal.length);
+        }, 0);
+    }, [memoEditor.value, setMemoEditor, memoTextareaRef]);
 
-    // Update editor content when memoEditor.value changes (e.g. on page change)
+    // Update editor content sync (no-op now since it's a controlled textarea)
     useEffect(() => {
-        if (editor && memoEditor.isEditing) {
-            const currentHtml = editor.getHTML();
-            const newHtml = contentToHtml(memoEditor.value);
-            if (currentHtml !== newHtml) {
-                editor.commands.setContent(newHtml, { emitUpdate: false });
+        if (memoEditor.isEditing && memoTextareaRef.current) {
+            // textarea 높이 자동 조절 등 추가 가능
+            const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
+            if (textarea.tagName === 'TEXTAREA') {
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
             }
         }
-    }, [memoEditor.activePageIndex, memoEditor.isEditing, editor]);
+    }, [memoEditor.value, memoEditor.isEditing]);
 
-    // Handle initial focus and autofocus
+    // Handle initial focus
     useEffect(() => {
-        if (memoEditor.isEditing && editor) {
-            editor.commands.focus();
+        if (memoEditor.isEditing && memoTextareaRef.current) {
+            const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
+            textarea.focus();
         }
-    }, [memoEditor.isEditing, editor]);
+    }, [memoEditor.isEditing]);
 
     // 외부에서 memoEditor.highlightText가 주입될 때 로컬 state로 동기화
     useEffect(() => {
@@ -411,24 +332,30 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             className="bg-white flex flex-col relative w-full h-full group"
         >
             <style>{`
-                .memo-tiptap-editor p, .prose p {
+                .memo-editor-textarea {
+                    width: 100%;
+                    height: 100%;
+                    padding: 1rem;
+                    border: none;
+                    outline: none;
+                    font-size: 15px;
+                    line-height: 1.55;
+                    font-family: inherit;
+                    resize: none;
+                    background: transparent;
+                    white-space: pre-wrap;
+                    word-break: break-all;
+                }
+                .prose p {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
                     line-height: 1.5 !important;
                     min-height: 1.25em; /* 빈 줄 보존을 위해 최소 높이 확보 */
                 }
-                .memo-tiptap-editor li, .prose li {
+                .prose li {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
                     line-height: 1.5 !important;
-                }
-                .prose h1, .prose h2, .prose h3 {
-                    margin-top: 8px !important;
-                    margin-bottom: 4px !important;
-                }
-                /* 에디터 내부의 기본 여백 제거 */
-                .memo-tiptap-editor {
-                    outline: none !important;
                 }
             `}</style>
             {currentItem && (
@@ -727,98 +654,19 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 </>
             )}
 
-            {!memoEditor.isEditing ? (
-                <>
-                    <div
-                        ref={contentRef}
-                        onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
-                        className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors duration-200"
-                    >
-                        {memoEditor.value ? (
-                            <div className="prose prose-sm max-w-none select-text">
-                                <LinkifiedText text={memoEditor.value} highlightText={highlightText} />
-                            </div>
-                        ) : (
-                            <p className="text-slate-400 italic">메모가 없습니다.</p>
-                        )}
-                    </div>
-                    <div className="p-3 bg-slate-50 border-t border-slate-200">
-                        {/* Viewing Mode Action Bar */}
-                        <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
-                            {memoEditor.allValues.map((_, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => handleChangePage(idx)}
-                                    className={`flex-1 py-1.5 text-xs md:text-sm font-bold rounded-xl transition-all ${
-                                        memoEditor.activePageIndex === idx 
-                                        ? 'bg-white text-indigo-600 shadow-sm' 
-                                        : 'text-slate-500 hover:text-slate-700'
-                                    }`}
-                                >
-                                    {idx + 1}
-                                </button>
-                            ))}
-                            <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
-                            <button 
-                                onClick={() => handleOpenTagSelection({
-                                    itemId: memoEditor.id!,
-                                    sourceTabId: activeTab.id,
-                                    sourceSectionId: memoEditor.sectionId!,
-                                    itemText: headerTitle
-                                })}
-                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-indigo-600 bg-white shadow-sm rounded-xl hover:bg-indigo-50 transition-all border border-indigo-100"
-                            >태그</button>
-                            <button
-                                onClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
-                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-blue-600 bg-white shadow-sm rounded-xl hover:bg-blue-50 transition-all border border-blue-100"
-                            >수정</button>
-                            <button 
-                                onClick={() => {
-                                    setMemoEditor(prev => ({ ...prev, id: null, sectionId: null }));
-                                    if (memoEditor.openedFromMap) setNavigationMapOpen(true);
-                                }}
-                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-slate-500 bg-white shadow-sm rounded-xl hover:bg-red-50 hover:text-red-500 transition-all border border-slate-200"
-                            >닫기</button>
-                        </div>
-                    </div>
-                </>
-            ) : (
+            {memoEditor.isEditing ? (
+                /* 편집 모드 */
                 <div className="flex flex-col flex-1 overflow-hidden relative">
-                    {editor && (
-                        <BubbleMenu editor={editor}>
-                            <div className="flex items-center gap-1 bg-slate-800 rounded-lg p-1 shadow-xl border border-slate-700">
-                                <button
-                                    onClick={() => editor.chain().focus().toggleBold().run()}
-                                    className={`px-2 py-1 rounded text-xs font-bold transition-colors ${editor.isActive('bold') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}
-                                >B</button>
-                                <button
-                                    onClick={() => editor.chain().focus().toggleUnderline().run()}
-                                    className={`px-2 py-1 rounded text-xs font-bold transition-colors ${editor.isActive('underline') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}
-                                >U</button>
-                                <button
-                                    onClick={() => editor.chain().focus().toggleBulletList().run()}
-                                    className={`px-2 py-1 rounded text-xs font-bold transition-colors ${editor.isActive('bulletList') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}
-                                >List</button>
-                                <div className="w-px h-3 bg-slate-600 mx-1" />
-                                <button
-                                    onClick={() => changeFontSize(2)}
-                                    className="px-2 py-1 rounded text-xs font-bold text-slate-300 hover:bg-slate-700 transition-colors"
-                                    title="글자 크기 크게"
-                                >A+</button>
-                                <button
-                                    onClick={() => changeFontSize(-2)}
-                                    className="px-2 py-1 rounded text-xs font-bold text-slate-300 hover:bg-slate-700 transition-colors"
-                                    title="글자 크기 작게"
-                                >A-</button>
-
-                            </div>
-                        </BubbleMenu>
-                    )}
-                    <EditorContent 
-                        editor={editor} 
-                        className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 focus:outline-none text-slate-700 text-base p-4"
-                        style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
-                    />
+                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar">
+                        <textarea
+                            ref={memoTextareaRef as any}
+                            className="memo-editor-textarea"
+                            value={memoEditor.value}
+                            onChange={(e) => setMemoEditor(prev => ({ ...prev, value: e.target.value }))}
+                            placeholder="여기에 메모를 작성하세요..."
+                            style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}
+                        />
+                    </div>
 
                     {/* Emoji Context Menu Overlay */}
                     {contextMenu && (
@@ -882,6 +730,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             >복사</button>
                         </div>
                     )}
+
                     {!isMobileLayout && (
                         <div className="p-3 bg-slate-50 border-t border-slate-200">
                             {/* Editing Mode Action Bar - Symbols (Desktop Only) */}
@@ -925,6 +774,62 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         </div>
                     )}
                 </div>
+            ) : (
+                /* 보기 모드 */
+                <>
+                    <div
+                        ref={contentRef}
+                        onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
+                        className="flex-1 w-full overflow-y-auto custom-scrollbar bg-slate-50 text-slate-700 text-base whitespace-pre-wrap break-words p-4 cursor-text hover:bg-slate-100 transition-colors duration-200"
+                    >
+                        {memoEditor.value ? (
+                            <div className="prose prose-sm max-w-none select-text">
+                                <LinkifiedText text={memoEditor.value} highlightText={highlightText} />
+                            </div>
+                        ) : (
+                            <p className="text-slate-400 italic">메모가 없습니다.</p>
+                        )}
+                    </div>
+                    <div className="p-3 bg-slate-50 border-t border-slate-200">
+                        {/* Viewing Mode Action Bar */}
+                        <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
+                            {memoEditor.allValues.map((_, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleChangePage(idx)}
+                                    className={`flex-1 py-1.5 text-xs md:text-sm font-bold rounded-xl transition-all ${
+                                        memoEditor.activePageIndex === idx 
+                                        ? 'bg-white text-indigo-600 shadow-sm' 
+                                        : 'text-slate-500 hover:text-slate-700'
+                                    }`}
+                                >
+                                    {idx + 1}
+                                </button>
+                            ))}
+                            <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
+                            <button 
+                                onClick={() => handleOpenTagSelection({
+                                    itemId: memoEditor.id!,
+                                    sourceTabId: activeTab.id,
+                                    sourceSectionId: memoEditor.sectionId!,
+                                    itemText: headerTitle
+                                })}
+                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-indigo-600 bg-white shadow-sm rounded-xl hover:bg-indigo-50 transition-all border border-indigo-100"
+                            >태그</button>
+                            <button
+                                onClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
+                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-blue-600 bg-white shadow-sm rounded-xl hover:bg-blue-50 transition-all border border-blue-100"
+                            >수정</button>
+                            <button 
+                                onClick={() => {
+                                    setMemoEditor(prev => ({ ...prev, id: null, sectionId: null }));
+                                    if (memoEditor.openedFromMap) setNavigationMapOpen(true);
+                                }}
+                                className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-slate-500 bg-white shadow-sm rounded-xl hover:bg-red-50 hover:text-red-500 transition-all border border-slate-200"
+                            >닫기</button>
+                        </div>
+                    </div>
+                </>
             )}
 
             {/* Page Navigation Arrows (Desktop & Mobile) */}

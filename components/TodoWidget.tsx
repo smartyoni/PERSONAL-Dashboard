@@ -47,25 +47,14 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         type: 1
     });
     const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-    const [hoveredToC, setHoveredToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
-    const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const clearHideTimer = () => {
-        if (hideTimerRef.current) {
-            clearTimeout(hideTimerRef.current);
-            hideTimerRef.current = null;
-        }
-    };
-
-    const scheduleHide = () => {
-        clearHideTimer();
-        hideTimerRef.current = setTimeout(() => setHoveredToC(null), 150);
-    };
+    const [activeToC, setActiveToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
+    const tocPopupRef = useRef<HTMLDivElement>(null);
 
     const menuRef = useRef<HTMLDivElement>(null);
     const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
     useClickOutside(menuRef, () => setOpenMenuId(null));
+    useClickOutside(tocPopupRef, () => setActiveToC(null));
 
     const handleEditingChange = (itemId: string, isEditing: boolean) => {
         setEditingItemIds(prev => {
@@ -256,23 +245,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                 setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null })); 
                             }}
                             onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
-                            onMouseEnter={(e) => {
-                                clearHideTimer();
-                                const memo = memos[item.id];
-                                if (memo) {
-                                    const { allTitles, allValues } = parseMemoPages(memo);
-                                    const rect = e.currentTarget.getBoundingClientRect();
-                                    setHoveredToC({
-                                        itemId: item.id,
-                                        allTitles,
-                                        allValues,
-                                        rect,
-                                    });
-                                } else {
-                                    scheduleHide();
-                                }
-                            }}
-                            onMouseLeave={scheduleHide}
                             className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
                         >
                             <button
@@ -285,7 +257,22 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             </button>
                             <div 
                                 className="flex-1 min-w-0" 
-                                onClick={() => {
+                                onClick={(e) => {
+                                    const memo = memos[item.id];
+                                    if (memo) {
+                                        const { allTitles, allValues } = parseMemoPages(memo);
+                                        const markers = allValues.flatMap(v => extractTocMarkers(v));
+                                        if (allTitles.length > 1 || markers.length > 0) {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            setActiveToC({
+                                                itemId: item.id,
+                                                allTitles,
+                                                allValues,
+                                                rect,
+                                            });
+                                            return;
+                                        }
+                                    }
                                     if (onShowMemo) onShowMemo(item.id);
                                     else if (onOpenItemMemoAtPage) onOpenItemMemoAtPage(item.id, 0);
                                 }}
@@ -405,16 +392,16 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     </div>
                 );
             })()}
-            {/* ToC Hover Popover */}
-            {hoveredToC && (() => {
+            {/* ToC Click Popover */}
+            {activeToC && (() => {
                 const POP_W = 260;
                 const POP_H = Math.min(
-                    48 + hoveredToC.allTitles.length * 40 +
-                    hoveredToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
+                    48 + activeToC.allTitles.length * 40 +
+                    activeToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
                     window.innerHeight * 0.6
                 );
                 const GAP = 8;
-                const { rect } = hoveredToC;
+                const { rect } = activeToC;
                 const vw = window.innerWidth;
                 const vh = window.innerHeight;
 
@@ -437,6 +424,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
                 return (
                     <div
+                        ref={tocPopupRef}
                         className="fixed z-[3000] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto"
                         style={{
                             left: `${popLeft}px`,
@@ -444,25 +432,22 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             width: `${POP_W}px`,
                             maxHeight: `${Math.floor(vh * 0.6)}px`,
                         }}
-                        onMouseEnter={clearHideTimer}
-                        onMouseLeave={scheduleHide}
                     >
                         <div className="p-1.5 space-y-0.5">
                             <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
-                            {hoveredToC.allTitles.map((title, idx) => {
-                                const subItems = extractTocMarkers(hoveredToC.allValues[idx] || '');
+                            {activeToC.allTitles.map((title, idx) => {
+                                const subItems = extractTocMarkers(activeToC.allValues[idx] || '');
                                 const isActivePage = idx === 0;
                                 return (
                                     <div key={idx} className="space-y-0.5">
                                         <button
                                             onClick={() => {
                                                 if (onOpenItemMemoAtPage) {
-                                                    onOpenItemMemoAtPage(hoveredToC.itemId, idx);
+                                                    onOpenItemMemoAtPage(activeToC.itemId, idx);
                                                 } else {
-                                                    // Fallback to cat-specific show memo if needed, but in reality we'll provide onOpenItemMemoAtPage
-                                                    onShowTodoCat1Memo(hoveredToC.itemId); 
+                                                    onShowTodoCat1Memo(activeToC.itemId); 
                                                 }
-                                                setHoveredToC(null);
+                                                setActiveToC(null);
                                             }}
                                             className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
                                                 isActivePage
@@ -484,11 +469,11 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                                             key={sIdx}
                                                             onClick={() => {
                                                                 if (onOpenItemMemoAtPage) {
-                                                                    onOpenItemMemoAtPage(hoveredToC.itemId, idx, sub);
+                                                                    onOpenItemMemoAtPage(activeToC.itemId, idx, sub);
                                                                 } else {
-                                                                    onShowTodoCat1Memo(hoveredToC.itemId);
+                                                                    onShowTodoCat1Memo(activeToC.itemId);
                                                                 }
-                                                                setHoveredToC(null);
+                                                                setActiveToC(null);
                                                             }}
                                                             className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
                                                         >

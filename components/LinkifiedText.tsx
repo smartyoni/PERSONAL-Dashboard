@@ -31,7 +31,21 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
           }
 
           // 소항목(#, ※) 스타일링 및 줄간격 조정
-          htmlContent = htmlContent.replace(/<(p|li|h[1-6])>\s*([#※]\s*.*?)<\/\1>/g, (match, tag, content) => {
+          htmlContent = htmlContent.replace(/<(p|li|h[1-6])>\s*([#※][\s\S]*?)<\/\1>/g, (match, tag, content) => {
+            // <br>이 포함된 멀티라인 블록인 경우 각 줄을 개별 체크
+            if (content.includes('<br')) {
+              const lines = content.split(/<br\s*\/?>/gi);
+              const styledLines = lines.map(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('#') || trimmed.startsWith('※')) {
+                  return `<span style="font-size: 1.1em; font-weight: 700; color: #0f172a; line-height: 1.4;">${line}</span>`;
+                }
+                return line;
+              });
+              return `<${tag}>${styledLines.join('<br>')}</${tag}>`;
+            }
+            
+            // 단일 라인인 경우 전체 태그에 스타일 적용
             return `<${tag} style="font-size: 1.1em; font-weight: 700; color: #0f172a; margin-top: 2px; margin-bottom: 1px; line-height: 1.4;">${content}</${tag}>`;
           });
           
@@ -45,35 +59,58 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
           );
         }
 
-        // Legacy plain text handling
-        const linkified = linkifyText(part);
-        let finalContent = linkified;
-        if (highlightText && typeof part === 'string' && part.includes(highlightText)) {
-          finalContent = linkified.map((node, nIdx) => {
-             if (typeof node === 'string' && node.includes(highlightText)) {
-                const nodeParts = node.split(highlightText);
-                return (
-                  <React.Fragment key={nIdx}>
-                    {nodeParts.map((np, npIdx) => (
-                      <React.Fragment key={npIdx}>
-                        {np}
-                        {npIdx < nodeParts.length - 1 && (
-                          <mark className="bg-yellow-100 text-slate-900 px-0.5 rounded shadow-sm ring-1 ring-yellow-300 font-bold animate-pulse">
-                            {highlightText}
-                          </mark>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </React.Fragment>
-                );
-             }
-             return node;
-          });
-        }
-
+        // Legacy plain text handling with Header support
+        const lines = part.split('\n');
         return (
           <React.Fragment key={index}>
-            {finalContent}
+            <div className="text-slate-700">
+              {lines.map((line, lIdx) => {
+                const trimmed = line.trim();
+                const isHeader = trimmed.startsWith('#') || trimmed.startsWith('※');
+                
+                // Linkify the line
+                const linkified = linkifyText(line);
+                
+                // Highlight logic
+                let finalLineContent: React.ReactNode = linkified;
+                if (highlightText && line.includes(highlightText)) {
+                  finalLineContent = linkified.map((node, nIdx) => {
+                    if (typeof node === 'string' && node.includes(highlightText)) {
+                      const nodeParts = node.split(highlightText);
+                      return (
+                        <React.Fragment key={nIdx}>
+                          {nodeParts.map((np, npIdx) => (
+                            <React.Fragment key={npIdx}>
+                              {np}
+                              {npIdx < nodeParts.length - 1 && (
+                                <mark className="bg-yellow-100 text-slate-900 px-0.5 rounded shadow-sm ring-1 ring-yellow-300 font-bold animate-pulse">
+                                  {highlightText}
+                                </mark>
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </React.Fragment>
+                      );
+                    }
+                    return node;
+                  });
+                }
+
+                if (isHeader) {
+                  return (
+                    <div key={lIdx} style={{ fontSize: '1.1em', fontWeight: 700, color: '#0f172a', lineHeight: '1.4', margin: '2px 0 1px 0' }}>
+                      {finalLineContent}
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div key={lIdx} className="min-h-[1.25em]">
+                    {finalLineContent}
+                  </div>
+                );
+              })}
+            </div>
             {index < parts.length - 1 && (
               <hr className="w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid pointer-events-none" />
             )}
