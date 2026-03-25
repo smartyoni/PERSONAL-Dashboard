@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AppData, Tab, MemoEditorState, TodoManagementInfo } from '../types';
 import LinkifiedText from './LinkifiedText';
-import { contentToHtml, htmlToContent, extractTocMarkers } from '../utils/memoEditorUtils';
+import { contentToHtml, htmlToContent, extractTocMarkers, splitMetadata, joinMetadata } from '../utils/memoEditorUtils';
 
 
 export interface MemoEditorPanelProps {
@@ -105,16 +105,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     // Sync pureValue and tocLines when entering edit mode or changing page
     useEffect(() => {
         if ((memoEditor.isEditing && !prevIsEditing.current) || (memoEditor.isEditing && memoEditor.activePageIndex !== prevActivePage.current)) {
-            const lines = memoEditor.value.split('\n');
-            const tocLines: number[] = [];
-            const pureValue = lines.map((l, idx) => {
-                const match = l.match(/^([#※])\s*/);
-                if (match) {
-                    tocLines.push(idx);
-                    return l.replace(/^([#※])\s*/, '');
-                }
-                return l;
-            }).join('\n');
+            const { text: pureValue, tocLines } = splitMetadata(memoEditor.value);
             setMemoEditor(prev => ({ ...prev, pureValue, tocLines }));
         }
         prevIsEditing.current = memoEditor.isEditing;
@@ -864,7 +855,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     className="flex-none px-4 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-xl hover:bg-slate-100 transition-all shadow-sm border border-slate-200"
                                 >취소</button>
                                 <button
-                                    onClick={() => handleSaveMemo()}
+                                    onClick={() => handleSaveMemo(false, joinMetadata(memoEditor.pureValue || '', memoEditor.tocLines || []))}
                                     className="flex-none px-6 py-1.5 bg-green-500 text-white text-[11px] font-bold rounded-xl hover:bg-green-600 shadow-[2px_2px_0_0_#15803d] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all border border-green-600"
                                 >저장</button>
                             </div>
@@ -883,7 +874,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         {/* Margin Symbol Overlay for Viewer */}
                         <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 select-none pointer-events-none">
                             {memoEditor.value.split('\n').map((line, idx) => {
-                                const symbolMatch = line.match(/^([#•\-])\s/);
+                                // Only show bullet points, not ToC markers (#, ※)
+                                const symbolMatch = line.match(/^([•\-])\s/);
                                 const symbol = symbolMatch ? symbolMatch[1] : '';
                                 return (
                                     <div 

@@ -1,5 +1,6 @@
 export const TITLE_SEPARATOR = '===memo-title-sep===';
 export const PAGE_BREAK = '\n===page-break===\n';
+export const METADATA_SEPARATOR = '\n\n---toc-metadata---\n';
 
 /**
  * Parses a raw memo string into allTitles and allValues arrays
@@ -51,39 +52,48 @@ export const htmlToContent = (html: string): string => {
 };
 
 /**
- * Extracts ToC markers (#) from HTML or plain text
+ * Splits raw content into text and toc line indices
  */
-export const extractTocMarkers = (html: string): string[] => {
-    if (!html) return [];
+export const splitMetadata = (raw: string): { text: string; tocLines: number[] } => {
+    if (!raw) return { text: '', tocLines: [] };
+    if (raw.includes(METADATA_SEPARATOR)) {
+        const parts = raw.split(METADATA_SEPARATOR);
+        // The last part is the metadata
+        const meta = parts[parts.length - 1];
+        const text = parts.slice(0, parts.length - 1).join(METADATA_SEPARATOR);
+        try {
+            const tocLines = JSON.parse(meta);
+            return { text, tocLines: Array.isArray(tocLines) ? tocLines : [] };
+        } catch (e) {
+            return { text: raw, tocLines: [] };
+        }
+    }
+    return { text: raw, tocLines: [] };
+};
+
+/**
+ * Joins text and toc line indices into a single raw string
+ */
+export const joinMetadata = (text: string, tocLines: number[]): string => {
+    if (!tocLines || tocLines.length === 0) return text;
+    return `${text}${METADATA_SEPARATOR}${JSON.stringify(tocLines)}`;
+};
+
+/**
+ * Extracts ToC markers from content
+ */
+export const extractTocMarkers = (htmlOrText: string): string[] => {
+    if (!htmlOrText) return [];
     
-    // Legacy support: if it's not HTML, check plain text
-    if (!/<[a-z][\s\S]*>/i.test(html)) {
-        return html.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.startsWith('#') || line.startsWith('※'))
-            .map(line => line.substring(1).trim());
+    const { text, tocLines } = splitMetadata(htmlOrText);
+    const lines = text.split('\n');
+
+    if (tocLines.length > 0) {
+        return tocLines
+            .filter(idx => lines[idx] !== undefined)
+            .map(idx => lines[idx].trim())
+            .filter(item => item.length > 0);
     }
 
-    try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        // Only target block-level content elements, avoid generic containers like div
-        const elements = doc.querySelectorAll('p, h1, h2, h3, li');
-        const items: string[] = [];
-        
-        elements.forEach(el => {
-            const text = el.textContent?.trim() || '';
-            if (text.startsWith('#') || text.startsWith('※')) {
-                const subText = text.substring(1).trim();
-                // De-duplicate by content to avoid issues with potential nested tags
-                if (subText && !items.includes(subText)) {
-                    items.push(subText);
-                }
-            }
-        });
-        return items;
-    } catch (e) {
-        console.error('ToC parsing error:', e);
-        return [];
-    }
+    return [];
 };
