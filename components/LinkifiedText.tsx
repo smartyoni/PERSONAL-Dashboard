@@ -20,7 +20,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text, className = '', hig
   const parts = text.split('---divider---');
   
   return (
-    <div className={`${className} leading-normal`} style={{ lineHeight: '1.55' }}>
+    <div className={className}>
       {parts.map((part, index) => {
         if (isHtml) {
           // HTML인 경우 dangerouslySetInnerHTML 사용

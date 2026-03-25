@@ -347,16 +347,16 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     white-space: pre-wrap;
                     word-break: break-all;
                 }
-                .prose p {
+                .prose p, .prose li, .prose div, .prose h1, .prose h2, .prose h3, .prose h4 {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
                     line-height: 28px !important;
                     min-height: 28px;
                 }
-                .prose li {
+                .prose ul, .prose ol {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
-                    line-height: 28px !important;
+                    padding-left: 1.25rem !important;
                 }
                 .regal-pad-bg {
                     background-color: white;
@@ -875,10 +875,10 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         ref={contentRef}
                         onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
                         className="flex-1 w-full overflow-y-auto custom-scrollbar regal-pad-bg text-slate-700 text-base whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
-                        style={{ paddingLeft: '42px', paddingTop: '4px' }}
+                        style={{ paddingLeft: '42px' }}
                     >
                         {/* Margin Symbol Overlay for Viewer */}
-                        <div className="absolute left-0 top-[4px] bottom-0 w-[42px] z-10 select-none pointer-events-none">
+                        <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 select-none pointer-events-none">
                             {memoEditor.value.split('\n').map((line, idx) => {
                                 const symbolMatch = line.match(/^([#•\-])\s/);
                                 const symbol = symbolMatch ? symbolMatch[1] : '';
