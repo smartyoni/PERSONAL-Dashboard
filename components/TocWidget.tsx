@@ -106,41 +106,6 @@ const TocWidget: React.FC<TocWidgetProps> = ({
         },
       });
 
-      // 할일관리 2
-      const todo2Count =
-        (tab.todoManagementInfo2?.category1Items?.length ?? 0) +
-        (tab.todoManagementInfo2?.category2Items?.length ?? 0) +
-        (tab.todoManagementInfo2?.category3Items?.length ?? 0) +
-        (tab.todoManagementInfo2?.category4Items?.length ?? 0) +
-        (tab.todoManagementInfo2?.category5Items?.length ?? 0);
-      result.push({
-        isVirtual: true,
-        virtual: {
-          id: 'todo-section-2',
-          title: tab.todoManagementInfo2?.title || '할일관리2',
-          emoji: '📋',
-          itemCount: todo2Count,
-          isVirtual: true,
-        },
-      });
-
-      // 할일관리 3
-      const todo3Count =
-        (tab.todoManagementInfo3?.category1Items?.length ?? 0) +
-        (tab.todoManagementInfo3?.category2Items?.length ?? 0) +
-        (tab.todoManagementInfo3?.category3Items?.length ?? 0) +
-        (tab.todoManagementInfo3?.category4Items?.length ?? 0) +
-        (tab.todoManagementInfo3?.category5Items?.length ?? 0);
-      result.push({
-        isVirtual: true,
-        virtual: {
-          id: 'todo-section-3',
-          title: tab.todoManagementInfo3?.title || '할일관리3',
-          emoji: '📋',
-          itemCount: todo3Count,
-          isVirtual: true,
-        },
-      });
     }
 
     // 일반 섹션들

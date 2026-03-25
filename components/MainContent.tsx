@@ -223,21 +223,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        <div data-section-id="todo-section-2" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                            <TodoWidget
-                                                info={activeTab.todoManagementInfo2}
-                                                onChange={handleTodoManagement2Change}
-                                                onShowTodoCat4Memo={(id) => handleShowMemo(id, 'todo2Cat4', 'todo2Cat4', undefined, activeTab.id)}
-                                                onShowTodoCat5Memo={(id) => handleShowMemo(id, 'todo2Cat5', 'todo2Cat5', undefined, activeTab.id)}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                // Added props
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
-                                            />
-                                        </div>
                                     </>
                                 )}
                                 {activeTab.sections.map((section, idx) => (
