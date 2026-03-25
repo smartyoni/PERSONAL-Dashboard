@@ -54,6 +54,7 @@ interface MainContentProps {
     isOnline: boolean;
     onTocNavigate: (tabId: string, sectionId: string) => void;
     onTocNavigateAndFocus: (tabId: string, sectionId: string) => void;
+    onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -76,6 +77,7 @@ const MainContent: React.FC<MainContentProps> = ({
     isOnline,
     onTocNavigate,
     onTocNavigateAndFocus,
+    onOpenItemMemoAtPage,
 }) => {
 
     return (
@@ -117,6 +119,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onUpdateSection={handleUpdateBookmarkSection}
                                             onDeleteSection={() => { }}
                                             onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
+                                            onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                             onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}
@@ -160,6 +163,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onUpdateSection={handleUpdateInboxSection}
                                                 onDeleteSection={() => { }}
                                                 onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue, activeTab.id)}
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                                 onMoveItem={() => { }}
                                                 onAddToCalendar={handleAddToCalendarClick}
                                                 dragState={dragState}
@@ -238,6 +242,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onUpdateSection={handleUpdateSection}
                                             onDeleteSection={handleDeleteSection}
                                             onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
+                                            onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                             onMoveItem={() => { }}
                                             onAddToCalendar={handleAddToCalendarClick}
                                             dragState={dragState}

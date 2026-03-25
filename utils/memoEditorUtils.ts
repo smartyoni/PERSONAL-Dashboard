@@ -1,6 +1,27 @@
+export const TITLE_SEPARATOR = '===memo-title-sep===';
+export const PAGE_BREAK = '\n===page-break===\n';
+
 /**
- * Converts stored memo string to HTML for contentEditable
+ * Parses a raw memo string into allTitles and allValues arrays
  */
+export const parseMemoPages = (raw: string): { allTitles: string[]; allValues: string[] } => {
+  if (!raw) return { allTitles: [''], allValues: [''] };
+  const pages = raw.split(PAGE_BREAK);
+  const allTitles: string[] = [];
+  const allValues: string[] = [];
+  for (const pageText of pages) {
+    if (pageText.includes(TITLE_SEPARATOR)) {
+      const parts = pageText.split(TITLE_SEPARATOR);
+      allTitles.push(parts[0]);
+      allValues.push(parts.slice(1).join(TITLE_SEPARATOR));
+    } else {
+      allTitles.push('');
+      allValues.push(pageText);
+    }
+  }
+  return { allTitles, allValues };
+};
+
 export const contentToHtml = (text: string): string => {
     if (!text) return '';
     
@@ -46,22 +67,15 @@ export const extractTocMarkers = (html: string): string[] => {
     try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        // Get all potential text blocks
-        const elements = doc.querySelectorAll('p, h1, h2, h3, li, div');
+        // Only target block-level content elements, avoid generic containers like div
+        const elements = doc.querySelectorAll('p, h1, h2, h3, li');
         const items: string[] = [];
         
         elements.forEach(el => {
-            // Only process elements that are direct children of body or a main container
-            // to avoid duplicates from nested structures
-            if (el.parentElement?.tagName !== 'BODY' && el.parentElement?.tagName !== 'DIV') {
-                // Allow li even if nested in ul
-                if (el.tagName !== 'LI') return;
-            }
-
             const text = el.textContent?.trim() || '';
             if (text.startsWith('#')) {
                 const subText = text.substring(1).trim();
-                // Avoid adding the same text multiple times (e.g. from parent/child relationship)
+                // De-duplicate by content to avoid issues with potential nested tags
                 if (subText && !items.includes(subText)) {
                     items.push(subText);
                 }

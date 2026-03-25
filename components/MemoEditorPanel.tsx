@@ -108,16 +108,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const editor = useEditor({
         extensions: [
             StarterKit,
-            Underline,
             TextStyle,
             FontSize,
-            Link.configure({
-                openOnClick: false,
-                autolink: true,
-                HTMLAttributes: {
-                    class: 'text-blue-500 underline hover:text-blue-700 transition-colors cursor-pointer',
-                },
-            }),
             Placeholder.configure({
                 placeholder: '여기에 메모를 작성하세요...',
             }),
@@ -173,6 +165,15 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             editor.commands.focus();
         }
     }, [memoEditor.isEditing, editor]);
+
+    // 외부에서 memoEditor.highlightText가 주입될 때 로컬 state로 동기화
+    useEffect(() => {
+        if (memoEditor.highlightText) {
+            setHighlightText(memoEditor.highlightText);
+            // 동기화 후 memoEditor에서 초기화 (중복 트리거 방지)
+            setMemoEditor(prev => ({ ...prev, highlightText: null }));
+        }
+    }, [memoEditor.highlightText]);
 
     // 하이라이트된 텍스트로 스크롤
     useEffect(() => {

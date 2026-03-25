@@ -26,6 +26,8 @@ interface ItemRowProps {
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  onMouseEnter?: (e: React.MouseEvent) => void;
+  onMouseLeave?: () => void;
 }
 
 const ItemRow: React.FC<ItemRowProps> = ({
@@ -47,7 +49,9 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onDragStart,
   onDragOver,
   onDrop,
-  onDragEnd
+  onDragEnd,
+  onMouseEnter,
+  onMouseLeave
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -138,6 +142,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
       <div className="flex-1 min-w-0">
         <div
           className={`leading-snug ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onDoubleClickItem?.();

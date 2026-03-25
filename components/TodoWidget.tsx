@@ -45,7 +45,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         type: 1
     });
     const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-    const [hoveredToC, setHoveredToC] = useState<{ id: string; toc: string[]; x: number; y: number } | null>(null);
+    const [hoveredToC, setHoveredToC] = useState<{ id: string; items: string[]; x: number; y: number } | null>(null);
 
     const menuRef = useRef<HTMLDivElement>(null);
     const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
@@ -241,6 +241,22 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                                 setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null })); 
                             }}
                             onDragEnd={() => setDragState(p => ({ ...p, draggedItemId: null, dragOverItemId: null }))}
+                            onMouseEnter={(e) => {
+                                const memo = memos[item.id];
+                                if (memo) {
+                                    const toc = extractTocMarkers(memo);
+                                    if (toc.length > 0) {
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        setHoveredToC({ 
+                                            id: item.id, 
+                                            items: toc, 
+                                            x: rect.left + rect.width / 2, 
+                                            y: rect.top 
+                                        });
+                                    }
+                                }
+                            }}
+                            onMouseLeave={() => setHoveredToC(null)}
                             className={`flex items-start gap-1 py-1 rounded transition-all group ${dragState.draggedItemId === item.id ? 'opacity-40 bg-slate-50' : dragState.dragOverItemId === item.id ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-slate-50'}`}
                         >
                             <button
@@ -254,22 +270,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                             <div 
                                 className="flex-1 min-w-0" 
                                 onClick={() => onShowMemo(item.id)}
-                                onMouseEnter={(e) => {
-                                    const memo = memos[item.id];
-                                    if (memo) {
-                                        const toc = extractTocMarkers(memo);
-                                        if (toc.length > 0) {
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            setHoveredToC({ 
-                                                id: item.id, 
-                                                toc, 
-                                                x: rect.left + (window.innerWidth < 768 ? 20 : rect.width / 2), 
-                                                y: rect.top - 10 
-                                            });
-                                        }
-                                    }
-                                }}
-                                onMouseLeave={() => setHoveredToC(null)}
                             >
                                 <EditableText
                                     value={item.text}
@@ -389,23 +389,26 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
             {/* ToC Hover Popover */}
             {hoveredToC && (
                 <div 
-                    className="fixed z-[3000] bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-slate-200 p-2 pointer-events-none animate-in fade-in zoom-in-95 duration-200 min-w-[150px] max-w-[280px]"
+                    className="fixed z-[3000] bg-white/95 backdrop-blur-sm border-2 border-indigo-500 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] p-3 pointer-events-none animate-in fade-in zoom-in-95 duration-200 min-w-[160px]"
                     style={{ 
-                        left: `${Math.min(hoveredToC.x, window.innerWidth - 160)}px`, 
+                        left: `${Math.min(hoveredToC.x, window.innerWidth - 80)}px`, 
                         top: `${hoveredToC.y}px`,
                         transform: 'translate(-50%, -100%)'
                     }}
                 >
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-1 border-b border-slate-100 pb-1">목차 미리보기</div>
-                    <div className="space-y-1">
-                        {hoveredToC.toc.map((item, i) => (
-                            <div key={i} className="text-[11px] text-slate-600 truncate flex items-center gap-1.5">
-                                <span className="w-1 h-1 rounded-full bg-sky-400 flex-none" />
-                                {item}
+                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-indigo-100">
+                        <span className="text-sm">📋</span>
+                        <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">목차 미리보기</span>
+                    </div>
+                    <div className="space-y-1.5">
+                        {hoveredToC.items.map((text, idx) => (
+                            <div key={idx} className="flex items-start gap-2 group">
+                                <span className="text-indigo-400 mt-1 text-[10px]">#</span>
+                                <span className="text-[13px] font-medium text-slate-700 leading-tight">{text}</span>
                             </div>
                         ))}
                     </div>
-                    <div className="mt-2 text-[9px] text-sky-500 font-medium text-center italic">클릭하여 메모 편집</div>
+                    <div className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 bg-white border-r-2 border-b-2 border-indigo-500 rotate-45"></div>
                 </div>
             )}
         </div>

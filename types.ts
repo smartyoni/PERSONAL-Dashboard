@@ -105,4 +105,5 @@ export interface MemoEditorState {
   openedFromMap?: boolean;
   sectionId?: string | null;
   tabId?: string | null;
+  highlightText?: string | null;
 }

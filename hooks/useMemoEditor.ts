@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { AppData, Tab, ListItem, MemoEditorState } from '../types';
+import { TITLE_SEPARATOR } from '../utils/memoEditorUtils';
 
 interface ConfirmModal {
     isOpen: boolean;
@@ -8,7 +9,6 @@ interface ConfirmModal {
     onConfirm: () => void;
 }
 
-export const TITLE_SEPARATOR = '===memo-title-sep===';
 
 export const useMemoEditor = (
     safeData: AppData,

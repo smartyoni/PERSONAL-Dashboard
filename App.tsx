@@ -229,6 +229,20 @@ const App: React.FC = () => {
         isOnline={isOnline}
         onTocNavigate={handleNavigateFromMap}
         onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
+        onOpenItemMemoAtPage={(itemId, pageIndex, highlightText) => {
+          // itemId가 속한 sectionId를 직접 탐색
+          const allSections = [activeTab.inboxSection, ...activeTab.sections];
+          const foundSection = allSections.find(s => s?.items.some(i => i.id === itemId));
+          const sectionId = foundSection?.id || null;
+          handleShowMemo(itemId, 'section', sectionId, undefined, activeTab.id);
+          setTimeout(() => {
+            handleChangePage(pageIndex);
+            // 소항목 하이라이트 주입
+            if (highlightText) {
+              setMemoEditor(prev => ({ ...prev, highlightText }));
+            }
+          }, 60);
+        }}
       />
         </div>
         

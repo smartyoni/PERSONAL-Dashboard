@@ -4,6 +4,7 @@ import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
 import { LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
+import { extractTocMarkers, parseMemoPages } from '../utils/memoEditorUtils';
 
 interface SectionCardProps {
   section: Section;
@@ -30,12 +31,13 @@ interface SectionCardProps {
   onGoToInbox?: () => void;
   onReturnFromInbox?: () => void;
   isReturnVisible?: boolean;
-  isBookmarkTab?: boolean; // 추가
-  onItemDoubleClick?: (itemId: string) => void; // 추가
-  onItemTagClick?: (itemId: string, itemText: string) => void; // 추가
+  isBookmarkTab?: boolean;
+  onItemDoubleClick?: (itemId: string) => void;
+  onItemTagClick?: (itemId: string, itemText: string) => void;
   autoFocusQuickAdd?: boolean;
   onClearFocus?: () => void;
   isMobileLayout?: boolean;
+  onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
 }
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -68,12 +70,29 @@ const SectionCard: React.FC<SectionCardProps> = ({
   autoFocusQuickAdd,
   onClearFocus,
   isMobileLayout = false,
+  onOpenItemMemoAtPage,
 }) => {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
+  const [hoveredToC, setHoveredToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect } | null>(null);
+  const hoveredToCRef = useRef<typeof hoveredToC>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const quickInputRef = useRef<HTMLTextAreaElement>(null);
-  const LINE_HEIGHT = 20; // 줄 높이 (px)
+
+  const clearHideTimer = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  };
+
+  const scheduleHide = () => {
+    clearHideTimer();
+    hideTimerRef.current = setTimeout(() => setHoveredToC(null), 150);
+  };
+
+  const LINE_HEIGHT = 20;
   const MAX_LINES = 3;
 
   const handleItemEditingChange = (itemId: string, isEditing: boolean) => {
@@ -280,7 +299,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const isDragOverSection = dragState.dragOverSectionId === section.id;
 
   return (
-    <section
+    <>
+      <section
       data-section-id={section.id}
       draggable={!isTitleEditing && editingItemIds.size === 0}
       onDragStart={(e) => {
@@ -427,28 +447,49 @@ const SectionCard: React.FC<SectionCardProps> = ({
           if (a.completed === b.completed) return 0;
           return a.completed ? 1 : -1;
         }).map(item => (
-          <ItemRow
+          <div
             key={item.id}
-            item={item}
-            sectionId={section.id}
-            memo={itemMemos[item.id]}
-            onToggle={() => handleToggleItem(item.id)}
-            onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
-            onDelete={() => handleDeleteItem(item.id)}
-            onAddMemo={() => onShowItemMemo(item.id)}
-            onCopy={() => handleCopyItem(item.id)}
-            onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
-            onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
-            isBookmark={isBookmarkTab}
-            onUpdateUrl={(url) => handleUpdateItemUrl(item.id, url)}
-            dragState={dragState}
-            onDragStart={(e) => onItemDragStart(e, item.id)}
-            onDragOver={(e) => onItemDragOver(e, item.id)}
-            onDrop={(e) => onItemDrop(e, item.id)}
-            onDragEnd={onItemDragEnd}
-            onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
-            onTagClick={() => onItemTagClick?.(item.id, item.text)}
-          />
+            className="relative"
+            onMouseEnter={(e) => {
+              clearHideTimer();
+              const memo = itemMemos[item.id];
+              if (memo) {
+                const { allTitles, allValues } = parseMemoPages(memo);
+                const rect = e.currentTarget.getBoundingClientRect();
+                setHoveredToC({
+                  itemId: item.id,
+                  allTitles,
+                  allValues,
+                  rect,
+                });
+              } else {
+                scheduleHide();
+              }
+            }}
+            onMouseLeave={scheduleHide}
+          >
+            <ItemRow
+              item={item}
+              sectionId={section.id}
+              memo={itemMemos[item.id]}
+              onToggle={() => handleToggleItem(item.id)}
+              onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
+              onDelete={() => handleDeleteItem(item.id)}
+              onAddMemo={() => onShowItemMemo(item.id)}
+              onCopy={() => handleCopyItem(item.id)}
+              onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
+              onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
+              isBookmark={isBookmarkTab}
+              onUpdateUrl={(url) => handleUpdateItemUrl(item.id, url)}
+              dragState={dragState}
+              onDragStart={(e) => onItemDragStart(e, item.id)}
+              onDragOver={(e) => onItemDragOver(e, item.id)}
+              onDrop={(e) => onItemDrop(e, item.id)}
+              onDragEnd={onItemDragEnd}
+              onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
+              onTagClick={() => onItemTagClick?.(item.id, item.text)}
+            />
+          </div>
         ))}
         {section.items.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
@@ -457,6 +498,112 @@ const SectionCard: React.FC<SectionCardProps> = ({
         )}
       </div>
     </section>
+
+      {hoveredToC && (() => {
+        // 팝업 추정 크기
+        const POP_W = 260;
+        const POP_H = Math.min(
+          48 + hoveredToC.allTitles.length * 40 +
+          hoveredToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
+          window.innerHeight * 0.6
+        );
+        const GAP = 8;
+        const { rect } = hoveredToC;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        let popLeft = 0;
+        let popTop = 0;
+
+        // 1순위: 우측
+        if (rect.right + GAP + POP_W <= vw) {
+          popLeft = rect.right + GAP;
+          popTop = Math.max(GAP, Math.min(rect.top, vh - POP_H - GAP));
+        }
+        // 2순위: 좌측
+        else if (rect.left - GAP - POP_W >= 0) {
+          popLeft = rect.left - GAP - POP_W;
+          popTop = Math.max(GAP, Math.min(rect.top, vh - POP_H - GAP));
+        }
+        // 3순위: 상단
+        else if (rect.top - GAP - POP_H >= 0) {
+          popLeft = Math.max(GAP, Math.min(rect.left + rect.width / 2 - POP_W / 2, vw - POP_W - GAP));
+          popTop = rect.top - GAP - POP_H;
+        }
+        // 4순위: 하단
+        else {
+          popLeft = Math.max(GAP, Math.min(rect.left + rect.width / 2 - POP_W / 2, vw - POP_W - GAP));
+          popTop = rect.bottom + GAP;
+        }
+
+        return (
+          <div
+            className="fixed z-[3000] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto"
+            style={{
+              left: `${popLeft}px`,
+              top: `${popTop}px`,
+              width: `${POP_W}px`,
+              maxHeight: `${Math.floor(vh * 0.6)}px`,
+            }}
+            onMouseEnter={clearHideTimer}
+            onMouseLeave={scheduleHide}
+          >
+            <div className="p-1.5 space-y-0.5">
+              <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
+              {hoveredToC.allTitles.map((title, idx) => {
+                const subItems = extractTocMarkers(hoveredToC.allValues[idx] || '');
+                const isActivePage = idx === 0;
+                return (
+                  <div key={idx} className="space-y-0.5">
+                    <button
+                      onClick={() => {
+                        onOpenItemMemoAtPage
+                          ? onOpenItemMemoAtPage(hoveredToC.itemId, idx)
+                          : onShowItemMemo(hoveredToC.itemId);
+                        setHoveredToC(null);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
+                        isActivePage
+                          ? 'bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100'
+                          : 'text-slate-900 font-bold hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
+                        isActivePage ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
+                      }`}>{idx + 1}</span>
+                      <span className="text-sm truncate flex-1">{title.trim() || '목차없음'}</span>
+                    </button>
+                    {subItems.length > 0 && (
+                      <div className="pb-1 relative">
+                        {subItems.map((sub, sIdx) => {
+                          const isLast = sIdx === subItems.length - 1;
+                          return (
+                            <button
+                              key={sIdx}
+                              onClick={() => {
+                                onOpenItemMemoAtPage
+                                  ? onOpenItemMemoAtPage(hoveredToC.itemId, idx, sub)
+                                  : onShowItemMemo(hoveredToC.itemId);
+                                setHoveredToC(null);
+                              }}
+                              className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
+                            >
+                              <div className={`absolute left-5 w-px bg-slate-300 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
+                              <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-300"></div>
+                              <span className="truncate">{sub}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+    </>
   );
 };
 
