@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { AppData, Tab, ListItem, MemoEditorState } from '../types';
-import { TITLE_SEPARATOR } from '../utils/memoEditorUtils';
+import { AppData, Tab, ListItem, MemoEditorState, TITLE_SEPARATOR } from '../types';
+import { parseMemoPages, htmlToPlainText } from '../utils/memoEditorUtils';
 
 interface ConfirmModal {
     isOpen: boolean;
@@ -73,26 +73,13 @@ export const useMemoEditor = (
                 loadedValue = initialValue;
             }
             
-            const pages = loadedValue.split('\n===page-break===\n');
-            const allTitles: string[] = [];
-            const allContents: string[] = [];
+            const { allTitles: rawTitles, allValues: rawContents } = parseMemoPages(loadedValue);
             
-            const pageCount = Math.max(5, pages.length);
-            for (let i = 0; i < pageCount; i++) {
-                const pageText = pages[i] || '';
-                
-                let title = '';
-                let content = pageText;
-
-                if (pageText.includes(TITLE_SEPARATOR)) {
-                    const parts = pageText.split(TITLE_SEPARATOR);
-                    title = parts[0];
-                    content = parts.slice(1).join(TITLE_SEPARATOR);
-                }
-
-                allTitles.push(title);
-                allContents.push(content);
-            }
+            // Just clean HTML, no metadata split needed
+            const allTitles = rawTitles.map(t => htmlToPlainText(t).trim());
+            const allContents = rawContents.map(c => htmlToPlainText(c));
+            
+            const firstPageText = allContents[0] || '';
 
             const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
                 type === 'todoCat1' || type === 'todoCat2' || type === 'todoCat3' || type === 'todoCat4' ||
@@ -101,13 +88,13 @@ export const useMemoEditor = (
 
             setMemoEditor({
                 id,
-                value: allContents[0],
+                value: firstPageText,
                 title: allTitles[0],
                 allValues: allContents,
                 allTitles,
                 activePageIndex: 0,
                 type: type || 'section',
-                isEditing: !isParkingSub && allContents[0] === '' && allTitles[0] === '' && !openedFromMap,
+                isEditing: !isParkingSub && firstPageText === '' && allTitles[0] === '' && !openedFromMap,
                 openedFromMap,
                 sectionId: sectionId || null,
                 tabId: targetTabId

@@ -4,7 +4,7 @@ import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
 import { LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
-import { extractTocMarkers, parseMemoPages } from '../utils/memoEditorUtils';
+import { parseMemoPages } from '../utils/memoEditorUtils';
 import { useClickOutside } from '../hooks/useClickOutside';
 
 interface SectionCardProps {
@@ -464,9 +464,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                 const memo = itemMemos[item.id];
                 if (memo) {
                   const { allTitles, allValues } = parseMemoPages(memo);
-                  const markers = allValues.flatMap(v => extractTocMarkers(v));
-                  // 페이지가 여러개이거나 markers(※, #)가 있는 경우 팝업 트리거
-                  if (allTitles.length > 1 || markers.length > 0) {
+                  if (allTitles.length > 1) {
                     const rect = (e?.currentTarget as HTMLElement)?.getBoundingClientRect() || (e?.target as HTMLElement)?.getBoundingClientRect();
                     setActiveToC({
                       itemId: item.id,
@@ -505,8 +503,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
         // 팝업 추정 크기
         const POP_W = 260;
         const POP_H = Math.min(
-          48 + activeToC.allTitles.length * 40 +
-          activeToC.allValues.reduce((acc, v) => acc + extractTocMarkers(v).length * 32, 0),
+          48 + activeToC.allTitles.length * 40,
           window.innerHeight * 0.6
         );
         const GAP = 8;
@@ -552,7 +549,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <div className="p-1.5 space-y-0.5">
               <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
               {activeToC.allTitles.map((title, idx) => {
-                const subItems = extractTocMarkers(activeToC.allValues[idx] || '');
                 const isActivePage = idx === 0;
                 return (
                   <div key={idx} className="space-y-0.5">
@@ -574,29 +570,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
                       }`}>{idx + 1}</span>
                       <span className="text-sm truncate flex-1">{title.trim() || '목차없음'}</span>
                     </button>
-                    {subItems.length > 0 && (
-                      <div className="pb-1 relative">
-                        {subItems.map((sub, sIdx) => {
-                          const isLast = sIdx === subItems.length - 1;
-                          return (
-                            <button
-                              key={sIdx}
-                              onClick={() => {
-                                onOpenItemMemoAtPage
-                                  ? onOpenItemMemoAtPage(activeToC.itemId, idx, sub)
-                                  : onShowItemMemo(activeToC.itemId);
-                                setActiveToC(null);
-                              }}
-                              className="w-full relative pl-10 pr-3 py-1.5 text-[12px] text-slate-800 font-normal flex items-center hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
-                            >
-                              <div className={`absolute left-5 w-px bg-slate-300 ${isLast ? 'top-0 h-1/2' : 'top-0 bottom-0'}`}></div>
-                              <div className="absolute left-5 top-1/2 w-3 h-px bg-slate-300"></div>
-                              <span className="truncate">{sub}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
                 );
               })}
