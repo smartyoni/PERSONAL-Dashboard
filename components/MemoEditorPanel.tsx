@@ -396,7 +396,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 .memo-editor-textarea {
                     width: 100%;
                     height: 100%;
-                    padding: 0 1.5rem 1.5rem 12px;
+                    padding: 0 1.5rem 1.5rem 42px;
                     border: none;
                     outline: none;
                     font-size: 15px;
@@ -406,6 +406,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     background: transparent;
                     white-space: pre-wrap;
                     word-break: break-all;
+                    text-indent: -32px;
                 }
                 .prose p, .prose li, .prose div, .prose h1, .prose h2, .prose h3, .prose h4 {
                     margin-top: 0px !important;
@@ -874,7 +875,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         
                         {memoEditor.value ? (
                             <div className="prose prose-sm max-w-none select-text">
-                                <LinkifiedText text={memoEditor.value} highlightText={highlightText} />
+                                <LinkifiedText 
+                                    text={memoEditor.value.replace(/^[●•]\s+/gm, (match) => {
+                                        // Preserve the spaces for indentation if it's a small bullet
+                                        return match.includes('  ') ? '  ' : '';
+                                    })} 
+                                    highlightText={highlightText} 
+                                />
                             </div>
                         ) : (
                             <p className="text-slate-400 italic">메모가 없습니다.</p>
