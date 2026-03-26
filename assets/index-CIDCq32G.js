@@ -2217,7 +2217,7 @@ This typically indicates that your device does not have a healthy Internet conne
                     word-wrap: break-word;
                     color: #334155;
                     pointer-events: none;
-                    z-index: 10;
+                    z-index: 30;
                 }
                 .prose p, .prose li, .prose div, .prose h1, .prose h2, .prose h3, .prose h4 {
                     margin-top: 0px !important;
