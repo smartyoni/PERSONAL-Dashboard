@@ -34,6 +34,7 @@ export interface ParkingInfo {
   remindersMemos: { [key: string]: string }; // 챙겨야할 것 메모
   todoMemos: { [key: string]: string };      // 잊지말고 할일 메모
   category5Memos: { [key: string]: string }; // 추가
+  isPinned?: boolean; // 추가: 모바일 하단 고정
 }
 
 export interface Bookmark {
@@ -60,6 +61,7 @@ export interface TodoManagementInfo {
   category3Memos: { [key: string]: string };
   category4Memos: { [key: string]: string };
   category5Memos: { [key: string]: string }; // 추가
+  isPinned?: boolean; // 추가: 모바일 하단 고정
 }
 
 export interface Tab {

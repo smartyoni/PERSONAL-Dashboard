@@ -30,7 +30,8 @@ const defaultData: AppData = (() => {
                 todoMemos: {},
                 category5Title: '항목 5',
                 category5Items: [],
-                category5Memos: {}
+                category5Memos: {},
+                isPinned: false
             },
             todoManagementInfo: {
                 title: '업무',
@@ -48,7 +49,8 @@ const defaultData: AppData = (() => {
                 category4Memos: {},
                 category5Title: '항목 5',
                 category5Items: [],
-                category5Memos: {}
+                category5Memos: {},
+                isPinned: false
             },
             todoManagementInfo2: {
                 title: '할일관리 2',
@@ -66,7 +68,8 @@ const defaultData: AppData = (() => {
                 category4Memos: {},
                 category5Title: '항목 5',
                 category5Items: [],
-                category5Memos: {}
+                category5Memos: {},
+                isPinned: false
             },
             todoManagementInfo3: {
                 title: '할일관리 3',
@@ -84,7 +87,8 @@ const defaultData: AppData = (() => {
                 category4Memos: {},
                 category5Title: '항목 5',
                 category5Items: [],
-                category5Memos: {}
+                category5Memos: {},
+                isPinned: false
             },
             inboxSection: {
                 id: inboxSectionId, title: 'IN-BOX', items: [], color: 'slate', isLocked: false
@@ -148,6 +152,7 @@ export const useAppState = () => {
                         category5Title: tab.parkingInfo?.category5Title || '항목 5',
                         category5Items: tab.parkingInfo?.category5Items || [],
                         category5Memos: tab.parkingInfo?.category5Memos || {},
+                        isPinned: tab.parkingInfo?.isPinned || false,
                     },
                     todoManagementInfo: {
                         ...tab.todoManagementInfo,
@@ -167,6 +172,7 @@ export const useAppState = () => {
                         category5Title: tab.todoManagementInfo?.category5Title || '항목 5',
                         category5Items: tab.todoManagementInfo?.category5Items || [],
                         category5Memos: tab.todoManagementInfo?.category5Memos || {},
+                        isPinned: tab.todoManagementInfo?.isPinned || false,
                     },
                     todoManagementInfo2: {
                         ...tab.todoManagementInfo2,
@@ -186,6 +192,7 @@ export const useAppState = () => {
                         category5Title: tab.todoManagementInfo2?.category5Title || '항목 5',
                         category5Items: tab.todoManagementInfo2?.category5Items || [],
                         category5Memos: tab.todoManagementInfo2?.category5Memos || {},
+                        isPinned: tab.todoManagementInfo2?.isPinned || false,
                     },
                     todoManagementInfo3: {
                         ...tab.todoManagementInfo3,
@@ -205,6 +212,7 @@ export const useAppState = () => {
                         category5Title: tab.todoManagementInfo3?.category5Title || '항목 5',
                         category5Items: tab.todoManagementInfo3?.category5Items || [],
                         category5Memos: tab.todoManagementInfo3?.category5Memos || {},
+                        isPinned: tab.todoManagementInfo3?.isPinned || false,
                     },
                 };
             })

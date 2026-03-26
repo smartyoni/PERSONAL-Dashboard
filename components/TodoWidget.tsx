@@ -22,6 +22,7 @@ interface TodoWidgetProps {
     setDragState: (state: DragState) => void;
     onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string) => void;
     onItemTagClick: (itemId: string, sectionId: string, itemText: string) => void;
+    dataSectionId?: string;
 }
 
 const TodoWidget: React.FC<TodoWidgetProps> = ({
@@ -40,7 +41,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     dragState,
     setDragState,
     onCrossSectionDrop,
-    onItemTagClick
+    onItemTagClick,
+    dataSectionId
 }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -357,7 +359,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
+        <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden" data-section-id={dataSectionId}>
             <h2 className={mainHeaderClass || "text-sm font-black text-sky-900 bg-sky-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"} title={info.title || "업무"}>
                 <EditableText
                     value={info.title || "업무"}
@@ -365,6 +367,15 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     placeholder="제목 입력..."
                     className="flex-1"
                 />
+                <div className="flex items-center border-[1.5px] border-black rounded-md overflow-hidden bg-white/50 backdrop-blur-sm self-center mr-1">
+                    <button
+                        onClick={() => onChange({ ...info, isPinned: !info.isPinned })}
+                        className={`flex items-center justify-center px-1.5 h-7 transition-all active:scale-95 text-[10px] font-bold ${info.isPinned ? 'bg-blue-500 text-white' : 'hover:bg-slate-200/50 text-blue-600'}`}
+                        title={info.isPinned ? "고정 해제" : "모바일 하단 고정"}
+                    >
+                        {info.isPinned ? '고정됨' : '고정'}
+                    </button>
+                </div>
                 <span className={todoTagClass || "text-[10px] font-normal text-sky-600 font-mono"}>TODO</span>
             </h2>
 

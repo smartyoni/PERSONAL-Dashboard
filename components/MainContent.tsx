@@ -305,6 +305,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 setDragState={setDragState}
                                                 onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
+                                                dataSectionId="todo-widget-1"
                                             />
                                         </div>
                                     </>

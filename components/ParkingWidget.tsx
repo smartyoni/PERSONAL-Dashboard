@@ -383,7 +383,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full bg-white border-2 border-black p-2 shadow-sm overflow-hidden" data-section-id="parking-widget">
       <h2 className="text-sm font-black text-green-900 bg-green-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black" title={info.title || "개인"}>
         <EditableText
           value={info.title || "개인"}
@@ -391,6 +391,15 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
           placeholder="제목 입력..."
           className="flex-1"
         />
+        <div className="flex items-center border-[1.5px] border-black rounded-md overflow-hidden bg-white/50 backdrop-blur-sm self-center mr-1">
+          <button
+            onClick={() => onChange({ ...info, isPinned: !info.isPinned })}
+            className={`flex items-center justify-center px-1.5 h-7 transition-all active:scale-95 text-[10px] font-bold ${info.isPinned ? 'bg-blue-500 text-white' : 'hover:bg-slate-200/50 text-blue-600'}`}
+            title={info.isPinned ? "고정 해제" : "모바일 하단 고정"}
+          >
+            {info.isPinned ? '고정됨' : '고정'}
+          </button>
+        </div>
         <span className="text-[10px] font-normal text-green-600 font-mono">PARKING</span>
       </h2>
 

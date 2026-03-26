@@ -107,17 +107,35 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
     }
   };
 
-  const getPinnedSections = () => {
-    const pinned: Array<{ tabId: string, section: Section }> = [];
+  const getPinnedItems = () => {
+    const pinned: Array<{ tabId: string, id: string, title: string }> = [];
     tabs.forEach(tab => {
+      // 1. Inbox
       if (tab.inboxSection?.isPinned) {
-        pinned.push({ tabId: tab.id, section: tab.inboxSection });
+        pinned.push({ tabId: tab.id, id: tab.inboxSection.id, title: tab.inboxSection.title || '📥 인박스' });
       }
-      tab.sections.forEach(s => {
-        if (s.isPinned) {
-          pinned.push({ tabId: tab.id, section: s });
-        }
-      });
+      // 2. Sections
+      if (tab.sections) {
+        tab.sections.forEach(s => {
+          if (s.isPinned) {
+            pinned.push({ tabId: tab.id, id: s.id, title: s.title });
+          }
+        });
+      }
+      // 3. Parking Widget
+      if (tab.parkingInfo?.isPinned) {
+        pinned.push({ tabId: tab.id, id: 'parking-widget', title: tab.parkingInfo.title || '🅿️ 주차장' });
+      }
+      // 4. Todo Widgets
+      if (tab.todoManagementInfo?.isPinned) {
+        pinned.push({ tabId: tab.id, id: 'todo-widget-1', title: tab.todoManagementInfo.title || '✅ 할일 1' });
+      }
+      if (tab.todoManagementInfo2?.isPinned) {
+        pinned.push({ tabId: tab.id, id: 'todo-widget-2', title: tab.todoManagementInfo2.title || '✅ 할일 2' });
+      }
+      if (tab.todoManagementInfo3?.isPinned) {
+        pinned.push({ tabId: tab.id, id: 'todo-widget-3', title: tab.todoManagementInfo3.title || '✅ 할일 3' });
+      }
     });
     return pinned.slice(0, 5); // Limit back to 5 to make room for ToC and Bookmark buttons
   };
@@ -146,7 +164,7 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   ];
 
   const visibleTabs = tabs;
-  const pinnedSections = getPinnedSections();
+  const pinnedItems = getPinnedItems();
 
   return (
     <div className="bg-white border-t border-slate-200 z-[100] h-16 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
@@ -202,20 +220,20 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
                     );
                   }
 
-                  // Slots 1-5 (Indices 1, 2, 3, 4, 5): Pinned Sections 0-4
+                  // Slots 1-5 (Indices 1, 2, 3, 4, 5): Pinned Items 0-4
                   const pinnedIndex = index - 1;
-                  const item = pinnedSections[pinnedIndex];
+                  const item = pinnedItems[pinnedIndex];
                   const colorClass = RAINBOW_COLORS[index];
 
                   if (item) {
-                    const { tabId, section } = item;
+                    const { tabId, id, title } = item;
                     return (
                       <button
-                        key={section.id}
-                        onClick={() => onNavigateToSection?.(tabId, section.id)}
+                        key={`${tabId}-${id}`}
+                        onClick={() => onNavigateToSection?.(tabId, id)}
                         className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${colorClass} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border border-black/20`}
                       >
-                        {formatSectionTitle(section.title)}
+                        {formatSectionTitle(title)}
                       </button>
                     );
                   }
