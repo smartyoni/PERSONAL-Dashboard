@@ -353,6 +353,7 @@ const App: React.FC = () => {
         isBookmarkView={isBookmarkView}
         calendarModal={calendarModal} setCalendarModal={setCalendarModal}
         handleConfirmCalendar={handleConfirmCalendar}
+        handleShowMemo={handleShowMemo}
       />
     </div>
   );

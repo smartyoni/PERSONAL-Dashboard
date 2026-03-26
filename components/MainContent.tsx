@@ -273,6 +273,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 isMobileLayout={isMobileLayout}
                                                 isDesktopSplit={true}
                                                 handleMoveItem={handleMoveItem}
+                                                handleShowMemo={handleShowMemo}
                                             />
                                         </div>
 
@@ -371,6 +372,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 isMobileLayout={isMobileLayout}
                                                 isDesktopSplit={true}
                                                 handleMoveItem={handleMoveItem}
+                                                handleShowMemo={handleShowMemo}
                                             />
                                         </div>
 

@@ -112,3 +112,11 @@ export interface MemoEditorState {
   tabId?: string | null;
   highlightText?: string | null;
 }
+
+export interface HistoryItem {
+  id: string;
+  type: MemoEditorState['type'];
+  sectionId: string | null;
+  tabId: string | null;
+  title: string;
+}

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { AppData, Tab, MemoEditorState, TodoManagementInfo } from '../types';
+import { AppData, Tab, MemoEditorState, TodoManagementInfo, HistoryItem } from '../types';
+import { getRecentMemos } from '../hooks/useMemoEditor';
 import LinkifiedText from './LinkifiedText';
 import { contentToHtml, htmlToContent, splitMetadata } from '../utils/memoEditorUtils';
 
@@ -21,6 +22,7 @@ export interface MemoEditorPanelProps {
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
+    handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => void;
     activeTab: Tab;
     safeData: AppData; // Add safeData for cross-tab item lookup
     isMobileLayout: boolean;
@@ -33,7 +35,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
     handleOpenTagSelection, handleInsertSymbol, handleChangePage, handleUpdateTitle, handleUpdateItemText,
     handleAddPage, handleDeletePage,
-    memoSymbols, setNavigationMapOpen, activeTab, safeData, isMobileLayout, isDesktopSplit
+    memoSymbols, setNavigationMapOpen, activeTab, safeData, isMobileLayout, isDesktopSplit,
+    handleMoveItem, handleShowMemo
 }) => {
     const touchStart = useRef<number | null>(null);
     const touchEnd = useRef<number | null>(null);
@@ -43,6 +46,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const [isEditingHeader, setIsEditingHeader] = useState(false);
     const [headerValue, setHeaderValue] = useState("");
     const [showToC, setShowToC] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
+    const recentMemos = getRecentMemos();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [highlightText, setHighlightText] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
@@ -681,6 +686,54 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             )}
 
             {/* ToC Context Menu */}
+            {/* History Overlay (Replacing ToC style) */}
+            {showHistory && (
+                <>
+                    <div className="absolute inset-0 z-[100] bg-slate-900/10 backdrop-blur-[2px]" onClick={() => setShowHistory(false)} />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] max-h-[70%] z-[101] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-orange-50/50">
+                            <h3 className="text-sm font-bold text-orange-700 flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                최근 기록 (최대 5개)
+                            </h3>
+                            <button onClick={() => setShowHistory(false)} className="p-1 hover:bg-white rounded-full transition-colors">
+                                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 custom-scrollbar space-y-1">
+                            {recentMemos.length === 0 ? (
+                                <div className="py-8 text-center text-slate-400 italic text-sm">기록이 없습니다.</div>
+                            ) : (
+                                recentMemos.map((item, idx) => (
+                                    <button
+                                        key={`${item.id}-${idx}`}
+                                        onClick={() => {
+                                            handleShowMemo(item.id, item.type, item.sectionId, undefined, item.tabId);
+                                            setShowHistory(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-3 rounded-2xl transition-all flex items-center gap-3 border border-transparent ${
+                                            memoEditor.id === item.id 
+                                            ? 'bg-orange-50 text-orange-700 font-bold border-orange-100' 
+                                            : 'hover:bg-slate-50 text-slate-700 hover:border-slate-200'
+                                        }`}
+                                    >
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs shrink-0 ${
+                                            memoEditor.id === item.id ? 'bg-orange-200 text-orange-700' : 'bg-slate-100 text-slate-500'
+                                        }`}>
+                                            {idx + 1}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-sm font-bold truncate">{item.title}</div>
+                                            <div className="text-[10px] text-slate-400 uppercase tracking-tight">{item.type}</div>
+                                        </div>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+
             {showToC && (
                 <>
                     <div 
@@ -923,7 +976,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div className="p-3 bg-slate-50 border-t border-slate-200">
                         {/* Viewing Mode Action Bar */}
                         <div className="flex bg-slate-200/50 p-1 rounded-2xl gap-1 border border-slate-200/40">
-                            {memoEditor.allValues.map((_, idx) => (
+                            {memoEditor.allValues.slice(0, 4).map((_, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => handleChangePage(idx)}
@@ -936,6 +989,16 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     {idx + 1}
                                 </button>
                             ))}
+                            <button
+                                onClick={() => setShowHistory(true)}
+                                className={`flex-1 py-1.5 text-[10px] md:text-xs font-bold rounded-xl transition-all ${
+                                    showHistory 
+                                    ? 'bg-white text-orange-600 shadow-sm border border-orange-100' 
+                                    : 'text-slate-500 hover:text-orange-600 hover:bg-orange-50'
+                                }`}
+                            >
+                                기록
+                            </button>
                             <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
                             <button 
                                 onClick={() => handleOpenTagSelection({

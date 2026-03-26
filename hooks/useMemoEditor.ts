@@ -1,6 +1,27 @@
 import React, { useRef } from 'react';
-import { AppData, Tab, ListItem, MemoEditorState, TITLE_SEPARATOR } from '../types';
+import { AppData, Tab, ListItem, MemoEditorState, TITLE_SEPARATOR, HistoryItem } from '../types';
 import { parseMemoPages, htmlToPlainText } from '../utils/memoEditorUtils';
+
+const HISTORY_KEY = 'personal-dashboard-recent-memos';
+
+export const getRecentMemos = (): HistoryItem[] => {
+    try {
+        const stored = localStorage.getItem(HISTORY_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+};
+
+const addToHistory = (item: HistoryItem) => {
+    let history = getRecentMemos();
+    // Remove if exists to move to top
+    history = history.filter(h => h.id !== item.id);
+    history.unshift(item);
+    // Keep max 5
+    if (history.length > 5) history = history.slice(0, 5);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+};
 
 interface ConfirmModal {
     isOpen: boolean;
@@ -98,6 +119,15 @@ export const useMemoEditor = (
                 openedFromMap,
                 sectionId: sectionId || null,
                 tabId: targetTabId
+            });
+
+            // Add to history
+            addToHistory({
+                id,
+                type: type || 'section',
+                sectionId: sectionId || null,
+                tabId: targetTabId,
+                title: allTitles[0] || '제목없음'
             });
         }
     };
