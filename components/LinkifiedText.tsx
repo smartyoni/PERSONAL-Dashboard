@@ -80,7 +80,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
           }
           
           return (
-            <div key={lIdx} className="min-h-[1.25em]">
+            <div key={lIdx} className="min-h-[1.25em] whitespace-pre-wrap">
               {finalLineContent}
             </div>
           );

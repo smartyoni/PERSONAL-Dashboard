@@ -85,14 +85,16 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         if (lineIdx >= lines.length) return;
 
         const line = lines[lineIdx];
-        const symbols = ['', '• ', '- ', '# ', '※ '];
-        const currentSymbolMatch = line.match(/^([•\-#※])\s/);
+        // Cycle: None -> Large (●) -> Normal (•)
+        // Note: Normal bullet adds an extra space for indentation
+        const symbols = ['', '● ', '•  ']; // 2 spaces for normal bullet
+        const currentSymbolMatch = line.match(/^([●•])\s+/);
         const currentSymbol = currentSymbolMatch ? currentSymbolMatch[0] : '';
         
         const currentIndex = symbols.indexOf(currentSymbol);
         const nextSymbol = symbols[(currentIndex + 1) % symbols.length];
         
-        const newLine = nextSymbol + line.replace(/^([•\-#※])\s/, '');
+        const newLine = nextSymbol + line.replace(/^([●•])\s+/, '');
         lines[lineIdx] = newLine;
         
         const newValue = lines.join('\n');
@@ -702,13 +704,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         {/* Margin Symbol Overlay for Editor */}
                         <div className="absolute left-0 top-0 bottom-0 w-[42px] z-[30] select-none pointer-events-none">
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
-                                const symbolMatch = line.match(/^([•\-#※→■◆])\s/);
+                                const symbolMatch = line.match(/^([●•])\s/);
                                 const symbol = symbolMatch ? symbolMatch[1] : '';
                                 return (
                                     <div 
                                         key={idx} 
                                         onClick={() => handleMarginClick(idx)}
-                                        className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors"
+                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors ${symbol === '●' ? 'text-lg' : 'text-sm'}`}
                                     >
                                         {symbol}
                                     </div>
@@ -856,13 +858,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         {/* Margin Symbol Overlay for Viewer */}
                         <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 select-none pointer-events-none">
                             {memoEditor.value.split('\n').map((line, idx) => {
-                                // Detect symbols: •, -, #, ※, →, ■, ◆
-                                const symbolMatch = line.match(/^([•\-#※→■◆])\s/);
+                                // Detect symbols: ● (Large), • (Normal)
+                                const symbolMatch = line.match(/^([●•])\s/);
                                 const symbol = symbolMatch ? symbolMatch[1] : '';
                                 return (
                                     <div 
                                         key={idx} 
-                                        className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm pr-[11px]" // Pr to center in the 31px area before red lines
+                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] ${symbol === '●' ? 'text-lg' : 'text-sm'}`}
                                     >
                                         {symbol}
                                     </div>
