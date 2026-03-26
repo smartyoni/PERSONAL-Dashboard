@@ -730,7 +730,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     <div 
                                         key={idx} 
                                         onClick={() => handleMarginClick(idx)}
-                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors ${symbol === '●' ? 'text-base' : 'text-sm'}`}
+                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors ${symbol === '●' ? 'text-[13px]' : 'text-sm'}`}
                                     >
                                         {symbol}
                                     </div>
@@ -739,11 +739,19 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         </div>
                         <div className="memo-editor-mirror">
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
+                                const isLargeBullet = line.startsWith('●');
                                 // Filter out bullets for display
                                 const filteredLine = line.replace(/^[●•]\s+/, (match) => {
                                     return match.includes('  ') ? '  ' : '';
                                 });
-                                return <div key={idx} className="min-h-[28px]">{filteredLine}</div>;
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        className={`min-h-[28px] ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
+                                    >
+                                        {filteredLine}
+                                    </div>
+                                );
                             })}
                         </div>
                         <textarea
@@ -893,7 +901,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 return (
                                     <div 
                                         key={idx} 
-                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] ${symbol === '●' ? 'text-base' : 'text-sm'}`}
+                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] ${symbol === '●' ? 'text-[13px]' : 'text-sm'}`}
                                     >
                                         {symbol}
                                     </div>
@@ -904,10 +912,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         {memoEditor.value ? (
                             <div className="prose prose-sm max-w-none select-text">
                                 <LinkifiedText 
-                                    text={memoEditor.value.replace(/^[●•]\s+/gm, (match) => {
-                                        // Preserve the spaces for indentation if it's a small bullet
-                                        return match.includes('  ') ? '  ' : '';
-                                    })} 
+                                    text={memoEditor.value} 
                                     highlightText={highlightText} 
                                 />
                             </div>

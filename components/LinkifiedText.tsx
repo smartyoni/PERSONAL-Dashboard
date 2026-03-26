@@ -54,10 +54,24 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
           // Linkify the line
           const linkified = linkifyText(line);
           
+          // Bullet & Bold handling
+          const isLargeBullet = line.startsWith('●');
+          const isNormalBullet = line.startsWith('•');
+          
+          let displayLine = line;
+          if (isLargeBullet || isNormalBullet) {
+              displayLine = line.replace(/^[●•]\s+/, (match) => {
+                  return match.includes('  ') ? '  ' : '';
+              });
+          }
+
+          // Linkify the filtered line instead
+          const filteredLinkified = linkifyText(displayLine);
+
           // Highlight logic
-          let finalLineContent: React.ReactNode = linkified;
-          if (highlightText && line.includes(highlightText)) {
-            finalLineContent = linkified.map((node, nIdx) => {
+          let finalLineContent: React.ReactNode = filteredLinkified;
+          if (highlightText && displayLine.includes(highlightText)) {
+            finalLineContent = filteredLinkified.map((node, nIdx) => {
               if (typeof node === 'string' && node.includes(highlightText)) {
                 const nodeParts = node.split(highlightText);
                 return (
@@ -80,7 +94,10 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
           }
           
           return (
-            <div key={lIdx} className="min-h-[1.25em] whitespace-pre-wrap">
+            <div 
+                key={lIdx} 
+                className={`min-h-[1.25em] whitespace-pre-wrap ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
+            >
               {finalLineContent}
             </div>
           );
