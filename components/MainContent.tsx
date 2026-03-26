@@ -120,7 +120,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
             <div className="flex-1 flex flex-row overflow-hidden">
                 <div ref={mainRef} className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex-none bg-[#F8FAFC]">
+                    <div className="flex-none bg-[#F8FAFC] pb-1 md:pb-0">
                         <Header
                             onAddSection={handleAddSection}
                             onOpenNavigationMap={() => setNavigationMapOpen(true)}
@@ -132,7 +132,7 @@ const MainContent: React.FC<MainContentProps> = ({
                         />
                     </div>
 
-                    <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-0.5 pb-20">
+                    <main className="flex-1 overflow-y-auto custom-scrollbar px-0 md:px-0.5 pb-24 pt-1 md:pt-0">
                         {isBookmarkView ? (
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0.5 md:gap-1 pt-1" style={{ gridAutoRows: 'auto' }}>
                                 {(safeData.bookmarkSections || []).map((section) => (
@@ -165,11 +165,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 h-full ${isMobileLayout ? 'grid-cols-1' : (isMainTab ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[0.7fr_1.3fr_1.2fr_1fr_1fr]' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1fr_1fr_1.2fr_1fr_1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[0.7fr_1.3fr_1.2fr_1fr_1fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1fr_1fr_1.2fr_1fr_1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 1. ToC 및 나머지 섹션들 */}
-                                        <div className="flex flex-col gap-1.5 h-full">
+                                        <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
                                             <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                 <TocWidget
                                                     tabs={safeData.tabs}

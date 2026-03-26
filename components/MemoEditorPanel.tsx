@@ -55,7 +55,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const text = memoEditor.value;
+        const text = textarea.value; // Use current value directly
+        const scrollParent = textarea.parentElement;
+        const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
         
         let insertVal = symbol;
         if (symbol === '\n---divider---\n') {
@@ -65,19 +67,29 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         const newValue = text.substring(0, start) + insertVal + text.substring(end);
         setMemoEditor(prev => ({ ...prev, value: newValue }));
 
-        // Selection restoration after state update
+        // Selection and scroll restoration after state update
         setTimeout(() => {
             textarea.focus();
             textarea.setSelectionRange(start + insertVal.length, start + insertVal.length);
+            if (scrollParent) {
+                scrollParent.scrollTop = scrollTop;
+            }
         }, 0);
-    }, [memoEditor.value, setMemoEditor, memoTextareaRef]);
+    }, [setMemoEditor, memoTextareaRef]);
 
     useEffect(() => {
         if (memoEditor.isEditing && memoTextareaRef.current) {
             const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
             if (textarea.tagName === 'TEXTAREA') {
+                const scrollParent = textarea.parentElement;
+                const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+                
                 textarea.style.height = 'auto';
                 textarea.style.height = `${textarea.scrollHeight}px`;
+                
+                if (scrollParent) {
+                    scrollParent.scrollTop = scrollTop;
+                }
             }
         }
     }, [memoEditor.value, memoEditor.isEditing]);

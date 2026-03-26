@@ -395,7 +395,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           onKeyDown={handleQuickAdd}
           rows={1}
           className="flex-1 px-3 py-2 text-sm border-2 border-black border-r-0 rounded-l-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all resize-none overflow-hidden leading-5"
-          style={{ minHeight: '36px' }}
+          style={{ minHeight: isMobileLayout ? '42px' : '36px' }}
         />
         <button
           onClick={() => {

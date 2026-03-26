@@ -62,29 +62,28 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
   const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const isMobile = window.innerWidth < 768; // Tailwind md breakpoint
-
-    if (triggerRef.current && !isMobile) {
-      // 데스크톱: fixed positioning으로 절대 위치 계산
+    
+    // fixed positioning으로 절대 위치 계산 (모바일/데스크톱 공통)
+    if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      const menuHeight = 280; // 메뉴의 예상 높이 (6개 버튼용)
+      const menuHeight = 280; // 메뉴의 예상 높이
       const spaceBelow = window.innerHeight - rect.bottom;
+      const isMobile = window.innerWidth < 768;
 
-      if (spaceBelow >= menuHeight) {
-        // 아래쪽에 충분한 공간이 있으면: 메뉴의 top을 불렛의 top에 맞춤
+      if (spaceBelow >= menuHeight || isMobile) {
+        // 아래쪽에 충분한 공간이 있거나 모바일이면: 메뉴의 top을 트리거의 bottom에 맞춤
         setMenuPos({
-          top: rect.top,
-          left: rect.right + 4
+          top: rect.bottom + 4,
+          left: isMobile ? Math.max(8, rect.right - 192) : rect.right + 4 // 192는 w-48 (12rem)
         });
       } else {
-        // 공간이 부족하면: 메뉴의 bottom을 불렛의 bottom에 맞춤 (우측 위로 올라가는 형태)
+        // 공간이 부족하면: 메뉴의 bottom을 트리거의 top에 맞춤
         setMenuPos({
-          bottom: window.innerHeight - rect.bottom,
+          bottom: window.innerHeight - rect.top + 4,
           left: rect.right + 4
         });
       }
     }
-    // 모바일에서는 menuPos를 업데이트하지 않음 (absolute positioning 사용)
     setShowMenu(!showMenu);
   };
 
@@ -105,7 +104,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       ref={rowRef}
-      className={`group flex items-start gap-0 py-0 pl-0 pr-1 border-b border-blue-400/25 last:border-0 transition-all cursor-default relative h-[28px] overflow-hidden ${isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-start gap-0 py-0 pl-0 pr-1 border-b border-blue-400/25 last:border-0 transition-all cursor-default relative min-h-[28px] ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-400/10 border-l-2 border-blue-400' : 'hover:bg-black/[0.02]'
         }`}
     >
@@ -210,19 +209,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
           return (
             <div
               ref={menuRef}
-              className={`${isMobile ? 'absolute' : 'fixed'
-                } bg-white rounded-lg shadow-xl border border-slate-200 z-50 py-1.5 w-48 animate-in fade-in ${isMobile ? 'slide-in-from-right-2' : 'slide-in-from-left-2'
-                } duration-150`}
+              className="fixed bg-white rounded-lg shadow-xl border border-slate-200 z-[3000] py-1.5 w-48 animate-in fade-in slide-in-from-top-1 duration-150"
               style={{
-                ...(isMobile ? {
-                  right: 0,
-                  top: '100%',
-                  marginTop: '4px'
-                } : {
-                  ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
-                  ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
-                  left: `${menuPos.left}px`
-                })
+                ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                left: `${menuPos.left}px`
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -262,17 +253,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
           return (
             <div
               ref={menuRef}
-              className={`${isMobile ? 'absolute' : 'fixed'} bg-white rounded-xl shadow-2xl border-2 border-black z-[100] p-4 w-52 animate-in zoom-in-95 duration-200`}
+              className="fixed bg-white rounded-xl shadow-2xl border-2 border-black z-[3000] p-4 w-52 animate-in zoom-in-95 duration-200"
               style={{
-                ...(isMobile ? {
-                  right: 0,
-                  top: '100%',
-                  marginTop: '4px'
-                } : {
-                  ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
-                  ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
-                  left: `${menuPos.left}px`
-                })
+                ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
+                ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
+                left: `${menuPos.left}px`
               }}
               onClick={(e) => e.stopPropagation()}
             >
