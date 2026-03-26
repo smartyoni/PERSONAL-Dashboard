@@ -405,8 +405,27 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     resize: none;
                     background: transparent;
                     white-space: pre-wrap;
-                    word-break: break-all;
-                    text-indent: -32px;
+                    word-wrap: break-word;
+                    color: transparent;
+                    caret-color: #334155;
+                    position: relative;
+                    z-index: 20;
+                }
+                .memo-editor-mirror {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    min-height: 100%;
+                    padding: 0 1.5rem 1.5rem 42px;
+                    font-size: 15px;
+                    line-height: 28px;
+                    font-family: inherit;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    color: #334155;
+                    pointer-events: none;
+                    z-index: 10;
                 }
                 .prose p, .prose li, .prose div, .prose h1, .prose h2, .prose h3, .prose h4 {
                     margin-top: 0px !important;
@@ -718,9 +737,18 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 );
                             })}
                         </div>
+                        <div className="memo-editor-mirror">
+                            {(memoEditor.value || '').split('\n').map((line, idx) => {
+                                // Filter out bullets for display
+                                const filteredLine = line.replace(/^[●•]\s+/, (match) => {
+                                    return match.includes('  ') ? '  ' : '';
+                                });
+                                return <div key={idx} className="min-h-[28px]">{filteredLine}</div>;
+                            })}
+                        </div>
                         <textarea
                             ref={memoTextareaRef as any}
-                            className="memo-editor-textarea relative z-20"
+                            className="memo-editor-textarea"
                             value={memoEditor.value || ''}
                             onChange={(e) => {
                                 const newVal = e.target.value;
