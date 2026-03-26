@@ -102,77 +102,163 @@ export const useMemoEditor = (
         }
     };
 
+    const handleChangePage = (index: number) => {
+        setMemoEditor(prev => {
+            if (index === prev.activePageIndex) return prev;
+            
+            const newAllValues = [...prev.allValues];
+            newAllValues[prev.activePageIndex] = prev.value;
+
+            const newAllTitles = [...prev.allTitles];
+            newAllTitles[prev.activePageIndex] = prev.title;
+
+            return {
+                ...prev,
+                allValues: newAllValues,
+                allTitles: newAllTitles,
+                activePageIndex: index,
+                value: newAllValues[index],
+                title: newAllTitles[index]
+            };
+        });
+    };
+
+    const handleUpdateTitle = (newTitle: string) => {
+        setMemoEditor(prev => {
+            const newAllTitles = [...prev.allTitles];
+            newAllTitles[prev.activePageIndex] = newTitle;
+            return {
+                ...prev,
+                title: newTitle,
+                allTitles: newAllTitles
+            };
+        });
+    };
+
+    const handleUpdateItemText = (newText: string) => {
+        if (!memoEditor.id) return;
+        
+        const targetId = String(memoEditor.id);
+
+        updateData(prevData => ({
+            ...prevData,
+            tabs: prevData.tabs.map(t => ({
+                ...t,
+                inboxSection: t.inboxSection ? {
+                    ...t.inboxSection,
+                    items: t.inboxSection.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
+                } : undefined,
+                sections: t.sections.map(s => ({
+                    ...s,
+                    items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
+                })),
+                parkingInfo: {
+                    ...t.parkingInfo,
+                    checklistItems: t.parkingInfo.checklistItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    shoppingListItems: t.parkingInfo.shoppingListItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    remindersItems: t.parkingInfo.remindersItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    todoItems: t.parkingInfo.todoItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: t.parkingInfo.category5Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                },
+                todoManagementInfo: {
+                    ...t.todoManagementInfo,
+                    category1Items: t.todoManagementInfo.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category2Items: t.todoManagementInfo.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category3Items: t.todoManagementInfo.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category4Items: t.todoManagementInfo.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: (t.todoManagementInfo as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                },
+                todoManagementInfo2: t.todoManagementInfo2 ? {
+                    ...t.todoManagementInfo2,
+                    category1Items: t.todoManagementInfo2.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category2Items: t.todoManagementInfo2.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category3Items: t.todoManagementInfo2.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category4Items: t.todoManagementInfo2.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: (t.todoManagementInfo2 as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                } : undefined,
+                todoManagementInfo3: t.todoManagementInfo3 ? {
+                    ...t.todoManagementInfo3,
+                    category1Items: t.todoManagementInfo3.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category2Items: t.todoManagementInfo3.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category3Items: t.todoManagementInfo3.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category4Items: t.todoManagementInfo3.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
+                    category5Items: (t.todoManagementInfo3 as any).category5Items?.map((i: any = null) => i && String(i.id) === targetId ? { ...i, text: newText } : i) || [],
+                } : undefined,
+            })),
+            bookmarkSections: prevData.bookmarkSections?.map(s => ({
+                ...s,
+                items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
+            })) || []
+        }));
+    };
+
+    const handleAddPage = () => {
+        setMemoEditor(prev => {
+            if (!prev.id) return prev;
+            
+            const newAllValues = [...prev.allValues];
+            newAllValues[prev.activePageIndex] = prev.value;
+            
+            const newAllTitles = [...prev.allTitles];
+            newAllTitles[prev.activePageIndex] = prev.title;
+
+            const updatedAllValues = [...newAllValues, ''];
+            const updatedAllTitles = [...newAllTitles, ''];
+            
+            return {
+                ...prev,
+                allValues: updatedAllValues,
+                allTitles: updatedAllTitles,
+                activePageIndex: updatedAllValues.length - 1,
+                value: '',
+                title: ''
+            };
+        });
+    };
+
+    const handleDeletePage = () => {
+        setMemoEditor(prev => {
+            if (!prev.id) return prev;
+            if (prev.allValues.length <= 5) {
+                alert('최소 5페이지는 유지해야 합니다.');
+                return prev;
+            }
+
+            const newAllValues = [...prev.allValues];
+            const newAllTitles = [...prev.allTitles];
+            
+            // Remove current page
+            newAllValues.splice(prev.activePageIndex, 1);
+            newAllTitles.splice(prev.activePageIndex, 1);
+            
+            // Adjust active index if it was the last page
+            const newIndex = Math.min(prev.activePageIndex, newAllValues.length - 1);
+            
+            return {
+                ...prev,
+                allValues: newAllValues,
+                allTitles: newAllTitles,
+                activePageIndex: newIndex,
+                value: newAllValues[newIndex],
+                title: newAllTitles[newIndex]
+            };
+        });
+    };
+
     const handleSwipeMemo = (direction: 'left' | 'right') => {
         if (!memoEditor.id) return;
 
-        let items: ListItem[] = [];
-        const type = memoEditor.type;
-        const targetTab = memoEditor.tabId ? safeData.tabs.find(t => t.id === memoEditor.tabId) || activeTab : activeTab;
+        const totalPages = memoEditor.allValues.length;
+        const currentIndex = memoEditor.activePageIndex;
 
-        if (type === 'checklist') {
-            items = targetTab.parkingInfo.checklistItems;
-        } else if (type === 'shopping') {
-            items = targetTab.parkingInfo.shoppingListItems;
-        } else if (type === 'reminders') {
-            items = targetTab.parkingInfo.remindersItems;
-        } else if (type === 'todo') {
-            items = targetTab.parkingInfo.todoItems;
-        } else if (type === 'parkingCat5') {
-            items = targetTab.parkingInfo.category5Items;
-        } else if (type === 'todoCat1') {
-            items = targetTab.todoManagementInfo.category1Items;
-        } else if (type === 'todoCat2') {
-            items = targetTab.todoManagementInfo.category2Items;
-        } else if (type === 'todoCat3') {
-            items = targetTab.todoManagementInfo.category3Items;
-        } else if (type === 'todoCat4') {
-            items = targetTab.todoManagementInfo.category4Items;
-        } else if (type === 'todoCat5') {
-            items = targetTab.todoManagementInfo.category5Items;
-        } else if (type === 'todo2Cat1') {
-            items = targetTab.todoManagementInfo2.category1Items;
-        } else if (type === 'todo2Cat2') {
-            items = targetTab.todoManagementInfo2.category2Items;
-        } else if (type === 'todo2Cat3') {
-            items = targetTab.todoManagementInfo2.category3Items;
-        } else if (type === 'todo2Cat4') {
-            items = targetTab.todoManagementInfo2.category4Items;
-        } else if (type === 'todo2Cat5') {
-            items = targetTab.todoManagementInfo2.category5Items;
-        } else if (type === 'todo3Cat1') {
-            items = targetTab.todoManagementInfo3.category1Items;
-        } else if (type === 'todo3Cat2') {
-            items = targetTab.todoManagementInfo3.category2Items;
-        } else if (type === 'todo3Cat3') {
-            items = targetTab.todoManagementInfo3.category3Items;
-        } else if (type === 'todo3Cat4') {
-            items = targetTab.todoManagementInfo3.category4Items;
-        } else if (type === 'todo3Cat5') {
-            items = targetTab.todoManagementInfo3.category5Items;
-        } else {
-            if (memoEditor.sectionId === targetTab.inboxSection?.id) {
-                items = targetTab.inboxSection.items;
-            } else {
-                const section = targetTab.sections.find(s => s.id === memoEditor.sectionId);
-                if (section) items = section.items;
+        if (direction === 'left') { // Next page
+            if (currentIndex < totalPages - 1) {
+                handleChangePage(currentIndex + 1);
             }
-        }
-
-        if (items.length === 0) return;
-
-        const sortedItems = [...items].sort((a, b) => {
-            if (a.completed === b.completed) return 0;
-            return a.completed ? 1 : -1;
-        });
-
-        const currentIndex = sortedItems.findIndex(i => i.id === memoEditor.id);
-        if (currentIndex === -1) return;
-
-        let nextIndex = direction === 'left' ? currentIndex + 1 : currentIndex - 1;
-
-        if (nextIndex >= 0 && nextIndex < sortedItems.length) {
-            const nextItem = sortedItems[nextIndex];
-            handleShowMemo(nextItem.id, type, memoEditor.sectionId, undefined, memoEditor.tabId);
+        } else { // Previous page
+            if (currentIndex > 0) {
+                handleChangePage(currentIndex - 1);
+            }
         }
     };
 
@@ -788,148 +874,7 @@ export const useMemoEditor = (
         { label: '◆', value: '◆ ', title: '다이아' },
     ];
 
-    const handleChangePage = (index: number) => {
-        setMemoEditor(prev => {
-            if (index === prev.activePageIndex) return prev;
-            
-            const newAllValues = [...prev.allValues];
-            newAllValues[prev.activePageIndex] = prev.value;
 
-            const newAllTitles = [...prev.allTitles];
-            newAllTitles[prev.activePageIndex] = prev.title;
-
-            return {
-                ...prev,
-                allValues: newAllValues,
-                allTitles: newAllTitles,
-                activePageIndex: index,
-                value: newAllValues[index],
-                title: newAllTitles[index]
-            };
-        });
-    };
-
-    const handleUpdateTitle = (newTitle: string) => {
-        setMemoEditor(prev => {
-            const newAllTitles = [...prev.allTitles];
-            newAllTitles[prev.activePageIndex] = newTitle;
-            return {
-                ...prev,
-                title: newTitle,
-                allTitles: newAllTitles
-            };
-        });
-    };
-
-    const handleUpdateItemText = (newText: string) => {
-        if (!memoEditor.id) return;
-        
-        const targetId = String(memoEditor.id);
-
-        updateData(prevData => ({
-            ...prevData,
-            tabs: prevData.tabs.map(t => ({
-                ...t,
-                inboxSection: t.inboxSection ? {
-                    ...t.inboxSection,
-                    items: t.inboxSection.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
-                } : undefined,
-                sections: t.sections.map(s => ({
-                    ...s,
-                    items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
-                })),
-                parkingInfo: {
-                    ...t.parkingInfo,
-                    checklistItems: t.parkingInfo.checklistItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    shoppingListItems: t.parkingInfo.shoppingListItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    remindersItems: t.parkingInfo.remindersItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    todoItems: t.parkingInfo.todoItems.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category5Items: t.parkingInfo.category5Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                },
-                todoManagementInfo: {
-                    ...t.todoManagementInfo,
-                    category1Items: t.todoManagementInfo.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category2Items: t.todoManagementInfo.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category3Items: t.todoManagementInfo.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category4Items: t.todoManagementInfo.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category5Items: (t.todoManagementInfo as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
-                },
-                todoManagementInfo2: t.todoManagementInfo2 ? {
-                    ...t.todoManagementInfo2,
-                    category1Items: t.todoManagementInfo2.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category2Items: t.todoManagementInfo2.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category3Items: t.todoManagementInfo2.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category4Items: t.todoManagementInfo2.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category5Items: (t.todoManagementInfo2 as any).category5Items?.map((i: any) => String(i.id) === targetId ? { ...i, text: newText } : i) || [],
-                } : undefined,
-                todoManagementInfo3: t.todoManagementInfo3 ? {
-                    ...t.todoManagementInfo3,
-                    category1Items: t.todoManagementInfo3.category1Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category2Items: t.todoManagementInfo3.category2Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category3Items: t.todoManagementInfo3.category3Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category4Items: t.todoManagementInfo3.category4Items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i),
-                    category5Items: (t.todoManagementInfo3 as any).category5Items?.map((i: any = null) => i && String(i.id) === targetId ? { ...i, text: newText } : i) || [],
-                } : undefined,
-            })),
-            bookmarkSections: prevData.bookmarkSections?.map(s => ({
-                ...s,
-                items: s.items.map(i => String(i.id) === targetId ? { ...i, text: newText } : i)
-            })) || []
-        }));
-    };
-
-    const handleAddPage = () => {
-        setMemoEditor(prev => {
-            if (!prev.id) return prev;
-            
-            const newAllValues = [...prev.allValues];
-            newAllValues[prev.activePageIndex] = prev.value;
-            
-            const newAllTitles = [...prev.allTitles];
-            newAllTitles[prev.activePageIndex] = prev.title;
-
-            const updatedAllValues = [...newAllValues, ''];
-            const updatedAllTitles = [...newAllTitles, ''];
-            
-            return {
-                ...prev,
-                allValues: updatedAllValues,
-                allTitles: updatedAllTitles,
-                activePageIndex: updatedAllValues.length - 1,
-                value: '',
-                title: ''
-            };
-        });
-    };
-
-    const handleDeletePage = () => {
-        setMemoEditor(prev => {
-            if (!prev.id) return prev;
-            if (prev.allValues.length <= 5) {
-                alert('최소 5페이지는 유지해야 합니다.');
-                return prev;
-            }
-
-            const newAllValues = [...prev.allValues];
-            const newAllTitles = [...prev.allTitles];
-            
-            // Remove current page
-            newAllValues.splice(prev.activePageIndex, 1);
-            newAllTitles.splice(prev.activePageIndex, 1);
-            
-            // Adjust active index if it was the last page
-            const newIndex = Math.min(prev.activePageIndex, newAllValues.length - 1);
-            
-            return {
-                ...prev,
-                allValues: newAllValues,
-                allTitles: newAllTitles,
-                activePageIndex: newIndex,
-                value: newAllValues[newIndex],
-                title: newAllTitles[newIndex]
-            };
-        });
-    };
 
     return {
         handleShowMemo,
