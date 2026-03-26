@@ -77,6 +77,36 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         }, 0);
     }, [setMemoEditor, memoTextareaRef]);
 
+    const handleMarginClick = useCallback((lineIdx: number) => {
+        const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
+        if (!textarea) return;
+
+        const lines = memoEditor.value.split('\n');
+        if (lineIdx >= lines.length) return;
+
+        const line = lines[lineIdx];
+        const symbols = ['', '• ', '- ', '# ', '※ '];
+        const currentSymbolMatch = line.match(/^([•\-#※])\s/);
+        const currentSymbol = currentSymbolMatch ? currentSymbolMatch[0] : '';
+        
+        const currentIndex = symbols.indexOf(currentSymbol);
+        const nextSymbol = symbols[(currentIndex + 1) % symbols.length];
+        
+        const newLine = nextSymbol + line.replace(/^([•\-#※])\s/, '');
+        lines[lineIdx] = newLine;
+        
+        const newValue = lines.join('\n');
+        setMemoEditor(prev => ({ ...prev, value: newValue }));
+        
+        // Preserve focus and scroll
+        const scrollParent = textarea.parentElement;
+        const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+        setTimeout(() => {
+            textarea.focus();
+            if (scrollParent) scrollParent.scrollTop = scrollTop;
+        }, 0);
+    }, [memoEditor.value, setMemoEditor, memoTextareaRef]);
+
     useEffect(() => {
         if (memoEditor.isEditing && memoTextareaRef.current) {
             const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
@@ -392,6 +422,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         linear-gradient(90deg, transparent 27px, #ffb3b3 27px, #ffb3b3 28px, transparent 28px, transparent 30px, #ffb3b3 30px, #ffb3b3 31px, transparent 31px),
                         repeating-linear-gradient(transparent, transparent 27px, rgba(59, 130, 246, 0.2) 27px, rgba(59, 130, 246, 0.2) 28px);
                     background-size: 100% 100%, 100% 28px;
+                    background-attachment: local;
+                    background-repeat: no-repeat, repeat;
                 }
             `}</style>
             {currentItem && (
@@ -665,11 +697,27 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             )}
 
             {memoEditor.isEditing ? (
-                <div className="flex flex-col flex-1 overflow-hidden relative regal-pad-bg">
-                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative">
+                <div className="flex flex-col flex-1 overflow-hidden relative">
+                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative regal-pad-bg">
+                        {/* Margin Symbol Overlay for Editor */}
+                        <div className="absolute left-0 top-0 bottom-0 w-[42px] z-[30] select-none pointer-events-none">
+                            {(memoEditor.value || '').split('\n').map((line, idx) => {
+                                const symbolMatch = line.match(/^([•\-#※→■◆])\s/);
+                                const symbol = symbolMatch ? symbolMatch[1] : '';
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        onClick={() => handleMarginClick(idx)}
+                                        className="h-[28px] flex items-center justify-center text-slate-800 font-black text-sm pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors"
+                                    >
+                                        {symbol}
+                                    </div>
+                                );
+                            })}
+                        </div>
                         <textarea
                             ref={memoTextareaRef as any}
-                            className="memo-editor-textarea"
+                            className="memo-editor-textarea relative z-20"
                             value={memoEditor.value || ''}
                             onChange={(e) => {
                                 const newVal = e.target.value;
@@ -808,8 +856,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         {/* Margin Symbol Overlay for Viewer */}
                         <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 select-none pointer-events-none">
                             {memoEditor.value.split('\n').map((line, idx) => {
-                                // Only show bullet points, not ToC markers (#, ※)
-                                const symbolMatch = line.match(/^([•\-])\s/);
+                                // Detect symbols: •, -, #, ※, →, ■, ◆
+                                const symbolMatch = line.match(/^([•\-#※→■◆])\s/);
                                 const symbol = symbolMatch ? symbolMatch[1] : '';
                                 return (
                                     <div 
