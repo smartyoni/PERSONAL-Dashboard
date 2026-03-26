@@ -710,7 +710,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     <div 
                                         key={idx} 
                                         onClick={() => handleMarginClick(idx)}
-                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors ${symbol === '●' ? 'text-lg' : 'text-sm'}`}
+                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors ${symbol === '●' ? 'text-base' : 'text-sm'}`}
                                     >
                                         {symbol}
                                     </div>
@@ -864,7 +864,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 return (
                                     <div 
                                         key={idx} 
-                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] ${symbol === '●' ? 'text-lg' : 'text-sm'}`}
+                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] ${symbol === '●' ? 'text-base' : 'text-sm'}`}
                                     >
                                         {symbol}
                                     </div>
