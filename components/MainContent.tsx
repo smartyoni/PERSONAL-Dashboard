@@ -276,22 +276,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 4. 업무 위젯 */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                            <ParkingWidget
-                                                info={activeTab.parkingInfo}
-                                                onChange={handleParkingChange}
-                                                onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
-                                            />
-                                        </div>
-
-                                        {/* 5. 개인 위젯 */}
+                                        {/* 4. 개인 위젯 */}
                                         <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
@@ -306,6 +291,21 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="todo-widget-1"
+                                            />
+                                        </div>
+
+                                        {/* 5. 업무 위젯 */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <ParkingWidget
+                                                info={activeTab.parkingInfo}
+                                                onChange={handleParkingChange}
+                                                onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                             />
                                         </div>
                                     </>
