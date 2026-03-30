@@ -153,7 +153,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                     ) : (
                                         <span 
                                             onClick={() => onChangePage(idx)}
-                                            className={`font-serif text-[15px] flex-1 truncate cursor-pointer ${isActive ? 'font-bold' : 'font-medium'}`}
+                                            className={`font-serif text-[15px] flex-1 truncate cursor-pointer ${isActive ? 'font-bold text-emerald-600' : 'font-medium'}`}
                                         >
                                             {title || `Page ${idx + 1}`}
                                         </span>

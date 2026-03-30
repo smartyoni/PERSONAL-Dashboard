@@ -570,7 +570,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 }}
                         />
                         ) : (
-                            <span className={`text-sm truncate flex-1 text-left ${memoEditor.title ? 'text-slate-600 font-semibold' : 'text-slate-300 font-medium'}`}>
+                            <span className={`text-sm truncate flex-1 text-left ${memoEditor.title ? 'text-emerald-600 font-bold' : 'text-slate-300 font-medium'}`}>
                                 {memoEditor.title || `목차${memoEditor.activePageIndex + 1}`}
                             </span>
                         )}
