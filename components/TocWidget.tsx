@@ -70,24 +70,6 @@ const TocWidget: React.FC<TocWidgetProps> = ({
     }
 
     if (isMainTab) {
-      // 오늘/주차 위젯
-      const parkingCount =
-        (tab.parkingInfo.checklistItems?.length ?? 0) +
-        (tab.parkingInfo.shoppingListItems?.length ?? 0) +
-        (tab.parkingInfo.remindersItems?.length ?? 0) +
-        (tab.parkingInfo.todoItems?.length ?? 0) +
-        (tab.parkingInfo.category5Items?.length ?? 0);
-      result.push({
-        isVirtual: true,
-        virtual: {
-          id: 'parking-section',
-          title: tab.parkingInfo.title || '개인',
-          emoji: '🚗',
-          itemCount: parkingCount,
-          isVirtual: true,
-        },
-      });
-
       // 할일관리 1
       const todo1Count =
         (tab.todoManagementInfo.category1Items?.length ?? 0) +
@@ -117,18 +99,18 @@ const TocWidget: React.FC<TocWidgetProps> = ({
   };
 
   return (
-    <div className="bg-white border-2 border-black shadow-sm flex flex-col h-full">
+    <div className="bg-white border-2 border-black flex flex-col h-full font-serif overflow-hidden shadow-sm rounded-2xl">
       {/* Header */}
-      <div className="flex items-center gap-2 flex-shrink-0 px-3 h-[48px] border-b-2 border-black bg-indigo-50">
+      <div className="flex items-center gap-2 flex-shrink-0 px-4 h-[48px] border-b border-slate-100 bg-white">
         <MapIcon />
-        <span className="text-sm font-bold text-indigo-900">목차</span>
-        <span className="ml-auto text-[10px] text-slate-400 font-normal">
-          {tabs.length}개 탭
+        <span className="text-[17px] font-black text-slate-800">전체목차</span>
+        <span className="ml-auto text-[10px] text-slate-400 font-normal opacity-70">
+          INDEX
         </span>
       </div>
 
       {/* Tree body */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
         {tabs.length === 0 ? (
           <div className="flex items-center justify-center h-full text-slate-400 text-xs italic">
             탭이 없습니다.
@@ -140,21 +122,23 @@ const TocWidget: React.FC<TocWidgetProps> = ({
             const displaySections = buildDisplaySections(tab);
 
             return (
-              <div key={tab.id} className="mb-0.5">
+              <div key={tab.id} className="border-b border-slate-50 last:border-b-0">
                 {/* Tab row */}
                 <button
                   onClick={() => toggleTab(tab.id)}
-                  className={`w-full text-left px-2 py-1.5 rounded-md mb-0.5 transition-all flex items-center gap-1.5 ${
+                  className={`w-full text-left px-3 py-3 transition-all flex items-center gap-2.5 ${
                     isActive
-                      ? 'bg-indigo-50 border border-indigo-300'
-                      : 'hover:bg-slate-100 border border-slate-400'
+                      ? 'bg-slate-50'
+                      : 'hover:bg-slate-50'
                   }`}
                 >
                   <ChevronIcon isExpanded={isExpanded} />
-                  <span className="text-sm">📑</span>
+                  <span className="text-[11px] font-serif font-black italic text-slate-400 flex-shrink-0 w-8">
+                    {(tabs.indexOf(tab) + 1).toString().padStart(2, '0')}.
+                  </span>
                   <span
-                    className={`text-sm font-semibold truncate flex-1 ${
-                      isActive ? 'text-indigo-800' : 'text-slate-700'
+                    className={`text-[15px] font-black truncate flex-1 ${
+                      isActive ? 'text-slate-800' : 'text-slate-700'
                     }`}
                   >
                     {tab.name}
@@ -173,39 +157,38 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                 <div
                   style={{
                     maxHeight: isExpanded
-                      ? `${displaySections.length * 44 + 8}px`
+                      ? `${displaySections.length * 40 + 20}px`
                       : '0px',
                     overflow: 'hidden',
-                    transition: 'max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'max-height 0.2s ease-out',
                   }}
+                  className="bg-white"
                 >
                   {displaySections.length === 0 ? (
-                    <div className="ml-4 pl-4 py-1.5 text-[11px] text-slate-400 italic border-l-2 border-slate-200">
+                    <div className="px-8 py-3 text-[11px] text-slate-300 italic">
                       섹션 없음
                     </div>
                   ) : (
-                    <div className="ml-4 border-l-2 border-slate-200 mb-1">
-                      {displaySections.map((item, index) => {
-                        const isLast = index === displaySections.length - 1;
+                    <div className="mb-1">
+                      {displaySections.map((item, sIndex) => {
+                        const displayNumber = `${(tabs.indexOf(tab) + 1).toString().padStart(2, '0')}.${(sIndex + 1).toString().padStart(2, '0')}`;
 
                         if (item.isVirtual) {
                           const v = item.virtual;
                           return (
-                            <div key={v.id} className="relative flex items-center group pl-3 py-0.5">
-                              <div className="absolute left-0 top-1/2 w-3 h-0.5 bg-slate-200 -translate-y-1/2" />
-                              {isLast && (
-                                <div className="absolute left-[-2px] bottom-0 w-0.5 bg-white" style={{ top: '50%' }} />
-                              )}
+                            <div key={v.id} className="relative flex items-center group pl-8 py-0.5 border-b border-slate-50 last:border-b-0">
                               <button
                                 onClick={() => onNavigate(tab.id, v.id)}
-                                className="flex-1 text-left px-2 py-1 rounded border border-slate-400 hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-1.5 min-w-0"
+                                className="flex-1 text-left px-2 py-1.5 hover:bg-slate-50 transition-all flex items-center gap-2 min-w-0"
                                 title={v.title}
                               >
-                                <span className="text-sm">{v.emoji}</span>
-                                <span className="text-xs font-medium text-slate-500 truncate flex-1 italic">
+                                <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
+                                  {displayNumber}
+                                </span>
+                                <span className="text-[13px] font-bold text-slate-500 truncate flex-1 italic opacity-80">
                                   {v.title}
                                 </span>
-                                <span className="text-[11px] text-slate-400 flex-shrink-0">
+                                <span className="text-[10px] text-slate-300 flex-shrink-0">
                                   {v.itemCount}
                                 </span>
                               </button>
@@ -220,26 +203,24 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                           );
                         } else {
                           // 일반 섹션
-                          const { section, isInbox } = item as { section: Section; isInbox: boolean };
+                          const { section } = item as { section: Section; isInbox: boolean };
                           return (
-                            <div key={section.id} className="relative flex items-center group pl-3 py-0.5">
-                              <div className="absolute left-0 top-1/2 w-3 h-0.5 bg-slate-200 -translate-y-1/2" />
-                              {isLast && (
-                                <div className="absolute left-[-2px] bottom-0 w-0.5 bg-white" style={{ top: '50%' }} />
-                              )}
+                            <div key={section.id} className="relative flex items-center group pl-8 py-0.5 border-b border-slate-50 last:border-b-0">
                               <button
                                 onClick={() => onNavigate(tab.id, section.id)}
-                                className="flex-1 text-left px-2 py-1 rounded border border-slate-400 hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-1.5 min-w-0"
+                                className="flex-1 text-left px-2 py-1.5 hover:bg-slate-50 transition-all flex items-center gap-2 min-w-0"
                                 title={section.title}
                               >
-                                <span className="text-sm grayscale">{isInbox ? '📥' : '📋'}</span>
-                                <span className="text-xs font-medium text-slate-700 truncate flex-1">
+                                <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
+                                  {displayNumber}
+                                </span>
+                                <span className="text-[13px] font-bold text-slate-600 truncate flex-1">
                                   {section.title}
                                 </span>
                                 {section.isLocked && (
-                                  <span className="scale-75 flex-shrink-0"><LockIcon /></span>
+                                  <span className="scale-75 flex-shrink-0 opacity-50"><LockIcon /></span>
                                 )}
-                                <span className="text-[11px] text-slate-400 flex-shrink-0">
+                                <span className="text-[10px] text-slate-300 flex-shrink-0">
                                   {section.items.length}
                                 </span>
                               </button>

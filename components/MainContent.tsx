@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { Section, AppData, DragState, ParkingInfo, Tab, TodoManagementInfo, MemoEditorState, ListItem } from '../types';
 import SectionCard from './SectionCard';
-import ParkingWidget from './ParkingWidget';
 import TodoWidget from './TodoWidget';
 import TocWidget from './TocWidget';
+import DocumentTocWidget from './DocumentTocWidget';
 import MemoEditorPanel from './MemoEditorPanel';
 import Header from './Header';
 
@@ -165,7 +165,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[0.7fr_1.3fr_1.2fr_1fr_1fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1fr_1fr_1.2fr_1fr_1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_1.1fr_1.1fr_0.8fr_1.5fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_1.1fr_1.1fr_0.8fr_1.5fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 1. ToC 및 나머지 섹션들 */}
@@ -250,7 +250,33 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 3. 상세 화면 (MemoEditorPanel) - 중앙 배치 (1.2x 확대) */}
+                                        {/* 3. 개인 위젯 (TodoWidget) */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo}
+                                                onChange={handleTodoManagementChange}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                subHeaderClass="text-[17px] font-bold text-blue-600"
+                                                todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
+                                                dataSectionId="todo-widget-1"
+                                            />
+                                        </div>
+
+                                        {/* 4. 문서 목차 (Document ToC) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)]"}>
+                                            <DocumentTocWidget
+                                                memoEditor={memoEditor}
+                                                onChangePage={handleChangePage}
+                                            />
+                                        </div>
+
+                                        {/* 5. 상세 화면 (MemoEditorPanel) */}
                                         <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
                                             <MemoEditorPanel
                                                 memoEditor={memoEditor}
@@ -276,45 +302,12 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleShowMemo={handleShowMemo}
                                             />
                                         </div>
-
-                                        {/* 4. 개인 위젯 */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                            <TodoWidget
-                                                info={activeTab.todoManagementInfo}
-                                                onChange={handleTodoManagementChange}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
-                                                subHeaderClass="text-[17px] font-bold text-blue-600"
-                                                todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
-                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
-                                                dataSectionId="todo-widget-1"
-                                            />
-                                        </div>
-
-                                        {/* 5. 업무 위젯 */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                            <ParkingWidget
-                                                info={activeTab.parkingInfo}
-                                                onChange={handleParkingChange}
-                                                onShowCategory5Memo={(id) => handleShowMemo(id, 'parkingCat5', 'parkingCat5', undefined, activeTab.id)}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
-                                            />
-                                        </div>
                                     </>
                                 ) : (
-                                    /* 일반 탭 레이아웃 - 섹션들 가운데 상세 화면 배치 */
+                                    /* 일반 탭 레이아웃 - 3개 섹션 + 목차 + 상세 화면 */
                                     <>
-                                        {/* 컬럼 1-2: 처음 두 섹션 */}
-                                        {activeTab.sections.slice(0, 2).map((section, idx) => (
+                                        {/* 컬럼 1-3: 처음 세 섹션 */}
+                                        {activeTab.sections.slice(0, 3).map((section, idx) => (
                                             <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={idx + 1}
@@ -349,7 +342,15 @@ const MainContent: React.FC<MainContentProps> = ({
                                             </div>
                                         ))}
 
-                                        {/* 컬럼 3: 상세 화면 (MemoEditorPanel) - 1.2x 확대 */}
+                                        {/* 컬럼 4: 문서 목차 (Document ToC) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)]"}>
+                                            <DocumentTocWidget
+                                                memoEditor={memoEditor}
+                                                onChangePage={handleChangePage}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 5: 상세 화면 (MemoEditorPanel) */}
                                         <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
                                             <MemoEditorPanel
                                                 memoEditor={memoEditor}
@@ -376,11 +377,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 컬럼 4-5...: 나머지 섹션들 */}
-                                        {activeTab.sections.slice(2).map((section, idx) => (
+                                        {/* 컬럼 6(랩핑): 나머지 섹션들 */}
+                                        {activeTab.sections.slice(3).map((section, idx) => (
                                             <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
-                                                    bgIndex={idx + 3}
+                                                    bgIndex={idx + 4}
                                                     section={section}
                                                     itemMemos={activeTab.memos}
                                                     onUpdateSection={handleUpdateSection}

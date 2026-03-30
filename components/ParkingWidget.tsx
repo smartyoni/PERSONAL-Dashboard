@@ -50,14 +50,11 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     type: 'checklist'
   });
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
-  const [activeToC, setActiveToC] = useState<{ itemId: string; allTitles: string[]; allValues: string[]; rect: DOMRect; type: 'checklist' | 'shopping' | 'reminders' | 'todo' | 'parkingCat5' } | null>(null);
-  const tocPopupRef = useRef<HTMLDivElement>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   useClickOutside(menuRef, () => setOpenMenuId(null));
-  useClickOutside(tocPopupRef, () => setActiveToC(null));
 
   const handleEditingChange = (itemId: string, isEditing: boolean) => {
     setEditingItemIds(prev => {
@@ -336,19 +333,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     className="flex-1 min-w-0" 
                     onClick={(e) => {
                     const memo = memos[item.id];
-                    if (memo) {
-                        const { allTitles, allValues } = parseMemoPages(memo);
-                        if (allTitles.length > 1) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setActiveToC({
-                            itemId: item.id,
-                            allTitles,
-                            allValues,
-                            rect,
-                            type
-                        });
-                        }
-                    }
                     if (onShowMemo) onShowMemo(item.id);
                     else if (onOpenItemMemoAtPage) onOpenItemMemoAtPage(item.id, 0);
                     }}
@@ -474,68 +458,6 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
               >
                 삭제
               </button>
-            </div>
-          </div>
-        );
-      })()}
-      {activeToC && (() => {
-        const POP_W = 260;
-        const POP_H = Math.min(
-          48 + activeToC.allTitles.length * 40,
-          window.innerHeight * 0.6
-        );
-        const GAP = 8;
-        const { rect } = activeToC;
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        let popLeft = 0, popTop = 0;
-        if (rect.right + GAP + POP_W <= vw) {
-          popLeft = rect.right + GAP;
-          popTop = Math.max(GAP, Math.min(rect.top, vh - POP_H - GAP));
-        } else if (rect.left - GAP - POP_W >= 0) {
-          popLeft = rect.left - GAP - POP_W;
-          popTop = Math.max(GAP, Math.min(rect.top, vh - POP_H - GAP));
-        } else if (rect.top - GAP - POP_H >= 0) {
-          popLeft = Math.max(GAP, Math.min(rect.left + rect.width / 2 - POP_W / 2, vw - POP_W - GAP));
-          popTop = rect.top - GAP - POP_H;
-        } else {
-          popLeft = Math.max(GAP, Math.min(rect.left + rect.width / 2 - POP_W / 2, vw - POP_W - GAP));
-          popTop = rect.bottom + GAP;
-        }
-        return (
-          <div
-            ref={tocPopupRef}
-            className="fixed z-[3000] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto"
-            style={{ left: `${popLeft}px`, top: `${popTop}px`, width: `${POP_W}px`, maxHeight: `${Math.floor(vh * 0.6)}px` }}
-          >
-            <div className="p-1.5 space-y-0.5">
-              <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
-              {activeToC.allTitles.map((title, idx) => {
-                const isActivePage = idx === 0;
-                return (
-                  <div key={idx} className="space-y-0.5">
-                    <button
-                      onClick={() => {
-                        onOpenItemMemoAtPage
-                          ? onOpenItemMemoAtPage(activeToC.itemId, idx)
-                          : (activeToC.type === 'checklist' ? (onShowChecklistMemo && onShowChecklistMemo(activeToC.itemId)) : 
-                             activeToC.type === 'shopping' ? (onShowShoppingMemo && onShowShoppingMemo(activeToC.itemId)) :
-                             activeToC.type === 'reminders' ? (onShowRemindersMemo && onShowRemindersMemo(activeToC.itemId)) :
-                             activeToC.type === 'todo' ? (onShowTodoMemo && onShowTodoMemo(activeToC.itemId)) : (onShowCategory5Memo && onShowCategory5Memo(activeToC.itemId)));
-                        setActiveToC(null);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 transition-colors ${
-                        isActivePage ? 'bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100' : 'text-slate-900 font-bold hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
-                        isActivePage ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
-                      }`}>{idx + 1}</span>
-                      <span className="text-sm truncate flex-1">{title.trim() || '목차없음'}</span>
-                    </button>
-                  </div>
-                );
-              })}
             </div>
           </div>
         );
