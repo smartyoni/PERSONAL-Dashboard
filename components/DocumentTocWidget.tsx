@@ -45,7 +45,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
         <div className="h-full bg-white border-2 border-black rounded-2xl flex flex-col overflow-hidden shadow-sm">
             {/* Header */}
             <div className="text-sm font-black text-slate-900 bg-slate-50 flex items-center gap-2 px-4 h-[48px] border-b-2 border-black flex-shrink-0">
-                <span className="font-serif">DOCUMENT TOC</span>
+                <span className="font-serif text-[17px]">상세목차</span>
             </div>
 
             {/* Content List */}
