@@ -101,7 +101,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
   return (
     <div className="bg-white border-2 border-black flex flex-col h-full font-serif overflow-hidden shadow-sm rounded-2xl">
       {/* Header */}
-      <div className="flex items-center gap-2 flex-shrink-0 px-4 h-[48px] border-b border-slate-100 bg-white">
+      <div className="flex items-center gap-2 flex-shrink-0 px-4 h-[48px] border-b-2 border-black bg-white">
         <MapIcon />
         <span className="text-[17px] font-black text-slate-800">전체목차</span>
         <span className="ml-auto text-[10px] text-slate-400 font-normal opacity-70">
