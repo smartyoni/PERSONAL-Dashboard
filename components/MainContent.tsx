@@ -68,6 +68,7 @@ interface MainContentProps {
     handleInsertSymbol: (symbol: string) => void;
     handleChangePage: (index: number) => void;
     handleUpdateTitle: (title: string) => void;
+    handleUpdatePageTitle: (index: number, title: string) => void;
     handleUpdateItemText: (newText: string) => void;
     handleAddPage: () => void;
     handleDeletePage: () => void;
@@ -100,7 +101,7 @@ const MainContent: React.FC<MainContentProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
     handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
     handleOpenTagSelectionFromMain, handleInsertSymbol, handleChangePage,
-    handleUpdateTitle, handleUpdateItemText, handleAddPage, handleDeletePage,
+    handleUpdateTitle, handleUpdatePageTitle, handleUpdateItemText, handleAddPage, handleDeletePage,
     memoSymbols, handleMoveItem,
 }) => {
 
@@ -268,11 +269,12 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 4. 문서 목차 (Document ToC) */}
                                         <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)]"}>
                                             <DocumentTocWidget
                                                 memoEditor={memoEditor}
                                                 onChangePage={handleChangePage}
+                                                onUpdatePageTitle={handleUpdatePageTitle}
+                                                onAddPage={handleAddPage}
                                             />
                                         </div>
 
@@ -289,6 +291,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleInsertSymbol={handleInsertSymbol}
                                                 handleChangePage={handleChangePage}
                                                 handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdatePageTitle={handleUpdatePageTitle}
                                                 handleUpdateItemText={handleUpdateItemText}
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}
@@ -347,6 +350,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                             <DocumentTocWidget
                                                 memoEditor={memoEditor}
                                                 onChangePage={handleChangePage}
+                                                onUpdatePageTitle={handleUpdatePageTitle}
+                                                onAddPage={handleAddPage}
                                             />
                                         </div>
 
@@ -363,6 +368,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleInsertSymbol={handleInsertSymbol}
                                                 handleChangePage={handleChangePage}
                                                 handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdatePageTitle={handleUpdatePageTitle}
                                                 handleUpdateItemText={handleUpdateItemText}
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}

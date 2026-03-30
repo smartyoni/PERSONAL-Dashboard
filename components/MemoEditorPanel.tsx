@@ -3,6 +3,7 @@ import { AppData, Tab, MemoEditorState, TodoManagementInfo, HistoryItem } from '
 import { getRecentMemos } from '../hooks/useMemoEditor';
 import LinkifiedText from './LinkifiedText';
 import { contentToHtml, htmlToContent, splitMetadata } from '../utils/memoEditorUtils';
+import DocumentTocWidget from './DocumentTocWidget';
 
 
 export interface MemoEditorPanelProps {
@@ -16,6 +17,7 @@ export interface MemoEditorPanelProps {
     handleInsertSymbol: (symbol: string) => void;
     handleChangePage: (index: number) => void;
     handleUpdateTitle: (title: string) => void;
+    handleUpdatePageTitle: (index: number, title: string) => void;
     handleUpdateItemText: (newText: string) => void;
     handleAddPage: () => void;
     handleDeletePage: () => void;
@@ -24,7 +26,7 @@ export interface MemoEditorPanelProps {
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => void;
     activeTab: Tab;
-    safeData: AppData; // Add safeData for cross-tab item lookup
+    safeData: AppData; 
     isMobileLayout: boolean;
     isDesktopSplit?: boolean; 
 }
@@ -33,7 +35,8 @@ export interface MemoEditorPanelProps {
 const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
     handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
-    handleOpenTagSelection, handleInsertSymbol, handleChangePage, handleUpdateTitle, handleUpdateItemText,
+    handleOpenTagSelection, handleInsertSymbol, handleChangePage, handleUpdateTitle, 
+    handleUpdatePageTitle, handleUpdateItemText,
     handleAddPage, handleDeletePage,
     memoSymbols, setNavigationMapOpen, activeTab, safeData, isMobileLayout, isDesktopSplit,
     handleMoveItem, handleShowMemo
@@ -737,35 +740,25 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {showToC && (
                 <>
                     <div 
-                        className="fixed inset-0 z-[1090]"
+                        className="fixed inset-0 z-[1090] bg-slate-900/20 backdrop-blur-[2px]"
                         onClick={() => setShowToC(false)}
                     />
                     <div 
-                        className="absolute z-[1100] bg-white rounded-xl shadow-2xl border border-slate-200 animate-in fade-in slide-in-from-top-2 duration-200 right-[2.5%] left-[2.5%] md:left-auto md:right-4 w-auto md:w-[455px] max-h-[90vh] md:max-h-[80vh] overflow-y-auto custom-scrollbar top-[84px]"
+                        className="fixed inset-0 z-[1100] bg-white animate-in fade-in slide-in-from-bottom-4 duration-300 flex flex-col overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-1.5 space-y-0.5">
-                            <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">목차 이동</div>
-                            {memoEditor.allTitles.map((title, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => {
-                                        setHighlightText(null);
-                                        handleChangePage(idx);
-                                        setShowToC(false);
-                                    }}
-                                    className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-3 ${
-                                        memoEditor.activePageIndex === idx 
-                                        ? 'bg-indigo-50 text-indigo-600 font-bold' 
-                                        : 'hover:bg-slate-50 text-slate-900 font-bold'
-                                    }`}
-                                >
-                                    <span className={`text-[9px] w-4 h-4 flex-none flex items-center justify-center rounded-full ${
-                                        memoEditor.activePageIndex === idx ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
-                                    }`}>{idx + 1}</span>
-                                    <span className="text-sm truncate flex-1">{splitMetadata(title).text.trim() || '목차없음'}</span>
-                                </button>
-                            ))}
+                        <div className="flex-1 overflow-hidden">
+                            <DocumentTocWidget
+                                memoEditor={memoEditor}
+                                onChangePage={(idx) => {
+                                    handleChangePage(idx);
+                                    setShowToC(false);
+                                }}
+                                onUpdatePageTitle={handleUpdatePageTitle}
+                                onAddPage={handleAddPage}
+                                onClose={() => setShowToC(false)}
+                                isMobileLayout={true}
+                            />
                         </div>
                     </div>
                 </>

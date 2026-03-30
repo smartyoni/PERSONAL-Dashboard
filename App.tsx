@@ -62,6 +62,7 @@ const App: React.FC = () => {
   const {
     handleShowMemo, handleSwipeMemo, handleSaveMemo, handleDeleteItemFromModal,
     handleInsertSymbol, memoSymbols, handleChangePage, handleUpdateTitle,
+    handleUpdatePageTitle,
     handleUpdateItemText,
     handleAddPage,
     handleDeletePage
@@ -240,6 +241,7 @@ const App: React.FC = () => {
         handleInsertSymbol={handleInsertSymbol}
         handleChangePage={handleChangePage}
         handleUpdateTitle={handleUpdateTitle}
+        handleUpdatePageTitle={handleUpdatePageTitle}
         handleUpdateItemText={handleUpdateItemText}
         handleAddPage={handleAddPage}
         handleDeletePage={handleDeletePage}
