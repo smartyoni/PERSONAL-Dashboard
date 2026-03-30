@@ -181,9 +181,13 @@ export const useMemoEditor = (
         });
 
         // 2. Prepare final value for persistence
-        // (Must use current ref-like values since state is updated async)
+        // SYNC: Ensure current unsaved changes are captured
         const updatedAllContents = [...memoEditor.allValues];
+        updatedAllContents[memoEditor.activePageIndex] = memoEditor.value;
         const updatedAllTitles = [...memoEditor.allTitles];
+        updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
+        
+        // Apply the new title for the targeted index
         updatedAllTitles[index] = newTitle;
 
         const finalPages = updatedAllContents.map((content, idx) => {
@@ -406,8 +410,11 @@ export const useMemoEditor = (
         });
 
         // 2. Persist to data
+        // SYNC: Capture current unsaved shifts
         const updatedAllValues = [...memoEditor.allValues];
+        updatedAllValues[memoEditor.activePageIndex] = memoEditor.value;
         const updatedAllTitles = [...memoEditor.allTitles];
+        updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
         
         // Final construction
         const finalPages = [...updatedAllValues, ''].map((content, idx) => {
@@ -520,7 +527,7 @@ export const useMemoEditor = (
             // Adjust active index if it was the last page
             const newIndex = Math.min(prev.activePageIndex, newAllValues.length - 1);
             
-            return {
+            const newState = {
                 ...prev,
                 allValues: newAllValues,
                 allTitles: newAllTitles,
@@ -528,6 +535,93 @@ export const useMemoEditor = (
                 value: newAllValues[newIndex],
                 title: newAllTitles[newIndex]
             };
+
+            // Persistence
+            const finalPages = newAllValues.map((content, idx) => {
+                const title = newAllTitles[idx] || '';
+                return title + TITLE_SEPARATOR + content;
+            });
+            const finalValue = finalPages.join('\n===page-break===\n');
+            const { id, type, tabId } = prev;
+
+            if (type === 'section') {
+                updateData(p => ({
+                    ...p,
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
+                        ? { ...t, memos: { ...t.memos, [id!]: finalValue } }
+                        : t
+                    )
+                }));
+            } else if (type === 'checklist') {
+                updateData(p => ({
+                    ...p,
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
+                        ? {
+                            ...t,
+                            parkingInfo: { ...t.parkingInfo, checklistMemos: { ...t.parkingInfo.checklistMemos, [id!]: finalValue } }
+                        }
+                        : t
+                    )
+                }));
+            } else if (type?.startsWith('todoCat')) {
+                const catNum = type.replace('todoCat', '');
+                const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+                updateData(p => ({
+                    ...p,
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
+                        ? {
+                            ...t,
+                            todoManagementInfo: {
+                                ...t.todoManagementInfo,
+                                [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue }
+                            }
+                        }
+                        : t
+                    )
+                }));
+            } else if (type?.startsWith('todo2Cat')) {
+                const catNum = type.replace('todo2Cat', '');
+                const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+                updateData(p => ({
+                    ...p,
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
+                        ? {
+                            ...t,
+                            todoManagementInfo2: t.todoManagementInfo2 ? {
+                                ...t.todoManagementInfo2,
+                                [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue }
+                            } : undefined
+                        } as Tab
+                        : t
+                    )
+                }));
+            } else if (type?.startsWith('todo3Cat')) {
+                const catNum = type.replace('todo3Cat', '');
+                const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+                updateData(p => ({
+                    ...p,
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
+                        ? {
+                            ...t,
+                            todoManagementInfo3: t.todoManagementInfo3 ? {
+                                ...t.todoManagementInfo3,
+                                [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue }
+                            } : undefined
+                        } as Tab
+                        : t
+                    )
+                }));
+            } else {
+                updateData(p => ({
+                    ...p,
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
+                        ? { ...t, memos: { ...t.memos, [id!]: finalValue } }
+                        : t
+                    )
+                }));
+            }
+
+            return newState;
         });
     };
 

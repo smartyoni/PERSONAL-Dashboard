@@ -331,6 +331,7 @@ const App: React.FC = () => {
         handleInsertSymbol={handleInsertSymbol} memoSymbols={memoSymbols}
         handleChangePage={handleChangePage}
         handleUpdateTitle={handleUpdateTitle}
+        handleUpdatePageTitle={handleUpdatePageTitle}
         handleUpdateItemText={handleUpdateItemText}
         handleAddPage={handleAddPage}
         handleDeletePage={handleDeletePage}

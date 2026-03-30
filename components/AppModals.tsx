@@ -19,6 +19,7 @@ interface AppModalsProps {
     handleInsertSymbol: (symbol: string) => void;
     handleChangePage: (index: number) => void;
     handleUpdateTitle: (newTitle: string) => void;
+    handleUpdatePageTitle: (index: number, newTitle: string) => void;
     handleUpdateItemText: (newText: string) => void;
     handleAddPage: () => void;
     handleDeletePage: () => void;
@@ -61,11 +62,12 @@ interface AppModalsProps {
 
 const AppModals: React.FC<AppModalsProps> = ({
     memoEditor, setMemoEditor, memoTextareaRef,
-    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage,        handleUpdateTitle,
-        handleUpdateItemText,
-        handleAddPage,
-        handleDeletePage,
-        memoSymbols,
+    handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal, handleInsertSymbol, handleChangePage, handleUpdateTitle,
+    handleUpdatePageTitle,
+    handleUpdateItemText,
+    handleAddPage,
+    handleDeletePage,
+    memoSymbols,
     setNavigationMapOpen, activeTab,
     tagSelectionContext, handleOpenTagSelection, safeData,
     modal, setModal,
@@ -103,6 +105,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                     handleInsertSymbol={handleInsertSymbol}
                     handleChangePage={handleChangePage}
                     handleUpdateTitle={handleUpdateTitle}
+                    handleUpdatePageTitle={handleUpdatePageTitle}
                     handleUpdateItemText={handleUpdateItemText}
                     handleAddPage={handleAddPage}
                     handleDeletePage={handleDeletePage}
