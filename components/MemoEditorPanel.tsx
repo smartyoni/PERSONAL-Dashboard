@@ -440,11 +440,16 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     margin-bottom: 0px !important;
                     line-height: 28px !important;
                     min-height: 28px;
+                    font-size: 15px !important;
                 }
                 .prose ul, .prose ol {
                     margin-top: 0px !important;
                     margin-bottom: 0px !important;
                     padding-left: 1.25rem !important;
+                }
+                .memo-editor-view {
+                    font-size: 15px;
+                    line-height: 28px;
                 }
                 .regal-pad-bg {
                     background-color: white;
@@ -934,7 +939,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div
                         ref={contentRef}
                         onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
-                        className="flex-1 w-full overflow-y-auto custom-scrollbar regal-pad-bg text-slate-700 text-base whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
+                        className="flex-1 w-full overflow-y-auto custom-scrollbar regal-pad-bg memo-editor-view text-slate-700 whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
                         style={{ paddingLeft: '42px' }}
                     >
                         {/* Margin Symbol Overlay for Viewer */}
@@ -955,7 +960,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         </div>
                         
                         {memoEditor.value ? (
-                            <div className="prose prose-sm max-w-none select-text">
+                            <div className="prose max-w-none select-text">
                                 <LinkifiedText 
                                     text={memoEditor.value} 
                                     highlightText={highlightText} 
