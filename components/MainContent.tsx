@@ -166,7 +166,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-[1.0fr_1.2fr_1.1fr_0.8fr_1.2fr_1.1fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 0. 전체 목차 (TocWidget) */}
@@ -179,7 +179,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 1. 나머지 섹션들 */}
+                                         {/* 1. 나머지 섹션들 + 2. IN-BOX (하나의 컬럼으로 통합) */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
                                             {activeTab.sections.map((section, idx) => (
                                                 <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
@@ -215,42 +215,42 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     />
                                                 </div>
                                             ))}
-                                        </div>
 
-                                        {/* 2. IN-BOX */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                            <SectionCard
-                                                bgIndex={0}
-                                                section={activeTab.inboxSection}
-                                                itemMemos={activeTab.memos}
-                                                onUpdateSection={handleUpdateInboxSection}
-                                                onDeleteSection={() => { }}
-                                                onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue, activeTab.id)}
-                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                onMoveItem={() => { }}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onSectionDragStart={() => { }}
-                                                onSectionDragOver={() => { }}
-                                                onSectionDrop={() => { }}
-                                                onSectionDragEnd={() => { }}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                                onReturnFromInbox={handleReturnFromInbox}
-                                                isReturnVisible={!!lastSectionBeforeInbox}
-                                                isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
-                                                isInboxSection={true}
-                                                isFullHeight={true}
-                                                tabColorText={activeTabColorConfig.text}
-                                                tabColorBg={activeTabColorConfig.bgLight}
-                                                initialQuickAddValue={sharedTextForInbox}
-                                                onQuickAddValuePopulated={handleClearSharedText}
-                                                onItemDoubleClick={() => setTagSelectionModalOpen(true)}
-                                                onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: activeTab.inboxSection.id, sourceTabId: activeTab.id })}
-                                                autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
-                                                onClearFocus={() => setFocusQuickAddSectionId(null)}
-                                                isMobileLayout={isMobileLayout}
-                                            />
+                                            {/* IN-BOX 섹션 */}
+                                            <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                <SectionCard
+                                                    bgIndex={0}
+                                                    section={activeTab.inboxSection}
+                                                    itemMemos={activeTab.memos}
+                                                    onUpdateSection={handleUpdateInboxSection}
+                                                    onDeleteSection={() => { }}
+                                                    onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', activeTab.inboxSection.id, initialValue, activeTab.id)}
+                                                    onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                    onMoveItem={() => { }}
+                                                    onAddToCalendar={handleAddToCalendarClick}
+                                                    dragState={dragState}
+                                                    setDragState={setDragState}
+                                                    onSectionDragStart={() => { }}
+                                                    onSectionDragOver={() => { }}
+                                                    onSectionDrop={() => { }}
+                                                    onSectionDragEnd={() => { }}
+                                                    onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                    onReturnFromInbox={handleReturnFromInbox}
+                                                    isReturnVisible={!!lastSectionBeforeInbox}
+                                                    isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                                                    isInboxSection={true}
+                                                    isFullHeight={true}
+                                                    tabColorText={activeTabColorConfig.text}
+                                                    tabColorBg={activeTabColorConfig.bgLight}
+                                                    initialQuickAddValue={sharedTextForInbox}
+                                                    onQuickAddValuePopulated={handleClearSharedText}
+                                                    onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                    onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: activeTab.inboxSection.id, sourceTabId: activeTab.id })}
+                                                    autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
+                                                    onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                    isMobileLayout={isMobileLayout}
+                                                />
+                                            </div>
                                         </div>
 
                                         {/* 3. 문서 목차 (Document ToC) */}
