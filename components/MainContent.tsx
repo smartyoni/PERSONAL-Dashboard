@@ -166,19 +166,21 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_1.1fr_1.1fr_0.8fr_1.5fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_1.1fr_1.1fr_0.8fr_1.5fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-[0.55fr_1.1fr_1.1fr_1.1fr_0.55fr_1.7fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_1.1fr_1.1fr_0.8fr_1.5fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
-                                        {/* 1. ToC 및 나머지 섹션들 */}
+                                        {/* 0. 전체 목차 (TocWidget) */}
+                                        <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <TocWidget
+                                                tabs={safeData.tabs}
+                                                activeTabId={activeTab.id}
+                                                onNavigate={onTocNavigate}
+                                                onNavigateAndFocus={onTocNavigateAndFocus}
+                                            />
+                                        </div>
+
+                                        {/* 1. 나머지 섹션들 */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
-                                            <div data-section-id="toc-section" className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
-                                                <TocWidget
-                                                    tabs={safeData.tabs}
-                                                    activeTabId={activeTab.id}
-                                                    onNavigate={onTocNavigate}
-                                                    onNavigateAndFocus={onTocNavigateAndFocus}
-                                                />
-                                            </div>
                                             {activeTab.sections.map((section, idx) => (
                                                 <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                     <SectionCard
