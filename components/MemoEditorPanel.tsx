@@ -940,7 +940,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         ref={contentRef}
                         onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
                         className="flex-1 w-full overflow-y-auto custom-scrollbar regal-pad-bg memo-editor-view text-slate-700 whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
-                        style={{ paddingLeft: '42px' }}
+                        style={{ padding: '0 1.5rem 1.5rem 42px' }}
                     >
                         {/* Margin Symbol Overlay for Viewer */}
                         <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 select-none pointer-events-none">
