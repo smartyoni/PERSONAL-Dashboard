@@ -423,21 +423,6 @@ const MainContent: React.FC<MainContentProps> = ({
                             </div>
                         )}
 
-                        {isMainTab && (
-                            <div className="mt-8 mb-12 flex justify-center">
-                                <button
-                                    onClick={handleAddSection}
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-dashed border-slate-300 text-slate-500 rounded-2xl font-bold hover:border-indigo-400 hover:text-indigo-50/30 transition-all group"
-                                >
-                                    <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                    </div>
-                                    <span>새 섹션 추가</span>
-                                </button>
-                            </div>
-                        )}
                     </main>
                 </div>
             </div>
