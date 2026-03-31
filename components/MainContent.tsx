@@ -166,7 +166,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_0.8fr_1.5fr_1.1fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 0. 전체 목차 (TocWidget) */}
@@ -387,8 +387,8 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 컬럼 4 이후: 나머지 섹션들 */}
-                                        {activeTab.sections.slice(1).map((section, idx) => (
+                                         {/* 컬럼 4: 두 번째 섹션 */}
+                                        {activeTab.sections.slice(1, 2).map((section, idx) => (
                                             <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={idx + 2}
@@ -422,6 +422,44 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 />
                                             </div>
                                         ))}
+
+                                        {/* 컬럼 5: 나머지 모든 섹션들 (3번째부터) */}
+                                        <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
+                                            {activeTab.sections.slice(2).map((section, idx) => (
+                                                <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                    <SectionCard
+                                                        bgIndex={idx + 3}
+                                                        section={section}
+                                                        itemMemos={activeTab.memos}
+                                                        onUpdateSection={handleUpdateSection}
+                                                        onDeleteSection={handleDeleteSection}
+                                                        onShowItemMemo={(id, initialValue) => handleShowMemo(id, 'section', section.id, initialValue, activeTab.id)}
+                                                        onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                        onMoveItem={() => { }}
+                                                        onAddToCalendar={handleAddToCalendarClick}
+                                                        dragState={dragState}
+                                                        setDragState={setDragState}
+                                                        onSectionDragStart={() => onSectionDragStart(section.id)}
+                                                        onSectionDragOver={(e) => onSectionDragOver(e, section.id)}
+                                                        onSectionDrop={(e) => onSectionDrop(e, section.id)}
+                                                        onSectionDragEnd={onSectionDragEnd}
+                                                        isHighlighted={section.id === highlightedSectionId}
+                                                        isFullHeight={true}
+                                                        tabColorText={activeTabColorConfig.text}
+                                                        tabColorBg={activeTabColorConfig.bgLight}
+                                                        onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                        onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
+                                                        onItemDoubleClick={() => setTagSelectionModalOpen(true)}
+                                                        onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
+                                                        isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
+                                                        onReturnFromInbox={handleReturnFromInbox}
+                                                        autoFocusQuickAdd={focusQuickAddSectionId === section.id}
+                                                        onClearFocus={() => setFocusQuickAddSectionId(null)}
+                                                        isMobileLayout={isMobileLayout}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
 
                                     </>
                                 )}
