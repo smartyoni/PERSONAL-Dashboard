@@ -129,29 +129,19 @@ const SectionCard: React.FC<SectionCardProps> = ({
       // Smart Parsing Logic
       const lines = trimmedValue.split('\n');
       const firstLine = lines[0].trim();
-      const titleLimit = isMobileLayout ? 30 : 60;
-
-      // If first line is too long or it's multi-line, we treat the first line as title (truncated)
-      const displayTitle = firstLine.length > titleLimit
-        ? firstLine.substring(0, titleLimit)
-        : firstLine;
-
       const itemId = Math.random().toString(36).substr(2, 9);
       const newItem: ListItem = {
         id: itemId,
-        text: displayTitle,
+        text: trimmedValue,
         completed: false
       };
 
-      // Always save the full input as a memo
-      const newMemos = { [itemId]: trimmedValue };
-
-      onUpdateSection({ ...section, items: [newItem, ...section.items] }, newMemos);
+      onUpdateSection({ ...section, items: [newItem, ...section.items] });
       setQuickAddValue('');
       if (quickInputRef.current) {
         quickInputRef.current.style.height = 'auto';
       }
-      onShowItemMemo(itemId, trimmedValue);
+      onShowItemMemo(itemId, "");
     }
   };
 
@@ -396,28 +386,20 @@ const SectionCard: React.FC<SectionCardProps> = ({
         <button
           onClick={() => {
             const trimmedValue = quickAddValue.trim();
-            // 내용이 없어도 빈 항목으로 추가 가능하게 변경
-            const displayTitle = trimmedValue
-              ? (trimmedValue.split('\n')[0].length > (isMobileLayout ? 30 : 60)
-                ? trimmedValue.split('\n')[0].substring(0, isMobileLayout ? 30 : 60)
-                : trimmedValue.split('\n')[0])
-              : '';
-
             const itemId = Math.random().toString(36).substr(2, 9);
             const newItem: ListItem = {
               id: itemId,
-              text: displayTitle,
+              text: trimmedValue,
               completed: false
             };
-            const newMemos = trimmedValue ? { [itemId]: trimmedValue } : {};
 
-            onUpdateSection({ ...section, items: [newItem, ...section.items] }, newMemos);
+            onUpdateSection({ ...section, items: [newItem, ...section.items] });
             setQuickAddValue('');
             if (quickInputRef.current) {
               quickInputRef.current.style.height = 'auto';
             }
-            // 즉시 메모 모달 오픈
-            onShowItemMemo(itemId, trimmedValue);
+            // 즉시 빈 메모 모달 오픈
+            onShowItemMemo(itemId, "");
           }}
           className="px-3 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap flex flex-col items-center justify-center"
           title="추가"
