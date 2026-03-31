@@ -251,7 +251,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 3. 개인 위젯 (TodoWidget) */}
+                                        {/* 3. 업무 위젯 (TodoWidget) */}
                                         <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}

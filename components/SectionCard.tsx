@@ -431,10 +431,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
         style={{
           backgroundColor: bgIndex % 2 === 0 ? '#fffbeb' : '#f0fdf4',
           backgroundImage: `
-            linear-gradient(90deg, transparent 28px, rgba(239, 68, 68, 0.4) 28px, rgba(239, 68, 68, 0.4) 29px, transparent 29px),
-            repeating-linear-gradient(transparent, transparent 27px, rgba(59, 130, 246, 0.25) 27px, rgba(59, 130, 246, 0.25) 28px)
+            linear-gradient(90deg, transparent 28px, rgba(239, 68, 68, 0.4) 28px, rgba(239, 68, 68, 0.4) 29px, transparent 29px)
           `,
-          backgroundSize: '100% 100%, 100% 28px',
+          backgroundSize: '100% 100%',
           backgroundAttachment: 'local'
         }}
         onDragOver={onEmptyAreaDragOver}

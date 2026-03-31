@@ -38,7 +38,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
   onNavigateAndFocus,
 }) => {
   const [expandedTabIds, setExpandedTabIds] = useState<Set<string>>(
-    new Set([activeTabId])
+    new Set()
   );
 
   const mainTabId = tabs[0]?.id;

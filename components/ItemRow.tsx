@@ -104,7 +104,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       ref={rowRef}
-      className={`group flex items-start gap-0 py-0 pl-0 pr-1 border-b border-blue-400/25 last:border-0 transition-all cursor-default relative min-h-[28px] ${isDragging ? 'opacity-50 bg-slate-100' :
+      className={`group flex items-start gap-0 py-1 pl-0 pr-1 border-b border-blue-400/25 last:border-0 transition-all cursor-default relative ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-400/10 border-l-2 border-blue-400' : 'hover:bg-black/[0.02]'
         }`}
     >
@@ -114,7 +114,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <button
             ref={triggerRef}
             onClick={toggleMenu}
-            className="text-3xl leading-none mb-1.5 hover:scale-110 transition-transform focus:outline-none text-red-500/80 hover:text-red-600"
+            className="text-3xl leading-none hover:scale-110 transition-transform focus:outline-none text-red-500/80 hover:text-red-600"
             title="메뉴 열기"
           >
             •
@@ -136,7 +136,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0 pl-3">
         <div
-          className={`leading-[28px] ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
+          className={`leading-5 ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onDoubleClickItem?.();
@@ -179,7 +179,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
               onEditingChange?.(isEditing);
             }}
             placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
-            className={isBookmark ? "text-base font-bold" : "text-[15px]"}
+            className={isBookmark ? "text-base font-bold leading-5" : "text-[15px] leading-5"}
             compact
             disabled={true}
           />

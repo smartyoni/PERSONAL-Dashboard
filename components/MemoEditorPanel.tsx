@@ -449,11 +449,10 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 .regal-pad-bg {
                     background-color: white;
                     background-image: 
-                        linear-gradient(90deg, transparent 27px, #ffb3b3 27px, #ffb3b3 28px, transparent 28px, transparent 30px, #ffb3b3 30px, #ffb3b3 31px, transparent 31px),
-                        repeating-linear-gradient(transparent, transparent 27px, rgba(59, 130, 246, 0.2) 27px, rgba(59, 130, 246, 0.2) 28px);
-                    background-size: 100% 100%, 100% 28px;
+                        linear-gradient(90deg, transparent 27px, #ffb3b3 27px, #ffb3b3 28px, transparent 28px, transparent 30px, #ffb3b3 30px, #ffb3b3 31px, transparent 31px);
+                    background-size: 100% 100%;
                     background-attachment: local;
-                    background-repeat: no-repeat, repeat;
+                    background-repeat: no-repeat;
                 }
             `}</style>
             {currentItem && (

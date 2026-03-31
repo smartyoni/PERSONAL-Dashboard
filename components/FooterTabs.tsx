@@ -122,10 +122,11 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
           }
         });
       }
-      // 3. Parking Widget
+      /* Removed: Parking Widget (Personal Widget) is no longer used in bottom tab
       if (tab.parkingInfo?.isPinned) {
         pinned.push({ tabId: tab.id, id: 'parking-widget', title: tab.parkingInfo.title || '🅿️ 주차장' });
       }
+      */
       // 4. Todo Widgets
       if (tab.todoManagementInfo?.isPinned) {
         pinned.push({ tabId: tab.id, id: 'todo-widget-1', title: tab.todoManagementInfo.title || '✅ 할일 1' });
