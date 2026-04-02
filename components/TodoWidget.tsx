@@ -11,7 +11,6 @@ interface TodoWidgetProps {
     onShowTodoCat2Memo?: (itemId: string) => void;
     onShowTodoCat3Memo?: (itemId: string) => void;
     onShowTodoCat4Memo?: (itemId: string) => void;
-    onShowTodoCat5Memo?: (itemId: string) => void;
     onAddToCalendar: (itemText: string) => void;
     mainHeaderClass?: string;
     subHeaderClass?: string;
@@ -240,7 +239,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     onShowTodoCat2Memo,
     onShowTodoCat3Memo,
     onShowTodoCat4Memo,
-    onShowTodoCat5Memo,
     onAddToCalendar,
     mainHeaderClass,
     subHeaderClass,
@@ -310,7 +308,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         updateList(type, [...currentItems, newItem]);
 
         // 신규 추가 후 즉시 메모 모달 오픈 
-        const showMemo = [onShowTodoCat1Memo, onShowTodoCat2Memo, onShowTodoCat3Memo, onShowTodoCat4Memo, onShowTodoCat5Memo][type - 1];
+        const showMemo = [onShowTodoCat1Memo, onShowTodoCat2Memo, onShowTodoCat3Memo, onShowTodoCat4Memo][type - 1];
         if (showMemo) showMemo(newItemId);
     };
 
@@ -436,15 +434,6 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
                 />
-                <SubSection 
-                    sectionId="todoCat5" title={info.category5Title} type={5} items={info.category5Items || []} memos={info.category5Memos} 
-                    onShowMemo={onShowTodoCat5Memo} colorIndex={4} 
-                    dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
-                    handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
-                    handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
-                    handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
-                    onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
-                />
             </div>
 
             {openMenuId && (() => {
@@ -452,15 +441,13 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                 const type2Items = info.category2Items || [];
                 const type3Items = info.category3Items || [];
                 const type4Items = info.category4Items || [];
-                const type5Items = info.category5Items || [];
-                const allItems = [...type1Items, ...type2Items, ...type3Items, ...type4Items, ...type5Items];
+                const allItems = [...type1Items, ...type2Items, ...type3Items, ...type4Items];
                 const item = allItems.find(i => i.id === openMenuId);
                 if (!item) return null;
 
                 const type = type1Items.some(i => i.id === openMenuId) ? 1 :
                     type2Items.some(i => i.id === openMenuId) ? 2 :
-                        type3Items.some(i => i.id === openMenuId) ? 3 : 
-                            type4Items.some(i => i.id === openMenuId) ? 4 : 5;
+                        type3Items.some(i => i.id === openMenuId) ? 3 : 4;
 
                 const isMobile = window.innerWidth < 768;
                 return (
