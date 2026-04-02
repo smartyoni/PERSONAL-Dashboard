@@ -21,7 +21,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
     const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
     const [tempTitle, setTempTitle] = React.useState("");
 
-    // 1. 현재 페이지의 헤더(#) 추출
+    // 1. 현재 페이지의 헤더(#) 와 굵은 불렛(●) 추출
     const internalHeadings = useMemo(() => {
         if (!memoEditor.value) return [];
         
@@ -29,11 +29,21 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
         const headings: { text: string; level: number; lineIndex: number }[] = [];
         
         lines.forEach((line, index) => {
-            const match = line.match(/^(#{1,3})\s+(.*)/);
-            if (match) {
+            const headingMatch = line.match(/^(#{1,3})\s+(.*)/);
+            if (headingMatch) {
                 headings.push({
-                    level: match[1].length,
-                    text: match[2].trim(),
+                    level: headingMatch[1].length,
+                    text: headingMatch[2].trim(),
+                    lineIndex: index
+                });
+                return;
+            }
+
+            const bulletMatch = line.match(/^●\s+(.*)/);
+            if (bulletMatch) {
+                headings.push({
+                    level: 2,
+                    text: bulletMatch[1].trim(),
                     lineIndex: index
                 });
             }
