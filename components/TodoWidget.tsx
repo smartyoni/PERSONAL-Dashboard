@@ -142,6 +142,18 @@ const SubSection: React.FC<SubSectionProps> = ({
                     return (
                         <div
                             key={item.id}
+                            draggable={!editingItemIds.has(item.id)}
+                            onDragStart={(e) => {
+                                e.stopPropagation();
+                                setDragState({
+                                    draggedItemId: item.id,
+                                    sourceSectionId: sectionId,
+                                    sourceTabId: 'main',
+                                    dragOverItemId: null,
+                                    dragOverSectionId: null,
+                                    dragOverTabId: null
+                                });
+                            }}
                             onDragOver={(e) => { 
                                 e.preventDefault(); 
                                 e.stopPropagation();
@@ -167,30 +179,12 @@ const SubSection: React.FC<SubSectionProps> = ({
                                 }
                                 setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
                             }}
-                            className={`flex items-center gap-0 py-0.5 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-black/5'}`}
+                            className={`flex items-center gap-1 py-0.5 px-1 rounded transition-all group cursor-grab active:cursor-grabbing ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-black/5'}`}
                         >
-                            <div 
-                                draggable={!editingItemIds.has(item.id)}
-                                onDragStart={(e) => {
-                                    e.stopPropagation();
-                                    setDragState({
-                                        draggedItemId: item.id,
-                                        sourceSectionId: sectionId,
-                                        sourceTabId: 'main',
-                                        dragOverItemId: null,
-                                        dragOverSectionId: null,
-                                        dragOverTabId: null
-                                    });
-                                }}
-                                className="cursor-grab active:cursor-grabbing px-1.5 text-slate-400 group-hover:text-slate-600 font-mono text-sm select-none py-1"
-                                title="드래그하여 순서 변경"
-                            >
-                                ⠿
-                            </div>
                             <button
                                 ref={el => { triggerRefs.current[item.id] = el; }}
                                 onClick={(e) => toggleMenu(e, item.id)}
-                                className="leading-none w-3 h-6 flex items-center justify-center text-blue-400 hover:text-blue-500 transition-colors font-bold text-xl"
+                                className="leading-none w-3 h-6 flex items-center justify-center text-blue-400 hover:text-blue-500 transition-colors font-bold text-xl flex-shrink-0"
                                 title="메뉴 열기"
                             >
                                 •
