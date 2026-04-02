@@ -260,6 +260,11 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onChangePage={handleChangePage}
                                                 onUpdatePageTitle={handleUpdatePageTitle}
                                                 onAddPage={handleAddPage}
+                                                onScrollToLine={(lineIndex: number, pageIndex: number) => {
+                                                    window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
+                                                        detail: { lineIndex, pageIndex }
+                                                    }));
+                                                }}
                                             />
                                         </div>
 

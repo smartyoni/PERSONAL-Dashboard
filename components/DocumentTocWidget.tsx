@@ -7,6 +7,7 @@ interface DocumentTocWidgetProps {
     onUpdatePageTitle: (index: number, title: string) => void;
     onAddPage: () => void;
     onClose?: () => void;
+    onScrollToLine?: (lineIndex: number, pageIndex: number) => void;
     isMobileLayout?: boolean;
 }
 
@@ -16,41 +17,77 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
     onUpdatePageTitle,
     onAddPage,
     onClose,
+    onScrollToLine,
     isMobileLayout
 }) => {
     const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
     const [tempTitle, setTempTitle] = React.useState("");
+    const [expandedPages, setExpandedPages] = React.useState<Record<number, boolean>>(() => {
+        // Default the active page to expanded
+        if (memoEditor.activePageIndex !== null) {
+            return { [memoEditor.activePageIndex]: true };
+        }
+        return {};
+    });
 
-    // 1. 현재 페이지의 헤더(#) 와 굵은 불렛(●) 추출
-    const internalHeadings = useMemo(() => {
-        if (!memoEditor.value) return [];
+    React.useEffect(() => {
+        // Auto-expand the newly active page if it hasn't been set yet
+        setExpandedPages(prev => {
+            if (memoEditor.activePageIndex !== null && prev[memoEditor.activePageIndex] === undefined) {
+                return { ...prev, [memoEditor.activePageIndex]: true };
+            }
+            return prev;
+        });
+    }, [memoEditor.activePageIndex]);
+
+    const toggleExpand = (idx: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExpandedPages(prev => ({ ...prev, [idx]: !prev[idx] }));
+    };
+
+    // 1. 모든 페이지의 헤더(#) 와 굵은 불렛(●) 추출
+    const allHeadings = useMemo(() => {
+        const result: Record<number, { text: string; level: number; lineIndex: number }[]> = {};
         
-        const lines = memoEditor.value.split('\n');
-        const headings: { text: string; level: number; lineIndex: number }[] = [];
-        
-        lines.forEach((line, index) => {
-            const headingMatch = line.match(/^(#{1,3})\s+(.*)/);
-            if (headingMatch) {
-                headings.push({
-                    level: headingMatch[1].length,
-                    text: headingMatch[2].trim(),
-                    lineIndex: index
-                });
+        memoEditor.allValues.forEach((content, pageIdx) => {
+            // 활성화된 페이지는 수정 중인 memoEditor.value를 최우선으로 사용
+            const targetContent = (pageIdx === memoEditor.activePageIndex && memoEditor.value !== undefined) 
+                ? memoEditor.value 
+                : content;
+                
+            if (!targetContent) {
+                result[pageIdx] = [];
                 return;
             }
+            
+            const lines = targetContent.split('\n');
+            const headings: { text: string; level: number; lineIndex: number }[] = [];
+            
+            lines.forEach((line, index) => {
+                const headingMatch = line.match(/^(#{1,3})\s+(.*)/);
+                if (headingMatch) {
+                    headings.push({
+                        level: headingMatch[1].length,
+                        text: headingMatch[2].trim(),
+                        lineIndex: index
+                    });
+                    return;
+                }
 
-            const bulletMatch = line.match(/^●\s+(.*)/);
-            if (bulletMatch) {
-                headings.push({
-                    level: 2,
-                    text: bulletMatch[1].trim(),
-                    lineIndex: index
-                });
-            }
+                const bulletMatch = line.match(/^●\s+(.*)/);
+                if (bulletMatch) {
+                    headings.push({
+                        level: 2,
+                        text: bulletMatch[1].trim(),
+                        lineIndex: index
+                    });
+                }
+            });
+            result[pageIdx] = headings;
         });
         
-        return headings;
-    }, [memoEditor.value]);
+        return result;
+    }, [memoEditor.allValues, memoEditor.value, memoEditor.activePageIndex]);
 
     if (!memoEditor.id) {
         return (
@@ -179,17 +216,38 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                             {title || `Page ${idx + 1}`}
                                         </span>
                                     )}
+
+                                    {/* Toggle Button for Sub-headings */}
+                                    {allHeadings[idx]?.length > 0 && (
+                                        <button 
+                                            onClick={(e) => toggleExpand(idx, e)}
+                                            className="p-1 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            <svg 
+                                                className={`w-4 h-4 transition-transform duration-200 ${expandedPages[idx] ? 'rotate-180' : ''}`} 
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                    )}
                                 </div>
 
-                                {/* 2. Internal Headings (only for active page) */}
-                                {isActive && internalHeadings.length > 0 && (
+                                {/* 2. Internal Headings */}
+                                {expandedPages[idx] && allHeadings[idx]?.length > 0 && (
                                     <div className="ml-8 mt-1 space-y-0.5 border-l border-slate-100 pl-2">
-                                        {internalHeadings.map((heading, hIdx) => {
+                                        {allHeadings[idx].map((heading, hIdx) => {
                                             const subIndex = String(hIdx + 1).padStart(2, '0');
                                             return (
                                                 <div 
                                                     key={`heading-${hIdx}`}
-                                                    className="flex items-baseline gap-2 py-1 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer group"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (onScrollToLine) {
+                                                            onScrollToLine(heading.lineIndex, idx);
+                                                        }
+                                                    }}
+                                                    className="flex items-baseline gap-2 py-1 text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer group"
                                                 >
                                                     <span className="font-mono text-[10px] text-slate-300 group-hover:text-slate-400">
                                                         {displayIndex}.{subIndex}

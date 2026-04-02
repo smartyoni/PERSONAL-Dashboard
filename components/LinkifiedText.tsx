@@ -96,6 +96,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
           return (
             <div 
                 key={lIdx} 
+                id={`memo-line-${lIdx}`}
                 className={`min-h-[1.25em] whitespace-pre-wrap ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
             >
               {finalLineContent}

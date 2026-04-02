@@ -212,6 +212,47 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         touchEnd.current = null;
     };
 
+    const handleScrollToLine = useCallback((lineIndex: number, pageIndex: number) => {
+        const scrollToTarget = () => {
+            if (isMobileLayout) setShowToC(false);
+            
+            setTimeout(() => {
+                if (memoEditor.isEditing && memoTextareaRef.current) {
+                    const textarea = memoTextareaRef.current as any;
+                    if (textarea.tagName === 'TEXTAREA') {
+                        // Rough approximation for textarea line height (28px base)
+                        const scrollPos = lineIndex * 28;
+                        textarea.scrollTop = scrollPos;
+                        textarea.focus();
+                    }
+                } else {
+                    const targetLine = document.getElementById(`memo-line-${lineIndex}`);
+                    if (targetLine) {
+                        targetLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetLine.classList.add('bg-yellow-100', 'transition-colors', 'duration-500');
+                        setTimeout(() => targetLine.classList.remove('bg-yellow-100'), 1500);
+                    }
+                }
+            }, 100);
+        };
+
+        if (memoEditor.activePageIndex !== pageIndex) {
+            handleChangePage(pageIndex);
+            // wait for page switch render
+            setTimeout(scrollToTarget, 300);
+        } else {
+            scrollToTarget();
+        }
+    }, [memoEditor.activePageIndex, memoEditor.isEditing, isMobileLayout, handleChangePage]);
+
+    useEffect(() => {
+        const handleEvent = (e: any) => {
+            handleScrollToLine(e.detail.lineIndex, e.detail.pageIndex);
+        };
+        window.addEventListener('editor-scroll-to-line', handleEvent);
+        return () => window.removeEventListener('editor-scroll-to-line', handleEvent);
+    }, [handleScrollToLine]);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!memoEditor.id || memoEditor.isEditing) return;
@@ -761,6 +802,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 onUpdatePageTitle={handleUpdatePageTitle}
                                 onAddPage={handleAddPage}
                                 onClose={() => setShowToC(false)}
+                                onScrollToLine={handleScrollToLine}
                                 isMobileLayout={true}
                             />
                         </div>
