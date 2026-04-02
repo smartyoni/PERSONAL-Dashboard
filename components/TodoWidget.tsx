@@ -188,7 +188,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
         return (
             <div 
-                className={`flex-1 flex flex-col min-h-0 border-b border-sky-400 last:border-b-0 py-0 transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-sky-50' : isOverThisSection ? 'bg-sky-100/50 scale-[1.02] border-l-4 border-l-sky-600' : ''}`}
+                className={`flex-1 flex flex-col min-h-0 border border-slate-200 rounded-lg overflow-hidden bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-all ${localDragState.isDraggingSection ? 'opacity-30 bg-sky-50' : isOverThisSection ? 'bg-sky-50 scale-[1.02] border-sky-400 border-2' : ''}`}
                 draggable={true}
                 onDragStart={(e) => {
                     const target = e.target as HTMLElement;
@@ -238,15 +238,15 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverSectionId: null, dragOverTabId: null });
                 }}
             >
-                <div className="flex items-center justify-between mb-0 px-1 cursor-grab active:cursor-grabbing">
+                <div className="flex items-center justify-between px-2 py-1 bg-slate-50 border-b border-slate-100 cursor-grab active:cursor-grabbing">
                     <EditableText
                         value={title}
                         onChange={(txt) => handleUpdateTitle(type, txt)}
                         placeholder="제목 입력..."
-                        className={subHeaderClass || "text-[16px] font-bold text-green-600"}
+                        className={subHeaderClass || "text-[13px] font-bold text-slate-700 w-full"}
                         compact
                     />
-                    <button onClick={() => handleAddItem(type)} className="text-[11px] text-sky-600 hover:text-sky-700 font-bold">+ 추가</button>
+                    <button onClick={() => handleAddItem(type)} className="flex-shrink-0 ml-2 text-[10px] text-slate-600 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-[0_1px_1px_rgba(0,0,0,0.05)] hover:bg-slate-100 font-bold transition-colors">+ 추가</button>
                 </div>
                 <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
                     {[...(items || [])].map(item => {
@@ -363,7 +363,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                 <span className={todoTagClass || "text-[10px] font-normal text-sky-600 font-mono"}>TODO</span>
             </h2>
 
-            <div className="flex-1 flex flex-col min-h-0 space-y-0 overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0 gap-1.5 overflow-hidden">
                 <SubSection sectionId="todoCat1" title={info.category1Title} type={1} items={info.category1Items || []} memos={info.category1Memos} onShowMemo={onShowTodoCat1Memo} />
                 <SubSection sectionId="todoCat2" title={info.category2Title} type={2} items={info.category2Items || []} memos={info.category2Memos} onShowMemo={onShowTodoCat2Memo} />
                 <SubSection sectionId="todoCat3" title={info.category3Title} type={3} items={info.category3Items || []} memos={info.category3Memos} onShowMemo={onShowTodoCat3Memo} />
