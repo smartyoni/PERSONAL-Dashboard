@@ -512,8 +512,8 @@ export const useMemoEditor = (
     const handleDeletePage = () => {
         setMemoEditor(prev => {
             if (!prev.id) return prev;
-            if (prev.allValues.length <= 5) {
-                alert('최소 5페이지는 유지해야 합니다.');
+            if (prev.allValues.length <= 1) {
+                alert('최소 1페이지는 유지해야 합니다.');
                 return prev;
             }
 
@@ -1251,7 +1251,7 @@ export const useMemoEditor = (
         { label: 'H3', value: '### ', title: '제목 3' },
         { label: '•', value: '• ', title: '불렛' },
         { label: ':', value: ': ', title: '콜론' },
-        { label: '―', value: '\n---divider---\n', title: '구분선' },
+        { label: '―', value: '\n---\n', title: '구분선' },
         { label: '→', value: '→ ', title: '화살표' },
         { label: '■', value: '■ ', title: '사각' },
         { label: '◆', value: '◆ ', title: '다이아' },

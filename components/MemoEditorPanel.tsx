@@ -52,6 +52,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const [showHistory, setShowHistory] = useState(false);
     const recentMemos = getRecentMemos();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showPageDeleteConfirm, setShowPageDeleteConfirm] = useState(false);
     const [highlightText, setHighlightText] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -481,13 +482,11 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         }}
                     >
                         <div className="flex-1 flex items-center mr-2">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mr-3 flex-none border border-indigo-100 shadow-sm">
-                                <span className="text-sm">📌</span>
-                            </div>
+                            <span className="text-[12px] font-black text-indigo-500 mr-2 flex-none bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100 shadow-sm">문서명:</span>
                             {isEditingHeader ? (
                                 <textarea
                                     autoFocus
-                                    className="w-full text-sm font-bold bg-white border border-purple-400 rounded px-2 py-1 outline-none shadow-sm text-left resize-none leading-snug"
+                                    className="w-full text-base font-bold bg-white border border-purple-400 rounded px-2 py-1 outline-none shadow-sm text-left resize-none leading-snug text-red-600"
                                     rows={2}
                                     value={headerValue}
                                     onBlur={() => {
@@ -507,7 +506,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     onChange={(e) => setHeaderValue(e.target.value)}
                                 />
                             ) : (
-                                <span className="text-sm font-bold text-slate-700 line-clamp-2 leading-snug break-all">
+                                <span className="text-base font-bold text-red-600 line-clamp-2 leading-snug break-all">
                                     {headerTitle}
                                 </span>
                             )}
@@ -550,102 +549,133 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         </div>
                     </div>
                     {/* Page Sub-title Input */}
+                    {/* Unified Segmented Header Row */}
                     <div 
-                        className="flex-none px-4 py-2.5 border-b bg-gradient-to-r from-slate-50 to-white flex items-center group cursor-text transition-all duration-200 hover:bg-slate-100/50 shadow-[inset_0_1px_3px_rgba(0,0,0,0.02)]"
-                        style={{ borderBottomColor: 'rgba(99, 102, 241, 0.15)' }} // Subtle indigo border
-                        onClick={() => isMobileLayout && setIsEditingTitle(true)}
-                        onDoubleClick={() => setIsEditingTitle(true)}
+                        className="flex-none px-4 py-2 border-b bg-gradient-to-r from-slate-50 to-white flex items-center"
+                        style={{ borderBottomColor: 'rgba(99, 102, 241, 0.1)' }}
                     >
-                        {isEditingTitle ? (
-                            <input 
-                                autoFocus
-                                className="w-full text-sm font-bold bg-white border border-blue-400 rounded px-2 py-0.5 outline-none shadow-sm text-left"
-                                value={memoEditor.title}
-                                placeholder={`목차${memoEditor.activePageIndex + 1}`}
-                                onChange={(e) => handleUpdateTitle(e.target.value)}
-                                onBlur={() => {
-                                    setIsEditingTitle(false);
-                                    handleSaveMemo(false);
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                        <div className="flex-1 flex items-center bg-slate-100/90 rounded-2xl p-1 gap-1 border border-slate-200/50 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] w-full">
+                            {/* Page Title Segment (View/Edit) */}
+                            {isEditingTitle ? (
+                                <input 
+                                    autoFocus
+                                    className="flex-1 text-xs font-black bg-white border border-blue-400 rounded-xl px-4 py-2 outline-none shadow-sm text-emerald-600"
+                                    value={memoEditor.title}
+                                    placeholder={`목차 명칭 - ${memoEditor.activePageIndex + 1}`}
+                                    onChange={(e) => handleUpdateTitle(e.target.value)}
+                                    onBlur={() => {
                                         setIsEditingTitle(false);
                                         handleSaveMemo(false);
-                                    }
-                                    if (e.key === 'Escape') setIsEditingTitle(false);
-                                }}
-                        />
-                        ) : (
-                            <span className={`text-sm truncate flex-1 text-left ${memoEditor.title ? 'text-emerald-600 font-bold' : 'text-slate-300 font-medium'}`}>
-                                {memoEditor.title || `목차${memoEditor.activePageIndex + 1}`}
-                            </span>
-                        )}
-                        {!isEditingTitle && (
-                            <div className="flex items-center ml-2 bg-slate-100/80 rounded-lg border border-slate-200/60 p-0.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
-                                {/* Page Navigation Segment */}
-                                <div className="flex items-center">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (memoEditor.activePageIndex > 0) handleChangePage(memoEditor.activePageIndex - 1);
-                                        }}
-                                        disabled={memoEditor.activePageIndex === 0}
-                                        className={`p-1.5 transition-all rounded-md ${memoEditor.activePageIndex === 0 ? 'text-slate-300' : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'}`}
-                                    >
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
-                                    </button>
-                                    <span className="text-[10px] font-bold text-slate-600 min-w-[28px] text-center tabular-nums">
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            setIsEditingTitle(false);
+                                            handleSaveMemo(false);
+                                        }
+                                        if (e.key === 'Escape') setIsEditingTitle(false);
+                                    }}
+                                />
+                            ) : (
+                                <button
+                                    onClick={() => setIsEditingTitle(true)}
+                                    className={`flex-1 min-w-0 bg-white/40 hover:bg-white/80 rounded-xl px-4 py-2.5 flex items-center transition-all cursor-text text-left group shadow-sm border border-slate-200/20`}
+                                >
+                                    <span className={`text-xs truncate flex-1 uppercase tracking-tight ${memoEditor.title ? 'text-emerald-700 font-black' : 'text-slate-300 font-bold'}`}>
+                                        {memoEditor.title || `목차 ${memoEditor.activePageIndex + 1}`}
+                                    </span>
+                                </button>
+                            )}
+
+                            {/* Pagination Segments */}
+                            <div className="flex items-center bg-white/40 rounded-xl p-0.5 border border-slate-200/20">
+                                <button
+                                    onClick={() => {
+                                        if (memoEditor.activePageIndex > 0) handleChangePage(memoEditor.activePageIndex - 1);
+                                    }}
+                                    disabled={memoEditor.activePageIndex === 0}
+                                    className={`p-2 transition-all rounded-lg ${memoEditor.activePageIndex === 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'}`}
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
+                                </button>
+
+                                <div className="px-2 py-1 min-w-[40px] text-center">
+                                    <span className="text-[10px] font-black text-indigo-600 tabular-nums">
                                         {memoEditor.activePageIndex + 1}<span className="text-slate-300 mx-0.5">/</span>{memoEditor.allValues.length}
                                     </span>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (memoEditor.activePageIndex < memoEditor.allValues.length - 1) handleChangePage(memoEditor.activePageIndex + 1);
-                                        }}
-                                        disabled={memoEditor.activePageIndex === memoEditor.allValues.length - 1}
-                                        className={`p-1.5 transition-all rounded-md ${memoEditor.activePageIndex === memoEditor.allValues.length - 1 ? 'text-slate-300' : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'}`}
-                                    >
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                                    </button>
                                 </div>
-                                
-                                {/* Vertical Divider */}
-                                <div className="w-px h-3 bg-slate-300/50 mx-0.5" />
-                                
-                                {/* ToC & Page Actions */}
-                                <div className="flex items-center gap-0.5">
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setShowToC(true);
-                                        }}
-                                        className="px-2.5 py-1.5 text-emerald-600 text-[10px] font-bold rounded-md transition-all hover:bg-white hover:text-emerald-700 hover:shadow-sm"
-                                    >목차</button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleAddPage();
-                                        }}
-                                        className="p-1 text-blue-600 hover:bg-white rounded-md transition-all hover:shadow-sm"
-                                        title="페이지 추가"
-                                    >
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
-                                    </button>
-                                    {memoEditor.allValues.length > 5 && (
+
+                                <button
+                                    onClick={() => {
+                                        if (memoEditor.activePageIndex < memoEditor.allValues.length - 1) handleChangePage(memoEditor.activePageIndex + 1);
+                                    }}
+                                    disabled={memoEditor.activePageIndex === memoEditor.allValues.length - 1}
+                                    className={`p-2 transition-all rounded-lg ${memoEditor.activePageIndex === memoEditor.allValues.length - 1 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'}`}
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                            {/* Action Segments (ToC, Add, Delete) */}
+                            <div className="flex items-center gap-1">
+                                <button 
+                                    onClick={() => setShowToC(true)}
+                                    className="px-3 py-2.5 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-xl transition-all hover:bg-emerald-100/80 shadow-sm border border-emerald-100 flex items-center gap-1.5"
+                                >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                                    목차
+                                </button>
+                                <button
+                                    onClick={() => handleAddPage()}
+                                    className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all shadow-sm border border-blue-100 active:scale-95"
+                                    title="페이지 추가"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M12 4v16m8-8H4"/></svg>
+                                </button>
+                                {memoEditor.allValues.length > 1 && (
+                                    <div className="relative flex items-center">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleDeletePage();
+                                                setShowPageDeleteConfirm(!showPageDeleteConfirm);
                                             }}
-                                            className="p-1 text-red-500 hover:bg-white rounded-md transition-all hover:shadow-sm"
-                                            title="현재 페이지 삭제"
+                                            className={`p-1.5 transition-colors rounded ${showPageDeleteConfirm ? 'bg-red-100 text-red-600' : 'text-slate-400 hover:text-red-500'}`}
+                                            title="페이지 삭제"
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
-                                    )}
-                                </div>
+
+                                        {/* Page Delete Confirmation Popover (Unified Style) */}
+                                        {showPageDeleteConfirm && (
+                                            <>
+                                                <div className="fixed inset-0 z-[1100]" onClick={() => setShowPageDeleteConfirm(false)} />
+                                                <div 
+                                                    className="absolute right-0 top-12 z-[1110] bg-white border border-red-100 shadow-2xl rounded-2xl p-3 w-48 animate-in zoom-in-95 fade-in duration-200"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    onMouseMove={(e) => e.stopPropagation()}
+                                                    onMouseUp={(e) => e.stopPropagation()}
+                                                    onMouseDown={(e) => e.stopPropagation()}
+                                                >
+                                                    <p className="text-[11px] font-bold text-slate-700 mb-2 leading-tight">정말로 이 페이지를{'\n'}삭제하시겠습니까?</p>
+                                                    <div className="flex gap-2">
+                                                        <button 
+                                                            onClick={() => setShowPageDeleteConfirm(false)}
+                                                            className="flex-1 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg hover:bg-slate-200 transition-colors"
+                                                        >취소</button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                handleDeletePage();
+                                                                setShowPageDeleteConfirm(false);
+                                                            }}
+                                                            className="flex-1 py-1.5 bg-red-500 text-white text-[10px] font-bold rounded-lg hover:bg-red-600 shadow-sm transition-colors"
+                                                        >삭제</button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
                     {/* Mobile Editing Toolbar - Moved to Top */}
                     {isMobileLayout && memoEditor.isEditing && (

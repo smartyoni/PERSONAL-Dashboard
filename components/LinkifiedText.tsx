@@ -43,11 +43,11 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
     <div className={className}>
       <div className="text-slate-700">
         {lines.map((line, lIdx) => {
-          const isDivider = line.trim() === '---divider---';
+          const isDivider = /^(\s*)(---|---|___|\*\*\*|---divider---)\s*$/.test(line);
           
           if (isDivider) {
             return (
-              <hr key={lIdx} className="w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid pointer-events-none" />
+              <hr key={lIdx} className="border-t-2 border-emerald-400/60 my-3 relative z-0" />
             );
           }
 
@@ -107,7 +107,11 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
             });
           }
           
-          let lineClassName = `min-h-[1.25em] whitespace-pre-wrap `;
+          let lineClassName = `whitespace-pre-wrap `;
+          if (line.trim() !== '') {
+              lineClassName += `min-h-[1.25em] `;
+          }
+          
           if (headerLevel === 1) {
               lineClassName += "text-2xl font-black text-slate-900 mt-6 mb-3 border-b-2 border-slate-100 pb-1 font-serif";
           } else if (headerLevel === 2) {
