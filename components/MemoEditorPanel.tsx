@@ -965,6 +965,12 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 기록
                             </button>
                             <div className="w-px h-4 bg-slate-300/50 mx-1 self-center" />
+                            {isMobileLayout && (
+                                <button 
+                                    onClick={() => setShowToC(true)}
+                                    className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-emerald-600 bg-white shadow-sm rounded-xl hover:bg-emerald-50 transition-all border border-emerald-100"
+                                >목차</button>
+                            )}
                             <button 
                                 onClick={() => handleOpenTagSelection({
                                     itemId: memoEditor.id!,
