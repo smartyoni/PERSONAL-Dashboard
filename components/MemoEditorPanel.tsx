@@ -815,6 +815,31 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     value: newVal 
                                 }));
                             }}
+                            onKeyDown={(e) => {
+                                // Hyphen + Space shortcut for bullet (•)
+                                if (e.key === ' ' && !e.nativeEvent.isComposing) {
+                                    const textarea = e.currentTarget;
+                                    const start = textarea.selectionStart;
+                                    const value = textarea.value;
+                                    
+                                    // Get current line start
+                                    const lastNewLine = value.lastIndexOf('\n', start - 1);
+                                    const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
+                                    const currentLinePrefix = value.substring(lineStart, start);
+                                    
+                                    if (currentLinePrefix === '-') {
+                                        e.preventDefault();
+                                        const newValue = value.substring(0, start - 1) + '• ' + value.substring(start);
+                                        setMemoEditor(prev => ({ ...prev, value: newValue }));
+                                        
+                                        // Restore cursor position after state update
+                                        requestAnimationFrame(() => {
+                                            textarea.selectionStart = textarea.selectionEnd = start + 1;
+                                        });
+                                        return;
+                                    }
+                                }
+                            }}
                             placeholder="여기에 메모를 작성하세요..."
                             onBlur={() => {
                                 handleSaveMemo(false, memoEditor.value || '');
