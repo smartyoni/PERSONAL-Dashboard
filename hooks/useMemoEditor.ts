@@ -1104,100 +1104,104 @@ export const useMemoEditor = (
     const handleDeleteItemFromModal = () => {
         if (!memoEditor.id) return;
 
-        setModal({
-            isOpen: true,
-            title: '항목 삭제',
-            message: '해당 항목을 삭제하시겠습니까? 관련 메모도 함께 삭제됩니다.',
-            onConfirm: () => {
-                updateData(prev => ({
-                    ...prev,
-                    tabs: prev.tabs.map(t => {
-                        if (t.id !== (memoEditor.tabId || prev.activeTabId)) return t;
+        // 실행 전 에디터 닫기
+        setMemoEditor(prev => ({ 
+            ...prev, 
+            id: null, 
+            value: '', 
+            title: '', 
+            allValues: Array(prev.allValues.length).fill(''), 
+            allTitles: Array(prev.allTitles.length).fill(''), 
+            activePageIndex: 0, 
+            isEditing: false, 
+            sectionId: null 
+        }));
 
-                        if (memoEditor.type === 'checklist') {
-                            const newMemos = { ...t.parkingInfo.checklistMemos };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, parkingInfo: { ...t.parkingInfo, checklistItems: t.parkingInfo.checklistItems.filter(i => i.id !== memoEditor.id), checklistMemos: newMemos } };
-                        } else if (memoEditor.type === 'shopping') {
-                            const newMemos = { ...t.parkingInfo.shoppingListMemos };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, parkingInfo: { ...t.parkingInfo, shoppingListItems: t.parkingInfo.shoppingListItems.filter(i => i.id !== memoEditor.id), shoppingListMemos: newMemos } };
-                        } else if (memoEditor.type === 'reminders') {
-                            const newMemos = { ...t.parkingInfo.remindersMemos };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, parkingInfo: { ...t.parkingInfo, remindersItems: t.parkingInfo.remindersItems.filter(i => i.id !== memoEditor.id), remindersMemos: newMemos } };
-                        } else if (memoEditor.type === 'todo') {
-                            const newMemos = { ...t.parkingInfo.todoMemos };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, parkingInfo: { ...t.parkingInfo, todoItems: t.parkingInfo.todoItems.filter(i => i.id !== memoEditor.id), todoMemos: newMemos } };
-                        } else if (memoEditor.type === 'parkingCat5') {
-                            const newMemos = { ...t.parkingInfo.category5Memos };
-                            delete newMemos[memoEditor.id!];
-                            return { ...t, parkingInfo: { ...t.parkingInfo, category5Items: t.parkingInfo.category5Items.filter(i => i.id !== memoEditor.id), category5Memos: newMemos } };
-                        } else if (memoEditor.type?.startsWith('todoCat')) {
-                            const catNum = memoEditor.type.replace('todoCat', '');
-                            const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo;
-                            const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo;
-                            const newMemos = { ...(t.todoManagementInfo[memosKey] as object) };
-                            delete (newMemos as any)[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo: {
-                                    ...t.todoManagementInfo,
-                                    [itemsKey]: (t.todoManagementInfo[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
-                                    [memosKey]: newMemos
-                                }
-                            };
-                        } else if (memoEditor.type?.startsWith('todo2Cat')) {
-                            const catNum = memoEditor.type.replace('todo2Cat', '');
-                            const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo2;
-                            const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo2;
-                            const newMemos = { ...(t.todoManagementInfo2[memosKey] as object) };
-                            delete (newMemos as any)[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo2: {
-                                    ...t.todoManagementInfo2,
-                                    [itemsKey]: (t.todoManagementInfo2[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
-                                    [memosKey]: newMemos
-                                }
-                            };
-                        } else if (memoEditor.type?.startsWith('todo3Cat')) {
-                            const catNum = memoEditor.type.replace('todo3Cat', '');
-                            const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo3;
-                            const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo3;
-                            const newMemos = { ...(t.todoManagementInfo3[memosKey] as object) };
-                            delete (newMemos as any)[memoEditor.id!];
-                            return {
-                                ...t,
-                                todoManagementInfo3: {
-                                    ...t.todoManagementInfo3,
-                                    [itemsKey]: (t.todoManagementInfo3[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
-                                    [memosKey]: newMemos
-                                }
-                            };
-                        } else {
-                            const newMemos = { ...t.memos };
-                            delete newMemos[memoEditor.id!];
-                            return {
-                                ...t,
-                                sections: t.sections.map(s => ({
-                                    ...s,
-                                    items: s.items.filter(i => i.id !== memoEditor.id)
-                                })),
-                                inboxSection: t.inboxSection ? {
-                                    ...t.inboxSection,
-                                    items: t.inboxSection.items.filter(i => i.id !== memoEditor.id)
-                                } : t.inboxSection,
-                                memos: newMemos
-                            };
+        updateData(prev => ({
+            ...prev,
+            tabs: prev.tabs.map(t => {
+                if (t.id !== (memoEditor.tabId || prev.activeTabId)) return t;
+
+                if (memoEditor.type === 'checklist') {
+                    const newMemos = { ...t.parkingInfo.checklistMemos };
+                    delete newMemos[memoEditor.id!];
+                    return { ...t, parkingInfo: { ...t.parkingInfo, checklistItems: t.parkingInfo.checklistItems.filter(i => i.id !== memoEditor.id), checklistMemos: newMemos } };
+                } else if (memoEditor.type === 'shopping') {
+                    const newMemos = { ...t.parkingInfo.shoppingListMemos };
+                    delete newMemos[memoEditor.id!];
+                    return { ...t, parkingInfo: { ...t.parkingInfo, shoppingListItems: t.parkingInfo.shoppingListItems.filter(i => i.id !== memoEditor.id), shoppingListMemos: newMemos } };
+                } else if (memoEditor.type === 'reminders') {
+                    const newMemos = { ...t.parkingInfo.remindersMemos };
+                    delete newMemos[memoEditor.id!];
+                    return { ...t, parkingInfo: { ...t.parkingInfo, remindersItems: t.parkingInfo.remindersItems.filter(i => i.id !== memoEditor.id), remindersMemos: newMemos } };
+                } else if (memoEditor.type === 'todo') {
+                    const newMemos = { ...t.parkingInfo.todoMemos };
+                    delete newMemos[memoEditor.id!];
+                    return { ...t, parkingInfo: { ...t.parkingInfo, todoItems: t.parkingInfo.todoItems.filter(i => i.id !== memoEditor.id), todoMemos: newMemos } };
+                } else if (memoEditor.type === 'parkingCat5') {
+                    const newMemos = { ...t.parkingInfo.category5Memos };
+                    delete newMemos[memoEditor.id!];
+                    return { ...t, parkingInfo: { ...t.parkingInfo, category5Items: t.parkingInfo.category5Items.filter(i => i.id !== memoEditor.id), category5Memos: newMemos } };
+                } else if (memoEditor.type?.startsWith('todoCat')) {
+                    const catNum = memoEditor.type.replace('todoCat', '');
+                    const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo;
+                    const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo;
+                    const newMemos = { ...(t.todoManagementInfo[memosKey] as any) };
+                    delete newMemos[memoEditor.id!];
+                    return {
+                        ...t,
+                        todoManagementInfo: {
+                            ...t.todoManagementInfo,
+                            [itemsKey]: (t.todoManagementInfo[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
+                            [memosKey]: newMemos
                         }
-                    })
-                }));
-                setModal(prev => ({ ...prev, isOpen: false }));
-                setMemoEditor(prev => ({ ...prev, id: null, value: '', title: '', allValues: Array(prev.allValues.length).fill(''), allTitles: Array(prev.allTitles.length).fill(''), activePageIndex: 0, isEditing: false, sectionId: null }));
-            }
-        });
+                    };
+                } else if (memoEditor.type?.startsWith('todo2Cat')) {
+                    const catNum = memoEditor.type.replace('todo2Cat', '');
+                    const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo2;
+                    const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo2;
+                    const newMemos = { ...(t.todoManagementInfo2![memosKey] as any) };
+                    delete newMemos[memoEditor.id!];
+                    return {
+                        ...t,
+                        todoManagementInfo2: t.todoManagementInfo2 ? {
+                            ...t.todoManagementInfo2,
+                            [itemsKey]: (t.todoManagementInfo2[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
+                            [memosKey]: newMemos
+                        } : undefined
+                    } as Tab;
+                } else if (memoEditor.type?.startsWith('todo3Cat')) {
+                    const catNum = memoEditor.type.replace('todo3Cat', '');
+                    const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo3;
+                    const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo3;
+                    const newMemos = { ...(t.todoManagementInfo3[memosKey] as any) };
+                    delete newMemos[memoEditor.id!];
+                    return {
+                        ...t,
+                        todoManagementInfo3: {
+                            ...t.todoManagementInfo3,
+                            [itemsKey]: (t.todoManagementInfo3[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
+                            [memosKey]: newMemos
+                        }
+                    };
+                } else {
+                    const newMemos = { ...t.memos };
+                    delete newMemos[memoEditor.id!];
+                    return {
+                        ...t,
+                        sections: t.sections.map(s => ({
+                            ...s,
+                            items: s.items.filter(i => i.id !== memoEditor.id)
+                        })),
+                        inboxSection: t.inboxSection ? {
+                            ...t.inboxSection,
+                            items: t.inboxSection.items.filter(i => i.id !== memoEditor.id)
+                        } : t.inboxSection,
+                        memos: newMemos
+                    };
+                }
+            })
+        }));
     };
 
     const handleInsertSymbol = (symbol: string) => {
