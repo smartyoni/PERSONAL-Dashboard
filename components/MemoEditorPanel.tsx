@@ -513,7 +513,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             )}
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 relative">
                             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{sectionName}</span>
                             <button
                                 onClick={(e) => {
@@ -522,9 +522,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                         alert("🔒 잠긴 항목은 삭제할 수 없습니다. 먼저 잠금을 해제해주세요.");
                                         return;
                                     }
-                                    if (window.confirm('정말 이 항목을 삭제하시겠습니까?')) {
-                                        handleDeleteItemFromModal();
-                                    }
+                                    setShowDeleteConfirm(true);
                                 }}
                                 className={`p-1.5 transition-all rounded-lg ${currentItem?.isLocked
                                     ? 'opacity-30 cursor-not-allowed text-slate-300'
@@ -534,6 +532,36 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
+
+                            {/* Item Delete Confirmation Popover */}
+                            {showDeleteConfirm && (
+                                <>
+                                    <div className="fixed inset-0 z-[1100]" onClick={() => setShowDeleteConfirm(false)} />
+                                    <div 
+                                        className="absolute right-0 top-12 z-[1110] bg-white border border-red-100 shadow-2xl rounded-2xl p-4 w-56 animate-in zoom-in-95 fade-in duration-200"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="flex items-center gap-2 mb-2 text-red-600">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                            <p className="text-[12px] font-black uppercase tracking-tight">전체 항목 삭제</p>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-slate-600 mb-4 leading-tight">정말로 이 전체 문서를{'\n'}영구 삭제하시겠습니까?</p>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => setShowDeleteConfirm(false)}
+                                                className="flex-1 py-2 bg-slate-100 text-slate-600 text-[11px] font-bold rounded-xl hover:bg-slate-200 transition-colors"
+                                            >취소</button>
+                                            <button 
+                                                onClick={() => {
+                                                    handleDeleteItemFromModal();
+                                                    setShowDeleteConfirm(false);
+                                                }}
+                                                className="flex-1 py-2 bg-red-500 text-white text-[11px] font-bold rounded-xl hover:bg-red-600 shadow-sm transition-colors"
+                                            >삭제</button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -618,9 +646,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                if (window.confirm('현재 페이지를 정말 삭제하시겠습니까?')) {
-                                                    handleDeletePage();
-                                                }
+                                                setShowPageDeleteConfirm(true);
                                             }}
                                             className="px-3 py-1.5 text-[10px] font-bold bg-orange-500 text-white border border-orange-600 rounded-xl shadow-sm hover:bg-orange-600 transition-all active:scale-95"
                                             title="페이지 삭제"
