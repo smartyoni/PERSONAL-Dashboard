@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { AppData, Tab, ListItem, MemoEditorState, TITLE_SEPARATOR, HistoryItem, TodoManagementInfo } from '../types';
+import { AppData, Tab, ListItem, MemoEditorState, TITLE_SEPARATOR, HistoryItem, TodoManagementInfo, ParkingInfo } from '../types';
 import { parseMemoPages, htmlToPlainText } from '../utils/memoEditorUtils';
 
 const HISTORY_KEY = 'personal-dashboard-recent-memos';
@@ -67,25 +67,25 @@ export const useMemoEditor = (
             } else if (type === 'todoCat5') {
                 loadedValue = targetTab.todoManagementInfo.category5Memos?.[id] || '';
             } else if (type === 'todo2Cat1') {
-                loadedValue = targetTab.todoManagementInfo2.category1Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2?.category1Memos?.[id] || '';
             } else if (type === 'todo2Cat2') {
-                loadedValue = targetTab.todoManagementInfo2.category2Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2?.category2Memos?.[id] || '';
             } else if (type === 'todo2Cat3') {
-                loadedValue = targetTab.todoManagementInfo2.category3Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2?.category3Memos?.[id] || '';
             } else if (type === 'todo2Cat4') {
-                loadedValue = targetTab.todoManagementInfo2.category4Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2?.category4Memos?.[id] || '';
             } else if (type === 'todo2Cat5') {
-                loadedValue = targetTab.todoManagementInfo2.category5Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo2?.category5Memos?.[id] || '';
             } else if (type === 'todo3Cat1') {
-                loadedValue = targetTab.todoManagementInfo3.category1Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo3?.category1Memos?.[id] || '';
             } else if (type === 'todo3Cat2') {
-                loadedValue = targetTab.todoManagementInfo3.category2Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo3?.category2Memos?.[id] || '';
             } else if (type === 'todo3Cat3') {
-                loadedValue = targetTab.todoManagementInfo3.category3Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo3?.category3Memos?.[id] || '';
             } else if (type === 'todo3Cat4') {
-                loadedValue = targetTab.todoManagementInfo3.category4Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo3?.category4Memos?.[id] || '';
             } else if (type === 'todo3Cat5') {
-                loadedValue = targetTab.todoManagementInfo3.category5Memos?.[id] || '';
+                loadedValue = targetTab.todoManagementInfo3?.category5Memos?.[id] || '';
             } else {
                 loadedValue = targetTab.memos?.[id] || '';
             }
@@ -103,9 +103,7 @@ export const useMemoEditor = (
             const firstPageText = allContents[0] || '';
 
             const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
-                type === 'todoCat1' || type === 'todoCat2' || type === 'todoCat3' || type === 'todoCat4' ||
-                type === 'todo2Cat1' || type === 'todo2Cat2' || type === 'todo2Cat3' || type === 'todo2Cat4' ||
-                type === 'todo3Cat1' || type === 'todo3Cat2' || type === 'todo3Cat3' || type === 'todo3Cat4';
+                type?.startsWith('todoCat') || type?.startsWith('todo2Cat') || type?.startsWith('todo3Cat');
 
             setMemoEditor({
                 id,
@@ -198,7 +196,7 @@ export const useMemoEditor = (
 
         const { id, type, tabId } = memoEditor;
 
-        // 3. Persist to data (Mirrors handleSaveMemo exactly)
+        // 3. Persist to data (Mirrors handleSaveMemo consolidation)
         if (type === 'section') {
             updateData(prev => ({
                 ...prev,
@@ -207,79 +205,24 @@ export const useMemoEditor = (
                     : t
                 )
             }));
-        } else if (type === 'checklist') {
+        } else if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+            const pkKey = type === 'checklist' ? 'checklistMemos' : 
+                          type === 'shopping' ? 'shoppingListMemos' :
+                          type === 'reminders' ? 'remindersMemos' :
+                          type === 'todo' ? 'todoMemos' : 'category5Memos';
             updateData(prev => ({
                 ...prev,
                 tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
                     ? {
                         ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            checklistMemos: { ...t.parkingInfo.checklistMemos, [id!]: finalValue }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (type === 'shopping') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            shoppingListMemos: { ...t.parkingInfo.shoppingListMemos, [id!]: finalValue }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (type === 'reminders') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            remindersMemos: { ...t.parkingInfo.remindersMemos, [id!]: finalValue }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (type === 'todo') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            todoMemos: { ...t.parkingInfo.todoMemos, [id!]: finalValue }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (type === 'parkingCat5') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            category5Memos: { ...t.parkingInfo.category5Memos, [id!]: finalValue }
-                        }
+                        parkingInfo: { ...t.parkingInfo, [pkKey]: { ...(t.parkingInfo as any)[pkKey], [id!]: finalValue } }
                     }
                     : t
                 )
             }));
         } else if (type?.startsWith('todoCat')) {
             const catNum = type.replace('todoCat', '');
-            const memosKey = `category${catNum}Memos` as keyof typeof activeTab.todoManagementInfo;
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
             updateData(prev => ({
                 ...prev,
                 tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
@@ -287,7 +230,7 @@ export const useMemoEditor = (
                         ...t,
                         todoManagementInfo: {
                             ...t.todoManagementInfo,
-                            [memosKey]: { ...(t.todoManagementInfo[memosKey] as object), [id!]: finalValue }
+                            [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue }
                         }
                     }
                     : t
@@ -303,7 +246,7 @@ export const useMemoEditor = (
                         ...t,
                         todoManagementInfo2: t.todoManagementInfo2 ? {
                             ...t.todoManagementInfo2,
-                            [memosKey]: { ...(t.todoManagementInfo2[memosKey] as object), [id!]: finalValue }
+                            [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue }
                         } : undefined
                     }
                     : t
@@ -319,7 +262,7 @@ export const useMemoEditor = (
                         ...t,
                         todoManagementInfo3: t.todoManagementInfo3 ? {
                             ...t.todoManagementInfo3,
-                            [memosKey]: { ...(t.todoManagementInfo3[memosKey] as object), [id!]: finalValue }
+                            [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue }
                         } : undefined
                     }
                     : t
@@ -330,9 +273,7 @@ export const useMemoEditor = (
 
     const handleUpdateItemText = (newText: string) => {
         if (!memoEditor.id) return;
-        
         const targetId = String(memoEditor.id);
-
         updateData(prevData => ({
             ...prevData,
             tabs: prevData.tabs.map(t => ({
@@ -387,18 +328,13 @@ export const useMemoEditor = (
 
     const handleAddPage = () => {
         if (!memoEditor.id) return;
-        
-        // 1. Update local state
         setMemoEditor(prev => {
             const newAllValues = [...prev.allValues];
             newAllValues[prev.activePageIndex] = prev.value;
-            
             const newAllTitles = [...prev.allTitles];
             newAllTitles[prev.activePageIndex] = prev.title;
-
             const updatedAllValues = [...newAllValues, ''];
             const updatedAllTitles = [...newAllTitles, ''];
-            
             return {
                 ...prev,
                 allValues: updatedAllValues,
@@ -409,21 +345,17 @@ export const useMemoEditor = (
             };
         });
 
-        // 2. Persist to data
-        // SYNC: Capture current unsaved shifts
+        // SYNC Fix
         const updatedAllValues = [...memoEditor.allValues];
         updatedAllValues[memoEditor.activePageIndex] = memoEditor.value;
         const updatedAllTitles = [...memoEditor.allTitles];
         updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
-        
-        // Final construction
         const finalPages = [...updatedAllValues, ''].map((content, idx) => {
             const title = updatedAllTitles[idx] || '';
             const value = idx === updatedAllValues.length ? '' : content;
             return title + TITLE_SEPARATOR + value;
         });
         const finalValue = finalPages.join('\n===page-break===\n');
-
         const { id, type, tabId } = memoEditor;
 
         if (type === 'section') {
@@ -434,18 +366,30 @@ export const useMemoEditor = (
                     : t
                 )
             }));
-        } else if (type?.startsWith('todoCat')) {
-            const catNum = type.replace('todoCat', '');
-            const memosKey = `category${catNum}Memos` as keyof typeof activeTab.todoManagementInfo;
+        } else if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+            const pkKey = type === 'checklist' ? 'checklistMemos' : 
+                          type === 'shopping' ? 'shoppingListMemos' :
+                          type === 'reminders' ? 'remindersMemos' :
+                          type === 'todo' ? 'todoMemos' : 'category5Memos';
             updateData(prev => ({
                 ...prev,
                 tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
                     ? {
                         ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            [memosKey]: { ...(t.todoManagementInfo[memosKey] as object), [id!]: finalValue }
-                        }
+                        parkingInfo: { ...t.parkingInfo, [pkKey]: { ...(t.parkingInfo as any)[pkKey], [id!]: finalValue } }
+                    }
+                    : t
+                )
+            }));
+        } else if (type?.startsWith('todoCat')) {
+            const catNum = type.replace('todoCat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: { ...t.todoManagementInfo, [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue } }
                     }
                     : t
                 )
@@ -460,7 +404,7 @@ export const useMemoEditor = (
                         ...t,
                         todoManagementInfo2: t.todoManagementInfo2 ? {
                             ...t.todoManagementInfo2,
-                            [memosKey]: { ...(t.todoManagementInfo2[memosKey] as object), [id!]: finalValue }
+                            [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue }
                         } : undefined
                     }
                     : t
@@ -476,36 +420,12 @@ export const useMemoEditor = (
                         ...t,
                         todoManagementInfo3: t.todoManagementInfo3 ? {
                             ...t.todoManagementInfo3,
-                            [memosKey]: { ...(t.todoManagementInfo3[memosKey] as object), [id!]: finalValue }
+                            [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue }
                         } : undefined
                     }
                     : t
                 )
             }));
-        } else {
-            // Default generic update for other types (checklist, shopping, reminders, parkingCat5)
-            // mirror parts of handleSaveMemo
-            const pkMemosKey = type === 'checklist' ? 'checklistMemos' :
-                               type === 'shopping' ? 'shoppingListMemos' :
-                               type === 'reminders' ? 'remindersMemos' :
-                               type === 'todo' ? 'todoMemos' :
-                               type === 'parkingCat5' ? 'category5Memos' : null;
-            
-            if (pkMemosKey) {
-                updateData(prev => ({
-                    ...prev,
-                    tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
-                        ? {
-                            ...t,
-                            parkingInfo: {
-                                ...t.parkingInfo,
-                                [pkMemosKey]: { ...(t.parkingInfo as any)[pkMemosKey], [id!]: finalValue }
-                            }
-                        }
-                        : t
-                    )
-                }));
-            }
         }
     };
 
@@ -516,17 +436,11 @@ export const useMemoEditor = (
                 alert('최소 1페이지는 유지해야 합니다.');
                 return prev;
             }
-
             const newAllValues = [...prev.allValues];
             const newAllTitles = [...prev.allTitles];
-            
-            // Remove current page
             newAllValues.splice(prev.activePageIndex, 1);
             newAllTitles.splice(prev.activePageIndex, 1);
-            
-            // Adjust active index if it was the last page
             const newIndex = Math.min(prev.activePageIndex, newAllValues.length - 1);
-            
             const newState = {
                 ...prev,
                 allValues: newAllValues,
@@ -535,581 +449,138 @@ export const useMemoEditor = (
                 value: newAllValues[newIndex],
                 title: newAllTitles[newIndex]
             };
-
-            // Persistence
             const finalPages = newAllValues.map((content, idx) => {
                 const title = newAllTitles[idx] || '';
                 return title + TITLE_SEPARATOR + content;
             });
             const finalValue = finalPages.join('\n===page-break===\n');
             const { id, type, tabId } = prev;
-
             if (type === 'section') {
                 updateData(p => ({
                     ...p,
-                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
-                        ? { ...t, memos: { ...t.memos, [id!]: finalValue } }
-                        : t
-                    )
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId) ? { ...t, memos: { ...t.memos, [id!]: finalValue } } : t)
                 }));
-            } else if (type === 'checklist') {
+            } else if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+                const pkKey = type === 'checklist' ? 'checklistMemos' : 
+                              type === 'shopping' ? 'shoppingListMemos' :
+                              type === 'reminders' ? 'remindersMemos' :
+                              type === 'todo' ? 'todoMemos' : 'category5Memos';
                 updateData(p => ({
                     ...p,
-                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
-                        ? {
-                            ...t,
-                            parkingInfo: { ...t.parkingInfo, checklistMemos: { ...t.parkingInfo.checklistMemos, [id!]: finalValue } }
-                        }
-                        : t
-                    )
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId) ? { ...t, parkingInfo: { ...t.parkingInfo, [pkKey]: { ...(t.parkingInfo as any)[pkKey], [id!]: finalValue } } } : t)
                 }));
             } else if (type?.startsWith('todoCat')) {
                 const catNum = type.replace('todoCat', '');
                 const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
                 updateData(p => ({
                     ...p,
-                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo: {
-                                ...t.todoManagementInfo,
-                                [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue }
-                            }
-                        }
-                        : t
-                    )
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId) ? { ...t, todoManagementInfo: { ...t.todoManagementInfo, [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue } } } : t)
                 }));
             } else if (type?.startsWith('todo2Cat')) {
                 const catNum = type.replace('todo2Cat', '');
                 const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
                 updateData(p => ({
                     ...p,
-                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo2: t.todoManagementInfo2 ? {
-                                ...t.todoManagementInfo2,
-                                [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue }
-                            } : undefined
-                        } as Tab
-                        : t
-                    )
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId) ? { ...t, todoManagementInfo2: t.todoManagementInfo2 ? { ...t.todoManagementInfo2, [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue } } : undefined } : t)
                 }));
             } else if (type?.startsWith('todo3Cat')) {
                 const catNum = type.replace('todo3Cat', '');
                 const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
                 updateData(p => ({
                     ...p,
-                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
-                        ? {
-                            ...t,
-                            todoManagementInfo3: t.todoManagementInfo3 ? {
-                                ...t.todoManagementInfo3,
-                                [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue }
-                            } : undefined
-                        } as Tab
-                        : t
-                    )
-                }));
-            } else {
-                updateData(p => ({
-                    ...p,
-                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId)
-                        ? { ...t, memos: { ...t.memos, [id!]: finalValue } }
-                        : t
-                    )
+                    tabs: p.tabs.map(t => t.id === (tabId || p.activeTabId) ? { ...t, todoManagementInfo3: t.todoManagementInfo3 ? { ...t.todoManagementInfo3, [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue } } : undefined } : t)
                 }));
             }
-
             return newState;
         });
     };
 
     const handleSwipeMemo = (direction: 'left' | 'right') => {
         if (!memoEditor.id) return;
-
         const totalPages = memoEditor.allValues.length;
         const currentIndex = memoEditor.activePageIndex;
-
-        if (direction === 'left') { // Next page
-            if (currentIndex < totalPages - 1) {
-                handleChangePage(currentIndex + 1);
-            }
-        } else { // Previous page
-            if (currentIndex > 0) {
-                handleChangePage(currentIndex - 1);
-            }
+        if (direction === 'left') {
+            if (currentIndex < totalPages - 1) handleChangePage(currentIndex + 1);
+        } else {
+            if (currentIndex > 0) handleChangePage(currentIndex - 1);
         }
     };
 
     const handleSaveMemo = (exitEditMode: boolean = true, newValue?: string) => {
         if (!memoEditor.id) return;
-
+        const currentContent = newValue !== undefined ? newValue : memoEditor.value;
+        const currentTitle = memoEditor.title || '';
         const updatedAllContents = [...memoEditor.allValues];
-        updatedAllContents[memoEditor.activePageIndex] = newValue !== undefined ? newValue : memoEditor.value;
-
+        if (memoEditor.activePageIndex >= 0 && memoEditor.activePageIndex < updatedAllContents.length) {
+            updatedAllContents[memoEditor.activePageIndex] = currentContent;
+        }
         const updatedAllTitles = [...memoEditor.allTitles];
-        updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
-
+        if (memoEditor.activePageIndex >= 0 && memoEditor.activePageIndex < updatedAllTitles.length) {
+            updatedAllTitles[memoEditor.activePageIndex] = currentTitle;
+        }
         const finalPages = updatedAllContents.map((content, idx) => {
-            const title = updatedAllTitles[idx];
+            const title = updatedAllTitles[idx] || '';
             return title + TITLE_SEPARATOR + content;
         });
         const finalValue = finalPages.join('\n===page-break===\n');
+        const { type, id, tabId } = memoEditor;
 
-        if (memoEditor.type === 'section') {
+        if (type === 'section') {
             updateData(prev => ({
                 ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        memos: {
-                            ...t.memos,
-                            [memoEditor.id!]: finalValue
-                        }
-                    }
-                    : t
-                )
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId) ? { ...t, memos: { ...t.memos, [id!]: finalValue } } : t)
             }));
-        } else if (memoEditor.type === 'checklist') {
+        } else if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+            const pkKey = type === 'checklist' ? 'checklistMemos' : 
+                          type === 'shopping' ? 'shoppingListMemos' :
+                          type === 'reminders' ? 'remindersMemos' :
+                          type === 'todo' ? 'todoMemos' : 'category5Memos';
             updateData(prev => ({
                 ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            checklistItems: t.parkingInfo.checklistItems.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            checklistMemos: {
-                                ...t.parkingInfo.checklistMemos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId) ? { ...t, parkingInfo: { ...t.parkingInfo, [pkKey]: { ...(t.parkingInfo as any)[pkKey], [id!]: finalValue } } } : t)
             }));
-        } else if (memoEditor.type === 'shopping') {
+        } else if (type?.startsWith('todoCat')) {
+            const catNum = type.replace('todoCat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
             updateData(prev => ({
                 ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            shoppingListItems: t.parkingInfo.shoppingListItems.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            shoppingListMemos: {
-                                ...t.parkingInfo.shoppingListMemos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId) ? { ...t, todoManagementInfo: { ...t.todoManagementInfo, [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue } } } : t)
             }));
-        } else if (memoEditor.type === 'reminders') {
+        } else if (type?.startsWith('todo2Cat')) {
+            const catNum = type.replace('todo2Cat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
             updateData(prev => ({
                 ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            remindersItems: t.parkingInfo.remindersItems.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            remindersMemos: {
-                                ...t.parkingInfo.remindersMemos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId) ? { ...t, todoManagementInfo2: t.todoManagementInfo2 ? { ...t.todoManagementInfo2, [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue } } : undefined } : t)
             }));
-        } else if (memoEditor.type === 'todo') {
+        } else if (type?.startsWith('todo3Cat')) {
+            const catNum = type.replace('todo3Cat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
             updateData(prev => ({
                 ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            todoItems: t.parkingInfo.todoItems.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            todoMemos: {
-                                ...t.parkingInfo.todoMemos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'parkingCat5') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        parkingInfo: {
-                            ...t.parkingInfo,
-                            category5Items: t.parkingInfo.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category5Memos: {
-                                ...t.parkingInfo.category5Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todoCat1') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            category1Items: t.todoManagementInfo.category1Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category1Memos: {
-                                ...t.todoManagementInfo.category1Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todoCat2') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            category2Items: t.todoManagementInfo.category2Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category2Memos: {
-                                ...t.todoManagementInfo.category2Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todoCat3') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            category3Items: t.todoManagementInfo.category3Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category3Memos: {
-                                ...t.todoManagementInfo.category3Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todoCat4') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            category4Items: t.todoManagementInfo.category4Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category4Memos: {
-                                ...t.todoManagementInfo.category4Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todoCat5') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            category5Items: t.todoManagementInfo.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category5Memos: {
-                                ...t.todoManagementInfo.category5Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo2Cat1') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo2: {
-                            ...t.todoManagementInfo2,
-                            category1Items: t.todoManagementInfo2.category1Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category1Memos: {
-                                ...t.todoManagementInfo2.category1Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo2Cat2') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo2: {
-                            ...t.todoManagementInfo2,
-                            category2Items: t.todoManagementInfo2.category2Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category2Memos: {
-                                ...t.todoManagementInfo2.category2Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo2Cat3') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo2: {
-                            ...t.todoManagementInfo2,
-                            category3Items: t.todoManagementInfo2.category3Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category3Memos: {
-                                ...t.todoManagementInfo2.category3Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo2Cat4') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo2: {
-                            ...t.todoManagementInfo2,
-                            category4Items: t.todoManagementInfo2.category4Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category4Memos: {
-                                ...t.todoManagementInfo2.category4Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo2Cat5') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo2: {
-                            ...t.todoManagementInfo2,
-                            category5Items: t.todoManagementInfo2.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category5Memos: {
-                                ...t.todoManagementInfo2.category5Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo3Cat1') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo3: {
-                            ...t.todoManagementInfo3,
-                            category1Items: t.todoManagementInfo3.category1Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category1Memos: {
-                                ...t.todoManagementInfo3.category1Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo3Cat2') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo3: {
-                            ...t.todoManagementInfo3,
-                            category2Items: t.todoManagementInfo3.category2Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category2Memos: {
-                                ...t.todoManagementInfo3.category2Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo3Cat3') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo3: {
-                            ...t.todoManagementInfo3,
-                            category3Items: t.todoManagementInfo3.category3Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category3Memos: {
-                                ...t.todoManagementInfo3.category3Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo3Cat4') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo3: {
-                            ...t.todoManagementInfo3,
-                            category4Items: t.todoManagementInfo3.category4Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category4Memos: {
-                                ...t.todoManagementInfo3.category4Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
-            }));
-        } else if (memoEditor.type === 'todo3Cat5') {
-            updateData(prev => ({
-                ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        todoManagementInfo3: {
-                            ...t.todoManagementInfo3,
-                            category5Items: t.todoManagementInfo3.category5Items.map(item =>
-                                item.id === memoEditor.id ? { ...item } : item
-                            ),
-                            category5Memos: {
-                                ...t.todoManagementInfo3.category5Memos,
-                                [memoEditor.id!]: finalValue
-                            }
-                        }
-                    }
-                    : t
-                )
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId) ? { ...t, todoManagementInfo3: t.todoManagementInfo3 ? { ...t.todoManagementInfo3, [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue } } : undefined } : t)
             }));
         } else {
             updateData(prev => ({
                 ...prev,
-                tabs: prev.tabs.map(t => t.id === (memoEditor.tabId || prev.activeTabId)
-                    ? {
-                        ...t,
-                        sections: t.sections.map(s => ({
-                            ...s,
-                            items: s.items.map(i => String(i.id) === String(memoEditor.id) ? { ...i } : i)
-                        })),
-                        inboxSection: t.inboxSection ? {
-                            ...t.inboxSection,
-                            items: t.inboxSection.items.map(i => String(i.id) === String(memoEditor.id) ? { ...i } : i)
-                        } : t.inboxSection,
-                        memos: { ...t.memos, [memoEditor.id!]: finalValue }
-                    }
-                    : t
-                )
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId) ? { ...t, memos: { ...t.memos, [id!]: finalValue } } : t)
             }));
         }
 
-        if (exitEditMode) {
-            if (memoEditor.value.trim() || memoEditor.title.trim()) {
-                setMemoEditor(prev => ({ ...prev, isEditing: false }));
-            } else {
-                setMemoEditor(prev => ({ ...prev, id: null, value: '', title: '', allValues: Array(prev.allValues.length).fill(''), allTitles: Array(prev.allTitles.length).fill(''), activePageIndex: 0, isEditing: false, sectionId: null }));
+        setMemoEditor(prev => {
+            if (exitEditMode && !currentContent.trim() && !currentTitle.trim() && prev.allValues.length <= 1) {
+                return { ...prev, id: null, value: '', title: '', allValues: [''], allTitles: [''], activePageIndex: 0, isEditing: false, sectionId: null };
             }
-        }
+            return { ...prev, value: currentContent, title: currentTitle, allValues: updatedAllContents, allTitles: updatedAllTitles, isEditing: exitEditMode ? false : prev.isEditing };
+        });
     };
 
     const handleDeleteItemFromModal = () => {
         if (!memoEditor.id) return;
-
-        // --- 잠금 체크 로직 추가 ---
-        const targetTab = (safeData.tabs as any[]).find(t => t.id === (memoEditor.tabId || safeData.activeTabId));
+        const targetTab = safeData.tabs.find(t => t.id === (memoEditor.tabId || safeData.activeTabId));
         if (targetTab) {
             let itemToDelete: any = null;
             const { type, id } = memoEditor;
-
             if (type === 'checklist') itemToDelete = targetTab.parkingInfo.checklistItems.find((i: any) => i.id === id);
             else if (type === 'shopping') itemToDelete = targetTab.parkingInfo.shoppingListItems.find((i: any) => i.id === id);
             else if (type === 'reminders') itemToDelete = targetTab.parkingInfo.remindersItems.find((i: any) => i.id === id);
@@ -1128,109 +599,40 @@ export const useMemoEditor = (
                 const section = [targetTab.inboxSection, ...targetTab.sections].find((s: any) => s?.id === memoEditor.sectionId);
                 itemToDelete = section?.items.find((i: any) => i.id === id);
             }
-
             if (itemToDelete?.isLocked) {
                 alert("🔒 잠긴 항목은 삭제할 수 없습니다. 먼저 잠금을 해제해주세요.");
                 return;
             }
         }
-        // -------------------------
-
-        // 실행 전 에디터 닫기
-        setMemoEditor(prev => ({ 
-            ...prev, 
-            id: null, 
-            value: '', 
-            title: '', 
-            allValues: Array(prev.allValues.length).fill(''), 
-            allTitles: Array(prev.allTitles.length).fill(''), 
-            activePageIndex: 0, 
-            isEditing: false, 
-            sectionId: null 
-        }));
-
+        setMemoEditor(prev => ({ ...prev, id: null, value: '', title: '', allValues: [''], allTitles: [''], activePageIndex: 0, isEditing: false, sectionId: null }));
         updateData(prev => ({
             ...prev,
             tabs: prev.tabs.map(t => {
                 if (t.id !== (memoEditor.tabId || prev.activeTabId)) return t;
-
-                if (memoEditor.type === 'checklist') {
-                    const newMemos = { ...t.parkingInfo.checklistMemos };
-                    delete newMemos[memoEditor.id!];
-                    return { ...t, parkingInfo: { ...t.parkingInfo, checklistItems: t.parkingInfo.checklistItems.filter(i => i.id !== memoEditor.id), checklistMemos: newMemos } };
-                } else if (memoEditor.type === 'shopping') {
-                    const newMemos = { ...t.parkingInfo.shoppingListMemos };
-                    delete newMemos[memoEditor.id!];
-                    return { ...t, parkingInfo: { ...t.parkingInfo, shoppingListItems: t.parkingInfo.shoppingListItems.filter(i => i.id !== memoEditor.id), shoppingListMemos: newMemos } };
-                } else if (memoEditor.type === 'reminders') {
-                    const newMemos = { ...t.parkingInfo.remindersMemos };
-                    delete newMemos[memoEditor.id!];
-                    return { ...t, parkingInfo: { ...t.parkingInfo, remindersItems: t.parkingInfo.remindersItems.filter(i => i.id !== memoEditor.id), remindersMemos: newMemos } };
-                } else if (memoEditor.type === 'todo') {
-                    const newMemos = { ...t.parkingInfo.todoMemos };
-                    delete newMemos[memoEditor.id!];
-                    return { ...t, parkingInfo: { ...t.parkingInfo, todoItems: t.parkingInfo.todoItems.filter(i => i.id !== memoEditor.id), todoMemos: newMemos } };
-                } else if (memoEditor.type === 'parkingCat5') {
-                    const newMemos = { ...t.parkingInfo.category5Memos };
-                    delete newMemos[memoEditor.id!];
-                    return { ...t, parkingInfo: { ...t.parkingInfo, category5Items: t.parkingInfo.category5Items.filter(i => i.id !== memoEditor.id), category5Memos: newMemos } };
-                } else if (memoEditor.type?.startsWith('todoCat')) {
-                    const catNum = memoEditor.type.replace('todoCat', '');
-                    const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo;
-                    const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo;
-                    const newMemos = { ...(t.todoManagementInfo[memosKey] as any) };
-                    delete newMemos[memoEditor.id!];
-                    return {
-                        ...t,
-                        todoManagementInfo: {
-                            ...t.todoManagementInfo,
-                            [itemsKey]: (t.todoManagementInfo[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
-                            [memosKey]: newMemos
-                        }
-                    };
-                } else if (memoEditor.type?.startsWith('todo2Cat')) {
-                    const catNum = memoEditor.type.replace('todo2Cat', '');
-                    const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo2;
-                    const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo2;
-                    const newMemos = { ...(t.todoManagementInfo2![memosKey] as any) };
-                    delete newMemos[memoEditor.id!];
-                    return {
-                        ...t,
-                        todoManagementInfo2: t.todoManagementInfo2 ? {
-                            ...t.todoManagementInfo2,
-                            [itemsKey]: (t.todoManagementInfo2[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
-                            [memosKey]: newMemos
-                        } : undefined
-                    } as Tab;
-                } else if (memoEditor.type?.startsWith('todo3Cat')) {
-                    const catNum = memoEditor.type.replace('todo3Cat', '');
-                    const itemsKey = `category${catNum}Items` as keyof typeof t.todoManagementInfo3;
-                    const memosKey = `category${catNum}Memos` as keyof typeof t.todoManagementInfo3;
-                    const newMemos = { ...(t.todoManagementInfo3[memosKey] as any) };
-                    delete newMemos[memoEditor.id!];
-                    return {
-                        ...t,
-                        todoManagementInfo3: {
-                            ...t.todoManagementInfo3,
-                            [itemsKey]: (t.todoManagementInfo3[itemsKey] as any[]).filter(i => i.id !== memoEditor.id),
-                            [memosKey]: newMemos
-                        }
-                    };
+                const { type, id } = memoEditor;
+                if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+                    const itemsKey = type === 'checklist' ? 'checklistItems' : type === 'shopping' ? 'shoppingListItems' : type === 'reminders' ? 'remindersItems' : type === 'todo' ? 'todoItems' : 'category5Items';
+                    const memosKey = type === 'checklist' ? 'checklistMemos' : type === 'shopping' ? 'shoppingListMemos' : type === 'reminders' ? 'remindersMemos' : type === 'todo' ? 'todoMemos' : 'category5Memos';
+                    const newMemos = { ...(t.parkingInfo as any)[memosKey] };
+                    delete newMemos[id!];
+                    return { ...t, parkingInfo: { ...t.parkingInfo, [itemsKey]: (t.parkingInfo as any)[itemsKey].filter((i: any) => i.id !== id), [memosKey]: newMemos } };
+                } else if (type?.includes('Cat')) {
+                    const catMatch = type.match(/cat(\d+)$/i);
+                    const num = catMatch ? catMatch[1] : '1';
+                    const itemsKey = `category${num}Items`;
+                    const memosKey = `category${num}Memos`;
+                    let infoKey: keyof Tab = 'todoManagementInfo';
+                    if (type.startsWith('todo2Cat')) infoKey = 'todoManagementInfo2';
+                    else if (type.startsWith('todo3Cat')) infoKey = 'todoManagementInfo3';
+                    const info = t[infoKey] as any;
+                    if (!info) return t;
+                    const newMemos = { ...info[memosKey] };
+                    delete newMemos[id!];
+                    return { ...t, [infoKey]: { ...info, [itemsKey]: info[itemsKey].filter((i: any) => i.id !== id), [memosKey]: newMemos } };
                 } else {
                     const newMemos = { ...t.memos };
-                    delete newMemos[memoEditor.id!];
-                    return {
-                        ...t,
-                        sections: t.sections.map(s => ({
-                            ...s,
-                            items: s.items.filter(i => i.id !== memoEditor.id)
-                        })),
-                        inboxSection: t.inboxSection ? {
-                            ...t.inboxSection,
-                            items: t.inboxSection.items.filter(i => i.id !== memoEditor.id)
-                        } : t.inboxSection,
-                        memos: newMemos
-                    };
+                    delete newMemos[id!];
+                    return { ...t, sections: t.sections.map(s => ({ ...s, items: s.items.filter(i => i.id !== id) })), inboxSection: t.inboxSection ? { ...t.inboxSection, items: t.inboxSection.items.filter(i => i.id !== id) } : t.inboxSection, memos: newMemos };
                 }
             })
         }));
@@ -1239,29 +641,23 @@ export const useMemoEditor = (
     const handleInsertSymbol = (symbol: string) => {
         const element = memoTextareaRef.current;
         if (!element) return;
-
         if (element.tagName === 'DIV') {
             element.focus();
             const selection = window.getSelection();
             if (!selection || !selection.rangeCount) return;
-
             const range = selection.getRangeAt(0);
             range.deleteContents();
-
             if (symbol === '\n---divider---\n') {
                 const hr = document.createElement('hr');
                 hr.className = "w-[80%] border-t-2 border-blue-400 mx-auto my-3 border-solid pointer-events-none";
                 hr.setAttribute('contenteditable', 'false');
                 hr.setAttribute('data-type', 'divider');
-                
                 const container = document.createElement('div');
                 container.appendChild(document.createElement('br'));
                 container.appendChild(hr);
                 container.appendChild(document.createElement('br'));
-                
                 const fragment = document.createDocumentFragment();
                 while (container.firstChild) fragment.appendChild(container.firstChild);
-                
                 range.insertNode(fragment);
                 range.collapse(false);
                 selection.removeAllRanges();
@@ -1274,10 +670,7 @@ export const useMemoEditor = (
                 selection.removeAllRanges();
                 selection.addRange(range);
             }
-            
-            const event = new Event('input', { bubbles: true });
-            element.dispatchEvent(event);
-            return;
+            element.dispatchEvent(new Event('input', { bubbles: true }));
         }
     };
 
@@ -1292,8 +685,6 @@ export const useMemoEditor = (
         { label: '■', value: '■ ', title: '사각' },
         { label: '◆', value: '◆ ', title: '다이아' },
     ];
-
-
 
     return {
         handleShowMemo,
