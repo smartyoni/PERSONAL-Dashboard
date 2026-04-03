@@ -420,7 +420,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     outline: none;
                     font-size: 15px;
                     line-height: 28px;
-                    font-family: inherit;
+                    font-family: 'Nanum Myeongjo', serif;
                     resize: none;
                     background: transparent;
                     white-space: pre-wrap;
@@ -439,7 +439,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     padding: 0 1.5rem 1.5rem 1.5rem;
                     font-size: 15px;
                     line-height: 28px;
-                    font-family: inherit;
+                    font-family: 'Nanum Myeongjo', serif;
                     white-space: pre-wrap;
                     word-wrap: break-word;
                     color: #334155;
@@ -452,6 +452,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     line-height: 28px !important;
                     min-height: 28px;
                     font-size: 15px !important;
+                    font-family: 'Nanum Myeongjo', serif !important;
                 }
                 .prose ul, .prose ol {
                     margin-top: 0px !important;

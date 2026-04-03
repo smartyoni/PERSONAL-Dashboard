@@ -281,7 +281,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
             value={title}
             onChange={onTitleChange}
             placeholder="제목 입력..."
-            className="text-[16px] font-bold text-red-600 pointer-events-auto"
+            className="text-[17px] font-bold text-red-600 pointer-events-auto"
             compact
           />
           <button onClick={() => handleAddItem(type)} className="text-[11px] text-green-600 hover:text-green-700 font-bold pointer-events-auto">+ 추가</button>
@@ -358,7 +358,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     onChange={(txt) => handleUpdateText(type, item.id, txt)}
                     onEditingChange={(ed) => handleEditingChange(item.id, ed)}
                     placeholder="항목 입력..."
-                    className={`text-[15px] ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
+                    className={`text-[16px] font-serif ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                     compact
                     disabled={item.isLocked}
                     />

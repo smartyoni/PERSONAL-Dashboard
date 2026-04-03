@@ -145,7 +145,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       {/* 2. Text Area & Memo Preview */}
       <div className="flex-1 min-w-0 pl-2">
         <div
-          className={`leading-5 ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
+          className={`leading-5 font-serif ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[16px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
           onDoubleClick={(e) => {
             e.stopPropagation();
             onDoubleClickItem?.();
@@ -188,7 +188,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
               onEditingChange?.(isEditing);
             }}
             placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
-            className={isBookmark ? "text-base font-bold leading-5" : "text-[15px] leading-5"}
+            className={isBookmark ? "text-base font-bold leading-5 font-serif" : "text-[16px] leading-5 font-serif"}
             compact
             disabled={item.isLocked}
           />

@@ -205,7 +205,7 @@ const SubSection: React.FC<SubSectionProps> = ({
                                     onChange={(txt) => handleUpdateText(type, item.id, txt)}
                                     onEditingChange={(ed) => handleEditingChange(item.id, ed)}
                                     placeholder="항목 입력..."
-                                    className={`text-[14px] leading-tight py-1 ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
+                                    className={`text-[15px] font-serif leading-tight py-1 ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                                     compact
                                     disabled={item.isLocked}
                                 />
