@@ -466,7 +466,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {currentItem && (
                 <>
                     <div 
-                        className="flex-none px-4 py-3 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between border-b min-h-[56px] shadow-sm" 
+                        className="flex-none px-4 py-3 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between border-b min-h-[56px] shadow-sm relative group" 
                         style={{ borderColor: 'rgba(99, 102, 241, 0.1)' }}
                         onClick={() => {
                             if (isMobileLayout && !isEditingHeader) {
@@ -506,48 +506,37 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     onChange={(e) => setHeaderValue(e.target.value)}
                                 />
                             ) : (
-                                <span className="text-base font-bold text-red-600 line-clamp-2 leading-snug break-all">
+                                <span className="text-base font-bold text-red-600 line-clamp-2 leading-snug break-all flex items-center gap-2">
+                                    {currentItem?.isLocked && <span title="잠금됨" className="text-sm">🔒</span>}
                                     {headerTitle}
                                 </span>
                             )}
                         </div>
+
                         <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-bold text-red-500 uppercase tracking-wider">{sectionName}</span>
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{sectionName}</span>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setShowDeleteConfirm(!showDeleteConfirm);
+                                    if (currentItem?.isLocked) {
+                                        alert("🔒 잠긴 항목은 삭제할 수 없습니다. 먼저 잠금을 해제해주세요.");
+                                        return;
+                                    }
+                                    if (window.confirm('정말 이 항목을 삭제하시겠습니까?')) {
+                                        handleDeleteItemFromModal();
+                                    }
                                 }}
-                                className={`p-1 transition-colors rounded ${showDeleteConfirm ? 'bg-red-100 text-red-600' : 'text-slate-400 hover:text-red-500'}`}
-                                title="삭제"
+                                className={`p-1.5 transition-all rounded-lg ${currentItem?.isLocked
+                                    ? 'opacity-30 cursor-not-allowed text-slate-300'
+                                    : 'text-slate-400 hover:text-red-500 hover:bg-red-50'
+                                    }`}
+                                title={currentItem?.isLocked ? "잠긴 항목 (삭제 불가)" : "항목 삭제"}
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
-
-                            {/* Local Delete Confirmation */}
-                            {showDeleteConfirm && (
-                                <>
-                                    <div className="fixed inset-0 z-[1100]" onClick={() => setShowDeleteConfirm(false)} />
-                                    <div className="absolute right-4 top-12 z-[1110] bg-white border border-red-100 shadow-2xl rounded-2xl p-3 w-48 animate-in zoom-in-95 fade-in duration-200">
-                                        <p className="text-[11px] font-bold text-slate-700 mb-2 leading-tight">정말로 이 항목을{'\n'}삭제하시겠습니까?</p>
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => setShowDeleteConfirm(false)}
-                                                className="flex-1 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg hover:bg-slate-200 transition-colors"
-                                            >취소</button>
-                                            <button 
-                                                onClick={() => {
-                                                    handleDeleteItemFromModal();
-                                                    setShowDeleteConfirm(false);
-                                                }}
-                                                className="flex-1 py-1.5 bg-red-500 text-white text-[10px] font-bold rounded-lg hover:bg-red-600 shadow-sm transition-colors"
-                                            >삭제</button>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     </div>
+
                     {/* Page Sub-title Input */}
                     {/* Unified Segmented Header Row */}
                     <div 
@@ -629,13 +618,15 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setShowPageDeleteConfirm(!showPageDeleteConfirm);
+                                                if (window.confirm('현재 페이지를 정말 삭제하시겠습니까?')) {
+                                                    handleDeletePage();
+                                                }
                                             }}
-                                            className={`px-3 py-1.5 text-[10px] font-bold transition-all rounded-xl border fill-orange-600 shadow-sm ${showPageDeleteConfirm ? 'bg-orange-200 text-orange-700 border-orange-300 shadow-inner' : 'bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-100'}`}
+                                            className="px-3 py-1.5 text-[10px] font-bold bg-orange-500 text-white border border-orange-600 rounded-xl shadow-sm hover:bg-orange-600 transition-all active:scale-95"
+                                            title="페이지 삭제"
                                         >
                                             페이지삭제
                                         </button>
-
                                         {/* Page Delete Confirmation Popover (Unified Style) */}
                                         {showPageDeleteConfirm && (
                                             <>

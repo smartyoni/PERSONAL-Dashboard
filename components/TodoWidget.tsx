@@ -184,10 +184,13 @@ const SubSection: React.FC<SubSectionProps> = ({
                             <button
                                 ref={el => { triggerRefs.current[item.id] = el; }}
                                 onClick={(e) => toggleMenu(e, item.id)}
-                                className="leading-none w-3 h-6 flex items-center justify-center text-blue-400 hover:text-blue-500 transition-colors font-bold text-xl flex-shrink-0"
+                                className="leading-none w-3 h-6 flex items-center justify-center text-blue-400 hover:text-blue-500 transition-colors font-bold text-xl flex-shrink-0 relative"
                                 title="메뉴 열기"
                             >
                                 •
+                                {item.isLocked && (
+                                    <span className="absolute -right-0.5 top-0.5 text-[9px]" title="잠김">🔒</span>
+                                )}
                             </button>
                             <div 
                                 className="flex-1 min-w-0" 
@@ -204,6 +207,7 @@ const SubSection: React.FC<SubSectionProps> = ({
                                     placeholder="항목 입력..."
                                     className={`text-[14px] leading-tight py-1 ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                                     compact
+                                    disabled={item.isLocked}
                                 />
                             </div>
                             <button
@@ -294,9 +298,15 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
         onChange({ ...info, [key]: newItems });
     };
 
+    const handleToggleItemLock = (type: 1 | 2 | 3 | 4 | 5, itemId: string) => {
+        const key = `category${type}Items` as keyof TodoManagementInfo;
+        const currentItems = (info[key] as ListItem[]) || [];
+        updateList(type, currentItems.map(i => i.id === itemId ? { ...i, isLocked: !i.isLocked } : i));
+    };
+
     const handleAddItem = (type: 1 | 2 | 3 | 4 | 5) => {
         const newItemId = Math.random().toString(36).substr(2, 9);
-        const newItem: ListItem = { id: newItemId, text: '', completed: false };
+        const newItem: ListItem = { id: newItemId, text: '', completed: false, isLocked: false };
         const key = `category${type}Items` as keyof TodoManagementInfo;
         const currentItems = (info[key] as ListItem[]) || [];
         updateList(type, [...currentItems, newItem]);
@@ -309,6 +319,11 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     const handleDeleteItem = (type: 1 | 2 | 3 | 4 | 5, itemId: string) => {
         const key = `category${type}Items` as keyof TodoManagementInfo;
         const currentItems = (info[key] as ListItem[]) || [];
+        const itemToDelete = currentItems.find(i => i.id === itemId);
+        if (itemToDelete?.isLocked) {
+            alert('잠겨있는 항목은 삭제할 수 없습니다. 잠금을 해제해 주세요.');
+            return;
+        }
         updateList(type, currentItems.filter(i => i.id !== itemId));
     };
 
@@ -457,7 +472,21 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                         <button onClick={() => { navigator.clipboard.writeText(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📋 복사</button>
                         <button onClick={() => { onAddToCalendar(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📅 캘린더</button>
                         <button onClick={() => handleToggleItem(type, item.id)} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">{item.completed ? '⭕ 미완료' : '✅ 완료'}</button>
-                        <button onClick={() => { setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 border-t-2 border-slate-100">🗑️ 삭제</button>
+                        <button onClick={() => { handleToggleItemLock(type, item.id); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50 border-t border-slate-100">{item.isLocked ? '🔓 잠금해제' : '🔒 잠금'}</button>
+                        <button 
+                            disabled={item.isLocked}
+                            onClick={() => { 
+                                if (item.isLocked) {
+                                    alert('잠겨있는 항목입니다. 잠금을 해제한 후 삭제해 주세요.');
+                                    return;
+                                }
+                                setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); 
+                                setOpenMenuId(null); 
+                            }} 
+                            className={`w-full text-left px-4 py-2 text-xs font-bold border-t-2 border-slate-100 ${item.isLocked ? 'text-slate-300' : 'text-red-600 hover:bg-red-50'}`}
+                        >
+                            🗑️ 삭제
+                        </button>
                     </div>
                 );
             })()}

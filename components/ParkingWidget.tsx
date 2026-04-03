@@ -89,9 +89,17 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     onChange({ ...info, [key]: newItems });
   };
 
+  const handleToggleItemLock = (type: string, itemId: string) => {
+    const currentItems = type === 'checklist' ? info.checklistItems :
+      type === 'shopping' ? info.shoppingListItems :
+        type === 'reminders' ? info.remindersItems : 
+          type === 'todo' ? info.todoItems : info.category5Items;
+    updateList(type, (currentItems || []).map(i => i.id === itemId ? { ...i, isLocked: !i.isLocked } : i));
+  };
+
   const handleAddItem = (type: string) => {
     const newItemId = Math.random().toString(36).substr(2, 9);
-    const newItem: ListItem = { id: newItemId, text: '', completed: false };
+    const newItem: ListItem = { id: newItemId, text: '', completed: false, isLocked: false };
     const currentItems = type === 'checklist' ? info.checklistItems :
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
@@ -110,6 +118,11 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       type === 'shopping' ? info.shoppingListItems :
         type === 'reminders' ? info.remindersItems : 
           type === 'todo' ? info.todoItems : info.category5Items;
+    const itemToDelete = (currentItems || []).find(i => i.id === itemId);
+    if (itemToDelete?.isLocked) {
+      alert('잠겨있는 항목은 삭제할 수 없습니다. 잠금을 해제해 주세요.');
+      return;
+    }
     updateList(type, (currentItems || []).filter(i => i.id !== itemId));
   };
 
@@ -324,10 +337,13 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                 <button
                     ref={el => { triggerRefs.current[item.id] = el; }}
                     onClick={(e) => toggleMenu(e, item.id)}
-                    className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors"
+                    className="text-2xl leading-none -mt-1 w-4 h-6 flex items-center justify-center text-green-400 hover:text-green-500 transition-colors relative"
                     title="메뉴 열기"
                 >
                     •
+                    {item.isLocked && (
+                      <span className="absolute -right-0.5 top-0.5 text-[10px]" title="잠김">🔒</span>
+                    )}
                 </button>
                 <div 
                     className="flex-1 min-w-0" 
@@ -344,6 +360,7 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     placeholder="항목 입력..."
                     className={`text-[15px] ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                     compact
+                    disabled={item.isLocked}
                     />
                 </div>
                 {/* Tag button for movement */}
@@ -416,7 +433,21 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
             <button onClick={() => { navigator.clipboard.writeText(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📋 복사</button>
             <button onClick={() => { onAddToCalendar(item.text); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">📅 캘린더</button>
             <button onClick={() => handleToggleItem(type, item.id)} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50">{item.completed ? '⭕ 미완료' : '✅ 완료'}</button>
-            <button onClick={() => { setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 border-t-2 border-slate-100">🗑️ 삭제</button>
+            <button onClick={() => { handleToggleItemLock(type, item.id); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-slate-50 border-t border-slate-100">{item.isLocked ? '🔓 잠금해제' : '🔒 잠금'}</button>
+            <button 
+              disabled={item.isLocked}
+              onClick={() => { 
+                if (item.isLocked) {
+                  alert('잠겨있는 항목입니다. 잠금을 해제한 후 삭제해 주세요.');
+                  return;
+                }
+                setDeleteConfirm({ isOpen: true, itemId: item.id, itemText: item.text, type }); 
+                setOpenMenuId(null); 
+              }} 
+              className={`w-full text-left px-4 py-2 text-xs font-bold border-t-2 border-slate-100 ${item.isLocked ? 'text-slate-300' : 'text-red-600 hover:bg-red-50'}`}
+            >
+              🗑️ 삭제
+            </button>
           </div>
         );
       })()}

@@ -5,6 +5,7 @@ export interface ListItem {
   text: string;
   completed: boolean;
   url?: string; // 추가: 북마크 이동 주소
+  isLocked?: boolean; // 추가: 삭제 잠금 상태
 }
 
 export interface Section {

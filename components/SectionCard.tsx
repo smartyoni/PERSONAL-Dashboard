@@ -197,7 +197,19 @@ const SectionCard: React.FC<SectionCardProps> = ({
     onUpdateSection({ ...section, items: newItems });
   };
 
+  const handleToggleItemLock = (itemId: string) => {
+    const newItems = section.items.map(item =>
+      item.id === itemId ? { ...item, isLocked: !item.isLocked } : item
+    );
+    onUpdateSection({ ...section, items: newItems });
+  };
+
   const handleDeleteItem = (itemId: string) => {
+    const itemToDelete = section.items.find(i => i.id === itemId);
+    if (itemToDelete?.isLocked) {
+      alert('잠겨있는 항목은 삭제할 수 없습니다. 잠금을 해제해 주세요.');
+      return;
+    }
     const newItems = section.items.filter(item => item.id !== itemId);
     onUpdateSection({ ...section, items: newItems });
   };
@@ -442,6 +454,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
               onCopy={() => handleCopyItem(item.id)}
               onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
               onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
+              onToggleLock={() => handleToggleItemLock(item.id)}
               isBookmark={isBookmarkTab}
               onUpdateUrl={(url) => handleUpdateItemUrl(item.id, url)}
               dragState={dragState}

@@ -21,6 +21,7 @@ interface ItemRowProps {
   isBookmark?: boolean; // 추가
   onUpdateUrl?: (newUrl: string) => void; // 추가
   onDoubleClickItem?: () => void;
+  onToggleLock?: () => void; // 추가
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -43,6 +44,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   isBookmark = false,
   onUpdateUrl,
   onDoubleClickItem,
+  onToggleLock,
   dragState,
   onDragStart,
   onDragOver,
@@ -92,15 +94,15 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
   return (
     <div
-      draggable={!isTextEditing}
+      draggable={!isTextEditing && !item.isLocked}
       onDragStart={(e) => {
-        if (isTextEditing) {
+        if (isTextEditing || item.isLocked) {
           e.preventDefault();
           return;
         }
         onDragStart(e);
       }}
-      onDragOver={onDragOver}
+      onDragOver={onDrop ? onDragOver : undefined}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       ref={rowRef}
@@ -110,31 +112,38 @@ const ItemRow: React.FC<ItemRowProps> = ({
     >
       {/* 1. Checkbox or Bookmark Icon */}
       {!isBookmark ? (
-        <div className="h-5 flex items-center justify-center flex-shrink-0 w-[28px]">
+        <div className="h-5 flex items-center justify-center flex-shrink-0 w-[32px] relative ml-[-4px]">
           <button
             ref={triggerRef}
             onClick={toggleMenu}
-            className="text-3xl leading-none hover:scale-110 transition-transform focus:outline-none text-red-500/80 hover:text-red-600"
+            className="text-3xl leading-none hover:scale-110 transition-transform focus:outline-none text-red-500/80 hover:text-red-600 flex items-center justify-center"
             title="메뉴 열기"
           >
             •
+            {item.isLocked && (
+              <span className="absolute -right-0.5 top-0 text-[10px]" title="잠김">🔒</span>
+            )}
           </button>
         </div>
       ) : (
-        <div className="w-[28px] h-5 flex items-center justify-center flex-shrink-0">
+        <div className="w-[32px] h-5 flex items-center justify-center flex-shrink-0 ml-[-4px]">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setIsUrlModalOpen(true);
             }}
-            className="w-2.5 h-2.5 rounded-full bg-purple-600/80 hover:scale-125 transition-transform focus:outline-none shadow-sm"
+            className="w-2.5 h-2.5 rounded-full bg-purple-600/80 hover:scale-125 transition-transform focus:outline-none shadow-sm flex items-center justify-center"
             title="북마크 수정"
-          />
+          >
+            {item.isLocked && (
+              <span className="absolute -right-0.5 top-0 text-[10px]" title="잠김">🔒</span>
+            )}
+          </button>
         </div>
       )}
 
       {/* 2. Text Area & Memo Preview */}
-      <div className="flex-1 min-w-0 pl-3">
+      <div className="flex-1 min-w-0 pl-2">
         <div
           className={`leading-5 ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[15px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
           onDoubleClick={(e) => {
@@ -181,7 +190,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
             placeholder={isBookmark ? "사이트명 입력..." : "항목을 입력하세요..."}
             className={isBookmark ? "text-base font-bold leading-5" : "text-[15px] leading-5"}
             compact
-            disabled={true}
+            disabled={item.isLocked}
           />
         </div>
       </div>
@@ -205,11 +214,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
       {/* 4. Hidden Menu Logic (Triggered by Bullet) */}
       <div className="relative flex-shrink-0 -mr-3 mt-[1px]">
         {showMenu && (() => {
-          const isMobile = window.innerWidth < 768;
           return (
             <div
               ref={menuRef}
-              className="fixed bg-white rounded-lg shadow-xl border border-slate-200 z-[3000] py-1.5 w-48 animate-in fade-in slide-in-from-top-1 duration-150"
+              className="fixed bg-white rounded-xl shadow-2xl border-2 border-black z-[3000] py-1.5 w-48 animate-in fade-in slide-in-from-top-1 duration-150 overflow-hidden"
               style={{
                 ...(menuPos.top !== undefined && { top: `${menuPos.top}px` }),
                 ...(menuPos.bottom !== undefined && { bottom: `${menuPos.bottom}px` }),
@@ -219,27 +227,43 @@ const ItemRow: React.FC<ItemRowProps> = ({
             >
               <button
                 onClick={() => { onCopy(); setShowMenu(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                className="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 📋 복사
               </button>
               {onAddToCalendar && (
                 <button
                   onClick={() => { onAddToCalendar(); setShowMenu(false); }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors"
                 >
                   📅 캘린더 추가
                 </button>
               )}
+              {onToggleLock && (
+                <button
+                  onClick={() => { onToggleLock(); setShowMenu(false); }}
+                  className="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors border-t border-slate-100"
+                >
+                  {item.isLocked ? '🔓 잠금해제' : '🔒 잠금'}
+                </button>
+              )}
               <button
-                onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                disabled={item.isLocked}
+                onClick={() => { 
+                  if (item.isLocked) {
+                    alert('잠겨있는 항목입니다. 잠금을 해제한 후 삭제해 주세요.');
+                    return;
+                  }
+                  setShowDeleteConfirm(true); 
+                  setShowMenu(false); 
+                }}
+                className={`w-full text-left px-4 py-2.5 text-sm font-bold transition-colors ${item.isLocked ? 'text-slate-300 cursor-not-allowed' : 'text-red-600 hover:bg-red-50'}`}
               >
                 🗑️ 삭제
               </button>
               <button
                 onClick={() => setShowMenu(false)}
-                className="w-full text-left px-4 py-2.5 text-sm text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-200"
+                className="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-200"
               >
                 취소
               </button>

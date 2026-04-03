@@ -1104,6 +1104,38 @@ export const useMemoEditor = (
     const handleDeleteItemFromModal = () => {
         if (!memoEditor.id) return;
 
+        // --- 잠금 체크 로직 추가 ---
+        const targetTab = (safeData.tabs as any[]).find(t => t.id === (memoEditor.tabId || safeData.activeTabId));
+        if (targetTab) {
+            let itemToDelete: any = null;
+            const { type, id } = memoEditor;
+
+            if (type === 'checklist') itemToDelete = targetTab.parkingInfo.checklistItems.find((i: any) => i.id === id);
+            else if (type === 'shopping') itemToDelete = targetTab.parkingInfo.shoppingListItems.find((i: any) => i.id === id);
+            else if (type === 'reminders') itemToDelete = targetTab.parkingInfo.remindersItems.find((i: any) => i.id === id);
+            else if (type === 'todo') itemToDelete = targetTab.parkingInfo.todoItems.find((i: any) => i.id === id);
+            else if (type === 'parkingCat5') itemToDelete = targetTab.parkingInfo.category5Items.find((i: any) => i.id === id);
+            else if (type?.includes('Cat')) {
+                const catMatch = type.match(/cat(\d+)$/i);
+                const num = catMatch ? catMatch[1] : '1';
+                const itemsKey = `category${num}Items`;
+                let info;
+                if (type.startsWith('todo2Cat')) info = targetTab.todoManagementInfo2;
+                else if (type.startsWith('todo3Cat')) info = targetTab.todoManagementInfo3;
+                else if (type.startsWith('todoCat')) info = targetTab.todoManagementInfo;
+                if (info) itemToDelete = (info as any)[itemsKey]?.find((i: any) => i.id === id);
+            } else {
+                const section = [targetTab.inboxSection, ...targetTab.sections].find((s: any) => s?.id === memoEditor.sectionId);
+                itemToDelete = section?.items.find((i: any) => i.id === id);
+            }
+
+            if (itemToDelete?.isLocked) {
+                alert("🔒 잠긴 항목은 삭제할 수 없습니다. 먼저 잠금을 해제해주세요.");
+                return;
+            }
+        }
+        // -------------------------
+
         // 실행 전 에디터 닫기
         setMemoEditor(prev => ({ 
             ...prev, 
