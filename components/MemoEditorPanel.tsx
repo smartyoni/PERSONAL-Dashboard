@@ -791,9 +791,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
                                 const isLargeBullet = line.startsWith('●');
                                 // Filter out bullets for display
-                                const filteredLine = line.replace(/^[●•]\s+/, (match) => {
-                                    return match.includes('  ') ? '  ' : '';
-                                });
+                                const filteredLine = line;
                                 return (
                                     <div 
                                         key={idx} 

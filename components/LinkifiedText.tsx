@@ -74,9 +74,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
               displayLine = h3Match[1];
               headerLevel = 3;
           } else if (isLargeBullet || isNormalBullet) {
-              displayLine = line.replace(/^[●•]\s+/, (match) => {
-                  return match.includes('  ') ? '  ' : '';
-              });
+              displayLine = line;
           }
 
           // Linkify the filtered line instead
