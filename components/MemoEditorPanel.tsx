@@ -85,37 +85,6 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
         }, 0);
     }, [setMemoEditor, memoTextareaRef]);
 
-    const handleMarginClick = useCallback((lineIdx: number) => {
-        const textarea = memoTextareaRef.current as unknown as HTMLTextAreaElement;
-        if (!textarea) return;
-
-        const lines = memoEditor.value.split('\n');
-        if (lineIdx >= lines.length) return;
-
-        const line = lines[lineIdx];
-        // Cycle: None -> Large (●) -> Normal (•)
-        // Note: Normal bullet adds an extra space for indentation
-        const symbols = ['', '● ', '•  ']; // 2 spaces for normal bullet
-        const currentSymbolMatch = line.match(/^([●•])\s+/);
-        const currentSymbol = currentSymbolMatch ? currentSymbolMatch[0] : '';
-        
-        const currentIndex = symbols.indexOf(currentSymbol);
-        const nextSymbol = symbols[(currentIndex + 1) % symbols.length];
-        
-        const newLine = nextSymbol + line.replace(/^([●•])\s+/, '');
-        lines[lineIdx] = newLine;
-        
-        const newValue = lines.join('\n');
-        setMemoEditor(prev => ({ ...prev, value: newValue }));
-        
-        // Preserve focus and scroll
-        const scrollParent = textarea.parentElement;
-        const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
-        setTimeout(() => {
-            textarea.focus();
-            if (scrollParent) scrollParent.scrollTop = scrollTop;
-        }, 0);
-    }, [memoEditor.value, setMemoEditor, memoTextareaRef]);
 
     useEffect(() => {
         if (memoEditor.isEditing && memoTextareaRef.current) {
@@ -445,7 +414,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 .memo-editor-textarea {
                     width: 100%;
                     height: 100%;
-                    padding: 0 1.5rem 1.5rem 42px;
+                    padding: 0 1.5rem 1.5rem 1.5rem;
                     border: none;
                     outline: none;
                     font-size: 15px;
@@ -466,7 +435,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     left: 0;
                     width: 100%;
                     min-height: 100%;
-                    padding: 0 1.5rem 1.5rem 42px;
+                    padding: 0 1.5rem 1.5rem 1.5rem;
                     font-size: 15px;
                     line-height: 28px;
                     font-family: inherit;
@@ -491,14 +460,6 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                 .memo-editor-view {
                     font-size: 15px;
                     line-height: 28px;
-                }
-                .regal-pad-bg {
-                    background-color: white;
-                    background-image: 
-                        linear-gradient(90deg, transparent 27px, #ffb3b3 27px, #ffb3b3 28px, transparent 28px, transparent 30px, #ffb3b3 30px, #ffb3b3 31px, transparent 31px);
-                    background-size: 100% 100%;
-                    background-attachment: local;
-                    background-repeat: no-repeat;
                 }
             `}</style>
             {currentItem && (
@@ -812,23 +773,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
 
             {memoEditor.isEditing ? (
                 <div className="flex flex-col flex-1 overflow-hidden relative">
-                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative regal-pad-bg">
-                        {/* Margin Symbol Overlay for Editor */}
-                        <div className="absolute left-0 top-0 bottom-0 w-[42px] z-[30] select-none pointer-events-none">
-                            {(memoEditor.value || '').split('\n').map((line, idx) => {
-                                const symbolMatch = line.match(/^([●•])\s/);
-                                const symbol = symbolMatch ? symbolMatch[1] : '';
-                                return (
-                                    <div 
-                                        key={idx} 
-                                        onClick={() => handleMarginClick(idx)}
-                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] pointer-events-auto cursor-pointer hover:bg-slate-100/30 transition-colors ${symbol === '●' ? 'text-[13px]' : 'text-sm'}`}
-                                    >
-                                        {symbol}
-                                    </div>
-                                );
-                            })}
-                        </div>
+                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative">
                         <div className="memo-editor-mirror">
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
                                 const isLargeBullet = line.startsWith('●');
@@ -863,7 +808,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             }}
                             style={{ 
                                 paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px',
-                                paddingLeft: '42px' // Match view mode padding for the pad lines
+                                paddingLeft: '1.5rem' // Standard symmetry
                             }}
                         />
                     </div>
@@ -981,25 +926,9 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div
                         ref={contentRef}
                         onDoubleClick={() => setMemoEditor(prev => ({ ...prev, isEditing: true }))}
-                        className="flex-1 w-full overflow-y-auto custom-scrollbar regal-pad-bg memo-editor-view text-slate-700 whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
-                        style={{ padding: '0 1.5rem 1.5rem 42px' }}
+                        className="flex-1 w-full overflow-y-auto custom-scrollbar memo-editor-view text-slate-700 whitespace-pre-wrap break-words p-0 cursor-text hover:bg-slate-50 transition-colors duration-200 relative"
+                        style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}
                     >
-                        {/* Margin Symbol Overlay for Viewer */}
-                        <div className="absolute left-0 top-0 bottom-0 w-[42px] z-10 select-none pointer-events-none">
-                            {memoEditor.value.split('\n').map((line, idx) => {
-                                // Detect symbols: ● (Large), • (Normal)
-                                const symbolMatch = line.match(/^([●•])\s/);
-                                const symbol = symbolMatch ? symbolMatch[1] : '';
-                                return (
-                                    <div 
-                                        key={idx} 
-                                        className={`h-[28px] flex items-center justify-center text-slate-800 font-black pr-[11px] ${symbol === '●' ? 'text-[13px]' : 'text-sm'}`}
-                                    >
-                                        {symbol}
-                                    </div>
-                                );
-                            })}
-                        </div>
                         
                         {memoEditor.value ? (
                             <div className="prose max-w-none select-text">

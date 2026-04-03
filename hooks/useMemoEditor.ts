@@ -1246,6 +1246,9 @@ export const useMemoEditor = (
     };
 
     const memoSymbols = [
+        { label: 'H1', value: '# ', title: '제목 1' },
+        { label: 'H2', value: '## ', title: '제목 2' },
+        { label: 'H3', value: '### ', title: '제목 3' },
         { label: '•', value: '• ', title: '불렛' },
         { label: ':', value: ': ', title: '콜론' },
         { label: '―', value: '\n---divider---\n', title: '구분선' },

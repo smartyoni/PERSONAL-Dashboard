@@ -166,7 +166,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_0.8fr_1.5fr_1.1fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 0. 전체 목차 (TocWidget) */}
@@ -254,7 +254,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 3. 문서 목차 (Document ToC) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
                                             <DocumentTocWidget
                                                 memoEditor={memoEditor}
                                                 onChangePage={handleChangePage}
@@ -354,45 +354,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             </div>
                                         ))}
 
-                                        {/* 컬럼 2: 문서 목차 (Document ToC) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)]"}>
-                                            <DocumentTocWidget
-                                                memoEditor={memoEditor}
-                                                onChangePage={handleChangePage}
-                                                onUpdatePageTitle={handleUpdatePageTitle}
-                                                onAddPage={handleAddPage}
-                                            />
-                                        </div>
-
-                                        {/* 컬럼 3: 상세 화면 (MemoEditorPanel) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
-                                            <MemoEditorPanel
-                                                memoEditor={memoEditor}
-                                                setMemoEditor={setMemoEditor}
-                                                memoTextareaRef={memoTextareaRef}
-                                                handleSaveMemo={handleSaveMemo}
-                                                handleSwipeMemo={handleSwipeMemo}
-                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
-                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
-                                                handleInsertSymbol={handleInsertSymbol}
-                                                handleChangePage={handleChangePage}
-                                                handleUpdateTitle={handleUpdateTitle}
-                                                handleUpdatePageTitle={handleUpdatePageTitle}
-                                                handleUpdateItemText={handleUpdateItemText}
-                                                handleAddPage={handleAddPage}
-                                                handleDeletePage={handleDeletePage}
-                                                memoSymbols={memoSymbols}
-                                                setNavigationMapOpen={setNavigationMapOpen}
-                                                activeTab={activeTab}
-                                                safeData={safeData}
-                                                isMobileLayout={isMobileLayout}
-                                                isDesktopSplit={true}
-                                                handleMoveItem={handleMoveItem}
-                                                handleShowMemo={handleShowMemo}
-                                            />
-                                        </div>
-
-                                         {/* 컬럼 4: 두 번째 섹션 */}
+                                         {/* 컬럼 2: 두 번째 섹션 */}
                                         {activeTab.sections.slice(1, 2).map((section, idx) => (
                                             <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
@@ -427,6 +389,49 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 />
                                             </div>
                                         ))}
+
+                                        {/* 컬럼 3: 문서 목차 (Document ToC) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
+                                            <DocumentTocWidget
+                                                memoEditor={memoEditor}
+                                                onChangePage={handleChangePage}
+                                                onUpdatePageTitle={handleUpdatePageTitle}
+                                                onAddPage={handleAddPage}
+                                                onScrollToLine={(lineIndex: number, pageIndex: number) => {
+                                                    window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
+                                                        detail: { lineIndex, pageIndex }
+                                                    }));
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 4: 상세 화면 (MemoEditorPanel) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
+                                            <MemoEditorPanel
+                                                memoEditor={memoEditor}
+                                                setMemoEditor={setMemoEditor}
+                                                memoTextareaRef={memoTextareaRef}
+                                                handleSaveMemo={handleSaveMemo}
+                                                handleSwipeMemo={handleSwipeMemo}
+                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
+                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
+                                                handleInsertSymbol={handleInsertSymbol}
+                                                handleChangePage={handleChangePage}
+                                                handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdatePageTitle={handleUpdatePageTitle}
+                                                handleUpdateItemText={handleUpdateItemText}
+                                                handleAddPage={handleAddPage}
+                                                handleDeletePage={handleDeletePage}
+                                                memoSymbols={memoSymbols}
+                                                setNavigationMapOpen={setNavigationMapOpen}
+                                                activeTab={activeTab}
+                                                safeData={safeData}
+                                                isMobileLayout={isMobileLayout}
+                                                isDesktopSplit={true}
+                                                handleMoveItem={handleMoveItem}
+                                                handleShowMemo={handleShowMemo}
+                                            />
+                                        </div>
 
                                         {/* 컬럼 5: 나머지 모든 섹션들 (3번째부터) */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>

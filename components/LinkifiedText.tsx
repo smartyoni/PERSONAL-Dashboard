@@ -54,12 +54,26 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
           // Linkify the line
           const linkified = linkifyText(line);
           
-          // Bullet & Bold handling
+          // Header & Bullet & Bold handling
+          const h1Match = line.match(/^#\s+(.*)/);
+          const h2Match = line.match(/^##\s+(.*)/);
+          const h3Match = line.match(/^###\s+(.*)/);
           const isLargeBullet = line.startsWith('●');
           const isNormalBullet = line.startsWith('•');
           
           let displayLine = line;
-          if (isLargeBullet || isNormalBullet) {
+          let headerLevel = 0;
+
+          if (h1Match) {
+              displayLine = h1Match[1];
+              headerLevel = 1;
+          } else if (h2Match) {
+              displayLine = h2Match[1];
+              headerLevel = 2;
+          } else if (h3Match) {
+              displayLine = h3Match[1];
+              headerLevel = 3;
+          } else if (isLargeBullet || isNormalBullet) {
               displayLine = line.replace(/^[●•]\s+/, (match) => {
                   return match.includes('  ') ? '  ' : '';
               });
@@ -93,11 +107,24 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
             });
           }
           
+          let lineClassName = `min-h-[1.25em] whitespace-pre-wrap `;
+          if (headerLevel === 1) {
+              lineClassName += "text-2xl font-black text-slate-900 mt-6 mb-3 border-b-2 border-slate-100 pb-1 font-serif";
+          } else if (headerLevel === 2) {
+              lineClassName += "text-xl font-bold text-slate-800 mt-5 mb-2 font-serif";
+          } else if (headerLevel === 3) {
+              lineClassName += "text-lg font-bold text-slate-700 mt-4 mb-1 font-serif";
+          } else if (isLargeBullet) {
+              lineClassName += "font-bold text-slate-900";
+          } else {
+              lineClassName += "text-slate-700";
+          }
+
           return (
             <div 
                 key={lIdx} 
                 id={`memo-line-${lIdx}`}
-                className={`min-h-[1.25em] whitespace-pre-wrap ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
+                className={lineClassName}
             >
               {finalLineContent}
             </div>

@@ -175,16 +175,16 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                             : 'hover:bg-slate-50 text-slate-600'
                                     }`}
                                 >
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleEditStart(idx, title);
-                                        }}
-                                        className="font-mono text-[11px] font-bold text-slate-400 hover:text-indigo-500 hover:scale-110 transition-all flex-shrink-0"
-                                        title="제목 수정"
-                                    >
-                                        {displayIndex}.
-                                    </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEditStart(idx, title);
+                                            }}
+                                            className="text-[10px] text-slate-300 hover:text-indigo-500 hover:scale-110 transition-all flex-shrink-0"
+                                            title="제목 수정"
+                                        >
+                                            ●
+                                        </button>
                                     
                                     {isEditing ? (
                                         <div className="flex-1 flex items-center gap-1">
@@ -211,7 +211,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                     ) : (
                                         <span 
                                             onClick={() => onChangePage(idx)}
-                                            className={`font-serif text-[15px] flex-1 truncate cursor-pointer ${isActive ? 'font-bold text-emerald-600' : 'font-medium'}`}
+                                            className={`font-serif text-[15px] flex-1 truncate min-w-0 cursor-pointer ${isActive ? 'font-bold text-emerald-600' : 'font-medium'}`}
                                         >
                                             {title || `Page ${idx + 1}`}
                                         </span>
@@ -235,9 +235,12 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
 
                                 {/* 2. Internal Headings */}
                                 {expandedPages[idx] && allHeadings[idx]?.length > 0 && (
-                                    <div className="ml-8 mt-1 space-y-0.5 border-l border-slate-100 pl-2">
+                                    <div className="mt-1 space-y-0.5 border-l border-slate-100 ml-4">
                                         {allHeadings[idx].map((heading, hIdx) => {
                                             const subIndex = String(hIdx + 1).padStart(2, '0');
+                                            // Indent based on level (H1: 4px, H2: 12px, H3: 20px)
+                                            const paddingLeft = heading.level === 1 ? '0.5rem' : heading.level === 2 ? '1.25rem' : '2rem';
+                                            
                                             return (
                                                 <div 
                                                     key={`heading-${hIdx}`}
@@ -248,11 +251,12 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                                         }
                                                     }}
                                                     className="flex items-baseline gap-2 py-1 text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer group"
+                                                    style={{ paddingLeft }}
                                                 >
-                                                    <span className="font-mono text-[10px] text-slate-300 group-hover:text-slate-400">
-                                                        {displayIndex}.{subIndex}
+                                                    <span className="text-[10px] text-slate-300 group-hover:text-slate-400 flex-shrink-0">
+                                                        ○
                                                     </span>
-                                                    <span className="font-serif text-[13px] truncate">
+                                                    <span className={`font-serif truncate min-w-0 flex-1 ${heading.level === 1 ? 'text-[13px] font-bold text-slate-700' : 'text-[12px]'}`}>
                                                         {heading.text}
                                                     </span>
                                                 </div>
