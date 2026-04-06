@@ -686,6 +686,123 @@ export const useMemoEditor = (
         { label: '◆', value: '◆ ', title: '다이아' },
     ];
 
+    const handleReorderPages = (oldIndex: number, newIndex: number) => {
+        if (!memoEditor.id) return;
+        if (oldIndex === newIndex) return;
+
+        // 1. Sync CURRENT unsaved changes to local array first
+        const updatedAllContents = [...memoEditor.allValues];
+        updatedAllContents[memoEditor.activePageIndex] = memoEditor.value;
+        const updatedAllTitles = [...memoEditor.allTitles];
+        updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
+
+        // 2. Perform reorder on the SYNCED arrays
+        const [movedValue] = updatedAllContents.splice(oldIndex, 1);
+        updatedAllContents.splice(newIndex, 0, movedValue);
+        
+        const [movedTitle] = updatedAllTitles.splice(oldIndex, 1);
+        updatedAllTitles.splice(newIndex, 0, movedTitle);
+
+        // 3. Update activePageIndex to follow the moved page or handle shifts
+        let newActiveIndex = memoEditor.activePageIndex;
+        if (memoEditor.activePageIndex === oldIndex) {
+            newActiveIndex = newIndex;
+        } else if (oldIndex < memoEditor.activePageIndex && newIndex >= memoEditor.activePageIndex) {
+            newActiveIndex--;
+        } else if (oldIndex > memoEditor.activePageIndex && newIndex <= memoEditor.activePageIndex) {
+            newActiveIndex++;
+        }
+
+        // 4. Update LOCAL state for immediate feedback
+        setMemoEditor(prev => ({
+            ...prev,
+            allValues: updatedAllContents,
+            allTitles: updatedAllTitles,
+            activePageIndex: newActiveIndex,
+            value: updatedAllContents[newActiveIndex],
+            title: updatedAllTitles[newActiveIndex]
+        }));
+
+        // 5. Build finalValue for Firestore persistence
+        const finalPages = updatedAllContents.map((content, idx) => {
+            const title = updatedAllTitles[idx] || '';
+            return title + TITLE_SEPARATOR + content;
+        });
+        const finalValue = finalPages.join('\n===page-break===\n');
+        const { id, type, tabId } = memoEditor;
+
+        // 6. Update Firestore data
+        if (type === 'section') {
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                    ? { ...t, memos: { ...t.memos, [id!]: finalValue } }
+                    : t
+                )
+            }));
+        } else if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+            const pkKey = type === 'checklist' ? 'checklistMemos' : 
+                          type === 'shopping' ? 'shoppingListMemos' :
+                          type === 'reminders' ? 'remindersMemos' :
+                          type === 'todo' ? 'todoMemos' : 'category5Memos';
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                    ? {
+                        ...t,
+                        parkingInfo: { ...t.parkingInfo, [pkKey]: { ...(t.parkingInfo as any)[pkKey], [id!]: finalValue } }
+                    }
+                    : t
+                )
+            }));
+        } else if (type?.startsWith('todoCat')) {
+            const catNum = type.replace('todoCat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo: { ...t.todoManagementInfo, [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue } }
+                    }
+                    : t
+                )
+            }));
+        } else if (type?.startsWith('todo2Cat')) {
+            const catNum = type.replace('todo2Cat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo2: t.todoManagementInfo2 ? {
+                            ...t.todoManagementInfo2,
+                            [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue }
+                        } : undefined
+                    }
+                    : t
+                )
+            }));
+        } else if (type?.startsWith('todo3Cat')) {
+            const catNum = type.replace('todo3Cat', '');
+            const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+            updateData(prev => ({
+                ...prev,
+                tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                    ? {
+                        ...t,
+                        todoManagementInfo3: t.todoManagementInfo3 ? {
+                            ...t.todoManagementInfo3,
+                            [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue }
+                        } : undefined
+                    }
+                    : t
+                )
+            }));
+        }
+    };
+
     return {
         handleShowMemo,
         handleSwipeMemo,
@@ -698,6 +815,7 @@ export const useMemoEditor = (
         handleUpdateItemText,
         handleAddPage,
         handleDeletePage,
+        handleReorderPages,
         memoSymbols
     };
 };

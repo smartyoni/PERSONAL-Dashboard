@@ -65,7 +65,8 @@ const App: React.FC = () => {
     handleUpdatePageTitle,
     handleUpdateItemText,
     handleAddPage,
-    handleDeletePage
+    handleDeletePage,
+    handleReorderPages
   } = useMemoEditor(safeData, updateData, activeTab, memoEditor, setMemoEditor, memoTextareaRef, setModal);
 
   // Phase 4: 네비게이션 훅
@@ -245,6 +246,7 @@ const App: React.FC = () => {
         handleUpdateItemText={handleUpdateItemText}
         handleAddPage={handleAddPage}
         handleDeletePage={handleDeletePage}
+        handleReorderPages={handleReorderPages}
         memoSymbols={memoSymbols}
         handleMoveItem={handleMoveItem}
         onOpenItemMemoAtPage={(itemId, pageIndex, highlightText) => {
@@ -335,6 +337,7 @@ const App: React.FC = () => {
         handleUpdateItemText={handleUpdateItemText}
         handleAddPage={handleAddPage}
         handleDeletePage={handleDeletePage}
+        handleReorderPages={handleReorderPages}
         setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
         handleMoveItem={handleMoveItem} safeData={safeData}
         handleOpenTagSelection={handleOpenTagSelection}

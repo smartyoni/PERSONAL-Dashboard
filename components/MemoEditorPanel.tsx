@@ -21,6 +21,7 @@ export interface MemoEditorPanelProps {
     handleUpdateItemText: (newText: string) => void;
     handleAddPage: () => void;
     handleDeletePage: () => void;
+    onReorderPages: (oldIndex: number, newIndex: number) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
@@ -38,6 +39,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     handleOpenTagSelection, handleInsertSymbol, handleChangePage, handleUpdateTitle, 
     handleUpdatePageTitle, handleUpdateItemText,
     handleAddPage, handleDeletePage,
+    onReorderPages,
     memoSymbols, setNavigationMapOpen, activeTab, safeData, isMobileLayout, isDesktopSplit,
     handleMoveItem, handleShowMemo
 }) => {
@@ -794,6 +796,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     setShowToC(false);
                                 }}
                                 onUpdatePageTitle={handleUpdatePageTitle}
+                                onReorderPages={onReorderPages}
                                 onAddPage={handleAddPage}
                                 onClose={() => setShowToC(false)}
                                 onScrollToLine={handleScrollToLine}

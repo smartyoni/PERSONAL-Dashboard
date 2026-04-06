@@ -72,6 +72,7 @@ interface MainContentProps {
     handleUpdateItemText: (newText: string) => void;
     handleAddPage: () => void;
     handleDeletePage: () => void;
+    handleReorderPages: (oldIndex: number, newIndex: number) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
 }
@@ -102,6 +103,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleSaveMemo, handleSwipeMemo, handleDeleteItemFromModal,
     handleOpenTagSelectionFromMain, handleInsertSymbol, handleChangePage,
     handleUpdateTitle, handleUpdatePageTitle, handleUpdateItemText, handleAddPage, handleDeletePage,
+    handleReorderPages,
     memoSymbols, handleMoveItem,
 }) => {
 
@@ -259,6 +261,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 memoEditor={memoEditor}
                                                 onChangePage={handleChangePage}
                                                 onUpdatePageTitle={handleUpdatePageTitle}
+                                                onReorderPages={handleReorderPages}
                                                 onAddPage={handleAddPage}
                                                 onScrollToLine={(lineIndex: number, pageIndex: number) => {
                                                     window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
@@ -285,6 +288,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleUpdateItemText={handleUpdateItemText}
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}
+                                                onReorderPages={handleReorderPages}
                                                 memoSymbols={memoSymbols}
                                                 setNavigationMapOpen={setNavigationMapOpen}
                                                 activeTab={activeTab}
@@ -396,6 +400,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 memoEditor={memoEditor}
                                                 onChangePage={handleChangePage}
                                                 onUpdatePageTitle={handleUpdatePageTitle}
+                                                onReorderPages={handleReorderPages}
                                                 onAddPage={handleAddPage}
                                                 onScrollToLine={(lineIndex: number, pageIndex: number) => {
                                                     window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
@@ -422,6 +427,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleUpdateItemText={handleUpdateItemText}
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}
+                                                onReorderPages={handleReorderPages}
                                                 memoSymbols={memoSymbols}
                                                 setNavigationMapOpen={setNavigationMapOpen}
                                                 activeTab={activeTab}

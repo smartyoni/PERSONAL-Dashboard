@@ -5,6 +5,7 @@ interface DocumentTocWidgetProps {
     memoEditor: MemoEditorState;
     onChangePage: (index: number) => void;
     onUpdatePageTitle: (index: number, title: string) => void;
+    onReorderPages: (oldIndex: number, newIndex: number) => void;
     onAddPage: () => void;
     onClose?: () => void;
     onScrollToLine?: (lineIndex: number, pageIndex: number) => void;
@@ -15,12 +16,15 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
     memoEditor,
     onChangePage,
     onUpdatePageTitle,
+    onReorderPages,
     onAddPage,
     onClose,
     onScrollToLine,
     isMobileLayout
 }) => {
     const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
+    const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
     const [tempTitle, setTempTitle] = React.useState("");
     const [expandedPages, setExpandedPages] = React.useState<Record<number, boolean>>(() => {
         // Default the active page to expanded
@@ -115,6 +119,39 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
         }
     };
 
+    const handleDragStart = (idx: number, e: React.DragEvent) => {
+        setDraggedIndex(idx);
+        // Set drag ghost image styling if needed
+        e.dataTransfer.effectAllowed = 'move';
+        // Add a slight delay to the opacity change so the ghost image looks full opacity
+        setTimeout(() => {
+            (e.target as HTMLElement).classList.add('opacity-30');
+        }, 0);
+    };
+
+    const handleDragOver = (idx: number, e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (draggedIndex !== null && draggedIndex !== idx) {
+            setDragOverIndex(idx);
+        }
+    };
+
+    const handleDrop = (idx: number, e: React.DragEvent) => {
+        e.preventDefault();
+        if (draggedIndex !== null && draggedIndex !== idx) {
+            onReorderPages(draggedIndex, idx);
+        }
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
+    const handleDragEnd = (e: React.DragEvent) => {
+        (e.target as HTMLElement).classList.remove('opacity-30');
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
     return (
         <div className={`h-full bg-white flex flex-col overflow-hidden shadow-sm ${!isMobileLayout ? 'border-2 border-black rounded-2xl' : 'border-b-2 border-black'}`}>
             {/* Header */}
@@ -167,24 +204,41 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                         const displayIndex = String(idx + 1).padStart(2, '0');
 
                         return (
-                            <div key={`page-${idx}`}>
+                            <div 
+                                key={`page-${idx}`}
+                                draggable={!isEditing}
+                                onDragStart={(e) => handleDragStart(idx, e)}
+                                onDragOver={(e) => handleDragOver(idx, e)}
+                                onDrop={(e) => handleDrop(idx, e)}
+                                onDragEnd={handleDragEnd}
+                                className={`relative transition-all duration-200 ${
+                                    dragOverIndex === idx ? 'scale-[1.02] -translate-y-1' : ''
+                                }`}
+                            >
+                                {dragOverIndex === idx && (
+                                    <div className={`absolute left-0 right-0 h-1 bg-indigo-500 rounded-full z-10 ${
+                                        draggedIndex !== null && idx < draggedIndex ? '-top-1' : '-bottom-1'
+                                    }`} />
+                                )}
                                 <div
                                     className={`w-full text-left px-3 py-2 rounded-lg transition-all group flex items-center gap-3 ${
                                         isActive 
-                                            ? 'bg-slate-100 text-slate-900' 
-                                            : 'hover:bg-slate-50 text-slate-600'
-                                    }`}
+                                            ? 'bg-slate-100 text-slate-900 border border-slate-200/50 shadow-sm' 
+                                            : 'hover:bg-slate-50 text-slate-600 border border-transparent'
+                                    } ${draggedIndex === idx ? 'opacity-30' : ''}`}
                                 >
+                                    <div className="flex items-center flex-shrink-0">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleEditStart(idx, title);
                                             }}
-                                            className="text-[10px] text-slate-300 hover:text-indigo-500 hover:scale-110 transition-all flex-shrink-0"
+                                            className="text-[10px] text-slate-300 hover:text-indigo-500 hover:scale-110 transition-all p-1"
                                             title="제목 수정"
                                         >
                                             ●
                                         </button>
+                                    </div>
                                     
                                     {isEditing ? (
                                         <div className="flex-1 flex items-center gap-1">

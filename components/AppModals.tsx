@@ -23,6 +23,7 @@ interface AppModalsProps {
     handleUpdateItemText: (newText: string) => void;
     handleAddPage: () => void;
     handleDeletePage: () => void;
+    handleReorderPages: (oldIndex: number, newIndex: number) => void;
     memoSymbols: { label: string; value: string; title: string }[];
     setNavigationMapOpen: (open: boolean) => void;
     activeTab: Tab;
@@ -67,6 +68,7 @@ const AppModals: React.FC<AppModalsProps> = ({
     handleUpdateItemText,
     handleAddPage,
     handleDeletePage,
+    handleReorderPages,
     memoSymbols,
     setNavigationMapOpen, activeTab,
     tagSelectionContext, handleOpenTagSelection, safeData,
@@ -109,6 +111,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                     handleUpdateItemText={handleUpdateItemText}
                     handleAddPage={handleAddPage}
                     handleDeletePage={handleDeletePage}
+                    onReorderPages={handleReorderPages}
                     memoSymbols={memoSymbols}
                     setNavigationMapOpen={setNavigationMapOpen}
                     activeTab={activeTab}
