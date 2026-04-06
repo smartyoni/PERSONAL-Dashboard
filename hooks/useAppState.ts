@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { AppData, ParkingInfo, MemoEditorState } from '../types';
+import { AppData, ParkingInfo, MemoEditorState, Tab, Section } from '../types';
 import { useFirestoreSync } from './useFirestoreSync';
 import { useGoogleCalendar } from './useGoogleCalendar';
 import { parseMillieText } from '../utils/parseMillieText';
@@ -152,106 +152,120 @@ export const useAppState = () => {
     // safeData
     const safeData = useMemo(() => {
         if (!data) return defaultData;
+
+        // Ensure '서브' tab exists
+        const hasSubTab = data.tabs.some(t => t.name === '서브');
+        let processedTabs: Tab[] = data.tabs.map((tab, index) => {
+            const isMainTab = index === 0;
+            const processedTab: Tab = {
+                ...tab,
+                inboxSection: isMainTab
+                    ? (tab.inboxSection || {
+                        id: Math.random().toString(36).substr(2, 9),
+                        title: 'IN-BOX', items: [], color: 'slate', isLocked: false
+                    })
+                    : tab.inboxSection, // Keep if exists, otherwise undefined (matches Tab?)
+                parkingInfo: {
+                    ...tab.parkingInfo,
+                    title: tab.parkingInfo?.title || '개인',
+                    checklistTitle: tab.parkingInfo?.checklistTitle || '업무루틴',
+                    checklistItems: tab.parkingInfo?.checklistItems || [],
+                    shoppingTitle: tab.parkingInfo?.shoppingTitle || '구매예정',
+                    shoppingListItems: tab.parkingInfo?.shoppingListItems || [],
+                    remindersTitle: (tab.parkingInfo?.remindersTitle === '챙겨야할 것' || !tab.parkingInfo?.remindersTitle) 
+                        ? '기억하고 확인할것' 
+                        : tab.parkingInfo.remindersTitle,
+                    remindersItems: tab.parkingInfo?.remindersItems || [],
+                    todoTitle: tab.parkingInfo?.todoTitle || '잊지말고 할일',
+                    todoItems: tab.parkingInfo?.todoItems || [],
+                    checklistMemos: tab.parkingInfo?.checklistMemos || {},
+                    shoppingListMemos: tab.parkingInfo?.shoppingListMemos || {},
+                    remindersMemos: tab.parkingInfo?.remindersMemos || {},
+                    todoMemos: tab.parkingInfo?.todoMemos || {},
+                    category5Title: tab.parkingInfo?.category5Title || '항목 5',
+                    category5Items: tab.parkingInfo?.category5Items || [],
+                    category5Memos: tab.parkingInfo?.category5Memos || {},
+                    isPinned: tab.parkingInfo?.isPinned || false,
+                },
+                todoManagementInfo: {
+                    ...tab.todoManagementInfo,
+                    title: tab.todoManagementInfo?.title || '업무',
+                    category1Title: tab.todoManagementInfo?.category1Title || '항목 1',
+                    category2Title: tab.todoManagementInfo?.category2Title || '항목 2',
+                    category3Title: tab.todoManagementInfo?.category3Title || '항목 3',
+                    category4Title: tab.todoManagementInfo?.category4Title || '항목 4',
+                    category1Items: tab.todoManagementInfo?.category1Items || [],
+                    category2Items: tab.todoManagementInfo?.category2Items || [],
+                    category3Items: tab.todoManagementInfo?.category3Items || [],
+                    category4Items: tab.todoManagementInfo?.category4Items || [],
+                    category1Memos: tab.todoManagementInfo?.category1Memos || {},
+                    category2Memos: tab.todoManagementInfo?.category2Memos || {},
+                    category3Memos: tab.todoManagementInfo?.category3Memos || {},
+                    category4Memos: tab.todoManagementInfo?.category4Memos || {},
+                    category5Title: tab.todoManagementInfo?.category5Title || '항목 5',
+                    category5Items: tab.todoManagementInfo?.category5Items || [],
+                    category5Memos: tab.todoManagementInfo?.category5Memos || {},
+                    isPinned: tab.todoManagementInfo?.isPinned || false,
+                },
+                todoManagementInfo2: {
+                    ...tab.todoManagementInfo2,
+                    title: tab.todoManagementInfo2?.title || (tab.name === '서브' ? '컬럼 2' : '할일관리 2'),
+                    category1Title: tab.todoManagementInfo2?.category1Title || '항목 1',
+                    category2Title: tab.todoManagementInfo2?.category2Title || '항목 2',
+                    category3Title: tab.todoManagementInfo2?.category3Title || '항목 3',
+                    category4Title: tab.todoManagementInfo2?.category4Title || '항목 4',
+                    category1Items: tab.todoManagementInfo2?.category1Items || [],
+                    category2Items: tab.todoManagementInfo2?.category2Items || [],
+                    category3Items: tab.todoManagementInfo2?.category3Items || [],
+                    category4Items: tab.todoManagementInfo2?.category4Items || [],
+                    category1Memos: tab.todoManagementInfo2?.category1Memos || {},
+                    category2Memos: tab.todoManagementInfo2?.category2Memos || {},
+                    category3Memos: tab.todoManagementInfo2?.category3Memos || {},
+                    category4Memos: tab.todoManagementInfo2?.category4Memos || {},
+                    category5Title: tab.todoManagementInfo2?.category5Title || '항목 5',
+                    category5Items: tab.todoManagementInfo2?.category5Items || [],
+                    category5Memos: tab.todoManagementInfo2?.category5Memos || {},
+                    isPinned: tab.todoManagementInfo2?.isPinned || false,
+                },
+                todoManagementInfo3: {
+                    ...tab.todoManagementInfo3,
+                    title: tab.todoManagementInfo3?.title || (tab.name === '서브' ? '컬럼 5' : '할일관리 3'),
+                    category1Title: tab.todoManagementInfo3?.category1Title || '항목 1',
+                    category2Title: tab.todoManagementInfo3?.category2Title || '항목 2',
+                    category3Title: tab.todoManagementInfo3?.category3Title || '항목 3',
+                    category4Title: tab.todoManagementInfo3?.category4Title || '항목 4',
+                    category1Items: tab.todoManagementInfo3?.category1Items || [],
+                    category2Items: tab.todoManagementInfo3?.category2Items || [],
+                    category3Items: tab.todoManagementInfo3?.category3Items || [],
+                    category4Items: tab.todoManagementInfo3?.category4Items || [],
+                    category1Memos: tab.todoManagementInfo3?.category1Memos || {},
+                    category2Memos: tab.todoManagementInfo3?.category2Memos || {},
+                    category3Memos: tab.todoManagementInfo3?.category3Memos || {},
+                    category4Memos: tab.todoManagementInfo3?.category4Memos || {},
+                    category5Title: tab.todoManagementInfo3?.category5Title || '항목 5',
+                    category5Items: tab.todoManagementInfo3?.category5Items || [],
+                    category5Memos: tab.todoManagementInfo3?.category5Memos || {},
+                    isPinned: tab.todoManagementInfo3?.isPinned || false,
+                },
+            };
+            return processedTab;
+        });
+
+        if (!hasSubTab) {
+            const defaultSubTab = defaultData.tabs.find(t => t.name === '서브');
+            if (defaultSubTab) {
+                // '메인' 탭 다음에 추가하거나, 마지막에 추가
+                processedTabs.splice(1, 0, defaultSubTab);
+            }
+        }
+
         return {
             ...data,
             bookmarkSections: (data.bookmarkSections && data.bookmarkSections.length === 6)
                 ? data.bookmarkSections : defaultData.bookmarkSections,
-            tabs: data.tabs.map((tab, index) => {
-                const isMainTab = index === 0;
-                return {
-                    ...tab,
-                    inboxSection: isMainTab
-                        ? (tab.inboxSection || {
-                            id: Math.random().toString(36).substr(2, 9),
-                            title: 'IN-BOX', items: [], color: 'slate', isLocked: false
-                        })
-                        : undefined,
-                    parkingInfo: {
-                        ...tab.parkingInfo,
-                        title: tab.parkingInfo?.title || '개인',
-                        checklistTitle: tab.parkingInfo?.checklistTitle || '업무루틴',
-                        checklistItems: tab.parkingInfo?.checklistItems || [],
-                        shoppingTitle: tab.parkingInfo?.shoppingTitle || '구매예정',
-                        shoppingListItems: tab.parkingInfo?.shoppingListItems || [],
-                        remindersTitle: (tab.parkingInfo?.remindersTitle === '챙겨야할 것' || !tab.parkingInfo?.remindersTitle) 
-                            ? '기억하고 확인할것' 
-                            : tab.parkingInfo.remindersTitle,
-                        remindersItems: tab.parkingInfo?.remindersItems || [],
-                        todoTitle: tab.parkingInfo?.todoTitle || '잊지말고 할일',
-                        todoItems: tab.parkingInfo?.todoItems || [],
-                        checklistMemos: tab.parkingInfo?.checklistMemos || {},
-                        shoppingListMemos: tab.parkingInfo?.shoppingListMemos || {},
-                        remindersMemos: tab.parkingInfo?.remindersMemos || {},
-                        todoMemos: tab.parkingInfo?.todoMemos || {},
-                        category5Title: tab.parkingInfo?.category5Title || '항목 5',
-                        category5Items: tab.parkingInfo?.category5Items || [],
-                        category5Memos: tab.parkingInfo?.category5Memos || {},
-                        isPinned: tab.parkingInfo?.isPinned || false,
-                    },
-                    todoManagementInfo: {
-                        ...tab.todoManagementInfo,
-                        title: tab.todoManagementInfo?.title || '업무',
-                        category1Title: tab.todoManagementInfo?.category1Title || '항목 1',
-                        category2Title: tab.todoManagementInfo?.category2Title || '항목 2',
-                        category3Title: tab.todoManagementInfo?.category3Title || '항목 3',
-                        category4Title: tab.todoManagementInfo?.category4Title || '항목 4',
-                        category1Items: tab.todoManagementInfo?.category1Items || [],
-                        category2Items: tab.todoManagementInfo?.category2Items || [],
-                        category3Items: tab.todoManagementInfo?.category3Items || [],
-                        category4Items: tab.todoManagementInfo?.category4Items || [],
-                        category1Memos: tab.todoManagementInfo?.category1Memos || {},
-                        category2Memos: tab.todoManagementInfo?.category2Memos || {},
-                        category3Memos: tab.todoManagementInfo?.category3Memos || {},
-                        category4Memos: tab.todoManagementInfo?.category4Memos || {},
-                        category5Title: tab.todoManagementInfo?.category5Title || '항목 5',
-                        category5Items: tab.todoManagementInfo?.category5Items || [],
-                        category5Memos: tab.todoManagementInfo?.category5Memos || {},
-                        isPinned: tab.todoManagementInfo?.isPinned || false,
-                    },
-                    todoManagementInfo2: {
-                        ...tab.todoManagementInfo2,
-                        title: tab.todoManagementInfo2?.title || '할일관리 2',
-                        category1Title: tab.todoManagementInfo2?.category1Title || '항목 1',
-                        category2Title: tab.todoManagementInfo2?.category2Title || '항목 2',
-                        category3Title: tab.todoManagementInfo2?.category3Title || '항목 3',
-                        category4Title: tab.todoManagementInfo2?.category4Title || '항목 4',
-                        category1Items: tab.todoManagementInfo2?.category1Items || [],
-                        category2Items: tab.todoManagementInfo2?.category2Items || [],
-                        category3Items: tab.todoManagementInfo2?.category3Items || [],
-                        category4Items: tab.todoManagementInfo2?.category4Items || [],
-                        category1Memos: tab.todoManagementInfo2?.category1Memos || {},
-                        category2Memos: tab.todoManagementInfo2?.category2Memos || {},
-                        category3Memos: tab.todoManagementInfo2?.category3Memos || {},
-                        category4Memos: tab.todoManagementInfo2?.category4Memos || {},
-                        category5Title: tab.todoManagementInfo2?.category5Title || '항목 5',
-                        category5Items: tab.todoManagementInfo2?.category5Items || [],
-                        category5Memos: tab.todoManagementInfo2?.category5Memos || {},
-                        isPinned: tab.todoManagementInfo2?.isPinned || false,
-                    },
-                    todoManagementInfo3: {
-                        ...tab.todoManagementInfo3,
-                        title: tab.todoManagementInfo3?.title || '할일관리 3',
-                        category1Title: tab.todoManagementInfo3?.category1Title || '항목 1',
-                        category2Title: tab.todoManagementInfo3?.category2Title || '항목 2',
-                        category3Title: tab.todoManagementInfo3?.category3Title || '항목 3',
-                        category4Title: tab.todoManagementInfo3?.category4Title || '항목 4',
-                        category1Items: tab.todoManagementInfo3?.category1Items || [],
-                        category2Items: tab.todoManagementInfo3?.category2Items || [],
-                        category3Items: tab.todoManagementInfo3?.category3Items || [],
-                        category4Items: tab.todoManagementInfo3?.category4Items || [],
-                        category1Memos: tab.todoManagementInfo3?.category1Memos || {},
-                        category2Memos: tab.todoManagementInfo3?.category2Memos || {},
-                        category3Memos: tab.todoManagementInfo3?.category3Memos || {},
-                        category4Memos: tab.todoManagementInfo3?.category4Memos || {},
-                        category5Title: tab.todoManagementInfo3?.category5Title || '항목 5',
-                        category5Items: tab.todoManagementInfo3?.category5Items || [],
-                        category5Memos: tab.todoManagementInfo3?.category5Memos || {},
-                        isPinned: tab.todoManagementInfo3?.isPinned || false,
-                    },
-                };
-            })
+            tabs: processedTabs
         };
-    }, [data]);
+    }, [data, defaultData]);
 
     // 네트워크 상태
     const [isOnline, setIsOnline] = useState(navigator.onLine);
