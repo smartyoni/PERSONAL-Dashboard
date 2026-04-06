@@ -108,6 +108,8 @@ const MainContent: React.FC<MainContentProps> = ({
     handleReorderPages,
     memoSymbols, handleMoveItem,
 }) => {
+    const isSubTab = activeTab.name === '서브';
+    const isBookmarkTab = activeTab.id === 'bookmarks';
 
     return (
         <>
@@ -171,7 +173,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab || isSubTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 0. 전체 목차 (TocWidget) */}
@@ -318,9 +320,115 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="todo-widget-1"
+                                                activeTabId={activeTab.id}
                                             />
                                         </div>
 
+                                    </>
+                                ) : isSubTab ? (
+                                    /* 서브 탭 레이아웃 - 3개 할일 관리 + 목차 + 상세 화면 */
+                                    <>
+                                        {/* 컬럼 1: 할일 관리 1 */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo}
+                                                onChange={handleTodoManagementChange}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                mainHeaderClass="text-sm font-black text-rose-900 bg-rose-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                subHeaderClass="text-[17px] font-bold text-rose-600"
+                                                todoTagClass="text-[10px] font-normal text-rose-600 font-mono"
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
+                                                dataSectionId="sub-todo-widget-1"
+                                                activeTabId={activeTab.id}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 2: 할일 관리 2 */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo2}
+                                                onChange={handleTodoManagement2Change}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                mainHeaderClass="text-sm font-black text-emerald-900 bg-emerald-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                subHeaderClass="text-[17px] font-bold text-emerald-600"
+                                                todoTagClass="text-[10px] font-normal text-emerald-600 font-mono"
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
+                                                dataSectionId="sub-todo-widget-2"
+                                                activeTabId={activeTab.id}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 3: 문서 목차 (Document ToC) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
+                                            <DocumentTocWidget
+                                                memoEditor={memoEditor}
+                                                onChangePage={handleChangePage}
+                                                onUpdatePageTitle={handleUpdatePageTitle}
+                                                onReorderPages={handleReorderPages}
+                                                onAddPage={handleAddPage}
+                                                onScrollToLine={(lineIndex: number, pageIndex: number) => {
+                                                    window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
+                                                        detail: { lineIndex, pageIndex }
+                                                    }));
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 4: 상세 화면 (MemoEditorPanel) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
+                                            <MemoEditorPanel
+                                                memoEditor={memoEditor}
+                                                setMemoEditor={setMemoEditor}
+                                                memoTextareaRef={memoTextareaRef}
+                                                handleSaveMemo={handleSaveMemo}
+                                                handleSwipeMemo={handleSwipeMemo}
+                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
+                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
+                                                handleInsertSymbol={handleInsertSymbol}
+                                                handleChangePage={handleChangePage}
+                                                handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdatePageTitle={handleUpdatePageTitle}
+                                                handleUpdateItemText={handleUpdateItemText}
+                                                handleAddPage={handleAddPage}
+                                                handleDeletePage={handleDeletePage}
+                                                onReorderPages={handleReorderPages}
+                                                memoSymbols={memoSymbols}
+                                                setNavigationMapOpen={setNavigationMapOpen}
+                                                activeTab={activeTab}
+                                                safeData={safeData}
+                                                isMobileLayout={isMobileLayout}
+                                                isDesktopSplit={true}
+                                                handleMoveItem={handleMoveItem}
+                                                handleShowMemo={handleShowMemo}
+                                            />
+                                        </div>
+
+                                        {/* 컬럼 5: 할일 관리 3 */}
+                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo3}
+                                                onChange={handleTodoManagement3Change}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                mainHeaderClass="text-sm font-black text-indigo-900 bg-indigo-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                subHeaderClass="text-[17px] font-bold text-indigo-600"
+                                                todoTagClass="text-[10px] font-normal text-indigo-600 font-mono"
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
+                                                dataSectionId="sub-todo-widget-3"
+                                                activeTabId={activeTab.id}
+                                            />
+                                        </div>
                                     </>
                                 ) : (
                                     /* 일반 탭 레이아웃 - 3개 섹션 + 목차 + 상세 화면 */

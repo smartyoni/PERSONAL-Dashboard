@@ -19,9 +19,10 @@ interface TodoWidgetProps {
     // New props for cross-section movement
     dragState: DragState;
     setDragState: (state: DragState) => void;
-    onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string) => void;
+    onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string, targetItemId?: string | null) => void;
     onItemTagClick: (itemId: string, sectionId: string, itemText: string) => void;
     dataSectionId?: string;
+    activeTabId: string;
 }
 
 interface SubSectionProps {
@@ -36,7 +37,7 @@ interface SubSectionProps {
     setDragState: (state: DragState) => void;
     handleReorder: (type: 1 | 2 | 3 | 4 | 5, draggedId: string, targetId: string) => void;
     handleReorderSubSections: (draggedType: number, targetType: number) => void;
-    onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string) => void;
+    onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string, targetItemId?: string | null) => void;
     handleUpdateTitle: (type: 1 | 2 | 3 | 4 | 5, title: string) => void;
     handleAddItem: (type: 1 | 2 | 3 | 4 | 5) => void;
     handleUpdateText: (type: 1 | 2 | 3 | 4 | 5, itemId: string, text: string) => void;
@@ -47,13 +48,14 @@ interface SubSectionProps {
     triggerRefs: React.MutableRefObject<{ [key: string]: HTMLButtonElement | null }>;
     onOpenItemMemoAtPage?: (itemId: string, pageIndex: number) => void;
     subHeaderClass?: string;
+    activeTabId: string;
 }
 
 const SubSection: React.FC<SubSectionProps> = ({ 
     title, type, items, memos, onShowMemo, sectionId, colorIndex, 
     dragState, setDragState, handleReorder, handleReorderSubSections, onCrossSectionDrop,
     handleUpdateTitle, handleAddItem, handleUpdateText, handleEditingChange, editingItemIds,
-    toggleMenu, onItemTagClick, triggerRefs, onOpenItemMemoAtPage, subHeaderClass
+    toggleMenu, onItemTagClick, triggerRefs, onOpenItemMemoAtPage, subHeaderClass, activeTabId
 }) => {
     const [localDragState, setLocalDragState] = useState<{ 
         isDraggingSection: boolean;
@@ -89,7 +91,7 @@ const SubSection: React.FC<SubSectionProps> = ({
                     if (!localDragState.isDragOverSection) setLocalDragState(p => ({ ...p, isDragOverSection: true }));
                 } else {
                     if (!isOverThisSection) {
-                        setDragState({ ...dragState, dragOverSectionId: sectionId, dragOverTabId: 'main' });
+                        setDragState({ ...dragState, dragOverSectionId: sectionId, dragOverTabId: activeTabId });
                     }
                 }
             }}
@@ -112,8 +114,8 @@ const SubSection: React.FC<SubSectionProps> = ({
                         dragState.draggedItemId,
                         dragState.sourceSectionId,
                         sectionId,
-                        dragState.sourceTabId || 'main',
-                        'main'
+                        dragState.sourceTabId || activeTabId,
+                        activeTabId
                     );
                 }
                 setLocalDragState(p => ({ ...p, isDraggingSection: false, isDragOverSection: false }));
@@ -148,7 +150,7 @@ const SubSection: React.FC<SubSectionProps> = ({
                                 setDragState({
                                     draggedItemId: item.id,
                                     sourceSectionId: sectionId,
-                                    sourceTabId: 'main',
+                                    sourceTabId: activeTabId,
                                     dragOverItemId: null,
                                     dragOverSectionId: null,
                                     dragOverTabId: null
@@ -246,7 +248,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     setDragState,
     onCrossSectionDrop,
     onItemTagClick,
-    dataSectionId
+    dataSectionId,
+    activeTabId
 }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -408,40 +411,44 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
 
             <div className="flex-1 flex flex-col min-h-0 gap-1.5 overflow-hidden">
                 <SubSection 
-                    sectionId="todoCat1" title={info.category1Title} type={1} items={info.category1Items || []} memos={info.category1Memos} 
+                    sectionId={`${dataSectionId || 'todo'}-cat1`} title={info.category1Title} type={1} items={info.category1Items || []} memos={info.category1Memos} 
                     onShowMemo={onShowTodoCat1Memo} colorIndex={0} 
                     dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
                     handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
                     handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
+                    activeTabId={activeTabId}
                 />
                 <SubSection 
-                    sectionId="todoCat2" title={info.category2Title} type={2} items={info.category2Items || []} memos={info.category2Memos} 
+                    sectionId={`${dataSectionId || 'todo'}-cat2`} title={info.category2Title} type={2} items={info.category2Items || []} memos={info.category2Memos} 
                     onShowMemo={onShowTodoCat2Memo} colorIndex={1} 
                     dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
                     handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
                     handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
+                    activeTabId={activeTabId}
                 />
                 <SubSection 
-                    sectionId="todoCat3" title={info.category3Title} type={3} items={info.category3Items || []} memos={info.category3Memos} 
+                    sectionId={`${dataSectionId || 'todo'}-cat3`} title={info.category3Title} type={3} items={info.category3Items || []} memos={info.category3Memos} 
                     onShowMemo={onShowTodoCat3Memo} colorIndex={2} 
                     dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
                     handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
                     handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
+                    activeTabId={activeTabId}
                 />
                 <SubSection 
-                    sectionId="todoCat4" title={info.category4Title} type={4} items={info.category4Items || []} memos={info.category4Memos} 
+                    sectionId={`${dataSectionId || 'todo'}-cat4`} title={info.category4Title} type={4} items={info.category4Items || []} memos={info.category4Memos} 
                     onShowMemo={onShowTodoCat4Memo} colorIndex={3} 
                     dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
                     handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
                     handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
+                    activeTabId={activeTabId}
                 />
             </div>
 
