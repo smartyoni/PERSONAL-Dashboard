@@ -2195,7 +2195,7 @@ This typically indicates that your device does not have a healthy Internet conne
                     font-size: 15px;
                     line-height: 28px;
                     font-family: 'Noto Serif KR', serif;
-                    font-weight: 500;
+                    font-weight: 700;
                     -webkit-font-smoothing: antialiased;
                     resize: none;
                     background: transparent;
@@ -2216,7 +2216,7 @@ This typically indicates that your device does not have a healthy Internet conne
                     font-size: 15px;
                     line-height: 28px;
                     font-family: 'Noto Serif KR', serif;
-                    font-weight: 500;
+                    font-weight: 700;
                     -webkit-font-smoothing: antialiased;
                     white-space: pre-wrap;
                     word-wrap: break-word;
@@ -2231,7 +2231,7 @@ This typically indicates that your device does not have a healthy Internet conne
                     min-height: 28px;
                     font-size: 15px !important;
                     font-family: 'Noto Serif KR', serif !important;
-                    font-weight: 500 !important;
+                    font-weight: 700 !important;
                     -webkit-font-smoothing: antialiased;
                 }
                 .prose ul, .prose ol {
