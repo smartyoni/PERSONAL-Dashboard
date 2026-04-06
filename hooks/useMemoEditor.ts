@@ -40,7 +40,7 @@ export const useMemoEditor = (
     memoTextareaRef: React.RefObject<HTMLDivElement>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {
-    const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => {
+    const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean, pageIndex?: number) => {
         const targetTab = tabId ? safeData.tabs.find(t => t.id === tabId) || activeTab : activeTab;
         const targetTabId = tabId || activeTab.id;
 
@@ -105,13 +105,17 @@ export const useMemoEditor = (
             const isParkingSub = type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' ||
                 type?.startsWith('todoCat') || type?.startsWith('todo2Cat') || type?.startsWith('todo3Cat');
 
+            const actualPageIndex = (pageIndex !== undefined && pageIndex < allContents.length) ? pageIndex : 0;
+            const initialPageValue = allContents[actualPageIndex] || '';
+            const initialPageTitle = allTitles[actualPageIndex] || '';
+
             setMemoEditor({
                 id,
-                value: firstPageText,
-                title: allTitles[0],
+                value: initialPageValue,
+                title: initialPageTitle,
                 allValues: allContents,
                 allTitles,
-                activePageIndex: 0,
+                activePageIndex: actualPageIndex,
                 type: type || 'section',
                 isEditing: !isParkingSub && firstPageText === '' && allTitles[0] === '' && !openedFromMap,
                 openedFromMap,

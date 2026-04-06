@@ -11,6 +11,7 @@ export const useNavigation = (
     const [navigationMapOpen, setNavigationMapOpen] = useState(false);
     const [sectionMapOpen, setSectionMapOpen] = useState(false);
     const [tagSelectionModalOpen, setTagSelectionModalOpen] = useState(false);
+    const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [lastSectionPos, setLastSectionPos] = useState<{ tabId: string; sectionId: string } | null>(null);
     const [lastSectionBeforeInbox, setLastSectionBeforeInbox] = useState<{ tabId: string; sectionId: string } | null>(null);
     const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
@@ -157,6 +158,8 @@ export const useNavigation = (
         setSectionMapOpen,
         tagSelectionModalOpen,
         setTagSelectionModalOpen,
+        searchModalOpen,
+        setSearchModalOpen,
         lastSectionBeforeInbox,
         highlightedSectionId,
         lastSectionPos,

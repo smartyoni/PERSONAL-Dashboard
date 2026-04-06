@@ -6,6 +6,7 @@ import SectionMapModal from './SectionMapModal';
 import TagSelectionModal from './TagSelectionModal';
 import AddToCalendarModal from './AddToCalendarModal';
 import MemoEditorPanel from './MemoEditorPanel';
+import SearchModal from './SearchModal';
 
 interface AppModalsProps {
     // Memo editor
@@ -59,6 +60,8 @@ interface AppModalsProps {
     handleConfirmCalendar: (startDate: string, endDate: string, isAllDay: boolean) => void;
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => void;
+    searchModalOpen: boolean;
+    setSearchModalOpen: (open: boolean) => void;
 }
 
 const AppModals: React.FC<AppModalsProps> = ({
@@ -78,7 +81,8 @@ const AppModals: React.FC<AppModalsProps> = ({
     tagSelectionModalOpen, setTagSelectionModalOpen, handleNavigateFromTag,
     isMobileLayout, lastSectionPos, handleReturnToLastSection, handleOpenSectionMap,
     handleNavigateToInbox, handleToggleBookmarkView, isBookmarkView,
-    calendarModal, setCalendarModal, handleConfirmCalendar, handleMoveItem, handleShowMemo
+    calendarModal, setCalendarModal, handleConfirmCalendar, handleMoveItem, handleShowMemo,
+    searchModalOpen, setSearchModalOpen
 }) => {
     const [isFabExpanded, setIsFabExpanded] = useState(false);
 
@@ -165,6 +169,15 @@ const AppModals: React.FC<AppModalsProps> = ({
                 itemText={calendarModal.itemText}
                 onClose={() => setCalendarModal({ isOpen: false, itemText: '' })}
                 onConfirm={handleConfirmCalendar}
+            />
+
+            <SearchModal
+                isOpen={searchModalOpen}
+                onClose={() => setSearchModalOpen(false)}
+                safeData={safeData}
+                handleNavigate={handleNavigateFromMap}
+                handleShowMemo={handleShowMemo}
+                currentTabId={activeTab.id}
             />
         </>
     );

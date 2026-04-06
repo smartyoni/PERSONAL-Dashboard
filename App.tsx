@@ -81,7 +81,8 @@ const App: React.FC = () => {
     handleOpenSectionMap, handleNavigateFromSectionMap,
     handleShowMemoFromMap, handleNavigateAndFocusFromMap,
     handleNavigateFromTag, handleReturnToLastSection,
-    handleOpenTagSelection, tagSelectionContext
+    handleOpenTagSelection, tagSelectionContext,
+    searchModalOpen, setSearchModalOpen
   } = useNavigation(safeData, activeTab, handleSelectTab, setMemoEditor, handleMoveItem);
 
   // Phase 6: 뒤로가기 연동 훅
@@ -91,6 +92,7 @@ const App: React.FC = () => {
     navigationMapOpen, setNavigationMapOpen,
     sectionMapOpen, setSectionMapOpen,
     tagSelectionModalOpen, setTagSelectionModalOpen,
+    searchModalOpen, setSearchModalOpen,
     calendarModal, setCalendarModal,
     isBookmarkView, setIsBookmarkView
   });
@@ -172,6 +174,23 @@ const App: React.FC = () => {
     }
   }, [loading, safeData, updateData]);
 
+  // 전역 검색 단축키 (Ctrl+K)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchModalOpen(prev => !prev);
+      }
+      // '/' 키를 눌렀을 때 검색창 열기 (입력창이 아닐 때만)
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA' && !(document.activeElement as HTMLElement)?.isContentEditable) {
+        e.preventDefault();
+        setSearchModalOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // 로딩 상태
   if (loading) {
     return (
@@ -229,6 +248,7 @@ const App: React.FC = () => {
         handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}
         focusQuickAddSectionId={focusQuickAddSectionId} setFocusQuickAddSectionId={setFocusQuickAddSectionId}
         isOnline={isOnline}
+        onOpenSearch={() => setSearchModalOpen(true)}
         onTocNavigate={handleNavigateFromMap}
         onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
         // 상세 화면 관련 프롭스 추가
@@ -360,6 +380,8 @@ const App: React.FC = () => {
         calendarModal={calendarModal} setCalendarModal={setCalendarModal}
         handleConfirmCalendar={handleConfirmCalendar}
         handleShowMemo={handleShowMemo}
+        searchModalOpen={searchModalOpen}
+        setSearchModalOpen={setSearchModalOpen}
       />
     </div>
   );

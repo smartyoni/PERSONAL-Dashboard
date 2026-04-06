@@ -55,6 +55,7 @@ interface MainContentProps {
     isOnline: boolean;
     onTocNavigate: (tabId: string, sectionId: string) => void;
     onTocNavigateAndFocus: (tabId: string, sectionId: string) => void;
+    onOpenSearch?: () => void;
     onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
 
     // Memo Editor Panel Props
@@ -95,6 +96,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleTodoManagement3Change,
     setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
     isOnline,
+    onOpenSearch,
     onTocNavigate,
     onTocNavigateAndFocus,
     onOpenItemMemoAtPage,
@@ -132,6 +134,7 @@ const MainContent: React.FC<MainContentProps> = ({
                             onToggleBookmarkView={onToggleBookmarkView}
                             parkingInfo={activeTab.parkingInfo}
                             onParkingChange={handleParkingChange}
+                            onOpenSearch={onOpenSearch}
                         />
                     </div>
 

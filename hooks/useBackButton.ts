@@ -16,6 +16,8 @@ interface BackButtonProps {
     setCalendarModal: (state: any) => void;
     isBookmarkView: boolean;
     setIsBookmarkView: (open: boolean) => void;
+    searchModalOpen: boolean;
+    setSearchModalOpen: (open: boolean) => void;
 }
 
 export const useBackButton = ({
@@ -25,7 +27,8 @@ export const useBackButton = ({
     sectionMapOpen, setSectionMapOpen,
     tagSelectionModalOpen, setTagSelectionModalOpen,
     calendarModal, setCalendarModal,
-    isBookmarkView, setIsBookmarkView
+    isBookmarkView, setIsBookmarkView,
+    searchModalOpen, setSearchModalOpen
 }: BackButtonProps) => {
     const isInternalPush = useRef(false);
 
@@ -37,7 +40,8 @@ export const useBackButton = ({
         sectionMapOpen || 
         tagSelectionModalOpen || 
         calendarModal.isOpen || 
-        isBookmarkView;
+        isBookmarkView ||
+        searchModalOpen;
 
     const lastOpenState = useRef(isAnyModalOpen);
 
@@ -77,6 +81,7 @@ export const useBackButton = ({
                 else if (sectionMapOpen) setSectionMapOpen(false);
                 else if (navigationMapOpen) setNavigationMapOpen(false);
                 else if (isBookmarkView) setIsBookmarkView(false);
+                else if (searchModalOpen) setSearchModalOpen(false);
                 
                 // Prevent browser from actually going back if we closed a modal
                 // Actually, popstate ALREADY moved back in history. 
@@ -89,7 +94,8 @@ export const useBackButton = ({
     }, [
         isAnyModalOpen, memoEditor, modal.isOpen, navigationMapOpen, 
         sectionMapOpen, tagSelectionModalOpen, calendarModal.isOpen, isBookmarkView,
+        searchModalOpen,
         setMemoEditor, setModal, setNavigationMapOpen, setSectionMapOpen, 
-        setTagSelectionModalOpen, setCalendarModal, setIsBookmarkView
+        setTagSelectionModalOpen, setCalendarModal, setIsBookmarkView, setSearchModalOpen
     ]);
 };

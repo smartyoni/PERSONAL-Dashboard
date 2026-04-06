@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, MapIcon, InboxIcon } from './Icons';
+import { PlusIcon, MapIcon, InboxIcon, SearchIcon } from './Icons';
 import { ParkingInfo } from '../types';
 
 interface HeaderProps {
@@ -16,6 +16,7 @@ interface HeaderProps {
   onHeaderGoalsChange?: (goals: { goal1: string; goal2: string }) => void;
   parkingInfo?: ParkingInfo;
   onParkingChange?: (newInfo: ParkingInfo) => void;
+  onOpenSearch?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -25,7 +26,8 @@ const Header: React.FC<HeaderProps> = ({
   isBookmarkView,
   onToggleBookmarkView,
   parkingInfo,
-  onParkingChange
+  onParkingChange,
+  onOpenSearch
 }) => {
   const [dateTime, setDateTime] = useState('');
 
@@ -58,6 +60,15 @@ const Header: React.FC<HeaderProps> = ({
             <p className="hidden md:block text-red-600 font-medium whitespace-nowrap text-xs sm:text-sm">{dateTime}</p>
 
             <div className="flex bg-slate-200/50 p-1 rounded-xl items-center gap-1 shadow-inner ml-1 sm:ml-2 md:inline-flex hidden">
+              {onOpenSearch && (
+                <button
+                  onClick={onOpenSearch}
+                  className="flex items-center justify-center w-9 h-8 sm:w-10 sm:h-9 bg-white hover:bg-slate-50 text-slate-700 rounded-lg transition-all shadow-sm border border-slate-200"
+                  title="검색 (Ctrl+K)"
+                >
+                  <SearchIcon />
+                </button>
+              )}
               {onNavigateToInbox && (
                 <button
                   onClick={onNavigateToInbox}
