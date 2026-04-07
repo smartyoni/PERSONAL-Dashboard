@@ -80,6 +80,18 @@
       list-style-type: decimal;
       padding-left: 1.5rem;
     }
+
+    @keyframes highlight-pulse {
+      0% { background-color: transparent; }
+      20% { background-color: #fef08a; } /* yellow-200 */
+      80% { background-color: #fef08a; }
+      100% { background-color: transparent; }
+    }
+
+    .highlight-animate {
+      animation: highlight-pulse 3s ease-in-out;
+      border-radius: 4px;
+    }
   </style>
 
   <script type="importmap">
@@ -91,7 +103,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-DtH4QJyy.js"></script>
+  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-Bd8aBKsB.js"></script>
 </head>
 
 <body class="bg-[#F8FAFC]">
