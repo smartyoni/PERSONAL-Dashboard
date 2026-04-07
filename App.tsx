@@ -74,7 +74,7 @@ const App: React.FC = () => {
     navigationMapOpen, setNavigationMapOpen,
     sectionMapOpen, setSectionMapOpen,
     tagSelectionModalOpen, setTagSelectionModalOpen,
-    lastSectionBeforeInbox, highlightedSectionId, lastSectionPos,
+    lastSectionBeforeInbox, highlightedSectionId, highlightedItemId, setHighlightedItemId, lastSectionPos,
     focusQuickAddSectionId, setFocusQuickAddSectionId,
     handleNavigateFromMap, handleNavigateToInbox,
     handleGoToInbox, handleReturnFromInbox,
@@ -243,7 +243,9 @@ const App: React.FC = () => {
         handleOpenTagSelection={handleOpenTagSelection}
         setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
         onToggleBookmarkView={handleToggleBookmarkView}
-        highlightedSectionId={highlightedSectionId} activeTabColorConfig={activeTabColorConfig}
+        highlightedSectionId={highlightedSectionId}
+        highlightedItemId={highlightedItemId}
+        activeTabColorConfig={activeTabColorConfig}
         lastSectionBeforeInbox={lastSectionBeforeInbox} handleReturnFromInbox={handleReturnFromInbox}
         handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}
         focusQuickAddSectionId={focusQuickAddSectionId} setFocusQuickAddSectionId={setFocusQuickAddSectionId}

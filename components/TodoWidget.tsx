@@ -23,6 +23,7 @@ interface TodoWidgetProps {
     onItemTagClick: (itemId: string, sectionId: string, itemText: string) => void;
     dataSectionId?: string;
     activeTabId: string;
+    highlightedItemId?: string | null;
 }
 
 interface SubSectionProps {
@@ -49,13 +50,15 @@ interface SubSectionProps {
     onOpenItemMemoAtPage?: (itemId: string, pageIndex: number) => void;
     subHeaderClass?: string;
     activeTabId: string;
+    highlightedItemId?: string | null;
 }
 
 const SubSection: React.FC<SubSectionProps> = ({ 
     title, type, items, memos, onShowMemo, sectionId, colorIndex, 
     dragState, setDragState, handleReorder, handleReorderSubSections, onCrossSectionDrop,
     handleUpdateTitle, handleAddItem, handleUpdateText, handleEditingChange, editingItemIds,
-    toggleMenu, onItemTagClick, triggerRefs, onOpenItemMemoAtPage, subHeaderClass, activeTabId
+    toggleMenu, onItemTagClick, triggerRefs, onOpenItemMemoAtPage, subHeaderClass, activeTabId,
+    highlightedItemId = null
 }) => {
     const [localDragState, setLocalDragState] = useState<{ 
         isDraggingSection: boolean;
@@ -181,7 +184,8 @@ const SubSection: React.FC<SubSectionProps> = ({
                                 }
                                 setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
                             }}
-                            className={`flex items-center gap-1 py-0.5 px-1 rounded transition-all group cursor-grab active:cursor-grabbing ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-black/5'}`}
+                            data-item-id={item.id}
+                            className={`flex items-center gap-1 py-0.5 px-1 rounded transition-all group cursor-grab active:cursor-grabbing ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-sky-50 border-l-2 border-sky-400' : 'hover:bg-black/5'} ${item.id === highlightedItemId ? 'highlight-animate' : ''}`}
                         >
                             <button
                                 ref={el => { triggerRefs.current[item.id] = el; }}
@@ -249,7 +253,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     onCrossSectionDrop,
     onItemTagClick,
     dataSectionId,
-    activeTabId
+    activeTabId,
+    highlightedItemId = null
 }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -419,6 +424,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
                     activeTabId={activeTabId}
+                    highlightedItemId={highlightedItemId}
                 />
                 <SubSection 
                     sectionId={`${dataSectionId || 'todo'}-cat2`} title={info.category2Title} type={2} items={info.category2Items || []} memos={info.category2Memos} 
@@ -429,6 +435,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
                     activeTabId={activeTabId}
+                    highlightedItemId={highlightedItemId}
                 />
                 <SubSection 
                     sectionId={`${dataSectionId || 'todo'}-cat3`} title={info.category3Title} type={3} items={info.category3Items || []} memos={info.category3Memos} 
@@ -439,6 +446,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
                     activeTabId={activeTabId}
+                    highlightedItemId={highlightedItemId}
                 />
                 <SubSection 
                     sectionId={`${dataSectionId || 'todo'}-cat4`} title={info.category4Title} type={4} items={info.category4Items || []} memos={info.category4Memos} 
@@ -449,6 +457,7 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
                     onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
                     activeTabId={activeTabId}
+                    highlightedItemId={highlightedItemId}
                 />
             </div>
 

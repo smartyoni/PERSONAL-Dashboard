@@ -27,6 +27,7 @@ interface ItemRowProps {
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  highlightedItemId?: string | null;
 }
 
 const ItemRow: React.FC<ItemRowProps> = ({
@@ -49,7 +50,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onDragStart,
   onDragOver,
   onDrop,
-  onDragEnd
+  onDragEnd,
+  highlightedItemId = null
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -105,10 +107,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
       onDragOver={onDrop ? onDragOver : undefined}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
-      ref={rowRef}
+      data-item-id={item.id}
       className={`group flex items-start gap-0 py-1 pl-0 pr-1 border-b border-blue-400/25 last:border-0 transition-all cursor-default relative ${isDragging ? 'opacity-50 bg-slate-100' :
         isDragOver ? 'bg-blue-400/10 border-l-2 border-blue-400' : 'hover:bg-black/[0.02]'
-        }`}
+        } ${item.id === highlightedItemId ? 'highlight-animate' : ''}`}
     >
       {/* 1. Checkbox or Bookmark Icon */}
       {!isBookmark ? (

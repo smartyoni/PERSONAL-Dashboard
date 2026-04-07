@@ -15,6 +15,7 @@ export const useNavigation = (
     const [lastSectionPos, setLastSectionPos] = useState<{ tabId: string; sectionId: string } | null>(null);
     const [lastSectionBeforeInbox, setLastSectionBeforeInbox] = useState<{ tabId: string; sectionId: string } | null>(null);
     const [highlightedSectionId, setHighlightedSectionId] = useState<string | null>(null);
+    const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
     const [focusQuickAddSectionId, setFocusQuickAddSectionId] = useState<string | null>(null);
     const [tagSelectionContext, setTagSelectionContext] = useState<{
         itemId: string;
@@ -23,20 +24,41 @@ export const useNavigation = (
         itemText: string;
     } | null>(null);
 
-    const handleNavigateFromMap = (tabId: string, sectionId?: string) => {
+    const handleNavigateFromMap = (tabId: string, sectionId?: string, itemId?: string) => {
         if (tabId !== safeData.activeTabId) {
             handleSelectTab(tabId);
         }
+        
+        // 하이라이트 타이머 관리
         if (sectionId) {
-            setTimeout(() => {
+            setHighlightedSectionId(sectionId);
+            setTimeout(() => setHighlightedSectionId(null), 3000);
+        }
+        if (itemId) {
+            setHighlightedItemId(itemId);
+            setTimeout(() => setHighlightedItemId(null), 3000);
+        }
+
+        // 스크롤 로직
+        setTimeout(() => {
+            if (itemId) {
+                // 특정 아이템으로 스크롤 (중앙에 맞춤)
+                const itemEl = document.querySelector(`[data-item-id="${itemId}"]`);
+                if (itemEl) {
+                    itemEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                    return;
+                }
+            }
+            
+            if (sectionId) {
+                // 섹션으로 스크롤
                 const el = document.querySelector(`[data-section-id="${sectionId}"]`);
                 if (el) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
                 }
-            }, 100);
-            setHighlightedSectionId(sectionId);
-            setTimeout(() => setHighlightedSectionId(null), 3000);
-        }
+            }
+        }, 150);
+
         setNavigationMapOpen(false);
     };
 
@@ -162,6 +184,8 @@ export const useNavigation = (
         setSearchModalOpen,
         lastSectionBeforeInbox,
         highlightedSectionId,
+        highlightedItemId,
+        setHighlightedItemId,
         lastSectionPos,
         focusQuickAddSectionId,
         setFocusQuickAddSectionId,

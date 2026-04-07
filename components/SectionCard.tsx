@@ -22,6 +22,7 @@ interface SectionCardProps {
   onSectionDrop: (e: React.DragEvent) => void;
   onSectionDragEnd: () => void;
   isHighlighted?: boolean;
+  highlightedItemId?: string | null;
   isInboxSection?: boolean;
   isFullHeight?: boolean;
   tabColorText?: string;
@@ -56,6 +57,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onSectionDrop,
   onSectionDragEnd,
   isHighlighted = false,
+  highlightedItemId = null,
   isInboxSection = false,
   isFullHeight = false,
   tabColorText = 'text-slate-800',
@@ -446,6 +448,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             <ItemRow
               item={item}
               sectionId={section.id}
+              highlightedItemId={highlightedItemId}
               memo={itemMemos[item.id]}
               onToggle={() => handleToggleItem(item.id)}
               onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}

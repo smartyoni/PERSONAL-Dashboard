@@ -45,6 +45,7 @@ interface MainContentProps {
     handleNavigateToInbox: () => void;
     onToggleBookmarkView: () => void;
     highlightedSectionId: string | null;
+    highlightedItemId?: string | null;
     activeTabColorConfig: { text: string; bgLight: string };
     lastSectionBeforeInbox: { tabId: string; sectionId: string } | null;
     handleReturnFromInbox: () => void;
@@ -53,8 +54,8 @@ interface MainContentProps {
     focusQuickAddSectionId: string | null;
     setFocusQuickAddSectionId: (id: string | null) => void;
     isOnline: boolean;
-    onTocNavigate: (tabId: string, sectionId: string) => void;
-    onTocNavigateAndFocus: (tabId: string, sectionId: string) => void;
+    onTocNavigate: (tabId: string, sectionId?: string, itemId?: string) => void;
+    onTocNavigateAndFocus: (tabId: string, sectionId?: string) => void;
     onOpenSearch?: () => void;
     onOpenItemMemoAtPage?: (itemId: string, pageIndex: number, highlightText?: string) => void;
 
@@ -89,7 +90,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleParkingChange, handleShowMemo, handleAddToCalendarClick,
     handleOpenTagSelection, setNavigationMapOpen, handleNavigateToInbox,
     onToggleBookmarkView,
-    highlightedSectionId, activeTabColorConfig,
+    highlightedSectionId, highlightedItemId, activeTabColorConfig,
     lastSectionBeforeInbox, handleReturnFromInbox, handleGoToInbox,
     handleTodoManagementChange,
     handleTodoManagement2Change,
@@ -207,6 +208,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                         onSectionDrop={(e) => onSectionDrop(e, section.id)}
                                                         onSectionDragEnd={onSectionDragEnd}
                                                         isHighlighted={section.id === highlightedSectionId}
+                                                        highlightedItemId={highlightedItemId}
                                                         isFullHeight={true}
                                                         tabColorText={activeTabColorConfig.text}
                                                         tabColorBg={activeTabColorConfig.bgLight}
@@ -245,6 +247,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     onReturnFromInbox={handleReturnFromInbox}
                                                     isReturnVisible={!!lastSectionBeforeInbox}
                                                     isHighlighted={activeTab.inboxSection.id === highlightedSectionId}
+                                                    highlightedItemId={highlightedItemId}
                                                     isInboxSection={true}
                                                     isFullHeight={true}
                                                     tabColorText={activeTabColorConfig.text}
@@ -321,6 +324,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="todo-widget-1"
                                                 activeTabId={activeTab.id}
+                                                highlightedItemId={highlightedItemId}
                                             />
                                         </div>
 
@@ -344,6 +348,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="sub-todo-widget-1"
                                                 activeTabId={activeTab.id}
+                                                highlightedItemId={highlightedItemId}
                                             />
                                         </div>
 
@@ -363,6 +368,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="sub-todo-widget-2"
                                                 activeTabId={activeTab.id}
+                                                highlightedItemId={highlightedItemId}
                                             />
                                         </div>
 
@@ -427,6 +433,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="sub-todo-widget-3"
                                                 activeTabId={activeTab.id}
+                                                highlightedItemId={highlightedItemId}
                                             />
                                         </div>
                                     </>

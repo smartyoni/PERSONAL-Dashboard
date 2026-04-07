@@ -18,7 +18,7 @@ interface SearchModalProps {
     isOpen: boolean;
     onClose: () => void;
     safeData: AppData;
-    handleNavigate: (tabId: string, sectionId?: string) => void;
+    handleNavigate: (tabId: string, sectionId?: string, itemId?: string) => void;
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean, pageIndex?: number) => void;
     currentTabId: string;
 }
@@ -187,12 +187,18 @@ const SearchModal: React.FC<SearchModalProps> = ({
 
     const onSelect = (result: SearchResult) => {
         onClose();
+        const itemId = result.itemId || (result.type === 'item' ? result.id : undefined);
+
         if (result.type === 'memo-page') {
-            // 메모 열기
+            // 네비게이션 및 스크롤
+            handleNavigate(result.tabId, result.sectionId, itemId);
+            // 메모 상세 열기 (특정 페이지)
             handleShowMemo(result.itemId!, 'section', result.sectionId, undefined, result.tabId, false, result.pageIndex);
-            // 페이지 이동 로직은 handleShowMemo 후에 이루어져야 하므로 필요시 추가 대응
         } else if (result.type === 'item') {
-            handleNavigate(result.tabId, result.sectionId);
+            // 네비게이션 및 스크롤
+            handleNavigate(result.tabId, result.sectionId, result.id);
+            // 메모 상세 열기
+            handleShowMemo(result.id, 'section', result.sectionId, undefined, result.tabId, false, 0);
         } else if (result.type === 'section') {
             handleNavigate(result.tabId, result.id);
         } else if (result.type === 'tab') {
