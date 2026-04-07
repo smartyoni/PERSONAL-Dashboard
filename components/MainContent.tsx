@@ -144,7 +144,7 @@ const MainContent: React.FC<MainContentProps> = ({
                         {isBookmarkView ? (
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0.5 md:gap-1 pt-1" style={{ gridAutoRows: 'auto' }}>
                                 {(safeData.bookmarkSections || []).map((section) => (
-                                    <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[480px] lg:h-[calc(100vh-160px)]"}>
+                                    <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[480px] lg:h-[calc(100vh-160px)]"}>
                                         <SectionCard
                                             section={section}
                                             itemMemos={{}}
@@ -189,7 +189,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                          {/* 1. 나머지 섹션들 + 2. IN-BOX (하나의 컬럼으로 통합) */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
                                             {activeTab.sections.map((section, idx) => (
-                                                <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
                                                     <SectionCard
                                                         bgIndex={idx + 1}
                                                         section={section}
@@ -224,7 +224,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             ))}
 
                                             {/* IN-BOX 섹션 */}
-                                            <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <div className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={0}
                                                     section={activeTab.inboxSection}
@@ -306,7 +306,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 5. 업무 위젯 (TodoWidget) */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -329,7 +329,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                     /* 서브 탭 레이아웃 - 3개 할일 관리 + 목차 + 상세 화면 */
                                     <>
                                         {/* 컬럼 1: 할일 관리 1 */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -348,7 +348,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 컬럼 2: 할일 관리 2 */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo2}
                                                 onChange={handleTodoManagement2Change}
@@ -412,7 +412,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 컬럼 5: 할일 관리 3 */}
-                                        <div className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo3}
                                                 onChange={handleTodoManagement3Change}
@@ -435,7 +435,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                     <>
                                         {/* 컬럼 1: 기존 첫 번째 섹션 */}
                                         {activeTab.sections.slice(0, 1).map((section, idx) => (
-                                            <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={idx + 1}
                                                     section={section}
@@ -471,7 +471,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
                                          {/* 컬럼 2: 두 번째 섹션 */}
                                         {activeTab.sections.slice(1, 2).map((section, idx) => (
-                                            <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                            <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={idx + 2}
                                                     section={section}
@@ -551,9 +551,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 컬럼 5: 나머지 모든 섹션들 (3번째부터) */}
-                                        <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
+                                        <div className={`flex flex-col gap-1.5 ${isMobileLayout ? '' : 'h-full'}`}>
                                             {activeTab.sections.slice(2).map((section, idx) => (
-                                                <div key={section.id} className={isMobileLayout ? "h-auto" : "h-[calc(100vh-160px)]"}>
+                                                <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
                                                     <SectionCard
                                                         bgIndex={idx + 3}
                                                         section={section}

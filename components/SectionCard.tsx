@@ -310,7 +310,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       onDragOver={onSectionDragOver}
       onDrop={onSectionDrop}
       onDragEnd={onSectionDragEnd}
-      className={`bg-white px-2 py-2 transition-all flex flex-col cursor-default rounded-2xl overflow-hidden ${isMobileLayout ? 'h-auto' : 'h-full'} ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
+      className={`bg-white px-2 py-2 transition-all flex flex-col cursor-default rounded-2xl overflow-hidden h-full ${isHighlighted ? 'border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300/50' :
         isDraggingSection ? 'opacity-40 border-2 border-slate-600 shadow-sm' :
           isDragOverSection ? 'border-blue-500 border-2 scale-[1.01] shadow-sm' : 'border-2 border-black shadow-sm'
         }`}
@@ -421,7 +421,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       </div>
 
       <div
-        className={`relative overflow-y-auto custom-scrollbar overflow-x-hidden pr-0 transition-colors ${isMobileLayout ? 'max-h-[360px]' : 'flex-1'} ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60' : ''}`}
+        className={`relative overflow-y-auto custom-scrollbar overflow-x-hidden pr-0 transition-colors flex-1 ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60' : ''}`}
         style={{
           backgroundColor: bgIndex % 2 === 0 ? '#fffbeb' : '#f0fdf4',
           backgroundImage: `

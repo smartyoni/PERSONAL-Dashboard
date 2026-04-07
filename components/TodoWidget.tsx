@@ -136,7 +136,7 @@ const SubSection: React.FC<SubSectionProps> = ({
                 />
                 <button onClick={() => handleAddItem(type)} className="flex-shrink-0 ml-2 text-[10px] text-slate-600 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-[0_1px_1px_rgba(0,0,0,0.05)] hover:bg-slate-100 font-bold transition-colors">+ 추가</button>
             </div>
-            <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 pr-1">
+            <div className="space-y-0 overflow-y-auto custom-scrollbar flex-1 min-h-0 pr-1">
                 {[...(items || [])].map(item => {
                     const isDraggingThis = dragState.draggedItemId === item.id;
                     const isOverThis = dragState.dragOverItemId === item.id;
