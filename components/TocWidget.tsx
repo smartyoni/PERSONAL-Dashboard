@@ -54,6 +54,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
 
   const buildDisplaySections = (tab: Tab): DisplaySection[] => {
     const isMainTab = tab.id === mainTabId;
+    const isSubTab = tab.name === '서브'; // MainContent와 동일한 로직 
     const result: DisplaySection[] = [];
 
     if (isMainTab) {
@@ -69,25 +70,66 @@ const TocWidget: React.FC<TocWidgetProps> = ({
       result.push({ section: tab.inboxSection, isInbox: true, isVirtual: false });
     }
 
-    if (isMainTab) {
-      // 할일관리 1
+    // 할일관리 1 (메인탭 또는 서브탭)
+    if (isMainTab || isSubTab) {
       const todo1Count =
         (tab.todoManagementInfo.category1Items?.length ?? 0) +
         (tab.todoManagementInfo.category2Items?.length ?? 0) +
         (tab.todoManagementInfo.category3Items?.length ?? 0) +
         (tab.todoManagementInfo.category4Items?.length ?? 0) +
         (tab.todoManagementInfo.category5Items?.length ?? 0);
+      
       result.push({
         isVirtual: true,
         virtual: {
-          id: 'todo-section-1',
-          title: tab.todoManagementInfo.title || '업무',
+          id: isSubTab ? 'sub-todo-widget-1' : 'todo-widget-1',
+          title: tab.todoManagementInfo.title || (isSubTab ? '업무 1' : '업무'),
           emoji: '📋',
           itemCount: todo1Count,
           isVirtual: true,
         },
       });
+    }
 
+    // 서브탭 전용: 할일관리 2, 3
+    if (isSubTab) {
+      // 할일관리 2
+      const todo2Count =
+        (tab.todoManagementInfo2.category1Items?.length ?? 0) +
+        (tab.todoManagementInfo2.category2Items?.length ?? 0) +
+        (tab.todoManagementInfo2.category3Items?.length ?? 0) +
+        (tab.todoManagementInfo2.category4Items?.length ?? 0) +
+        (tab.todoManagementInfo2.category5Items?.length ?? 0);
+      
+      result.push({
+        isVirtual: true,
+        virtual: {
+          id: 'sub-todo-widget-2',
+          title: tab.todoManagementInfo2.title || '업무 2',
+          emoji: '📋',
+          itemCount: todo2Count,
+          isVirtual: true,
+        },
+      });
+
+      // 할일관리 3
+      const todo3Count =
+        (tab.todoManagementInfo3.category1Items?.length ?? 0) +
+        (tab.todoManagementInfo3.category2Items?.length ?? 0) +
+        (tab.todoManagementInfo3.category3Items?.length ?? 0) +
+        (tab.todoManagementInfo3.category4Items?.length ?? 0) +
+        (tab.todoManagementInfo3.category5Items?.length ?? 0);
+      
+      result.push({
+        isVirtual: true,
+        virtual: {
+          id: 'sub-todo-widget-3',
+          title: tab.todoManagementInfo3.title || '업무 3',
+          emoji: '📋',
+          itemCount: todo3Count,
+          isVirtual: true,
+        },
+      });
     }
 
     // 일반 섹션들
