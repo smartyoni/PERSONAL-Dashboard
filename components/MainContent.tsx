@@ -173,7 +173,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab || isSubTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 0. 전체 목차 (TocWidget) */}
