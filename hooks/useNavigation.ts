@@ -103,24 +103,76 @@ export const useNavigation = (
         setSectionMapOpen(false);
     };
 
-    const handleShowMemoFromMap = (tabId: string, sectionId: string, itemId: string) => {
+    const handleShowMemoFromMap = (tabId: string, sectionId: string, itemId: string, type?: MemoEditorState['type']) => {
         handleSelectTab(tabId);
         const tab = safeData.tabs.find(t => t.id === tabId);
         if (tab) {
-            const memoValue = tab.memos[itemId] || '';
+            let loadedValue = '';
+            const activeType = type || 'section';
+            
+            // 메모 값 가져오기 로직 (useMemoEditor.ts와 동기화)
+            if (activeType === 'checklist') {
+                loadedValue = tab.parkingInfo?.checklistMemos?.[itemId] || '';
+            } else if (activeType === 'shopping') {
+                loadedValue = tab.parkingInfo?.shoppingListMemos?.[itemId] || '';
+            } else if (activeType === 'reminders') {
+                loadedValue = tab.parkingInfo?.remindersMemos?.[itemId] || '';
+            } else if (activeType === 'todo') {
+                loadedValue = tab.parkingInfo?.todoMemos?.[itemId] || '';
+            } else if (activeType === 'parkingCat5') {
+                loadedValue = tab.parkingInfo?.category5Memos?.[itemId] || '';
+            } else if (activeType === 'todoCat1') {
+                loadedValue = tab.todoManagementInfo?.category1Memos?.[itemId] || '';
+            } else if (activeType === 'todoCat2') {
+                loadedValue = tab.todoManagementInfo?.category2Memos?.[itemId] || '';
+            } else if (activeType === 'todoCat3') {
+                loadedValue = tab.todoManagementInfo?.category3Memos?.[itemId] || '';
+            } else if (activeType === 'todoCat4') {
+                loadedValue = tab.todoManagementInfo?.category4Memos?.[itemId] || '';
+            } else if (activeType === 'todoCat5') {
+                loadedValue = tab.todoManagementInfo?.category5Memos?.[itemId] || '';
+            } else if (activeType === 'todo2Cat1') {
+                loadedValue = (tab as any).todoManagementInfo2?.category1Memos?.[itemId] || '';
+            } else if (activeType === 'todo2Cat2') {
+                loadedValue = (tab as any).todoManagementInfo2?.category2Memos?.[itemId] || '';
+            } else if (activeType === 'todo2Cat3') {
+                loadedValue = (tab as any).todoManagementInfo2?.category3Memos?.[itemId] || '';
+            } else if (activeType === 'todo2Cat4') {
+                loadedValue = (tab as any).todoManagementInfo2?.category4Memos?.[itemId] || '';
+            } else if (activeType === 'todo2Cat5') {
+                loadedValue = (tab as any).todoManagementInfo2?.category5Memos?.[itemId] || '';
+            } else if (activeType === 'todo3Cat1') {
+                loadedValue = (tab as any).todoManagementInfo3?.category1Memos?.[itemId] || '';
+            } else if (activeType === 'todo3Cat2') {
+                loadedValue = (tab as any).todoManagementInfo3?.category2Memos?.[itemId] || '';
+            } else if (activeType === 'todo3Cat3') {
+                loadedValue = (tab as any).todoManagementInfo3?.category3Memos?.[itemId] || '';
+            } else if (activeType === 'todo3Cat4') {
+                loadedValue = (tab as any).todoManagementInfo3?.category4Memos?.[itemId] || '';
+            } else if (activeType === 'todo3Cat5') {
+                loadedValue = (tab as any).todoManagementInfo3?.category5Memos?.[itemId] || '';
+            } else {
+                loadedValue = (tab.memos as any)[itemId] || '';
+            }
+
             setMemoEditor({
                 id: itemId,
-                value: memoValue,
+                value: loadedValue,
                 allValues: ['', '', '', '', ''],
                 allTitles: ['', '', '', '', ''],
                 title: '',
                 activePageIndex: 0,
-                type: 'section',
+                type: activeType,
                 isEditing: false,
                 openedFromMap: true,
                 sectionId: sectionId,
                 tabId: tabId
             });
+            
+            // 하이라이트 및 스크롤 처리 추가
+            handleNavigateFromMap(tabId, sectionId, itemId);
+            // 모달 닫기 추가
+            setNavigationMapOpen(false);
         }
     };
 

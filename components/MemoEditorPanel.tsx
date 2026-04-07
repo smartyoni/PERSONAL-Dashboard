@@ -30,6 +30,7 @@ export interface MemoEditorPanelProps {
     safeData: AppData; 
     isMobileLayout: boolean;
     isDesktopSplit?: boolean; 
+    headerBgClass?: string;
 }
 
 
@@ -41,7 +42,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     handleAddPage, handleDeletePage,
     onReorderPages,
     memoSymbols, setNavigationMapOpen, activeTab, safeData, isMobileLayout, isDesktopSplit,
-    handleMoveItem, handleShowMemo
+    handleMoveItem, handleShowMemo, headerBgClass
 }) => {
     const touchStart = useRef<number | null>(null);
     const touchEnd = useRef<number | null>(null);
@@ -475,8 +476,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {currentItem && (
                 <>
                     <div 
-                        className="flex-none px-4 py-3 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between border-b min-h-[56px] shadow-sm relative group" 
-                        style={{ borderColor: 'rgba(99, 102, 241, 0.1)' }}
+                        className={`flex-none px-4 py-3 ${headerBgClass || 'bg-gradient-to-r from-slate-50 to-white'} flex items-center justify-between ${headerBgClass ? 'border-b-2 border-black' : 'border-b'} min-h-[56px] shadow-sm relative group`} 
+                        style={{ borderBottomColor: headerBgClass ? 'black' : 'rgba(99, 102, 241, 0.1)' }}
                         onClick={() => {
                             if (isMobileLayout && !isEditingHeader) {
                                 setHeaderValue(headerTitle);
@@ -577,8 +578,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     {/* Page Sub-title Input */}
                     {/* Unified Segmented Header Row */}
                     <div 
-                        className="flex-none px-4 py-2 border-b bg-gradient-to-r from-slate-50 to-white flex items-center"
-                        style={{ borderBottomColor: 'rgba(99, 102, 241, 0.1)' }}
+                        className={`flex-none px-4 py-2 ${headerBgClass ? 'border-b-2 border-black' : 'border-b'} ${headerBgClass || 'bg-gradient-to-r from-slate-50 to-white'} flex items-center`}
+                        style={{ borderBottomColor: headerBgClass ? 'black' : 'rgba(99, 102, 241, 0.1)' }}
                     >
                         <div className="flex-1 flex items-center bg-slate-100/90 rounded-2xl p-1 gap-1 border border-slate-200/50 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] w-full">
                             {/* Page Title Segment (View/Edit) */}

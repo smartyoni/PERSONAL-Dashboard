@@ -19,7 +19,7 @@ const ChevronIcon: React.FC<{ isExpanded: boolean }> = ({ isExpanded }) => (
   </span>
 );
 
-const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (tabId: string, sectionId: string, itemId: string) => void, onNavigateAndFocus: (tabId: string, sectionId: string) => void }> = ({
+const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (tabId: string, sectionId: string, itemId: string, type?: any) => void, onNavigateAndFocus: (tabId: string, sectionId: string) => void }> = ({
   isOpen,
   tabs,
   activeTabId,
@@ -29,7 +29,7 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
   onNavigateAndFocus
 }) => {
   const [expandedTabIds, setExpandedTabIds] = useState<Set<string>>(new Set([activeTabId]));
-  const [selectedSection, setSelectedSection] = useState<{ tabId: string, section: Section } | null>(null);
+  const [selectedSection, setSelectedSection] = useState<{ tabId: string, section: Section, type: 'inbox' | 'general' | 'widget' } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileActivePanel, setMobileActivePanel] = useState<'nav' | 'items'>('nav');
 
@@ -50,9 +50,9 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
       const activeTab = tabs.find(t => t.id === activeTabId);
       if (activeTab) {
         if (activeTab.sections.length > 0) {
-          setSelectedSection({ tabId: activeTab.id, section: activeTab.sections[0] });
+          setSelectedSection({ tabId: activeTab.id, section: activeTab.sections[0], type: 'general' });
         } else if (activeTab.inboxSection) {
-          setSelectedSection({ tabId: activeTab.id, section: activeTab.inboxSection });
+          setSelectedSection({ tabId: activeTab.id, section: activeTab.inboxSection, type: 'inbox' });
         }
       }
     }
@@ -105,8 +105,8 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
     });
   };
 
-  const handleSectionSelect = (tabId: string, section: Section) => {
-    setSelectedSection({ tabId, section });
+  const handleSectionSelect = (tabId: string, section: Section, type: 'inbox' | 'general' | 'widget') => {
+    setSelectedSection({ tabId, section, type });
     // On mobile, auto-switch to items panel when a section is selected
     if (isMobile) {
       setMobileActivePanel('items');
@@ -221,7 +221,7 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                             )}
 
                             <button
-                              onClick={() => handleSectionSelect(tab.id, section)}
+                              onClick={() => handleSectionSelect(tab.id, section, type)}
                               className={`flex-1 text-left px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${isSelected
                                 ? (isWidget 
                                     ? (groupName === '개인' ? 'bg-green-100 border-green-300' : 'bg-sky-100 border-sky-300') 
@@ -288,7 +288,10 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
                 {selectedSection.section.items.map(item => (
                   <button
                     key={item.id}
-                    onClick={() => onShowItemMemo(selectedSection.tabId, selectedSection.section.id, item.id)}
+                    onClick={() => {
+                        const memoType = selectedSection.type === 'widget' ? selectedSection.section.id : 'section';
+                        onShowItemMemo(selectedSection.tabId, selectedSection.section.id, item.id, memoType);
+                    }}
                     className="w-full text-left bg-white px-4 py-3 border border-slate-200 rounded-lg hover:border-blue-400 hover:shadow-sm transition-all flex items-start gap-3 group"
                   >
                     <div className="h-5 flex items-center justify-center flex-shrink-0 w-5">

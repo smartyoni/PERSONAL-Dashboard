@@ -10,6 +10,7 @@ interface DocumentTocWidgetProps {
     onClose?: () => void;
     onScrollToLine?: (lineIndex: number, pageIndex: number) => void;
     isMobileLayout?: boolean;
+    headerBgClass?: string;
 }
 
 const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
@@ -20,7 +21,8 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
     onAddPage,
     onClose,
     onScrollToLine,
-    isMobileLayout
+    isMobileLayout,
+    headerBgClass
 }) => {
     const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
     const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
@@ -155,7 +157,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
     return (
         <div className={`h-full bg-white flex flex-col overflow-hidden shadow-sm ${!isMobileLayout ? 'border-2 border-black rounded-2xl' : 'border-b-2 border-black'}`}>
             {/* Header */}
-            <div className="text-sm font-black text-slate-900 bg-slate-50 flex items-center justify-between px-4 h-[48px] border-b-2 border-black flex-shrink-0">
+            <div className={`text-sm font-black text-slate-900 ${headerBgClass || 'bg-slate-50'} flex items-center justify-between px-4 h-[48px] ${headerBgClass ? 'border-b-2 border-black' : 'border-b border-indigo-50/50'} flex-shrink-0`}>
                 <div className="flex items-center gap-2">
                     <span className="font-serif text-[17px]">상세목차</span>
                 </div>

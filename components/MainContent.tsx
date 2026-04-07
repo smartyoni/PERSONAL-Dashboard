@@ -174,7 +174,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.1fr_1.1fr_0.8fr_1.5fr_1.1fr]')}`} style={{ gridAutoRows: 'auto' }}>
+                            <div className={`grid gap-1 md:gap-1.5 ${isMobileLayout ? 'h-auto grid-cols-1' : (isMainTab ? 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[0.9fr_1.2fr_0.8fr_1.5fr_1.2fr]' : 'h-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-[1.2fr_1.2fr_0.8fr_1.5fr_1.2fr]')}`} style={{ gridAutoRows: 'auto' }}>
                                 {isMainTab ? (
                                     <>
                                         {/* 0. 전체 목차 (TocWidget) */}
@@ -338,7 +338,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
                                                 onAddToCalendar={handleAddToCalendarClick}
-                                                mainHeaderClass="text-sm font-black text-rose-900 bg-rose-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                mainHeaderClass="text-sm font-black text-emerald-900 bg-emerald-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
                                                 subHeaderClass="text-[17px] font-bold text-rose-600"
                                                 todoTagClass="text-[10px] font-normal text-rose-600 font-mono"
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
@@ -423,7 +423,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 info={activeTab.todoManagementInfo3}
                                                 onChange={handleTodoManagement3Change}
                                                 onAddToCalendar={handleAddToCalendarClick}
-                                                mainHeaderClass="text-sm font-black text-indigo-900 bg-indigo-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                mainHeaderClass="text-sm font-black text-emerald-900 bg-emerald-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
                                                 subHeaderClass="text-[17px] font-bold text-indigo-600"
                                                 todoTagClass="text-[10px] font-normal text-indigo-600 font-mono"
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
@@ -520,6 +520,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onUpdatePageTitle={handleUpdatePageTitle}
                                                 onReorderPages={handleReorderPages}
                                                 onAddPage={handleAddPage}
+                                                headerBgClass={activeTabColorConfig.bgLight}
                                                 onScrollToLine={(lineIndex: number, pageIndex: number) => {
                                                     window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
                                                         detail: { lineIndex, pageIndex }
@@ -554,6 +555,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 isDesktopSplit={true}
                                                 handleMoveItem={handleMoveItem}
                                                 handleShowMemo={handleShowMemo}
+                                                headerBgClass={activeTabColorConfig.bgLight}
                                             />
                                         </div>
 

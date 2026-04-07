@@ -36,7 +36,6 @@ interface AppModalsProps {
     // Navigation map
     navigationMapOpen: boolean;
     handleNavigateFromMap: (tabId: string, sectionId?: string) => void;
-    handleShowMemoFromMap: (tabId: string, sectionId: string, itemId: string) => void;
     handleNavigateAndFocusFromMap: (tabId: string, sectionId: string) => void;
     // Section map
     sectionMapOpen: boolean;
@@ -59,7 +58,8 @@ interface AppModalsProps {
     setCalendarModal: React.Dispatch<React.SetStateAction<{ isOpen: boolean; itemText: string }>>;
     handleConfirmCalendar: (startDate: string, endDate: string, isAllDay: boolean) => void;
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
-    handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => void;
+    handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean, pageIndex?: number) => void;
+    handleShowMemoFromMap: (tabId: string, sectionId: string, itemId: string, type?: MemoEditorState['type']) => void;
     searchModalOpen: boolean;
     setSearchModalOpen: (open: boolean) => void;
 }

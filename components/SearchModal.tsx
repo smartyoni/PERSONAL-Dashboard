@@ -12,6 +12,7 @@ interface SearchResult {
     sectionId?: string;
     itemId?: string;
     pageIndex?: number;
+    memoType?: MemoEditorState['type'];
 }
 
 interface SearchModalProps {
@@ -53,7 +54,8 @@ const SearchModal: React.FC<SearchModalProps> = ({
                     title: section.title,
                     breadcrumb: `${tab.name} > ${section.title}`,
                     tabId: tab.id,
-                    sectionId: section.id
+                    sectionId: section.id,
+                    memoType: 'section'
                 });
 
                 section.items.forEach(item => {
@@ -65,7 +67,8 @@ const SearchModal: React.FC<SearchModalProps> = ({
                         breadcrumb: `${tab.name} > ${section.title}`,
                         tabId: tab.id,
                         sectionId: section.id,
-                        itemId: item.id
+                        itemId: item.id,
+                        memoType: 'section'
                     });
 
                     // Memo content indexing
@@ -108,7 +111,8 @@ const SearchModal: React.FC<SearchModalProps> = ({
                         type: 'item',
                         title: item.text,
                         breadcrumb: `${tab.name} > ${breadcrumbPrefix}`,
-                        tabId: tab.id
+                        tabId: tab.id,
+                        memoType: type
                     });
                     const m = memos?.[item.id];
                     if (m) {
@@ -119,7 +123,8 @@ const SearchModal: React.FC<SearchModalProps> = ({
                             content: m,
                             breadcrumb: `${tab.name} > ${breadcrumbPrefix}`,
                             tabId: tab.id,
-                            itemId: item.id
+                            itemId: item.id,
+                            memoType: type
                         });
                     }
                 });
@@ -187,18 +192,15 @@ const SearchModal: React.FC<SearchModalProps> = ({
 
     const onSelect = (result: SearchResult) => {
         onClose();
-        const itemId = result.itemId || (result.type === 'item' ? result.id : undefined);
-
-        if (result.type === 'memo-page') {
-            // 네비게이션 및 스크롤
-            handleNavigate(result.tabId, result.sectionId, itemId);
-            // 메모 상세 열기 (특정 페이지)
-            handleShowMemo(result.itemId!, 'section', result.sectionId, undefined, result.tabId, false, result.pageIndex);
-        } else if (result.type === 'item') {
-            // 네비게이션 및 스크롤
+        if (result.type === 'item') {
             handleNavigate(result.tabId, result.sectionId, result.id);
             // 메모 상세 열기
-            handleShowMemo(result.id, 'section', result.sectionId, undefined, result.tabId, false, 0);
+            handleShowMemo(result.id, result.memoType || 'section', result.sectionId, undefined, result.tabId, false, 0);
+        } else if (result.type === 'memo-page') {
+            // 네비게이션 및 스크롤
+            handleNavigate(result.tabId, result.sectionId, result.itemId);
+            // 메모 상세 열기 (특정 페이지) - itemId가 반드시 존재함
+            handleShowMemo(result.itemId!, result.memoType || 'section', result.sectionId, undefined, result.tabId, false, result.pageIndex);
         } else if (result.type === 'section') {
             handleNavigate(result.tabId, result.id);
         } else if (result.type === 'tab') {
