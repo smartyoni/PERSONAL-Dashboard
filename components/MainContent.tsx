@@ -344,7 +344,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                                 dragState={dragState}
                                                 setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="sub-todo-widget-1"
                                                 activeTabId={activeTab.id}
@@ -364,7 +364,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                                 dragState={dragState}
                                                 setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="sub-todo-widget-2"
                                                 activeTabId={activeTab.id}
@@ -429,7 +429,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 onOpenItemMemoAtPage={onOpenItemMemoAtPage}
                                                 dragState={dragState}
                                                 setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onCrossSectionDrop={handleCrossSectionItemDrop}
                                                 onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
                                                 dataSectionId="sub-todo-widget-3"
                                                 activeTabId={activeTab.id}

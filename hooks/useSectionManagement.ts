@@ -168,12 +168,8 @@ export const useSectionManagement = (
     ) => {
         if (sourceSectionId === targetSectionId && sourceTabId === targetTabId && !newActiveTabId) return;
 
-        // handleMoveItem을 재사용하되, targetItemId(상대적 위치) 처리가 필요하면 여기서 추가 로직 수행
-        // 하지만 현재 handleMoveItem은 항상 맨 뒤에 추가하므로, reorder와 drop이 혼합된 정교한 로직이 필요함.
-        // 여기서는 handleMoveItem의 로직을 확장하여 targetItemId 위치에 삽입하도록 구현.
-
-        const sourceTab = safeData.tabs.find(t => t.id === (sourceTabId || activeTab.id));
-        const targetTab = safeData.tabs.find(t => t.id === (targetTabId || activeTab.id));
+        const sourceTab = safeData.tabs.find(t => t.id === sourceTabId);
+        const targetTab = safeData.tabs.find(t => t.id === targetTabId);
         if (!sourceTab || !targetTab) return;
 
         // Helper to find items and memo in ANY section type
@@ -183,38 +179,62 @@ export const useSectionManagement = (
             let type: 'normal' | 'inbox' | 'parking' | 'todo' = 'normal';
             let subType: string = '';
 
-            if (tab.inboxSection?.id === secId) { items = tab.inboxSection.items; memos = tab.memos; type = 'inbox'; }
-            else if (tab.sections.some(s => s.id === secId)) { 
+            const sid = secId.toLowerCase();
+
+            if (tab.inboxSection?.id === secId) {
+                items = tab.inboxSection.items;
+                memos = tab.memos;
+                type = 'inbox';
+            } else if (tab.sections.some(s => s.id === secId)) {
                 const s = tab.sections.find(s => s.id === secId)!;
-                items = s.items; memos = tab.memos; type = 'normal'; 
-            }
-            else {
-                type = 'parking'; // Default to parking/todo categories
+                items = s.items;
+                memos = tab.memos;
+                type = 'normal';
+            } else {
+                type = 'parking';
                 const p = tab.parkingInfo;
                 const t = tab.todoManagementInfo;
                 const t2 = tab.todoManagementInfo2;
                 const t3 = tab.todoManagementInfo3;
 
-                if (secId === 'checklist') { items = p.checklistItems; memos = p.checklistMemos; subType = 'checklist'; }
-                else if (secId === 'shopping') { items = p.shoppingListItems; memos = p.shoppingListMemos; subType = 'shopping'; }
-                else if (secId === 'reminders') { items = p.remindersItems; memos = p.remindersMemos; subType = 'reminders'; }
-                else if (secId === 'todo') { items = p.todoItems; memos = p.todoMemos; subType = 'todo'; }
-                else if (secId === 'parkingCat5') { items = p.category5Items; memos = p.category5Memos; subType = 'parkingCat5'; }
-                else if (secId === 'todoCat1') { items = t.category1Items; memos = t.category1Memos; type='todo'; subType = 'todoCat1'; }
-                else if (secId === 'todoCat2') { items = t.category2Items; memos = t.category2Memos; type='todo'; subType = 'todoCat2'; }
-                else if (secId === 'todoCat3') { items = t.category3Items; memos = t.category3Memos; type='todo'; subType = 'todoCat3'; }
-                else if (secId === 'todoCat4') { items = t.category4Items; memos = t.category4Memos; type='todo'; subType = 'todoCat4'; }
-                else if (secId === 'todoCat5') { items = t.category5Items; memos = t.category5Memos; type='todo'; subType = 'todoCat5'; }
-                else if (secId === 'todo2Cat1') { items = t2.category1Items; memos = t2.category1Memos; type='todo'; subType = 'todo2Cat1'; }
-                else if (secId === 'todo2Cat2') { items = t2.category2Items; memos = t2.category2Memos; type='todo'; subType = 'todo2Cat2'; }
-                else if (secId === 'todo2Cat3') { items = t2.category3Items; memos = t2.category3Memos; type='todo'; subType = 'todo2Cat3'; }
-                else if (secId === 'todo2Cat4') { items = t2.category4Items; memos = t2.category4Memos; type='todo'; subType = 'todo2Cat4'; }
-                else if (secId === 'todo2Cat5') { items = t2.category5Items; memos = t2.category5Memos; type='todo'; subType = 'todo2Cat5'; }
-                else if (secId === 'todo3Cat1') { items = t3.category1Items; memos = t3.category1Memos; type='todo'; subType = 'todo3Cat1'; }
-                else if (secId === 'todo3Cat2') { items = t3.category2Items; memos = t3.category2Memos; type='todo'; subType = 'todo3Cat2'; }
-                else if (secId === 'todo3Cat3') { items = t3.category3Items; memos = t3.category3Memos; type='todo'; subType = 'todo3Cat3'; }
-                else if (secId === 'todo3Cat4') { items = t3.category4Items; memos = t3.category4Memos; type='todo'; subType = 'todo3Cat4'; }
-                else if (secId === 'todo3Cat5') { items = t3.category5Items; memos = t3.category5Memos; type='todo'; subType = 'todo3Cat5'; }
+                if (sid === 'checklist') { items = p.checklistItems; memos = p.checklistMemos; subType = 'checklist'; }
+                else if (sid === 'shopping') { items = p.shoppingListItems; memos = p.shoppingListMemos; subType = 'shopping'; }
+                else if (sid === 'reminders') { items = p.remindersItems; memos = p.remindersMemos; subType = 'reminders'; }
+                else if (sid === 'todo') { items = p.todoItems; memos = p.todoMemos; subType = 'todo'; }
+                else if (sid === 'parkingcat5') { items = p.category5Items; memos = p.category5Memos; subType = 'parkingCat5'; }
+                
+                // Improved Widget detection
+                const isW2 = sid.includes('widget-2') || sid.includes('todo2') || sid.includes('widget2');
+                const isW3 = sid.includes('widget-3') || sid.includes('todo3') || sid.includes('widget3');
+                const isW1 = (sid.includes('todo') || sid.includes('widget-1') || sid.includes('widget1')) && !isW2 && !isW3;
+
+                // Widget 1 logic
+                if (isW1 && (sid.includes('cat') || sid.match(/[1-5]$/))) {
+                    type = 'todo';
+                    if (sid.includes('1')) { items = t.category1Items; memos = t.category1Memos; subType = 'todoCat1'; }
+                    else if (sid.includes('2')) { items = t.category2Items; memos = t.category2Memos; subType = 'todoCat2'; }
+                    else if (sid.includes('3')) { items = t.category3Items; memos = t.category3Memos; subType = 'todoCat3'; }
+                    else if (sid.includes('4')) { items = t.category4Items; memos = t.category4Memos; subType = 'todoCat4'; }
+                    else if (sid.includes('5')) { items = t.category5Items; memos = t.category5Memos; subType = 'todoCat5'; }
+                }
+                // Widget 2 logic
+                else if (isW2) {
+                    type = 'todo';
+                    if (sid.includes('1')) { items = t2.category1Items; memos = t2.category1Memos; subType = 'todo2Cat1'; }
+                    else if (sid.includes('2')) { items = t2.category2Items; memos = t2.category2Memos; subType = 'todo2Cat2'; }
+                    else if (sid.includes('3')) { items = t2.category3Items; memos = t2.category3Memos; subType = 'todo2Cat3'; }
+                    else if (sid.includes('4')) { items = t2.category4Items; memos = t2.category4Memos; subType = 'todo2Cat4'; }
+                    else if (sid.includes('5')) { items = t2.category5Items; memos = t2.category5Memos; subType = 'todo2Cat5'; }
+                }
+                // Widget 3 logic
+                else if (isW3) {
+                    type = 'todo';
+                    if (sid.includes('1')) { items = t3.category1Items; memos = t3.category1Memos; subType = 'todo3Cat1'; }
+                    else if (sid.includes('2')) { items = t3.category2Items; memos = t3.category2Memos; subType = 'todo3Cat2'; }
+                    else if (sid.includes('3')) { items = t3.category3Items; memos = t3.category3Memos; subType = 'todo3Cat3'; }
+                    else if (sid.includes('4')) { items = t3.category4Items; memos = t3.category4Memos; subType = 'todo3Cat4'; }
+                    else if (sid.includes('5')) { items = t3.category5Items; memos = t3.category5Memos; subType = 'todo3Cat5'; }
+                }
             }
             return { items: items || [], memos: memos || {}, type, subType };
         };

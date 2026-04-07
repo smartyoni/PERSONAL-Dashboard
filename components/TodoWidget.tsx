@@ -178,8 +178,9 @@ const SubSection: React.FC<SubSectionProps> = ({
                                         dragState.draggedItemId,
                                         dragState.sourceSectionId,
                                         sectionId,
-                                        dragState.sourceTabId || 'main',
-                                        'main'
+                                        dragState.sourceTabId || activeTabId,
+                                        activeTabId,
+                                        item.id
                                     );
                                 }
                                 setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
