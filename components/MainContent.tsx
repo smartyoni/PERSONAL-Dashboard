@@ -187,7 +187,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                         {/* 1. 나머지 섹션들 + 2. IN-BOX (하나의 컬럼으로 통합) */}
+                                        {/* 1. 나머지 섹션들 + 5. IN-BOX (하나의 컬럼으로 통합) - 기존 2번 컬럼 (이제 2번 컬럼으로 이동) */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
                                             {activeTab.sections.map((section, idx) => (
                                                 <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
@@ -263,7 +263,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             </div>
                                         </div>
 
-                                        {/* 3. 문서 목차 (Document ToC) */}
+                                        {/* 2. 문서 목차 (Document ToC) */}
                                         <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
                                             <DocumentTocWidget
                                                 memoEditor={memoEditor}
@@ -279,7 +279,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 4. 상세 화면 (MemoEditorPanel) */}
+                                        {/* 3. 상세 화면 (MemoEditorPanel) */}
                                         <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
                                             <MemoEditorPanel
                                                 memoEditor={memoEditor}
@@ -308,7 +308,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 5. 업무 위젯 (TodoWidget) */}
+                                        {/* 4. 업무 위젯 (TodoWidget) (이제 5번 컬럼으로 이동) */}
                                         <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
