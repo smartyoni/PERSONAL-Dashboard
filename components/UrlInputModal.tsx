@@ -5,11 +5,12 @@ interface UrlInputModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (label: string, url: string) => void;
+    onDelete?: () => void;
     initialUrl: string;
     initialLabel: string;
 }
 
-const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, initialUrl, initialLabel }) => {
+const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, onDelete, initialUrl, initialLabel }) => {
     const [url, setUrl] = useState(initialUrl);
     const [label, setLabel] = useState(initialLabel);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -31,6 +32,13 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, 
     const handleSave = () => {
         onSave(label, url);
         onClose();
+    };
+
+    const handleDelete = () => {
+        if (window.confirm('이 북마크를 삭제하시겠습니까?')) {
+            onDelete?.();
+            onClose();
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -110,12 +118,20 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({ isOpen, onClose, onSave, 
                     >
                         취소
                     </button>
-                    <button
+                     <button
                         onClick={handleSave}
                         className="px-8 py-2.5 rounded-xl bg-cyan-600 text-white font-bold text-sm shadow-lg shadow-cyan-200 hover:bg-cyan-700 hover:shadow-cyan-300 transition-all active:scale-95 border-b-4 border-cyan-800"
                     >
                         저장하기
                     </button>
+                    {onDelete && (
+                        <button
+                            onClick={handleDelete}
+                            className="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-all active:scale-95 border border-red-200"
+                        >
+                            삭제
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

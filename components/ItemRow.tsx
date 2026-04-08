@@ -317,7 +317,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
         <UrlInputModal
           isOpen={isUrlModalOpen}
           onClose={() => setIsUrlModalOpen(false)}
-          onSave={(newLabel, newUrl) => {
+           onSave={(newLabel, newUrl) => {
             // 1. 주소 보정 및 업데이트
             const formattedUrl = newUrl.trim() === '' ? '' : (newUrl.startsWith('http') ? newUrl : `https://${newUrl}`);
             onUpdateUrl?.(formattedUrl);
@@ -327,6 +327,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
               onUpdateText(newLabel);
             }
           }}
+          onDelete={onDelete}
           initialUrl={item.url || ''}
           initialLabel={item.text}
         />
