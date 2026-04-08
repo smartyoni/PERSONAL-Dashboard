@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
+import LinkifiedText from './LinkifiedText';
 import { LockIcon, UnlockIcon } from './Icons';
 import ItemRow from './ItemRow';
 import { parseMemoPages } from '../utils/memoEditorUtils';
@@ -467,23 +468,70 @@ const SectionCard: React.FC<SectionCardProps> = ({
         }}
       >
         {isInboxSection ? (
-          <div className="h-full p-3 font-medium text-sm leading-relaxed text-emerald-900">
+          <div className="h-full p-4 font-serif">
             {isInboxEditing ? (
-              <textarea
-                ref={inboxInputRef}
-                value={inboxDraftText}
-                onChange={(e) => setInboxDraftText(e.target.value)}
-                onBlur={handleInboxSave}
-                className="w-full h-full bg-transparent border-none focus:outline-none resize-none"
-                placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
-              />
+              <div className="relative w-full h-full text-[15px] leading-[1.5]">
+                {/* Mirror Layer for real-time formatting feedback */}
+                <div 
+                  className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-0 overflow-hidden"
+                  aria-hidden="true"
+                  style={{ padding: '0px' }}
+                >
+                  {(inboxDraftText || '').split('\n').map((line, idx) => {
+                    const isBullet = line.trim().startsWith('●') || line.trim().startsWith('•');
+                    const isHeader = line.trim().startsWith('#');
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`min-h-[1.5em] ${isHeader ? 'font-black text-emerald-950/40' : isBullet ? 'font-bold text-emerald-950' : ''}`}
+                      >
+                        {line || ' '}
+                      </div>
+                    );
+                  })}
+                </div>
+                <textarea
+                  ref={inboxInputRef}
+                  value={inboxDraftText}
+                  onChange={(e) => setInboxDraftText(e.target.value)}
+                  onBlur={handleInboxSave}
+                  className="absolute inset-0 w-full h-full bg-transparent border-none focus:outline-none resize-none text-emerald-900/90 caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-0 m-0 overflow-y-auto custom-scrollbar"
+                  placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
+                  onKeyDown={(e) => {
+                    // Hyphen + Space shortcut for bullet (•)
+                    if (e.key === ' ' && !e.nativeEvent.isComposing) {
+                        const textarea = e.currentTarget;
+                        const start = textarea.selectionStart;
+                        const value = textarea.value;
+                        const lastNewLine = value.lastIndexOf('\n', start - 1);
+                        const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
+                        const currentLinePrefix = value.substring(lineStart, start);
+                        
+                        if (currentLinePrefix === '-') {
+                            e.preventDefault();
+                            const newValue = value.substring(0, start - 1) + '• ' + value.substring(start);
+                            setInboxDraftText(newValue);
+                            requestAnimationFrame(() => {
+                                textarea.selectionStart = textarea.selectionEnd = start + 1;
+                            });
+                        }
+                    }
+                  }}
+                />
+              </div>
             ) : (
               <div 
-                className="w-full h-full whitespace-pre-wrap cursor-text"
+                className="w-full h-full cursor-text overflow-x-hidden"
                 title="더블클릭하여 편집"
               >
-                {section.items.map(i => i.text).join('\n') || (
-                  <p className="text-emerald-300 italic">내용이 없습니다. 더블클릭하여 작성하세요.</p>
+                {section.items.length > 0 ? (
+                  <LinkifiedText 
+                    text={section.items.map(i => i.text).join('\n')} 
+                    textColorClass="text-emerald-900"
+                    className="leading-relaxed font-serif text-[15px]"
+                  />
+                ) : (
+                  <p className="text-emerald-300 italic font-serif">내용이 없습니다. 더블클릭하여 작성하세요.</p>
                 )}
               </div>
             )}

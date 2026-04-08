@@ -228,6 +228,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // 입력창이나 텍스트 영역에서 입력 중일 때는 전역 단축키 무시
+            const target = e.target as HTMLElement;
+            const isInput = target.tagName === 'INPUT' || 
+                           target.tagName === 'TEXTAREA' || 
+                           target.isContentEditable;
+            
+            if (isInput) return;
             if (!memoEditor.id || memoEditor.isEditing) return;
 
             if (e.key === 'ArrowLeft') {

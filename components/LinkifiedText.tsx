@@ -6,6 +6,7 @@ interface LinkifiedTextProps {
   text: string;
   className?: string;
   highlightText?: string | null;
+  textColorClass?: string;
 }
 
 /**
@@ -13,7 +14,12 @@ interface LinkifiedTextProps {
  * 특정 텍스트(highlightText)가 주어지면 해당 부분을 강조 표시함.
  * 메타데이터 기반 소항목 스타일링 기능을 제거하고 순수 텍스트/HTML만 처리함.
  */
-const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className = '', highlightText }) => {
+const LinkifiedText: React.FC<LinkifiedTextProps> = ({ 
+  text: rawText, 
+  className = '', 
+  highlightText,
+  textColorClass = 'text-slate-700'
+}) => {
   if (!rawText) return null;
 
   // 메타데이터가 아직 남아있을 수 있으므로 분리하되, 스타일링은 적용하지 않음
@@ -31,7 +37,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
 
     return (
       <div className={className}>
-        <div dangerouslySetInnerHTML={{ __html: htmlContent }} className="prose prose-sm max-w-none text-slate-700" />
+        <div dangerouslySetInnerHTML={{ __html: htmlContent }} className={`prose prose-sm max-w-none ${textColorClass}`} />
       </div>
     );
   }
@@ -41,7 +47,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
 
   return (
     <div className={className}>
-      <div className="text-slate-700">
+      <div className={textColorClass}>
         {lines.map((line, lIdx) => {
           const isDivider = /^(\s*)(---|---|___|\*\*\*|---divider---)\s*$/.test(line);
           
@@ -117,9 +123,9 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({ text: rawText, className 
           } else if (headerLevel === 3) {
               lineClassName += "text-lg font-bold text-slate-700 mt-4 mb-1 font-serif";
           } else if (isLargeBullet) {
-              lineClassName += "font-bold text-slate-900";
+              lineClassName += "font-bold " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
           } else {
-              lineClassName += "text-slate-700";
+              lineClassName += textColorClass;
           }
 
           return (

@@ -63,29 +63,52 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
   // Helper functions
   const getSectionCount = (tab: Tab) => {
     let count = tab.sections.length + (tab.inboxSection ? 1 : 0);
-    // Add widgets if it's the main tab
-    if (tab.id === tabs[0]?.id) {
-       count += 5; // 개인
-       count += 5; // 업무
-    }
+    if (tab.parkingInfo) count += 5;
+    if (tab.todoManagementInfo) count += 5;
+    if (tab.todoManagementInfo2) count += 5;
+    if (tab.todoManagementInfo3) count += 5;
     return count;
   };
 
   const getItemCount = (tab: Tab) => {
     let count = tab.sections.reduce((sum, s) => sum + s.items.length, 0) + (tab.inboxSection?.items.length || 0);
-    if (tab.id === tabs[0]?.id) {
-        count += (tab.parkingInfo.checklistItems?.length || 0);
-        count += (tab.parkingInfo.shoppingListItems?.length || 0);
-        count += (tab.parkingInfo.remindersItems?.length || 0);
-        count += (tab.parkingInfo.todoItems?.length || 0);
-        count += (tab.parkingInfo.category5Items?.length || 0);
-
-        count += (tab.todoManagementInfo.category1Items?.length || 0);
-        count += (tab.todoManagementInfo.category2Items?.length || 0);
-        count += (tab.todoManagementInfo.category3Items?.length || 0);
-        count += (tab.todoManagementInfo.category4Items?.length || 0);
-        count += (tab.todoManagementInfo.category5Items?.length || 0);
+    
+    if (tab.parkingInfo) {
+        const pk = tab.parkingInfo;
+        count += (pk.checklistItems?.length || 0);
+        count += (pk.shoppingListItems?.length || 0);
+        count += (pk.remindersItems?.length || 0);
+        count += (pk.todoItems?.length || 0);
+        count += (pk.category5Items?.length || 0);
     }
+    
+    if (tab.todoManagementInfo) {
+        const td = tab.todoManagementInfo;
+        count += (td.category1Items?.length || 0);
+        count += (td.category2Items?.length || 0);
+        count += (td.category3Items?.length || 0);
+        count += (td.category4Items?.length || 0);
+        count += (td.category5Items?.length || 0);
+    }
+
+    if (tab.todoManagementInfo2) {
+        const td = tab.todoManagementInfo2;
+        count += (td.category1Items?.length || 0);
+        count += (td.category2Items?.length || 0);
+        count += (td.category3Items?.length || 0);
+        count += (td.category4Items?.length || 0);
+        count += (td.category5Items?.length || 0);
+    }
+
+    if (tab.todoManagementInfo3) {
+        const td = tab.todoManagementInfo3;
+        count += (td.category1Items?.length || 0);
+        count += (td.category2Items?.length || 0);
+        count += (td.category3Items?.length || 0);
+        count += (td.category4Items?.length || 0);
+        count += (td.category5Items?.length || 0);
+    }
+    
     return count;
   };
 
@@ -120,35 +143,56 @@ const NavigationMapModal: React.FC<NavigationMapModalProps & { onShowItemMemo: (
           <p className="italic">탭이 없습니다.</p>
         </div>
       ) : (
-        tabs.map((tab, tabIdx) => {
-          const isMainTab = tabIdx === 0;
+        tabs.map((tab) => {
           const allSections: Array<{ section: Section; type: 'inbox' | 'general' | 'widget'; groupName?: string }> = [
             ...(tab.inboxSection ? [{ section: tab.inboxSection, type: 'inbox' as const }] : []),
           ];
 
-          if (isMainTab) {
+          const addWidgetSec = (id: string, title: string, items: any[], groupName: string) => {
+            allSections.push({ 
+                section: { id, title: title || '항목', items: items || [], isLocked: false }, 
+                type: 'widget' as const,
+                groupName
+            });
+          };
+
+          if (tab.parkingInfo) {
             const pk = tab.parkingInfo;
-            const td1 = tab.todoManagementInfo;
-
-            const addWidgetSec = (id: string, title: string, items: any[], groupName: string) => {
-                allSections.push({ 
-                    section: { id, title: title || '항목', items: items || [], isLocked: false }, 
-                    type: 'widget' as const,
-                    groupName
-                });
-            };
-
             addWidgetSec('checklist', pk.checklistTitle || '개인 루틴', pk.checklistItems, '개인');
             addWidgetSec('shopping', pk.shoppingTitle || '구매 예정', pk.shoppingListItems, '개인');
             addWidgetSec('reminders', pk.remindersTitle || '기억 확인', pk.remindersItems, '개인');
             addWidgetSec('todo', pk.todoTitle || '개인 할일', pk.todoItems, '개인');
             addWidgetSec('parkingCat5', pk.category5Title || '기타 개인', pk.category5Items, '개인');
+          }
 
-            addWidgetSec('todoCat1', td1.category1Title || '업무 1', td1.category1Items, '업무');
-            addWidgetSec('todoCat2', td1.category2Title || '업무 2', td1.category2Items, '업무');
-            addWidgetSec('todoCat3', td1.category3Title || '업무 3', td1.category3Items, '업무');
-            addWidgetSec('todoCat4', td1.category4Title || '업무 4', td1.category4Items, '업무');
-            addWidgetSec('todoCat5', td1.category5Title || '업무 5', td1.category5Items, '업무');
+          if (tab.todoManagementInfo) {
+            const td = tab.todoManagementInfo;
+            const gn = td.title || '업무';
+            addWidgetSec('todoCat1', td.category1Title || '항목 1', td.category1Items, gn);
+            addWidgetSec('todoCat2', td.category2Title || '항목 2', td.category2Items, gn);
+            addWidgetSec('todoCat3', td.category3Title || '항목 3', td.category3Items, gn);
+            addWidgetSec('todoCat4', td.category4Title || '항목 4', td.category4Items, gn);
+            addWidgetSec('todoCat5', td.category5Title || '항목 5', td.category5Items, gn);
+          }
+
+          if (tab.todoManagementInfo2) {
+            const td = tab.todoManagementInfo2;
+            const gn = td.title || '업무 2';
+            addWidgetSec('todo2Cat1', td.category1Title || '항목 1', td.category1Items, gn);
+            addWidgetSec('todo2Cat2', td.category2Title || '항목 2', td.category2Items, gn);
+            addWidgetSec('todo2Cat3', td.category3Title || '항목 3', td.category3Items, gn);
+            addWidgetSec('todo2Cat4', td.category4Title || '항목 4', td.category4Items, gn);
+            addWidgetSec('todo2Cat5', td.category5Title || '항목 5', td.category5Items, gn);
+          }
+
+          if (tab.todoManagementInfo3) {
+            const td = tab.todoManagementInfo3;
+            const gn = td.title || '업무 3';
+            addWidgetSec('todo3Cat1', td.category1Title || '항목 1', td.category1Items, gn);
+            addWidgetSec('todo3Cat2', td.category2Title || '항목 2', td.category2Items, gn);
+            addWidgetSec('todo3Cat3', td.category3Title || '항목 3', td.category3Items, gn);
+            addWidgetSec('todo3Cat4', td.category4Title || '항목 4', td.category4Items, gn);
+            addWidgetSec('todo3Cat5', td.category5Title || '항목 5', td.category5Items, gn);
           }
 
           allSections.push(...tab.sections.map(s => ({ section: s, type: 'general' as const })));
