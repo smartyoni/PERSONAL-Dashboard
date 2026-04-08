@@ -3,7 +3,7 @@ import { AppData, Section } from '../types';
 
 export const useBookmarks = (
     safeData: AppData,
-    updateData: (data: AppData) => void
+    updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => void
 ) => {
     const [isBookmarkView, setIsBookmarkView] = useState(false);
 

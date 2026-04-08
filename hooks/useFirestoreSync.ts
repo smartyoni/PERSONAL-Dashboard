@@ -6,7 +6,7 @@ interface UseFirestoreSyncReturn {
   data: AppData | null;
   loading: boolean;
   error: Error | null;
-  updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => Promise<void>;
+  updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => void;
 }
 
 export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
@@ -64,39 +64,46 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
     };
   }, []);
 
-  // 데이터 업데이트 함수 (디바운스 적용)
-  const updateData = useCallback(async (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => {
+  // 데이터 업데이트 함수: 로컬 상태만 즉시 업데이트
+  const updateData = useCallback((newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => {
     if (isRemoteUpdate.current) return;
 
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    // 로컬 상태 즉시 업데이트 (함수형 업데이트 지원)
     setData(prev => {
         const currentData = prev || defaultData;
         const resolvedData = typeof newDataOrUpdater === 'function' 
             ? newDataOrUpdater(currentData) 
             : newDataOrUpdater;
-        
-        isSaving.current = true; // 저장 프로세스 시작됨을 표시
-
-        saveTimeoutRef.current = setTimeout(async () => {
-            try {
-                await saveWorkspaceData(resolvedData);
-                setTimeout(() => {
-                    isSaving.current = false;
-                }, 500);
-            } catch (err) {
-                setError(err as Error);
-                isSaving.current = false;
-                console.error('Failed to save to Firestore:', err);
-            }
-        }, 300);
-
         return resolvedData;
     });
   }, [defaultData]);
+
+  // 로컬 변경사항 감지 및 디바운스된 저장 처리
+  useEffect(() => {
+    if (!data || isRemoteUpdate.current || loading) return;
+
+    // 저장 타이머 리셋
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
+    saveTimeoutRef.current = setTimeout(async () => {
+        try {
+            isSaving.current = true;
+            await saveWorkspaceData(data);
+            
+            // 저장 완료 후 잠시 대기 (Firestore 스냅샷이 올 때까지 대기하도록)
+            setTimeout(() => {
+                isSaving.current = false;
+            }, 1000);
+        } catch (err) {
+            setError(err as Error);
+            isSaving.current = false;
+            console.error('Failed to save to Firestore:', err);
+        }
+    }, 500); // 500ms 디바운스
+
+    return () => {
+        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, [data, loading]);
 
   return { data, loading, error, updateData };
 }

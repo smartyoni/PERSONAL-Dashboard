@@ -11,7 +11,7 @@ interface ConfirmModal {
 
 export const useTabManagement = (
     safeData: AppData,
-    updateData: (data: AppData) => void,
+    updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => void,
     setIsBookmarkView: React.Dispatch<React.SetStateAction<boolean>>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {

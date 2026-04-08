@@ -33,7 +33,7 @@ interface ConfirmModal {
 
 export const useMemoEditor = (
     safeData: AppData,
-    updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => Promise<void>,
+    updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => void,
     activeTab: Tab,
     memoEditor: MemoEditorState,
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,

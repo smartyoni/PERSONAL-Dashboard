@@ -11,7 +11,7 @@ interface ConfirmModal {
 
 export const useSectionManagement = (
     safeData: AppData,
-    updateData: (data: AppData) => void,
+    updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => void,
     activeTab: Tab,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {

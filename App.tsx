@@ -111,58 +111,58 @@ const App: React.FC = () => {
     if (!mainTab) return;
 
     // 1. TodoManagementInfo (개인 섹션 등)
-    if (!mainTab.todoManagementInfo.category5Title) {
+    if (mainTab.todoManagementInfo && !mainTab.todoManagementInfo.category5Title) {
         mainTab.todoManagementInfo = {
             ...mainTab.todoManagementInfo,
             category5Title: '항목 5',
-            category5Items: [],
-            category5Memos: {}
+            category5Items: mainTab.todoManagementInfo.category5Items || [],
+            category5Memos: mainTab.todoManagementInfo.category5Memos || {}
         };
         needsUpdate = true;
     }
 
     // 2. TodoManagementInfo2 (만드는것 섹션 등)
-    if (!mainTab.todoManagementInfo2.category5Title) {
+    if (mainTab.todoManagementInfo2 && !mainTab.todoManagementInfo2.category5Title) {
         mainTab.todoManagementInfo2 = {
             ...mainTab.todoManagementInfo2,
             category5Title: '항목 5',
-            category5Items: [],
-            category5Memos: {}
+            category5Items: mainTab.todoManagementInfo2.category5Items || [],
+            category5Memos: mainTab.todoManagementInfo2.category5Memos || {}
         };
         needsUpdate = true;
     }
 
     // 4. TodoManagementInfo3 (신규 추가된 할일관리 3)
     if (!mainTab.todoManagementInfo3 || !mainTab.todoManagementInfo3.category5Title) {
+        const info3 = mainTab.todoManagementInfo3 || {} as any;
         mainTab.todoManagementInfo3 = {
-            ...mainTab.todoManagementInfo3,
-            title: mainTab.todoManagementInfo3?.title || '업무 2',
-            category1Title: mainTab.todoManagementInfo3?.category1Title || '항목 1',
-            category2Title: mainTab.todoManagementInfo3?.category2Title || '항목 2',
-            category3Title: mainTab.todoManagementInfo3?.category3Title || '항목 3',
-            category4Title: mainTab.todoManagementInfo3?.category4Title || '항목 4',
+            title: info3.title || '업무 2',
+            category1Title: info3.category1Title || '항목 1',
+            category2Title: info3.category2Title || '항목 2',
+            category3Title: info3.category3Title || '항목 3',
+            category4Title: info3.category4Title || '항목 4',
             category5Title: '항목 5',
-            category1Items: mainTab.todoManagementInfo3?.category1Items || [],
-            category2Items: mainTab.todoManagementInfo3?.category2Items || [],
-            category3Items: mainTab.todoManagementInfo3?.category3Items || [],
-            category4Items: mainTab.todoManagementInfo3?.category4Items || [],
-            category5Items: [],
-            category1Memos: mainTab.todoManagementInfo3?.category1Memos || {},
-            category2Memos: mainTab.todoManagementInfo3?.category2Memos || {},
-            category3Memos: mainTab.todoManagementInfo3?.category3Memos || {},
-            category4Memos: mainTab.todoManagementInfo3?.category4Memos || {},
-            category5Memos: {}
+            category1Items: info3.category1Items || [],
+            category2Items: info3.category2Items || [],
+            category3Items: info3.category3Items || [],
+            category4Items: info3.category4Items || [],
+            category5Items: info3.category5Items || [],
+            category1Memos: info3.category1Memos || {},
+            category2Memos: info3.category2Memos || {},
+            category3Memos: info3.category3Memos || {},
+            category4Memos: info3.category4Memos || {},
+            category5Memos: info3.category5Memos || {}
         };
         needsUpdate = true;
     }
 
     // 3. ParkingInfo (업무루틴 섹션 등)
-    if (!mainTab.parkingInfo.category5Title) {
+    if (mainTab.parkingInfo && !mainTab.parkingInfo.category5Title) {
         mainTab.parkingInfo = {
             ...mainTab.parkingInfo,
             category5Title: '항목 5',
-            category5Items: [],
-            category5Memos: {}
+            category5Items: mainTab.parkingInfo.category5Items || [],
+            category5Memos: mainTab.parkingInfo.category5Memos || {}
         };
         needsUpdate = true;
     }
