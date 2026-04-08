@@ -162,7 +162,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onSectionDrop={() => { }}
                                             onSectionDragEnd={() => { }}
                                             isHighlighted={false}
-                                            isInboxSection={true}
+                                            isInboxSection={false}
                                             isBookmarkTab={true}
                                             tabColorBg={'bg-sky-100'}
                                             onCrossSectionDrop={handleCrossBookmarkSectionDrop}
