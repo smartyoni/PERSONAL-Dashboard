@@ -103,7 +103,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-4sHHwRWH.js"></script>
+  <script type="module" crossorigin src="/PERSONAL-Dashboard/assets/index-DYGI9u4p.js"></script>
 </head>
 
 <body class="bg-[#F8FAFC]">
@@ -113,13 +113,27 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/PERSONAL-Dashboard/sw.js', {
-          scope: '/PERSONAL-Dashboard/'
-        }).then((registration) => {
-          console.log('[PWA] Service Worker 등록 완료:', registration.scope);
-        }).catch((error) => {
-          console.error('[PWA] Service Worker 등록 실패:', error);
-        });
+        // 현재 경로에 따라 서비스 워커 경로 결정 (GitHub Pages vs Firebase/Local)
+        const isListPage = window.location.pathname.includes('/PERSONAL-Dashboard/');
+        const swPath = isListPage ? '/PERSONAL-Dashboard/sw.js' : '/sw.js';
+        const scope = isListPage ? '/PERSONAL-Dashboard/' : '/';
+
+        console.log('[PWA] Service Worker 시도:', swPath, 'Scope:', scope);
+
+        navigator.serviceWorker.register(swPath, { scope })
+          .then((registration) => {
+            console.log('[PWA] Service Worker 등록 완료:', registration.scope);
+          }).catch((error) => {
+            console.error('[PWA] Service Worker 등록 실패:', error);
+            
+            // 등록 실패 시 (특히 Workbox 관련 에러 해결을 위해) 기존 워커 해제 시도
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+              for(let registration of registrations) {
+                registration.unregister();
+                console.log('[PWA] 기존 워커 해제됨');
+              }
+            });
+          });
       });
     }
   </script>
