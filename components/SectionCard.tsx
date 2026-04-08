@@ -80,7 +80,10 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [editingItemIds, setEditingItemIds] = useState<Set<string>>(new Set());
+  const [isInboxEditing, setIsInboxEditing] = useState(false);
+  const [inboxDraftText, setInboxDraftText] = useState('');
   const quickInputRef = useRef<HTMLTextAreaElement>(null);
+  const inboxInputRef = useRef<HTMLTextAreaElement>(null);
 
   const LINE_HEIGHT = 20;
   const MAX_LINES = 3;
@@ -117,6 +120,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
       }, 400);
     }
   }, [initialQuickAddValue, onQuickAddValuePopulated]);
+
+  // Sync inboxDraftText with section items
+  useEffect(() => {
+    if (isInboxSection && !isInboxEditing) {
+      const text = section.items.map(i => i.text).join('\n');
+      setInboxDraftText(text);
+    }
+  }, [section.items, isInboxSection, isInboxEditing]);
 
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
@@ -227,6 +238,18 @@ const SectionCard: React.FC<SectionCardProps> = ({
     });
   };
 
+  const handleInboxSave = () => {
+    const trimmed = inboxDraftText.trim();
+    const itemId = section.items[0]?.id || Math.random().toString(36).substr(2, 9);
+    const newItem: ListItem = {
+      id: itemId,
+      text: trimmed,
+      completed: false
+    };
+    onUpdateSection({ ...section, items: [newItem] });
+    setIsInboxEditing(false);
+  };
+
   const hasCompletedItems = section.items.some(item => item.completed);
 
   // Item Drag Handlers
@@ -323,7 +346,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             value={section.title}
             onChange={handleTitleChange}
             onEditingChange={setIsTitleEditing}
-            className="text-sm font-bold text-black"
+            className={`text-sm font-bold ${isInboxSection ? 'text-emerald-800' : 'text-black'}`}
             placeholder="섹션 이름"
           />
         </div>
@@ -386,47 +409,49 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </div>
       </div>
 
-      {/* 빠른 추가 입력창 */}
-      <div className="mb-2 flex-shrink-0 flex items-stretch gap-0 -mx-1.5">
-        <textarea
-          ref={quickInputRef}
-          value={quickAddValue}
-          onChange={handleQuickAddChange}
-          onKeyDown={handleQuickAdd}
-          rows={1}
-          className="flex-1 px-3 py-2 text-sm border-2 border-black border-r-0 rounded-l-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all resize-none overflow-hidden leading-5"
-          style={{ minHeight: isMobileLayout ? '42px' : '36px' }}
-        />
-        <button
-          onClick={() => {
-            const trimmedValue = quickAddValue.trim();
-            const itemId = Math.random().toString(36).substr(2, 9);
-            const newItem: ListItem = {
-              id: itemId,
-              text: trimmedValue,
-              completed: false
-            };
+      {/* 빠른 추가 입력창 (인박스 제외) */}
+      {!isInboxSection && (
+        <div className="mb-2 flex-shrink-0 flex items-stretch gap-0 -mx-1.5">
+          <textarea
+            ref={quickInputRef}
+            value={quickAddValue}
+            onChange={handleQuickAddChange}
+            onKeyDown={handleQuickAdd}
+            rows={1}
+            className="flex-1 px-3 py-2 text-sm border-2 border-black border-r-0 rounded-l-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all resize-none overflow-hidden leading-5"
+            style={{ minHeight: isMobileLayout ? '42px' : '36px' }}
+          />
+          <button
+            onClick={() => {
+              const trimmedValue = quickAddValue.trim();
+              const itemId = Math.random().toString(36).substr(2, 9);
+              const newItem: ListItem = {
+                id: itemId,
+                text: trimmedValue,
+                completed: false
+              };
 
-            onUpdateSection({ ...section, items: [newItem, ...section.items] });
-            setQuickAddValue('');
-            if (quickInputRef.current) {
-              quickInputRef.current.style.height = 'auto';
-            }
-            // 즉시 빈 메모 모달 오픈
-            onShowItemMemo(itemId, "");
-          }}
-          className="px-3 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap flex flex-col items-center justify-center"
-          title="추가"
-        >
-          +
-        </button>
-      </div>
+              onUpdateSection({ ...section, items: [newItem, ...section.items] });
+              setQuickAddValue('');
+              if (quickInputRef.current) {
+                quickInputRef.current.style.height = 'auto';
+              }
+              // 즉시 빈 메모 모달 오픈
+              onShowItemMemo(itemId, "");
+            }}
+            className="px-3 text-lg font-bold bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black border-l-0 rounded-r-lg transition-colors whitespace-nowrap flex flex-col items-center justify-center"
+            title="추가"
+          >
+            +
+          </button>
+        </div>
+      )}
 
       <div
         className={`relative overflow-y-auto custom-scrollbar overflow-x-hidden pr-0 transition-colors flex-1 ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60' : ''}`}
         style={{
-          backgroundColor: bgIndex % 2 === 0 ? '#fffbeb' : '#f0fdf4',
-          backgroundImage: `
+          backgroundColor: isInboxSection ? '#ecfdf5' : (bgIndex % 2 === 0 ? '#fffbeb' : '#f0fdf4'),
+          backgroundImage: isInboxSection ? 'none' : `
             linear-gradient(90deg, transparent 28px, rgba(239, 68, 68, 0.4) 28px, rgba(239, 68, 68, 0.4) 29px, transparent 29px)
           `,
           backgroundSize: '100% 100%',
@@ -434,46 +459,78 @@ const SectionCard: React.FC<SectionCardProps> = ({
         }}
         onDragOver={onEmptyAreaDragOver}
         onDrop={onEmptyAreaDrop}
+        onDoubleClick={() => {
+          if (isInboxSection && !isInboxEditing) {
+            setIsInboxEditing(true);
+            setTimeout(() => inboxInputRef.current?.focus(), 50);
+          }
+        }}
       >
-        {/* Red line is now in the background gradient above for better performance and consistency */}
-        
-        {[...section.items].sort((a, b) => {
-          if (a.completed === b.completed) return 0;
-          return a.completed ? 1 : -1;
-        }).map(item => (
-          <div
-            key={item.id}
-            className="relative"
-          >
-            <ItemRow
-              item={item}
-              sectionId={section.id}
-              highlightedItemId={highlightedItemId}
-              memo={itemMemos[item.id]}
-              onToggle={() => handleToggleItem(item.id)}
-              onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
-              onDelete={() => handleDeleteItem(item.id)}
-              onAddMemo={() => onShowItemMemo(item.id)}
-              onCopy={() => handleCopyItem(item.id)}
-              onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
-              onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
-              onToggleLock={() => handleToggleItemLock(item.id)}
-              isBookmark={isBookmarkTab}
-              onUpdateUrl={(url) => handleUpdateItemUrl(item.id, url)}
-              dragState={dragState}
-              onDragStart={(e) => onItemDragStart(e, item.id)}
-              onDragOver={(e) => onItemDragOver(e, item.id)}
-              onDrop={(e) => onItemDrop(e, item.id)}
-              onDragEnd={onItemDragEnd}
-              onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
-              onTagClick={() => onItemTagClick?.(item.id, item.text)}
-            />
+        {isInboxSection ? (
+          <div className="h-full p-3 font-medium text-sm leading-relaxed text-emerald-900">
+            {isInboxEditing ? (
+              <textarea
+                ref={inboxInputRef}
+                value={inboxDraftText}
+                onChange={(e) => setInboxDraftText(e.target.value)}
+                onBlur={handleInboxSave}
+                className="w-full h-full bg-transparent border-none focus:outline-none resize-none"
+                placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
+              />
+            ) : (
+              <div 
+                className="w-full h-full whitespace-pre-wrap cursor-text"
+                title="더블클릭하여 편집"
+              >
+                {section.items.map(i => i.text).join('\n') || (
+                  <p className="text-emerald-300 italic">내용이 없습니다. 더블클릭하여 작성하세요.</p>
+                )}
+              </div>
+            )}
           </div>
-        ))}
-        {section.items.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
-            <p className="text-[11px] italic">추가된 항목이 없습니다.</p>
-          </div>
+        ) : (
+          <>
+            {/* Red line is now in the background gradient above for better performance and consistency */}
+            
+            {[...section.items].sort((a, b) => {
+              if (a.completed === b.completed) return 0;
+              return a.completed ? 1 : -1;
+            }).map(item => (
+              <div
+                key={item.id}
+                className="relative"
+              >
+                <ItemRow
+                  item={item}
+                  sectionId={section.id}
+                  highlightedItemId={highlightedItemId}
+                  memo={itemMemos[item.id]}
+                  onToggle={() => handleToggleItem(item.id)}
+                  onUpdateText={(txt) => handleUpdateItemText(item.id, txt)}
+                  onDelete={() => handleDeleteItem(item.id)}
+                  onAddMemo={() => onShowItemMemo(item.id)}
+                  onCopy={() => handleCopyItem(item.id)}
+                  onAddToCalendar={onAddToCalendar ? () => onAddToCalendar(item.text) : undefined}
+                  onEditingChange={(isEditing) => handleItemEditingChange(item.id, isEditing)}
+                  onToggleLock={() => handleToggleItemLock(item.id)}
+                  isBookmark={isBookmarkTab}
+                  onUpdateUrl={(url) => handleUpdateItemUrl(item.id, url)}
+                  dragState={dragState}
+                  onDragStart={(e) => onItemDragStart(e, item.id)}
+                  onDragOver={(e) => onItemDragOver(e, item.id)}
+                  onDrop={(e) => onItemDrop(e, item.id)}
+                  onDragEnd={onItemDragEnd}
+                  onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
+                  onTagClick={() => onItemTagClick?.(item.id, item.text)}
+                />
+              </div>
+            ))}
+            {section.items.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
+                <p className="text-[11px] italic">추가된 항목이 없습니다.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
