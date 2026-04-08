@@ -187,7 +187,72 @@ const MainContent: React.FC<MainContentProps> = ({
                                             />
                                         </div>
 
-                                        {/* 1. 나머지 섹션들 + 5. IN-BOX (하나의 컬럼으로 통합) - 기존 2번 컬럼 (이제 2번 컬럼으로 이동) */}
+                                        {/* 1. 업무 위젯 (TodoWidget) - 기존 5번 컬럼 (다시 2번으로 복귀) */}
+                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
+                                            <TodoWidget
+                                                info={activeTab.todoManagementInfo}
+                                                onChange={handleTodoManagementChange}
+                                                onAddToCalendar={handleAddToCalendarClick}
+                                                mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
+                                                subHeaderClass="text-[17px] font-bold text-blue-600"
+                                                todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
+                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
+                                                dragState={dragState}
+                                                setDragState={setDragState}
+                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
+                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
+                                                dataSectionId="todo-widget-1"
+                                                activeTabId={activeTab.id}
+                                                highlightedItemId={highlightedItemId}
+                                            />
+                                        </div>
+
+                                        {/* 2. 문서 목차 (Document ToC) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
+                                            <DocumentTocWidget
+                                                memoEditor={memoEditor}
+                                                onChangePage={handleChangePage}
+                                                onUpdatePageTitle={handleUpdatePageTitle}
+                                                onReorderPages={handleReorderPages}
+                                                onAddPage={handleAddPage}
+                                                onScrollToLine={(lineIndex: number, pageIndex: number) => {
+                                                    window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
+                                                        detail: { lineIndex, pageIndex }
+                                                    }));
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* 3. 상세 화면 (MemoEditorPanel) */}
+                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
+                                            <MemoEditorPanel
+                                                memoEditor={memoEditor}
+                                                setMemoEditor={setMemoEditor}
+                                                memoTextareaRef={memoTextareaRef}
+                                                handleSaveMemo={handleSaveMemo}
+                                                handleSwipeMemo={handleSwipeMemo}
+                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
+                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
+                                                handleInsertSymbol={handleInsertSymbol}
+                                                handleChangePage={handleChangePage}
+                                                handleUpdateTitle={handleUpdateTitle}
+                                                handleUpdatePageTitle={handleUpdatePageTitle}
+                                                handleUpdateItemText={handleUpdateItemText}
+                                                handleAddPage={handleAddPage}
+                                                handleDeletePage={handleDeletePage}
+                                                onReorderPages={handleReorderPages}
+                                                memoSymbols={memoSymbols}
+                                                setNavigationMapOpen={setNavigationMapOpen}
+                                                activeTab={activeTab}
+                                                safeData={safeData}
+                                                isMobileLayout={isMobileLayout}
+                                                isDesktopSplit={true}
+                                                handleMoveItem={handleMoveItem}
+                                                handleShowMemo={handleShowMemo}
+                                            />
+                                        </div>
+
+                                        {/* 4. 나머지 섹션들 + 5. IN-BOX (하나의 컬럼으로 통합) - 기존 2번 컬럼 (다시 5번으로 복귀) */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? 'h-auto' : 'h-full'}`}>
                                             {activeTab.sections.map((section, idx) => (
                                                 <div key={section.id} className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
@@ -261,71 +326,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     isMobileLayout={isMobileLayout}
                                                 />
                                             </div>
-                                        </div>
-
-                                        {/* 2. 문서 목차 (Document ToC) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
-                                            <DocumentTocWidget
-                                                memoEditor={memoEditor}
-                                                onChangePage={handleChangePage}
-                                                onUpdatePageTitle={handleUpdatePageTitle}
-                                                onReorderPages={handleReorderPages}
-                                                onAddPage={handleAddPage}
-                                                onScrollToLine={(lineIndex: number, pageIndex: number) => {
-                                                    window.dispatchEvent(new CustomEvent('editor-scroll-to-line', {
-                                                        detail: { lineIndex, pageIndex }
-                                                    }));
-                                                }}
-                                            />
-                                        </div>
-
-                                        {/* 3. 상세 화면 (MemoEditorPanel) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
-                                            <MemoEditorPanel
-                                                memoEditor={memoEditor}
-                                                setMemoEditor={setMemoEditor}
-                                                memoTextareaRef={memoTextareaRef}
-                                                handleSaveMemo={handleSaveMemo}
-                                                handleSwipeMemo={handleSwipeMemo}
-                                                handleDeleteItemFromModal={handleDeleteItemFromModal}
-                                                handleOpenTagSelection={handleOpenTagSelectionFromMain}
-                                                handleInsertSymbol={handleInsertSymbol}
-                                                handleChangePage={handleChangePage}
-                                                handleUpdateTitle={handleUpdateTitle}
-                                                handleUpdatePageTitle={handleUpdatePageTitle}
-                                                handleUpdateItemText={handleUpdateItemText}
-                                                handleAddPage={handleAddPage}
-                                                handleDeletePage={handleDeletePage}
-                                                onReorderPages={handleReorderPages}
-                                                memoSymbols={memoSymbols}
-                                                setNavigationMapOpen={setNavigationMapOpen}
-                                                activeTab={activeTab}
-                                                safeData={safeData}
-                                                isMobileLayout={isMobileLayout}
-                                                isDesktopSplit={true}
-                                                handleMoveItem={handleMoveItem}
-                                                handleShowMemo={handleShowMemo}
-                                            />
-                                        </div>
-
-                                        {/* 4. 업무 위젯 (TodoWidget) (이제 5번 컬럼으로 이동) */}
-                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
-                                            <TodoWidget
-                                                info={activeTab.todoManagementInfo}
-                                                onChange={handleTodoManagementChange}
-                                                onAddToCalendar={handleAddToCalendarClick}
-                                                mainHeaderClass="text-sm font-black text-orange-900 bg-orange-100 flex items-center gap-2 flex-shrink-0 px-2 h-[48px] -mx-2 -mt-2 mb-2 border-b-2 border-black"
-                                                subHeaderClass="text-[17px] font-bold text-blue-600"
-                                                todoTagClass="text-[10px] font-normal text-orange-600 font-mono"
-                                                onOpenItemMemoAtPage={onOpenItemMemoAtPage}
-                                                dragState={dragState}
-                                                setDragState={setDragState}
-                                                onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
-                                                onItemTagClick={(itemId, sectionId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: sectionId, sourceTabId: activeTab.id })}
-                                                dataSectionId="todo-widget-1"
-                                                activeTabId={activeTab.id}
-                                                highlightedItemId={highlightedItemId}
-                                            />
                                         </div>
 
                                     </>
