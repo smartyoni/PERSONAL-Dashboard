@@ -445,7 +445,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                     <>
                                         {/* 컬럼 1: 기존 첫 번째 섹션 */}
                                         {activeTab.sections.slice(0, 1).map((section, idx) => (
-                                            <div key={section.id} className={isMobileLayout ? "h-[500px]" : "h-[calc(100vh-160px)]"}>
+                                            <div key={section.id} className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={idx + 1}
                                                     section={section}
@@ -481,7 +481,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
                                          {/* 컬럼 2: 두 번째 섹션 */}
                                         {activeTab.sections.slice(1, 2).map((section, idx) => (
-                                            <div key={section.id} className={isMobileLayout ? "h-[500px]" : "h-[calc(100vh-160px)]"}>
+                                            <div key={section.id} className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={idx + 2}
                                                     section={section}
@@ -565,7 +565,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         {/* 컬럼 5: 나머지 모든 섹션들 (3번째부터) */}
                                         <div className={`flex flex-col gap-1.5 ${isMobileLayout ? '' : 'h-full'}`}>
                                             {activeTab.sections.slice(2).map((section, idx) => (
-                                                <div key={section.id} className={isMobileLayout ? "h-[500px]" : "h-[calc(100vh-160px)]"}>
+                                                <div key={section.id} className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
                                                     <SectionCard
                                                         bgIndex={idx + 3}
                                                         section={section}
