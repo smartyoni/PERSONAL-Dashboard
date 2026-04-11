@@ -291,7 +291,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             ))}
 
                                             {/* IN-BOX 섹션 */}
-                                            <div className={isMobileLayout ? "h-[250px]" : "h-[calc(100vh-160px)]"}>
+                                            <div className={isMobileLayout ? "h-[635px]" : "h-[calc(100vh-160px)]"}>
                                                 <SectionCard
                                                     bgIndex={0}
                                                     section={activeTab.inboxSection}
