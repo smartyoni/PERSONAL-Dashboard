@@ -54,7 +54,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
 
   const buildDisplaySections = (tab: Tab): DisplaySection[] => {
     const isMainTab = tab.id === mainTabId;
-    const isSubTab = tab.name === '서브'; // MainContent와 동일한 로직 
+    const isSubTab = tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판'; // MainContent와 동일한 로직 
     const result: DisplaySection[] = [];
 
     if (isMainTab) {

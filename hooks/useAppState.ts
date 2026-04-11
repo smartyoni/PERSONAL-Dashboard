@@ -98,7 +98,39 @@ const defaultData: AppData = (() => {
             },
             {
                 id: Math.random().toString(36).substr(2, 9),
-                name: '서브',
+                name: '업무게시판',
+                sections: [],
+                memos: {},
+                parkingInfo: {
+                    title: '개인', text: '', checklistTitle: '업무루틴', checklistItems: [],
+                    shoppingTitle: '구매예정', shoppingListItems: [], remindersTitle: '기억하고 확인할것', remindersItems: [],
+                    todoTitle: '잊지말고 할일', todoItems: [], checklistMemos: {}, shoppingListMemos: {},
+                    remindersMemos: {}, todoMemos: {}, category5Title: '항목 5', category5Items: [], category5Memos: {},
+                    isPinned: false
+                },
+                todoManagementInfo: {
+                    title: '컬럼 1', category1Title: '항목 1', category2Title: '항목 2', category3Title: '항목 3', category4Title: '항목 4',
+                    category1Items: [], category2Items: [], category3Items: [], category4Items: [],
+                    category1Memos: {}, category2Memos: {}, category3Memos: {}, category4Memos: {},
+                    category5Title: '항목 5', category5Items: [], category5Memos: {}, isPinned: false
+                },
+                todoManagementInfo2: {
+                    title: '컬럼 2', category1Title: '항목 1', category2Title: '항목 2', category3Title: '항목 3', category4Title: '항목 4',
+                    category1Items: [], category2Items: [], category3Items: [], category4Items: [],
+                    category1Memos: {}, category2Memos: {}, category3Memos: {}, category4Memos: {},
+                    category5Title: '항목 5', category5Items: [], category5Memos: {}, isPinned: false
+                },
+                todoManagementInfo3: {
+                    title: '컬럼 5', category1Title: '항목 1', category2Title: '항목 2', category3Title: '항목 3', category4Title: '항목 4',
+                    category1Items: [], category2Items: [], category3Items: [], category4Items: [],
+                    category1Memos: {}, category2Memos: {}, category3Memos: {}, category4Memos: {},
+                    category5Title: '항목 5', category5Items: [], category5Memos: {}, isPinned: false
+                },
+                isLocked: false
+            },
+            {
+                id: Math.random().toString(36).substr(2, 9),
+                name: '개인게시판',
                 sections: [],
                 memos: {},
                 parkingInfo: {
@@ -153,8 +185,9 @@ export const useAppState = () => {
     const safeData = useMemo(() => {
         if (!data) return defaultData;
 
-        // Ensure '서브' tab exists
-        const hasSubTab = data.tabs.some(t => t.name === '서브');
+        // Ensure specialized tabs exist
+        const hasSubTab = data.tabs.some(t => t.name === '업무게시판' || t.name === '서브');
+        const hasPrivateTab = data.tabs.some(t => t.name === '개인게시판');
         let processedTabs: Tab[] = data.tabs.map((tab, index) => {
             const isMainTab = index === 0;
             const processedTab: Tab = {
@@ -209,7 +242,7 @@ export const useAppState = () => {
                 },
                 todoManagementInfo2: {
                     ...tab.todoManagementInfo2,
-                    title: tab.todoManagementInfo2?.title || (tab.name === '서브' ? '컬럼 2' : '할일관리 2'),
+                    title: tab.todoManagementInfo2?.title || ((tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판') ? '컬럼 2' : '할일관리 2'),
                     category1Title: tab.todoManagementInfo2?.category1Title || '항목 1',
                     category2Title: tab.todoManagementInfo2?.category2Title || '항목 2',
                     category3Title: tab.todoManagementInfo2?.category3Title || '항목 3',
@@ -229,7 +262,7 @@ export const useAppState = () => {
                 },
                 todoManagementInfo3: {
                     ...tab.todoManagementInfo3,
-                    title: tab.todoManagementInfo3?.title || (tab.name === '서브' ? '컬럼 5' : '할일관리 3'),
+                    title: tab.todoManagementInfo3?.title || ((tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판') ? '컬럼 5' : '할일관리 3'),
                     category1Title: tab.todoManagementInfo3?.category1Title || '항목 1',
                     category2Title: tab.todoManagementInfo3?.category2Title || '항목 2',
                     category3Title: tab.todoManagementInfo3?.category3Title || '항목 3',
@@ -252,10 +285,23 @@ export const useAppState = () => {
         });
 
         if (!hasSubTab) {
-            const defaultSubTab = defaultData.tabs.find(t => t.name === '서브');
+            const defaultSubTab = defaultData.tabs.find(t => t.name === '업무게시판');
             if (defaultSubTab) {
                 // '메인' 탭 다음에 추가하거나, 마지막에 추가
                 processedTabs.splice(1, 0, defaultSubTab);
+            }
+        }
+
+        if (!hasPrivateTab) {
+            const defaultPrivateTab = defaultData.tabs.find(t => t.name === '개인게시판');
+            if (defaultPrivateTab) {
+                // '업무게시판' 다음에 추가하거나 (인덱스 2), 마지막에 추가
+                const subTabIndex = processedTabs.findIndex(t => t.name === '업무게시판' || t.name === '서브');
+                if (subTabIndex !== -1) {
+                    processedTabs.splice(subTabIndex + 1, 0, defaultPrivateTab);
+                } else {
+                    processedTabs.push(defaultPrivateTab);
+                }
             }
         }
 

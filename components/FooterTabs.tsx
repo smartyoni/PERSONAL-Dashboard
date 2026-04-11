@@ -110,7 +110,7 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   const getPinnedItems = () => {
     const pinned: Array<{ tabId: string, id: string, title: string }> = [];
     tabs.forEach((tab, idx) => {
-      const isSubTabInFooter = idx === 1 || tab.name === '서브';
+      const isSubTabInFooter = idx === 1 || tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판';
       
       // 1. Inbox
       if (tab.inboxSection?.isPinned) {

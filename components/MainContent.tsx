@@ -109,7 +109,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleReorderPages,
     memoSymbols, handleMoveItem,
 }) => {
-    const isSubTab = activeTab.name === '서브';
+    const isSubTab = activeTab.id === safeData.tabs[1]?.id || activeTab.name === '업무게시판' || activeTab.name === '서브' || activeTab.name === '개인게시판';
     const isBookmarkTab = activeTab.id === 'bookmarks';
 
     return (
