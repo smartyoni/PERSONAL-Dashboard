@@ -188,7 +188,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 1. 업무 위젯 (TodoWidget) - 기존 5번 컬럼 (다시 2번으로 복귀) */}
-                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[850px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -333,7 +333,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                     /* 서브 탭 레이아웃 - 3개 할일 관리 + 목차 + 상세 화면 */
                                     <>
                                         {/* 컬럼 1: 할일 관리 1 */}
-                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[850px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo}
                                                 onChange={handleTodoManagementChange}
@@ -353,7 +353,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 컬럼 2: 할일 관리 2 */}
-                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[850px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo2}
                                                 onChange={handleTodoManagement2Change}
@@ -418,7 +418,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 컬럼 5: 할일 관리 3 */}
-                                        <div className={isMobileLayout ? "h-[680px]" : "h-[calc(100vh-160px)]"}>
+                                        <div className={isMobileLayout ? "h-[850px]" : "h-[calc(100vh-160px)]"}>
                                             <TodoWidget
                                                 info={activeTab.todoManagementInfo3}
                                                 onChange={handleTodoManagement3Change}
