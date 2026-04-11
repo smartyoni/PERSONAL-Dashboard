@@ -174,190 +174,141 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
     'bg-[#A78BFA] text-white', // 6: Soft Purple
   ];
 
-  const visibleTabs = tabs;
   const pinnedItems = getPinnedItems();
 
   return (
-    <div className="bg-white border-t border-slate-200 z-[100] h-16 shadow-[0_-2px_15px_rgba(0,0,0,0.08)] relative">
-      <div className={`w-full h-full flex items-center overflow-x-auto no-scrollbar whitespace-nowrap ${isMobileLayout ? 'px-1' : 'px-6 gap-1'}`}>
-        {hasInbox && !isMobileLayout && (
+    <div className="fixed bottom-1 left-6 z-[100] flex items-end gap-3 pointer-events-none">
+      {/* 1. Specialized Utilities Pill (Desktop Only) */}
+      {!isMobileLayout && (
+        <div className="flex items-center gap-1 bg-white/80 backdrop-blur-xl border border-white/20 p-1.5 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] pointer-events-auto">
+          {hasInbox && (
+            <button
+              onClick={onNavigateToInbox}
+              className="flex items-center justify-center w-9 h-9 text-lg hover:bg-slate-200/50 rounded-full transition-all active:scale-90"
+              title="메인 인박스"
+            >
+              📥
+            </button>
+          )}
           <button
-            onClick={onNavigateToInbox}
-            className="flex items-center justify-center w-8 h-8 text-lg leading-none hover:bg-blue-50 rounded-lg transition-all active:scale-95 flex-shrink-0"
-            title="메인 페이지의 IN-BOX 섹션으로 이동"
+            onClick={onToggleBookmarkView}
+            className={`flex items-center justify-center w-9 h-9 text-lg rounded-full transition-all active:scale-90 ${
+              isBookmarkView ? 'bg-blue-500 text-white shadow-lg' : 'hover:bg-slate-200/50'
+            }`}
+            title="북마크"
           >
-            📥
+            🔖
           </button>
-        )}
+        </div>
+      )}
 
+      {/* 2. Main Tabs Segmented Control Pill */}
+      <div className={`flex items-center bg-white/80 backdrop-blur-xl border border-white/20 p-1.5 rounded-[22px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] pointer-events-auto relative ${isMobileLayout ? 'max-w-[calc(100vw-48px)] overflow-x-auto no-scrollbar' : ''}`}>
+        
+        {/* Desktop Active Indicator Layer */}
         {!isMobileLayout && (
-          <div className="h-6 w-px bg-slate-200 flex-shrink-0" />
+          <div 
+            className="absolute h-9 bg-slate-900 rounded-[14px] transition-all duration-300 ease-out shadow-lg"
+            style={{
+              width: '82px',
+              left: `${tabs.findIndex(t => t.id === activeTabId) * 83 + 6}px`,
+              opacity: isBookmarkView ? 0 : 1,
+              transform: isBookmarkView ? 'scale(0.9)' : 'scale(1)'
+            }}
+          />
         )}
 
-        <div className={`flex flex-1 h-full items-center ${isMobileLayout ? '' : 'gap-1'}`}>
+        <div className="flex items-center gap-1 relative">
           {isMobileLayout ? (
-            <div className="flex w-full items-center justify-center h-full">
-              <div className="flex w-[96%] bg-slate-100 rounded-lg p-0.5 border border-slate-200 shadow-sm overflow-hidden gap-[1.5px]">
-                {[0, 1, 2, 3, 4, 5, 6].map((index) => {
-                  if (index === 0) {
-                    // 1st Slot: Table of Contents (ToC)
-                    return (
-                      <button
-                        key="toc-button"
-                        onClick={onOpenToc}
-                        className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${RAINBOW_COLORS[0]} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border border-black/20`}
-                      >
-                        <div className="flex flex-col items-center leading-[1.0] text-[11.5px] tracking-[0.7px]">
-                          <span>목</span>
-                          <span>차</span>
-                        </div>
-                      </button>
-                    );
-                  }
-
-                  if (index === 6) {
-                    // 7th Slot: Bookmark Button
-                    return (
-                      <button
-                        key="bookmark-button"
-                        onClick={onToggleBookmarkView}
-                        className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${RAINBOW_COLORS[6]} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border-2 ${isBookmarkView ? 'border-blue-600 ring-2 ring-blue-300 ring-inset ring-opacity-50' : 'border-black/20'}`}
-                      >
-                        <div className="flex flex-col items-center leading-[1.0] text-[11.5px] tracking-[0.7px]">
-                          <span>북마</span>
-                          <span>크</span>
-                        </div>
-                      </button>
-                    );
-                  }
-
-                  // Slots 1-5 (Indices 1, 2, 3, 4, 5): Pinned Items 0-4
-                  const pinnedIndex = index - 1;
-                  const item = pinnedItems[pinnedIndex];
-                  const colorClass = RAINBOW_COLORS[index];
-
-                  if (item) {
-                    const { tabId, id, title } = item;
-                    return (
-                      <button
-                        key={`${tabId}-${id}`}
-                        onClick={() => onNavigateToSection?.(tabId, id)}
-                        className={`flex-1 h-11 rounded-md flex flex-col items-center justify-center transition-all ${colorClass} shadow-sm active:scale-95 font-bold text-[11.5px] px-0.5 border border-black/20`}
-                      >
-                        {formatSectionTitle(title)}
-                      </button>
-                    );
-                  }
-                  return (
-                    <div
-                      key={`empty-${index}`}
-                      className="flex-1 h-11 rounded-md border border-dashed border-slate-300 bg-white/50 flex items-center justify-center"
-                    />
-                  );
-                })}
-              </div>
+            /* Mobile Rainbow Bar remains functional but refined as a floating element */
+            <div className="flex items-center gap-1 px-1">
+              {[0, 1, 2, 3, 4, 5, 6].map((index) => {
+                if (index === 0) return (
+                  <button key="toc" onClick={onOpenToc} className={`w-11 h-11 rounded-xl flex items-center justify-center ${RAINBOW_COLORS[0]} shadow-sm active:scale-95 font-bold text-[11px] border border-black/10`}>📊</button>
+                );
+                if (index === 6) return (
+                  <button key="book" onClick={onToggleBookmarkView} className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${isBookmarkView ? 'bg-blue-600 ring-2 ring-blue-300 border-2 border-white' : `${RAINBOW_COLORS[6]} border border-black/10`} shadow-sm active:scale-95 font-bold text-[11px]`}>🔖</button>
+                );
+                const item = pinnedItems[index - 1];
+                if (item) return (
+                  <button key={item.id} onClick={() => onNavigateToSection?.(item.tabId, item.id)} className={`w-11 h-11 rounded-xl flex items-center justify-center ${RAINBOW_COLORS[index]} shadow-sm active:scale-95 font-bold text-[10px] border border-black/10`}>
+                    {formatSectionTitle(item.title)}
+                  </button>
+                );
+                return <div key={index} className="w-11 h-11 rounded-xl bg-slate-100/50 border border-dashed border-slate-300" />;
+              })}
             </div>
           ) : (
-            visibleTabs.map((tab) => {
-            const originalIndex = tabs.findIndex(t => t.id === tab.id);
-            const tabColor = getTabColor(originalIndex);
-            const isActive = activeTabId === tab.id;
-            const isDragged = draggedIndex === originalIndex;
-            const isDragOver = dragOverIndex === originalIndex;
-            const canDelete = tabs.length > 1;
-            const isActuallyDeleteable = canDelete && !tab.isLocked;
+            /* Desktop Segmented Tabs */
+            tabs.map((tab, idx) => {
+              const isActive = activeTabId === tab.id && !isBookmarkView;
+              const originalIndex = tabs.findIndex(t => t.id === tab.id);
 
-            return (
-              <div
-                key={tab.id}
-                ref={(el) => { triggerRefs.current[tab.id] = el; }}
-                draggable={!tab.isLocked && !isMobileLayout}
-                onDragStart={(e) => handleDragStart(e, originalIndex)}
-                onDragOver={(e) => handleDragOver(e, originalIndex)}
-                onDrop={(e) => handleDrop(e, originalIndex)}
-                onDragEnd={handleDragEnd}
-                onClick={() => onSelectTab(tab.id)}
-                onContextMenu={(e) => handleContextMenu(e, tab.id)}
-                className={`group flex items-center justify-center ${isMobileLayout ? 'flex-1 h-12 max-w-[80px]' : 'w-[82px] h-[52px]'} rounded-lg cursor-pointer transition-all border-2 border-black flex-shrink-0 relative ${isDragged ? 'opacity-50' : ''
-                  } ${isDragOver ? 'ring-2 ring-offset-1 ring-blue-400' : ''
-                  } ${!tab.isLocked ? 'hover:shadow-md' : ''
-                  } ${isActive
-                    ? `${tabColor.bg} ${tabColor.text} shadow-sm`
-                    : `${tabColor.bgLight} ${tabColor.textLight} hover:shadow-lg`
-                  } ${tab.isLocked ? 'cursor-default' : ''
+              return (
+                <div
+                  key={tab.id}
+                  ref={(el) => { triggerRefs.current[tab.id] = el; }}
+                  draggable={!tab.isLocked}
+                  onDragStart={(e) => handleDragStart(e, idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDrop={(e) => handleDrop(e, idx)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => onSelectTab(tab.id)}
+                  onContextMenu={(e) => handleContextMenu(e, tab.id)}
+                  className={`relative w-[82px] h-9 flex items-center justify-center cursor-pointer select-none transition-all duration-300 ${
+                    isActive ? 'text-white' : 'text-slate-500 hover:text-slate-800'
                   }`}
-              >
-
-                <div draggable={false} onDragStart={(e) => e.stopPropagation()} className="w-full h-full flex items-center justify-center px-0.5">
-                  <EditableText
-                    value={tab.name}
-                    onChange={(newName) => onRenameTab(tab.id, newName)}
-                    className={`text-[13px] leading-[1.2] tracking-tighter text-center w-full line-clamp-2 overflow-hidden ${isActive ? 'font-black' : 'font-bold'}`}
-                    placeholder="페이지"
-                    compact
-                  />
-                </div>
-
-                {openMenuId === tab.id && (
-                  <div
-                    ref={menuRef}
-                    className="fixed bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] border border-slate-200 z-[999] py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150 w-32"
-                    style={{
-                      bottom: `${menuPos.bottom}px`,
-                      left: `${menuPos.left}px`
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-
-                    <button
-                      onClick={() => {
-                        onToggleLockTab(tab.id);
-                        setOpenMenuId(null);
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-2"
-                    >
-                      <span className="text-sm leading-none">{tab.isLocked ? '🔓' : '🔒'}</span>
-                      <span className="font-bold">{tab.isLocked ? '잠금 해제' : '잠금'}</span>
-                    </button>
-
-                    <button
-                      disabled={!isActuallyDeleteable}
-                      onClick={() => {
-                        onDeleteTab(tab.id);
-                        setOpenMenuId(null);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 border-t border-slate-50 ${isActuallyDeleteable
-                        ? 'text-red-600 hover:bg-red-50'
-                        : 'text-slate-300 cursor-not-allowed bg-slate-50'
-                        }`}
-                    >
-                      <span className="text-sm leading-none">🗑️</span>
-                      <span className="font-bold">삭제</span>
-                    </button>
-
-                    <button
-                      onClick={() => setOpenMenuId(null)}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-100 transition-colors border-t border-slate-100 font-medium"
-                    >
-                      취소
-                    </button>
+                >
+                  <div draggable={false} onDragStart={(e) => e.stopPropagation()} className="w-full flex items-center justify-center pointer-events-none">
+                    <EditableText
+                      value={tab.name}
+                      onChange={(newName) => onRenameTab(tab.id, newName)}
+                      className={`text-[12px] text-center w-full px-1 line-clamp-1 truncate pointer-events-auto ${isActive ? 'font-black' : 'font-bold'}`}
+                      placeholder="페이지"
+                      compact
+                    />
                   </div>
-                )}
-              </div>
-            );
-          }))}
+                  {tab.isLocked && !isActive && <span className="absolute -top-1 -right-1 text-[8px] opacity-40">🔒</span>}
+                  
+                  {/* Context Menu (Integrated) */}
+                  {openMenuId === tab.id && (
+                    <div
+                      ref={menuRef}
+                      className="fixed bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-slate-100 z-[999] py-1.5 w-36 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                      style={{ bottom: `${menuPos.bottom}px`, left: `${menuPos.left}px` }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button onClick={() => { onToggleLockTab(tab.id); setOpenMenuId(null); }} className="w-full text-left px-4 py-2 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <span>{tab.isLocked ? '🔓' : '🔒'}</span>
+                        <span className="font-bold">{tab.isLocked ? '잠금 해제' : '잠금'}</span>
+                      </button>
+                      <button 
+                        disabled={tabs.length <= 1 || tab.isLocked} 
+                        onClick={() => { onDeleteTab(tab.id); setOpenMenuId(null); }} 
+                        className={`w-full text-left px-4 py-2 text-[13px] transition-colors flex items-center gap-2 border-t border-slate-50 ${
+                          tabs.length > 1 && !tab.isLocked ? 'text-red-500 hover:bg-red-50' : 'text-slate-300 cursor-not-allowed opacity-50'
+                        }`}
+                      >
+                        <span>🗑️</span>
+                        <span className="font-bold">삭제</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
 
+        {/* 3. Add Tab Button (Integrated inside Pill) */}
         {!isMobileLayout && (
-          <div className="flex items-center ml-2 border-l border-slate-200 pl-4 flex-shrink-0 h-8">
-            <button
-              onClick={onAddTab}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all active:scale-95"
-            >
-              <span className="text-lg leading-none">+</span>
-              <span>페이지 추가</span>
-            </button>
-          </div>
+          <button
+            onClick={onAddTab}
+            className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full transition-all active:scale-90 ml-0.5"
+            title="새 페이지 추가"
+          >
+            <span className="text-xl font-light leading-none">+</span>
+          </button>
         )}
       </div>
     </div>
