@@ -109,7 +109,9 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
 
   const getPinnedItems = () => {
     const pinned: Array<{ tabId: string, id: string, title: string }> = [];
-    tabs.forEach(tab => {
+    tabs.forEach((tab, idx) => {
+      const isSubTabInFooter = idx === 1 || tab.name === '서브';
+      
       // 1. Inbox
       if (tab.inboxSection?.isPinned) {
         pinned.push({ tabId: tab.id, id: tab.inboxSection.id, title: tab.inboxSection.title || '📥 인박스' });
@@ -122,20 +124,28 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
           }
         });
       }
-      /* Removed: Parking Widget (Personal Widget) is no longer used in bottom tab
-      if (tab.parkingInfo?.isPinned) {
-        pinned.push({ tabId: tab.id, id: 'parking-widget', title: tab.parkingInfo.title || '🅿️ 주차장' });
-      }
-      */
+      
       // 4. Todo Widgets
       if (tab.todoManagementInfo?.isPinned) {
-        pinned.push({ tabId: tab.id, id: 'todo-widget-1', title: tab.todoManagementInfo.title || '✅ 할일 1' });
+        pinned.push({ 
+          tabId: tab.id, 
+          id: isSubTabInFooter ? 'sub-todo-widget-1' : 'todo-widget-1', 
+          title: tab.todoManagementInfo.title || '✅ 할일 1' 
+        });
       }
       if (tab.todoManagementInfo2?.isPinned) {
-        pinned.push({ tabId: tab.id, id: 'todo-widget-2', title: tab.todoManagementInfo2.title || '✅ 할일 2' });
+        pinned.push({ 
+          tabId: tab.id, 
+          id: isSubTabInFooter ? 'sub-todo-widget-2' : 'todo-widget-2', 
+          title: tab.todoManagementInfo2.title || '✅ 할일 2' 
+        });
       }
       if (tab.todoManagementInfo3?.isPinned) {
-        pinned.push({ tabId: tab.id, id: 'todo-widget-3', title: tab.todoManagementInfo3.title || '✅ 할일 3' });
+        pinned.push({ 
+          tabId: tab.id, 
+          id: isSubTabInFooter ? 'sub-todo-widget-3' : 'todo-widget-3', 
+          title: tab.todoManagementInfo3.title || '✅ 할일 3' 
+        });
       }
     });
     return pinned.slice(0, 5); // Limit back to 5 to make room for ToC and Bookmark buttons
