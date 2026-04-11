@@ -24,6 +24,7 @@ interface TodoWidgetProps {
     dataSectionId?: string;
     activeTabId: string;
     highlightedItemId?: string | null;
+    maxCategories?: number;
 }
 
 interface SubSectionProps {
@@ -255,7 +256,8 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
     onItemTagClick,
     dataSectionId,
     activeTabId,
-    highlightedItemId = null
+    highlightedItemId = null,
+    maxCategories = 4
 }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -449,17 +451,19 @@ const TodoWidget: React.FC<TodoWidgetProps> = ({
                     activeTabId={activeTabId}
                     highlightedItemId={highlightedItemId}
                 />
-                <SubSection 
-                    sectionId={`${dataSectionId || 'todo'}-cat4`} title={info.category4Title} type={4} items={info.category4Items || []} memos={info.category4Memos} 
-                    onShowMemo={onShowTodoCat4Memo} colorIndex={3} 
-                    dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
-                    handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
-                    handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
-                    handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
-                    onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
-                    activeTabId={activeTabId}
-                    highlightedItemId={highlightedItemId}
-                />
+                {maxCategories !== 3 && (
+                    <SubSection 
+                        sectionId={`${dataSectionId || 'todo'}-cat4`} title={info.category4Title} type={4} items={info.category4Items || []} memos={info.category4Memos} 
+                        onShowMemo={onShowTodoCat4Memo} colorIndex={3} 
+                        dragState={dragState} setDragState={setDragState} handleReorder={handleReorder} 
+                        handleReorderSubSections={handleReorderSubSections} onCrossSectionDrop={onCrossSectionDrop}
+                        handleUpdateTitle={handleUpdateTitle} handleAddItem={handleAddItem} handleUpdateText={handleUpdateText}
+                        handleEditingChange={handleEditingChange} editingItemIds={editingItemIds} toggleMenu={toggleMenu}
+                        onItemTagClick={onItemTagClick} triggerRefs={triggerRefs} onOpenItemMemoAtPage={onOpenItemMemoAtPage} subHeaderClass={subHeaderClass}
+                        activeTabId={activeTabId}
+                        highlightedItemId={highlightedItemId}
+                    />
+                )}
             </div>
 
             {openMenuId && (() => {

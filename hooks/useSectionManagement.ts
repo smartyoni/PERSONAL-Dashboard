@@ -203,37 +203,41 @@ export const useSectionManagement = (
                 else if (sid === 'todo') { items = p.todoItems; memos = p.todoMemos; subType = 'todo'; }
                 else if (sid === 'parkingcat5') { items = p.category5Items; memos = p.category5Memos; subType = 'parkingCat5'; }
                 
+                // Extract category number safely
+                const catMatch = sid.match(/cat([1-5])/) || sid.match(/([1-5])$/);
+                const catNum = catMatch ? catMatch[1] : null;
+
                 // Improved Widget detection
                 const isW2 = sid.includes('widget-2') || sid.includes('todo2') || sid.includes('widget2');
                 const isW3 = sid.includes('widget-3') || sid.includes('todo3') || sid.includes('widget3');
                 const isW1 = (sid.includes('todo') || sid.includes('widget-1') || sid.includes('widget1')) && !isW2 && !isW3;
 
                 // Widget 1 logic
-                if (isW1 && (sid.includes('cat') || sid.match(/[1-5]$/))) {
+                if (isW1 && catNum) {
                     type = 'todo';
-                    if (sid.includes('1')) { items = t.category1Items; memos = t.category1Memos; subType = 'todoCat1'; }
-                    else if (sid.includes('2')) { items = t.category2Items; memos = t.category2Memos; subType = 'todoCat2'; }
-                    else if (sid.includes('3')) { items = t.category3Items; memos = t.category3Memos; subType = 'todoCat3'; }
-                    else if (sid.includes('4')) { items = t.category4Items; memos = t.category4Memos; subType = 'todoCat4'; }
-                    else if (sid.includes('5')) { items = t.category5Items; memos = t.category5Memos; subType = 'todoCat5'; }
+                    if (catNum === '1') { items = t.category1Items; memos = t.category1Memos; subType = 'todoCat1'; }
+                    else if (catNum === '2') { items = t.category2Items; memos = t.category2Memos; subType = 'todoCat2'; }
+                    else if (catNum === '3') { items = t.category3Items; memos = t.category3Memos; subType = 'todoCat3'; }
+                    else if (catNum === '4') { items = t.category4Items; memos = t.category4Memos; subType = 'todoCat4'; }
+                    else if (catNum === '5') { items = t.category5Items; memos = t.category5Memos; subType = 'todoCat5'; }
                 }
                 // Widget 2 logic
-                else if (isW2) {
+                else if (isW2 && catNum) {
                     type = 'todo';
-                    if (sid.includes('1')) { items = t2.category1Items; memos = t2.category1Memos; subType = 'todo2Cat1'; }
-                    else if (sid.includes('2')) { items = t2.category2Items; memos = t2.category2Memos; subType = 'todo2Cat2'; }
-                    else if (sid.includes('3')) { items = t2.category3Items; memos = t2.category3Memos; subType = 'todo2Cat3'; }
-                    else if (sid.includes('4')) { items = t2.category4Items; memos = t2.category4Memos; subType = 'todo2Cat4'; }
-                    else if (sid.includes('5')) { items = t2.category5Items; memos = t2.category5Memos; subType = 'todo2Cat5'; }
+                    if (catNum === '1') { items = t2.category1Items; memos = t2.category1Memos; subType = 'todo2Cat1'; }
+                    else if (catNum === '2') { items = t2.category2Items; memos = t2.category2Memos; subType = 'todo2Cat2'; }
+                    else if (catNum === '3') { items = t2.category3Items; memos = t2.category3Memos; subType = 'todo2Cat3'; }
+                    else if (catNum === '4') { items = t2.category4Items; memos = t2.category4Memos; subType = 'todo2Cat4'; }
+                    else if (catNum === '5') { items = t2.category5Items; memos = t2.category5Memos; subType = 'todo2Cat5'; }
                 }
                 // Widget 3 logic
-                else if (isW3) {
+                else if (isW3 && catNum) {
                     type = 'todo';
-                    if (sid.includes('1')) { items = t3.category1Items; memos = t3.category1Memos; subType = 'todo3Cat1'; }
-                    else if (sid.includes('2')) { items = t3.category2Items; memos = t3.category2Memos; subType = 'todo3Cat2'; }
-                    else if (sid.includes('3')) { items = t3.category3Items; memos = t3.category3Memos; subType = 'todo3Cat3'; }
-                    else if (sid.includes('4')) { items = t3.category4Items; memos = t3.category4Memos; subType = 'todo3Cat4'; }
-                    else if (sid.includes('5')) { items = t3.category5Items; memos = t3.category5Memos; subType = 'todo3Cat5'; }
+                    if (catNum === '1') { items = t3.category1Items; memos = t3.category1Memos; subType = 'todo3Cat1'; }
+                    else if (catNum === '2') { items = t3.category2Items; memos = t3.category2Memos; subType = 'todo3Cat2'; }
+                    else if (catNum === '3') { items = t3.category3Items; memos = t3.category3Memos; subType = 'todo3Cat3'; }
+                    else if (catNum === '4') { items = t3.category4Items; memos = t3.category4Memos; subType = 'todo3Cat4'; }
+                    else if (catNum === '5') { items = t3.category5Items; memos = t3.category5Memos; subType = 'todo3Cat5'; }
                 }
             }
             return { items: items || [], memos: memos || {}, type, subType };

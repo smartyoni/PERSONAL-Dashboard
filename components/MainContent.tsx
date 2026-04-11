@@ -349,6 +349,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 dataSectionId="sub-todo-widget-1"
                                                 activeTabId={activeTab.id}
                                                 highlightedItemId={highlightedItemId}
+                                                maxCategories={3}
                                             />
                                         </div>
 
@@ -369,6 +370,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 dataSectionId="sub-todo-widget-2"
                                                 activeTabId={activeTab.id}
                                                 highlightedItemId={highlightedItemId}
+                                                maxCategories={3}
                                             />
                                         </div>
 
@@ -434,6 +436,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 dataSectionId="sub-todo-widget-3"
                                                 activeTabId={activeTab.id}
                                                 highlightedItemId={highlightedItemId}
+                                                maxCategories={3}
                                             />
                                         </div>
                                     </>
