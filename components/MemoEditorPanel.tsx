@@ -27,6 +27,7 @@ export interface MemoEditorPanelProps {
     memoSymbols: { label: string; value: string; title: string }[];
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => void;
+    onNavigateToItem?: (tabId: string, sectionId?: string, itemId?: string) => void;
     activeTab: Tab;
     safeData: AppData; 
     isMobileLayout: boolean;
@@ -44,7 +45,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     onReorderPages,
     handleCopyAllPages, handlePasteAllPages,
     memoSymbols, activeTab, safeData, isMobileLayout, isDesktopSplit,
-    handleMoveItem, handleShowMemo, headerBgClass
+    handleMoveItem, handleShowMemo, onNavigateToItem, headerBgClass
 }) => {
     const touchStart = useRef<number | null>(null);
     const touchEnd = useRef<number | null>(null);
@@ -526,10 +527,24 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     onChange={(e) => setHeaderValue(e.target.value)}
                                 />
                             ) : (
-                                <span className="text-base font-bold text-red-600 line-clamp-2 leading-snug break-all flex items-center gap-2">
-                                    {currentItem?.isLocked && <span title="잠금됨" className="text-sm">🔒</span>}
-                                    {headerTitle}
-                                </span>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onNavigateToItem && memoEditor.tabId && memoEditor.sectionId && memoEditor.id) {
+                                            onNavigateToItem(memoEditor.tabId, memoEditor.sectionId, memoEditor.id);
+                                        }
+                                    }}
+                                    className="text-left hover:bg-slate-200/50 px-2 py-1 rounded-lg transition-colors group/title flex items-center gap-2"
+                                    title="이 항목이 있는 섹션으로 가기"
+                                >
+                                    <span className="text-base font-bold text-red-600 line-clamp-2 leading-snug break-all flex items-center gap-2">
+                                        {currentItem?.isLocked && <span title="잠금됨" className="text-sm">🔒</span>}
+                                        {headerTitle}
+                                    </span>
+                                    <svg className="w-4 h-4 text-slate-400 opacity-0 group-hover/title:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                    </svg>
+                                </button>
                             )}
                         </div>
 

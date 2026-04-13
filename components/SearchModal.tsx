@@ -39,14 +39,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
         safeData.tabs.forEach((tab, tabIdx) => {
             const isBaseTab = tabIdx === 0;
 
-            // Tab result
-            items.push({
-                id: tab.id,
-                type: 'tab',
-                title: tab.name,
-                breadcrumb: tab.name,
-                tabId: tab.id
-            });
+
 
             // Index Inbox Section
             if (tab.inboxSection) {
@@ -102,16 +95,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
             tab.sections.forEach(section => {
                 const pathPrefix = isBaseTab ? section.title : `${tab.name} > ${section.title}`;
                 
-                // Section result
-                items.push({
-                    id: section.id,
-                    type: 'section',
-                    title: section.title,
-                    breadcrumb: pathPrefix,
-                    tabId: tab.id,
-                    sectionId: section.id,
-                    memoType: 'section'
-                });
+
 
                 section.items.forEach(item => {
                     // Item result
@@ -239,8 +223,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
         const q = query.toLowerCase();
         return searchableItems.filter(item => 
             item.title.toLowerCase().includes(q) || 
-            (item.content && item.content.toLowerCase().includes(q)) ||
-            item.breadcrumb.toLowerCase().includes(q)
+            (item.content && item.content.toLowerCase().includes(q))
         ).slice(0, 30); // Limit results for performance
     }, [searchableItems, query]);
 

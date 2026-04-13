@@ -42,7 +42,6 @@ interface MainContentProps {
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
     // Navigation
     handleNavigateToInbox: () => void;
-    handleNavigateToInbox: () => void;
     onToggleBookmarkView: () => void;
     highlightedSectionId: string | null;
     highlightedItemId?: string | null;
@@ -163,6 +162,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                             onSectionDrop={() => { }}
                                             onSectionDragEnd={() => { }}
                                             isHighlighted={false}
+                                            highlightedItemId={highlightedItemId}
                                             isInboxSection={false}
                                             isBookmarkTab={true}
                                             tabColorBg={'bg-sky-100'}
@@ -250,6 +250,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 isDesktopSplit={true}
                                                 handleMoveItem={handleMoveItem}
                                                 handleShowMemo={handleShowMemo}
+                                                onNavigateToItem={onTocNavigate}
                                             />
                                         </div>
 
@@ -416,6 +417,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 isDesktopSplit={true}
                                                 handleMoveItem={handleMoveItem}
                                                 handleShowMemo={handleShowMemo}
+                                                onNavigateToItem={onTocNavigate}
                                             />
                                         </div>
 
@@ -463,6 +465,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     onSectionDrop={(e) => onSectionDrop(e, section.id)}
                                                     onSectionDragEnd={onSectionDragEnd}
                                                     isHighlighted={section.id === highlightedSectionId}
+                                                    highlightedItemId={highlightedItemId}
                                                     isFullHeight={true}
                                                     tabColorText={activeTabColorConfig.text}
                                                     tabColorBg={activeTabColorConfig.bgLight}
@@ -498,6 +501,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     onSectionDrop={(e) => onSectionDrop(e, section.id)}
                                                     onSectionDragEnd={onSectionDragEnd}
                                                     isHighlighted={section.id === highlightedSectionId}
+                                                    highlightedItemId={highlightedItemId}
                                                     isFullHeight={true}
                                                     tabColorText={activeTabColorConfig.text}
                                                     tabColorBg={activeTabColorConfig.bgLight}
@@ -557,6 +561,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 isDesktopSplit={true}
                                                 handleMoveItem={handleMoveItem}
                                                 handleShowMemo={handleShowMemo}
+                                                onNavigateToItem={onTocNavigate}
                                                 headerBgClass={activeTabColorConfig.bgLight}
                                             />
                                         </div>
@@ -582,6 +587,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                                         onSectionDrop={(e) => onSectionDrop(e, section.id)}
                                                         onSectionDragEnd={onSectionDragEnd}
                                                         isHighlighted={section.id === highlightedSectionId}
+                                                        highlightedItemId={highlightedItemId}
                                                         isFullHeight={true}
                                                         tabColorText={activeTabColorConfig.text}
                                                         tabColorBg={activeTabColorConfig.bgLight}

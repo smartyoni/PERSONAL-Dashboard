@@ -19,6 +19,7 @@ interface ParkingWidgetProps {
   setDragState: (state: DragState) => void;
   onCrossSectionDrop: (draggedItemId: string, sourceSectionId: string, targetSectionId: string, sourceTabId: string, targetTabId: string) => void;
   onItemTagClick: (itemId: string, sectionId: string, itemText: string) => void;
+  highlightedItemId?: string | null;
 }
 
 const ParkingWidget: React.FC<ParkingWidgetProps> = ({
@@ -34,7 +35,8 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
   dragState,
   setDragState,
   onCrossSectionDrop,
-  onItemTagClick
+  onItemTagClick,
+  highlightedItemId = null
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -217,7 +219,8 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
     memos: { [key: string]: string },
     onShowMemo?: (id: string) => void,
     onTitleChange: (newTitle: string) => void,
-    sectionId: string
+    sectionId: string,
+    highlightedItemId?: string | null
   }) => {
     const [localDragState, setLocalDragState] = useState<{ 
         isDraggingSection: boolean;
@@ -332,7 +335,8 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
                     setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null });
                 }}
                 onDragEnd={() => setDragState({ ...dragState, draggedItemId: null, sourceSectionId: null, sourceTabId: null, dragOverItemId: null, dragOverSectionId: null, dragOverTabId: null })}
-                className={`flex items-start gap-1 py-0 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'}`}
+                data-item-id={item.id}
+                className={`flex items-start gap-1 py-0 rounded transition-all group ${isDraggingThis ? 'opacity-40 bg-slate-50' : isOverThis ? 'bg-green-50 border-l-2 border-green-400' : 'hover:bg-slate-50'} ${item.id === highlightedItemId ? 'highlight-animate' : ''}`}
                 >
                 <button
                     ref={el => { triggerRefs.current[item.id] = el; }}
@@ -405,11 +409,11 @@ const ParkingWidget: React.FC<ParkingWidgetProps> = ({
       </h2>
 
       <div className="flex-1 flex flex-col min-h-0 space-y-0 overflow-y-auto custom-scrollbar">
-        <SubSection sectionId="checklist" title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems || []} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} />
-        <SubSection sectionId="shopping" title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems || []} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} />
-        <SubSection sectionId="reminders" title={info.remindersTitle || "기억하고 확인할것"} type="reminders" items={info.remindersItems || []} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} />
-        <SubSection sectionId="todo" title={info.todoTitle || "잊지말고 할일"} type="todo" items={info.todoItems || []} memos={info.todoMemos} onShowMemo={onShowTodoMemo} onTitleChange={(t) => handleUpdateSubTitle('todo', t)} />
-        <SubSection sectionId="parkingCat5" title={info.category5Title || "항목 5"} type="parkingCat5" items={info.category5Items || []} memos={info.category5Memos} onShowMemo={onShowCategory5Memo} onTitleChange={(t) => handleUpdateSubTitle('parkingCat5', t)} />
+        <SubSection sectionId="checklist" title={info.checklistTitle || "업무루틴"} type="checklist" items={info.checklistItems || []} memos={info.checklistMemos} onShowMemo={onShowChecklistMemo} onTitleChange={(t) => handleUpdateSubTitle('checklist', t)} highlightedItemId={highlightedItemId} />
+        <SubSection sectionId="shopping" title={info.shoppingTitle || "구매예정"} type="shopping" items={info.shoppingListItems || []} memos={info.shoppingListMemos} onShowMemo={onShowShoppingMemo} onTitleChange={(t) => handleUpdateSubTitle('shopping', t)} highlightedItemId={highlightedItemId} />
+        <SubSection sectionId="reminders" title={info.remindersTitle || "기억하고 확인할것"} type="reminders" items={info.remindersItems || []} memos={info.remindersMemos} onShowMemo={onShowRemindersMemo} onTitleChange={(t) => handleUpdateSubTitle('reminders', t)} highlightedItemId={highlightedItemId} />
+        <SubSection sectionId="todo" title={info.todoTitle || "잊지말고 할일"} type="todo" items={info.todoItems || []} memos={info.todoMemos} onShowMemo={onShowTodoMemo} onTitleChange={(t) => handleUpdateSubTitle('todo', t)} highlightedItemId={highlightedItemId} />
+        <SubSection sectionId="parkingCat5" title={info.category5Title || "항목 5"} type="parkingCat5" items={info.category5Items || []} memos={info.category5Memos} onShowMemo={onShowCategory5Memo} onTitleChange={(t) => handleUpdateSubTitle('parkingCat5', t)} highlightedItemId={highlightedItemId} />
       </div>
 
       {openMenuId && (() => {

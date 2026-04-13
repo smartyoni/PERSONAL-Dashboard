@@ -211,10 +211,10 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
         {/* Desktop Active Indicator Layer */}
         {!isMobileLayout && (
           <div 
-            className="absolute h-9 bg-slate-900 rounded-[14px] transition-all duration-300 ease-out shadow-lg"
+            className="absolute h-9 bg-slate-100 rounded-[12px] transition-all duration-300 ease-out"
             style={{
               width: '82px',
-              left: `${tabs.findIndex(t => t.id === activeTabId) * 83 + 6}px`,
+              left: `${tabs.findIndex(t => t.id === activeTabId) * 86 + 6}px`,
               opacity: isBookmarkView ? 0 : 1,
               transform: isBookmarkView ? 'scale(0.9)' : 'scale(1)'
             }}
@@ -259,7 +259,7 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
                   onClick={() => onSelectTab(tab.id)}
                   onContextMenu={(e) => handleContextMenu(e, tab.id)}
                   className={`relative w-[82px] h-9 flex items-center justify-center cursor-pointer select-none transition-all duration-300 ${
-                    isActive ? 'text-white' : 'text-slate-500 hover:text-slate-800'
+                    isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
                   }`}
                 >
                   <div draggable={false} onDragStart={(e) => e.stopPropagation()} className="w-full flex items-center justify-center pointer-events-none">

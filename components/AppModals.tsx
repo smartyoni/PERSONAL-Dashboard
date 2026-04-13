@@ -123,6 +123,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                     isDesktopSplit={false}
                     handleMoveItem={handleMoveItem}
                     handleShowMemo={handleShowMemo}
+                    onNavigateToItem={handleNavigateTo}
                 />
             )}
 
