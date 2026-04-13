@@ -807,6 +807,112 @@ export const useMemoEditor = (
         }
     };
 
+    const handleCopyAllPages = async () => {
+        if (!memoEditor.id) return false;
+        
+        const updatedAllContents = [...memoEditor.allValues];
+        updatedAllContents[memoEditor.activePageIndex] = memoEditor.value;
+        const updatedAllTitles = [...memoEditor.allTitles];
+        updatedAllTitles[memoEditor.activePageIndex] = memoEditor.title;
+
+        const finalPages = updatedAllContents.map((content, idx) => {
+            const title = updatedAllTitles[idx] || '';
+            return title + TITLE_SEPARATOR + content;
+        });
+        const finalValue = finalPages.join('\n===page-break===\n');
+        
+        try {
+            await navigator.clipboard.writeText(finalValue);
+            return true;
+        } catch (err) {
+            console.error('Failed to copy document:', err);
+            return false;
+        }
+    };
+
+    const handlePasteAllPages = async () => {
+        if (!memoEditor.id) return false;
+        try {
+            const text = await navigator.clipboard.readText();
+            if (!text || (!text.includes(TITLE_SEPARATOR) && !text.includes('===page-break==='))) {
+                alert('클립보드에 유효한 문서 데이터가 없습니다.');
+                return false;
+            }
+
+            const { allTitles, allValues } = parseMemoPages(text);
+            if (allValues.length === 0) return false;
+
+            setMemoEditor(prev => ({
+                ...prev,
+                allValues,
+                allTitles,
+                activePageIndex: 0,
+                value: allValues[0],
+                title: allTitles[0],
+                isEditing: false
+            }));
+
+            const finalValue = text;
+            const { id, type, tabId } = memoEditor;
+
+            if (type === 'section') {
+                updateData(prev => ({
+                    ...prev,
+                    tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                        ? { ...t, memos: { ...t.memos, [id!]: finalValue } }
+                        : t
+                    )
+                }));
+            } else if (type === 'checklist' || type === 'shopping' || type === 'reminders' || type === 'todo' || type === 'parkingCat5') {
+                const pkKey = type === 'checklist' ? 'checklistMemos' : 
+                              type === 'shopping' ? 'shoppingListMemos' :
+                              type === 'reminders' ? 'remindersMemos' :
+                              type === 'todo' ? 'todoMemos' : 'category5Memos';
+                updateData(prev => ({
+                    ...prev,
+                    tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                        ? { ...t, parkingInfo: { ...t.parkingInfo, [pkKey]: { ...(t.parkingInfo as any)[pkKey], [id!]: finalValue } } }
+                        : t
+                    )
+                }));
+            } else if (type?.startsWith('todoCat')) {
+                const catNum = type.replace('todoCat', '');
+                const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+                updateData(prev => ({
+                    ...prev,
+                    tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                        ? { ...t, todoManagementInfo: { ...t.todoManagementInfo, [memosKey]: { ...(t.todoManagementInfo[memosKey] as any), [id!]: finalValue } } }
+                        : t
+                    )
+                }));
+            } else if (type?.startsWith('todo2Cat')) {
+                const catNum = type.replace('todo2Cat', '');
+                const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+                updateData(prev => ({
+                    ...prev,
+                    tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                        ? { ...t, todoManagementInfo2: t.todoManagementInfo2 ? { ...t.todoManagementInfo2, [memosKey]: { ...(t.todoManagementInfo2[memosKey] as any), [id!]: finalValue } } : undefined }
+                        : t
+                    )
+                }));
+            } else if (type?.startsWith('todo3Cat')) {
+                const catNum = type.replace('todo3Cat', '');
+                const memosKey = `category${catNum}Memos` as keyof TodoManagementInfo;
+                updateData(prev => ({
+                    ...prev,
+                    tabs: prev.tabs.map(t => t.id === (tabId || prev.activeTabId)
+                        ? { ...t, todoManagementInfo3: t.todoManagementInfo3 ? { ...t.todoManagementInfo3, [memosKey]: { ...(t.todoManagementInfo3[memosKey] as any), [id!]: finalValue } } : undefined }
+                        : t
+                    )
+                }));
+            }
+            return true;
+        } catch (err) {
+            console.error('Failed to paste document:', err);
+            return false;
+        }
+    };
+
     return {
         handleShowMemo,
         handleSwipeMemo,
@@ -820,6 +926,8 @@ export const useMemoEditor = (
         handleAddPage,
         handleDeletePage,
         handleReorderPages,
+        handleCopyAllPages,
+        handlePasteAllPages,
         memoSymbols
     };
 };

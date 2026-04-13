@@ -21,7 +21,8 @@ export const useTabManagement = (
     }, [safeData.tabs, safeData.activeTabId]);
 
     const currentTabIndex = useMemo(() => {
-        return safeData.tabs.findIndex(t => t.id === safeData.activeTabId);
+        const idx = safeData.tabs.findIndex(t => t.id === safeData.activeTabId);
+        return idx === -1 ? 0 : idx;
     }, [safeData.tabs, safeData.activeTabId]);
 
     const activeTabColorConfig = useMemo(() => getTabColor(currentTabIndex), [currentTabIndex]);

@@ -66,20 +66,20 @@ const App: React.FC = () => {
     handleUpdateItemText,
     handleAddPage,
     handleDeletePage,
-    handleReorderPages
+    handleReorderPages,
+    handleCopyAllPages,
+    handlePasteAllPages
   } = useMemoEditor(safeData, updateData, activeTab, memoEditor, setMemoEditor, memoTextareaRef, setModal);
 
   // Phase 4: 네비게이션 훅
   const {
-    navigationMapOpen, setNavigationMapOpen,
     sectionMapOpen, setSectionMapOpen,
     tagSelectionModalOpen, setTagSelectionModalOpen,
     lastSectionBeforeInbox, highlightedSectionId, highlightedItemId, setHighlightedItemId, lastSectionPos,
     focusQuickAddSectionId, setFocusQuickAddSectionId,
-    handleNavigateFromMap, handleNavigateToInbox,
+    handleNavigateTo, handleNavigateToInbox,
     handleGoToInbox, handleReturnFromInbox,
     handleOpenSectionMap, handleNavigateFromSectionMap,
-    handleShowMemoFromMap, handleNavigateAndFocusFromMap,
     handleNavigateFromTag, handleReturnToLastSection,
     handleOpenTagSelection, tagSelectionContext,
     searchModalOpen, setSearchModalOpen
@@ -89,7 +89,6 @@ const App: React.FC = () => {
   useBackButton({
     memoEditor, setMemoEditor,
     modal, setModal,
-    navigationMapOpen, setNavigationMapOpen,
     sectionMapOpen, setSectionMapOpen,
     tagSelectionModalOpen, setTagSelectionModalOpen,
     searchModalOpen, setSearchModalOpen,
@@ -241,7 +240,7 @@ const App: React.FC = () => {
         handleShowMemo={handleShowMemo}
         handleAddToCalendarClick={handleAddToCalendarClick}
         handleOpenTagSelection={handleOpenTagSelection}
-        setNavigationMapOpen={setNavigationMapOpen} handleNavigateToInbox={handleNavigateToInbox}
+        handleNavigateToInbox={handleNavigateToInbox}
         onToggleBookmarkView={handleToggleBookmarkView}
         highlightedSectionId={highlightedSectionId}
         highlightedItemId={highlightedItemId}
@@ -251,8 +250,7 @@ const App: React.FC = () => {
         focusQuickAddSectionId={focusQuickAddSectionId} setFocusQuickAddSectionId={setFocusQuickAddSectionId}
         isOnline={isOnline}
         onOpenSearch={() => setSearchModalOpen(true)}
-        onTocNavigate={handleNavigateFromMap}
-        onTocNavigateAndFocus={handleNavigateAndFocusFromMap}
+        onTocNavigate={handleNavigateTo}
         // 상세 화면 관련 프롭스 추가
         memoEditor={memoEditor}
         setMemoEditor={setMemoEditor}
@@ -269,6 +267,8 @@ const App: React.FC = () => {
         handleAddPage={handleAddPage}
         handleDeletePage={handleDeletePage}
         handleReorderPages={handleReorderPages}
+        handleCopyAllPages={handleCopyAllPages}
+        handlePasteAllPages={handlePasteAllPages}
         memoSymbols={memoSymbols}
         handleMoveItem={handleMoveItem}
         onOpenItemMemoAtPage={(itemId, pageIndex, highlightText) => {
@@ -330,7 +330,7 @@ const App: React.FC = () => {
 
       <div className="flex-none">
         <FooterTabs
-          tabs={data.tabs} activeTabId={data.activeTabId}
+          tabs={safeData.tabs} activeTabId={activeTab.id}
           onSelectTab={handleSelectTab} onAddTab={handleAddTab}
           onRenameTab={handleRenameTab} onDeleteTab={handleDeleteTab}
           onToggleLockTab={handleToggleLockTab} onReorderTabs={handleReorderTabs}
@@ -338,10 +338,10 @@ const App: React.FC = () => {
           hasInbox={!!safeData.tabs[0]?.inboxSection}
           isBookmarkView={isBookmarkView} onToggleBookmarkView={handleToggleBookmarkView}
           isMobileLayout={isMobileLayout}
-          onNavigateToSection={handleNavigateFromMap}
+          onNavigateToSection={handleNavigateTo}
           onOpenToc={() => {
             const mainTabId = safeData.tabs[0]?.id;
-            if (mainTabId) handleNavigateFromMap(mainTabId, 'toc-section');
+            if (mainTabId) handleNavigateTo(mainTabId, 'toc-section');
           }}
         />
       </div>
@@ -360,15 +360,14 @@ const App: React.FC = () => {
         handleAddPage={handleAddPage}
         handleDeletePage={handleDeletePage}
         handleReorderPages={handleReorderPages}
-        setNavigationMapOpen={setNavigationMapOpen} activeTab={activeTab}
+        handleCopyAllPages={handleCopyAllPages}
+        handlePasteAllPages={handlePasteAllPages}
         handleMoveItem={handleMoveItem} safeData={safeData}
+        activeTab={activeTab}
         handleOpenTagSelection={handleOpenTagSelection}
         tagSelectionContext={tagSelectionContext}
         modal={modal} setModal={setModal}
-        navigationMapOpen={navigationMapOpen}
-        handleNavigateFromMap={handleNavigateFromMap}
-        handleShowMemoFromMap={handleShowMemoFromMap}
-        handleNavigateAndFocusFromMap={handleNavigateAndFocusFromMap}
+        handleNavigateTo={handleNavigateTo}
         sectionMapOpen={sectionMapOpen} setSectionMapOpen={setSectionMapOpen}
         handleNavigateFromSectionMap={handleNavigateFromSectionMap}
         tagSelectionModalOpen={tagSelectionModalOpen} setTagSelectionModalOpen={setTagSelectionModalOpen}

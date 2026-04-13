@@ -8,7 +8,6 @@ export const useNavigation = (
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void
 ) => {
-    const [navigationMapOpen, setNavigationMapOpen] = useState(false);
     const [sectionMapOpen, setSectionMapOpen] = useState(false);
     const [tagSelectionModalOpen, setTagSelectionModalOpen] = useState(false);
     const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -24,7 +23,7 @@ export const useNavigation = (
         itemText: string;
     } | null>(null);
 
-    const handleNavigateFromMap = (tabId: string, sectionId?: string, itemId?: string) => {
+    const handleNavigateTo = (tabId: string, sectionId?: string, itemId?: string) => {
         if (tabId !== safeData.activeTabId) {
             handleSelectTab(tabId);
         }
@@ -58,8 +57,6 @@ export const useNavigation = (
                 }
             }
         }, 150);
-
-        setNavigationMapOpen(false);
     };
 
     const handleNavigateToInbox = () => {
@@ -88,7 +85,7 @@ export const useNavigation = (
 
     const handleReturnFromInbox = () => {
         if (lastSectionBeforeInbox) {
-            handleNavigateFromMap(lastSectionBeforeInbox.tabId, lastSectionBeforeInbox.sectionId);
+            handleNavigateTo(lastSectionBeforeInbox.tabId, lastSectionBeforeInbox.sectionId);
             setLastSectionBeforeInbox(null);
         }
     };
@@ -99,88 +96,10 @@ export const useNavigation = (
 
     const handleNavigateFromSectionMap = (sectionId: string) => {
         setLastSectionPos({ tabId: safeData.activeTabId, sectionId: highlightedSectionId || activeTab.sections[0]?.id || '' });
-        handleNavigateFromMap(safeData.activeTabId, sectionId);
+        handleNavigateTo(safeData.activeTabId, sectionId);
         setSectionMapOpen(false);
     };
 
-    const handleShowMemoFromMap = (tabId: string, sectionId: string, itemId: string, type?: MemoEditorState['type']) => {
-        handleSelectTab(tabId);
-        const tab = safeData.tabs.find(t => t.id === tabId);
-        if (tab) {
-            let loadedValue = '';
-            const activeType = type || 'section';
-            
-            // 메모 값 가져오기 로직 (useMemoEditor.ts와 동기화)
-            if (activeType === 'checklist') {
-                loadedValue = tab.parkingInfo?.checklistMemos?.[itemId] || '';
-            } else if (activeType === 'shopping') {
-                loadedValue = tab.parkingInfo?.shoppingListMemos?.[itemId] || '';
-            } else if (activeType === 'reminders') {
-                loadedValue = tab.parkingInfo?.remindersMemos?.[itemId] || '';
-            } else if (activeType === 'todo') {
-                loadedValue = tab.parkingInfo?.todoMemos?.[itemId] || '';
-            } else if (activeType === 'parkingCat5') {
-                loadedValue = tab.parkingInfo?.category5Memos?.[itemId] || '';
-            } else if (activeType === 'todoCat1') {
-                loadedValue = tab.todoManagementInfo?.category1Memos?.[itemId] || '';
-            } else if (activeType === 'todoCat2') {
-                loadedValue = tab.todoManagementInfo?.category2Memos?.[itemId] || '';
-            } else if (activeType === 'todoCat3') {
-                loadedValue = tab.todoManagementInfo?.category3Memos?.[itemId] || '';
-            } else if (activeType === 'todoCat4') {
-                loadedValue = tab.todoManagementInfo?.category4Memos?.[itemId] || '';
-            } else if (activeType === 'todoCat5') {
-                loadedValue = tab.todoManagementInfo?.category5Memos?.[itemId] || '';
-            } else if (activeType === 'todo2Cat1') {
-                loadedValue = (tab as any).todoManagementInfo2?.category1Memos?.[itemId] || '';
-            } else if (activeType === 'todo2Cat2') {
-                loadedValue = (tab as any).todoManagementInfo2?.category2Memos?.[itemId] || '';
-            } else if (activeType === 'todo2Cat3') {
-                loadedValue = (tab as any).todoManagementInfo2?.category3Memos?.[itemId] || '';
-            } else if (activeType === 'todo2Cat4') {
-                loadedValue = (tab as any).todoManagementInfo2?.category4Memos?.[itemId] || '';
-            } else if (activeType === 'todo2Cat5') {
-                loadedValue = (tab as any).todoManagementInfo2?.category5Memos?.[itemId] || '';
-            } else if (activeType === 'todo3Cat1') {
-                loadedValue = (tab as any).todoManagementInfo3?.category1Memos?.[itemId] || '';
-            } else if (activeType === 'todo3Cat2') {
-                loadedValue = (tab as any).todoManagementInfo3?.category2Memos?.[itemId] || '';
-            } else if (activeType === 'todo3Cat3') {
-                loadedValue = (tab as any).todoManagementInfo3?.category3Memos?.[itemId] || '';
-            } else if (activeType === 'todo3Cat4') {
-                loadedValue = (tab as any).todoManagementInfo3?.category4Memos?.[itemId] || '';
-            } else if (activeType === 'todo3Cat5') {
-                loadedValue = (tab as any).todoManagementInfo3?.category5Memos?.[itemId] || '';
-            } else {
-                loadedValue = (tab.memos as any)[itemId] || '';
-            }
-
-            setMemoEditor({
-                id: itemId,
-                value: loadedValue,
-                allValues: ['', '', '', '', ''],
-                allTitles: ['', '', '', '', ''],
-                title: '',
-                activePageIndex: 0,
-                type: activeType,
-                isEditing: false,
-                openedFromMap: true,
-                sectionId: sectionId,
-                tabId: tabId
-            });
-            
-            // 하이라이트 및 스크롤 처리 추가
-            handleNavigateFromMap(tabId, sectionId, itemId);
-            // 모달 닫기 추가
-            setNavigationMapOpen(false);
-        }
-    };
-
-    const handleNavigateAndFocusFromMap = (tabId: string, sectionId: string) => {
-        handleNavigateFromMap(tabId, sectionId);
-        setNavigationMapOpen(false);
-        setFocusQuickAddSectionId(sectionId);
-    };
 
     const handleOpenTagSelection = (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => {
         setTagSelectionContext(context || null);
@@ -213,42 +132,25 @@ export const useNavigation = (
             
             setTagSelectionContext(null);
         } else {
-            handleNavigateFromMap(tabId, sectionId);
+            handleNavigateTo(tabId, sectionId);
         }
         setTagSelectionModalOpen(false);
     };
 
     const handleReturnToLastSection = () => {
         if (lastSectionPos) {
-            handleNavigateFromMap(lastSectionPos.tabId, lastSectionPos.sectionId);
+            handleNavigateTo(lastSectionPos.tabId, lastSectionPos.sectionId);
             setLastSectionPos(null);
         }
     };
 
     return {
-        navigationMapOpen,
-        setNavigationMapOpen,
-        sectionMapOpen,
-        setSectionMapOpen,
-        tagSelectionModalOpen,
-        setTagSelectionModalOpen,
-        searchModalOpen,
-        setSearchModalOpen,
-        lastSectionBeforeInbox,
-        highlightedSectionId,
-        highlightedItemId,
-        setHighlightedItemId,
-        lastSectionPos,
-        focusQuickAddSectionId,
-        setFocusQuickAddSectionId,
-        handleNavigateFromMap,
+        handleNavigateTo,
         handleNavigateToInbox,
         handleGoToInbox,
         handleReturnFromInbox,
         handleOpenSectionMap,
         handleNavigateFromSectionMap,
-        handleShowMemoFromMap,
-        handleNavigateAndFocusFromMap,
         handleNavigateFromTag,
         handleOpenTagSelection,
         handleReturnToLastSection,

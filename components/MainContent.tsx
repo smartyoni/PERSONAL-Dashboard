@@ -41,7 +41,7 @@ interface MainContentProps {
     handleAddToCalendarClick: (itemText: string) => void;
     handleOpenTagSelection: (context?: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string }) => void;
     // Navigation
-    setNavigationMapOpen: (open: boolean) => void;
+    handleNavigateToInbox: () => void;
     handleNavigateToInbox: () => void;
     onToggleBookmarkView: () => void;
     highlightedSectionId: string | null;
@@ -75,6 +75,8 @@ interface MainContentProps {
     handleAddPage: () => void;
     handleDeletePage: () => void;
     handleReorderPages: (oldIndex: number, newIndex: number) => void;
+    handleCopyAllPages: () => Promise<boolean>;
+    handlePasteAllPages: () => Promise<boolean>;
     memoSymbols: { label: string; value: string; title: string }[];
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
 }
@@ -88,7 +90,7 @@ const MainContent: React.FC<MainContentProps> = ({
     onSectionDragStart, onSectionDragOver, onSectionDrop, onSectionDragEnd,
     handleCrossSectionItemDrop, handleCrossBookmarkSectionDrop,
     handleParkingChange, handleShowMemo, handleAddToCalendarClick,
-    handleOpenTagSelection, setNavigationMapOpen, handleNavigateToInbox,
+    handleOpenTagSelection, handleNavigateToInbox,
     onToggleBookmarkView,
     highlightedSectionId, highlightedItemId, activeTabColorConfig,
     lastSectionBeforeInbox, handleReturnFromInbox, handleGoToInbox,
@@ -107,9 +109,10 @@ const MainContent: React.FC<MainContentProps> = ({
     handleOpenTagSelectionFromMain, handleInsertSymbol, handleChangePage,
     handleUpdateTitle, handleUpdatePageTitle, handleUpdateItemText, handleAddPage, handleDeletePage,
     handleReorderPages,
+    handleCopyAllPages, handlePasteAllPages,
     memoSymbols, handleMoveItem,
 }) => {
-    const isSubTab = activeTab.id === safeData.tabs[1]?.id || activeTab.name === '업무게시판' || activeTab.name === '서브' || activeTab.name === '개인게시판';
+    const isSubTab = activeTab.id === safeData.tabs[1]?.id || activeTab.name === '업무게시판' || activeTab.name === '개인게시판';
     const isBookmarkTab = activeTab.id === 'bookmarks';
 
     return (
@@ -131,7 +134,6 @@ const MainContent: React.FC<MainContentProps> = ({
                     <div className="flex-none bg-[#F8FAFC] pb-1 md:pb-0">
                         <Header
                             onAddSection={handleAddSection}
-                            onOpenNavigationMap={() => setNavigationMapOpen(true)}
                             onNavigateToInbox={handleNavigateToInbox}
                             isBookmarkView={isBookmarkView}
                             onToggleBookmarkView={onToggleBookmarkView}
@@ -241,8 +243,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}
                                                 onReorderPages={handleReorderPages}
+                                                handleCopyAllPages={handleCopyAllPages}
+                                                handlePasteAllPages={handlePasteAllPages}
                                                 memoSymbols={memoSymbols}
-                                                setNavigationMapOpen={setNavigationMapOpen}
                                                 activeTab={activeTab}
                                                 safeData={safeData}
                                                 isMobileLayout={isMobileLayout}
@@ -408,8 +411,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}
                                                 onReorderPages={handleReorderPages}
+                                                handleCopyAllPages={handleCopyAllPages}
+                                                handlePasteAllPages={handlePasteAllPages}
                                                 memoSymbols={memoSymbols}
-                                                setNavigationMapOpen={setNavigationMapOpen}
                                                 activeTab={activeTab}
                                                 safeData={safeData}
                                                 isMobileLayout={isMobileLayout}
@@ -550,8 +554,9 @@ const MainContent: React.FC<MainContentProps> = ({
                                                 handleAddPage={handleAddPage}
                                                 handleDeletePage={handleDeletePage}
                                                 onReorderPages={handleReorderPages}
+                                                handleCopyAllPages={handleCopyAllPages}
+                                                handlePasteAllPages={handlePasteAllPages}
                                                 memoSymbols={memoSymbols}
-                                                setNavigationMapOpen={setNavigationMapOpen}
                                                 activeTab={activeTab}
                                                 safeData={safeData}
                                                 isMobileLayout={isMobileLayout}

@@ -33,7 +33,10 @@ export const TAB_COLORS = [
   { bg: 'bg-[#F97316]', bgLight: 'bg-[#FFEDD5]', text: 'text-slate-900', textLight: 'text-[#7C2D12]', border: 'border-[#F97316]' },
 ];
 
-export const getTabColor = (index: number) => TAB_COLORS[index % TAB_COLORS.length];
+export const getTabColor = (index: number) => {
+  const safeIndex = Math.max(0, index);
+  return TAB_COLORS[safeIndex % TAB_COLORS.length];
+};
 
 
 const FooterTabs: React.FC<FooterTabsProps> = ({
@@ -110,7 +113,7 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   const getPinnedItems = () => {
     const pinned: Array<{ tabId: string, id: string, title: string }> = [];
     tabs.forEach((tab, idx) => {
-      const isSubTabInFooter = idx === 1 || tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판';
+      const isSubTabInFooter = idx === 1 || tab.name === '업무게시판' || tab.name === '개인게시판';
       
       // 1. Inbox
       if (tab.inboxSection?.isPinned) {

@@ -186,9 +186,9 @@ export const useAppState = () => {
         if (!data) return defaultData;
 
         // Ensure specialized tabs exist
-        const hasSubTab = data.tabs.some(t => t.name === '업무게시판' || t.name === '서브');
+        const hasSubTab = data.tabs.some(t => t.name === '업무게시판');
         const hasPrivateTab = data.tabs.some(t => t.name === '개인게시판');
-        let processedTabs: Tab[] = data.tabs.map((tab, index) => {
+        let processedTabs: Tab[] = data.tabs.filter(t => t.name !== '서브').map((tab, index) => {
             const isMainTab = index === 0;
             const processedTab: Tab = {
                 ...tab,
@@ -242,7 +242,7 @@ export const useAppState = () => {
                 },
                 todoManagementInfo2: {
                     ...tab.todoManagementInfo2,
-                    title: tab.todoManagementInfo2?.title || ((tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판') ? '컬럼 2' : '할일관리 2'),
+                    title: tab.todoManagementInfo2?.title || ((tab.name === '업무게시판' || tab.name === '개인게시판') ? '컬럼 2' : '할일관리 2'),
                     category1Title: tab.todoManagementInfo2?.category1Title || '항목 1',
                     category2Title: tab.todoManagementInfo2?.category2Title || '항목 2',
                     category3Title: tab.todoManagementInfo2?.category3Title || '항목 3',
@@ -262,7 +262,7 @@ export const useAppState = () => {
                 },
                 todoManagementInfo3: {
                     ...tab.todoManagementInfo3,
-                    title: tab.todoManagementInfo3?.title || ((tab.name === '업무게시판' || tab.name === '서브' || tab.name === '개인게시판') ? '컬럼 5' : '할일관리 3'),
+                    title: tab.todoManagementInfo3?.title || ((tab.name === '업무게시판' || tab.name === '개인게시판') ? '컬럼 5' : '할일관리 3'),
                     category1Title: tab.todoManagementInfo3?.category1Title || '항목 1',
                     category2Title: tab.todoManagementInfo3?.category2Title || '항목 2',
                     category3Title: tab.todoManagementInfo3?.category3Title || '항목 3',
@@ -296,7 +296,7 @@ export const useAppState = () => {
             const defaultPrivateTab = defaultData.tabs.find(t => t.name === '개인게시판');
             if (defaultPrivateTab) {
                 // '업무게시판' 다음에 추가하거나 (인덱스 2), 마지막에 추가
-                const subTabIndex = processedTabs.findIndex(t => t.name === '업무게시판' || t.name === '서브');
+                const subTabIndex = processedTabs.findIndex(t => t.name === '업무게시판');
                 if (subTabIndex !== -1) {
                     processedTabs.splice(subTabIndex + 1, 0, defaultPrivateTab);
                 } else {

@@ -6,8 +6,6 @@ interface BackButtonProps {
     setMemoEditor: (state: MemoEditorState) => void;
     modal: { isOpen: boolean };
     setModal: (state: any) => void;
-    navigationMapOpen: boolean;
-    setNavigationMapOpen: (open: boolean) => void;
     sectionMapOpen: boolean;
     setSectionMapOpen: (open: boolean) => void;
     tagSelectionModalOpen: boolean;
@@ -23,7 +21,6 @@ interface BackButtonProps {
 export const useBackButton = ({
     memoEditor, setMemoEditor,
     modal, setModal,
-    navigationMapOpen, setNavigationMapOpen,
     sectionMapOpen, setSectionMapOpen,
     tagSelectionModalOpen, setTagSelectionModalOpen,
     calendarModal, setCalendarModal,
@@ -36,7 +33,6 @@ export const useBackButton = ({
     const isAnyModalOpen = 
         memoEditor.id !== null || 
         modal.isOpen || 
-        navigationMapOpen || 
         sectionMapOpen || 
         tagSelectionModalOpen || 
         calendarModal.isOpen || 
@@ -79,7 +75,6 @@ export const useBackButton = ({
                 });
                 else if (tagSelectionModalOpen) setTagSelectionModalOpen(false);
                 else if (sectionMapOpen) setSectionMapOpen(false);
-                else if (navigationMapOpen) setNavigationMapOpen(false);
                 else if (isBookmarkView) setIsBookmarkView(false);
                 else if (searchModalOpen) setSearchModalOpen(false);
                 
@@ -92,10 +87,6 @@ export const useBackButton = ({
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, [
-        isAnyModalOpen, memoEditor, modal.isOpen, navigationMapOpen, 
-        sectionMapOpen, tagSelectionModalOpen, calendarModal.isOpen, isBookmarkView,
-        searchModalOpen,
-        setMemoEditor, setModal, setNavigationMapOpen, setSectionMapOpen, 
         setTagSelectionModalOpen, setCalendarModal, setIsBookmarkView, setSearchModalOpen
     ]);
 };

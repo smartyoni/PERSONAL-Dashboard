@@ -22,8 +22,9 @@ export interface MemoEditorPanelProps {
     handleAddPage: () => void;
     handleDeletePage: () => void;
     onReorderPages: (oldIndex: number, newIndex: number) => void;
+    handleCopyAllPages: () => Promise<boolean>;
+    handlePasteAllPages: () => Promise<boolean>;
     memoSymbols: { label: string; value: string; title: string }[];
-    setNavigationMapOpen: (open: boolean) => void;
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean) => void;
     activeTab: Tab;
@@ -41,7 +42,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     handleUpdatePageTitle, handleUpdateItemText,
     handleAddPage, handleDeletePage,
     onReorderPages,
-    memoSymbols, setNavigationMapOpen, activeTab, safeData, isMobileLayout, isDesktopSplit,
+    handleCopyAllPages, handlePasteAllPages,
+    memoSymbols, activeTab, safeData, isMobileLayout, isDesktopSplit,
     handleMoveItem, handleShowMemo, headerBgClass
 }) => {
     const touchStart = useRef<number | null>(null);
@@ -56,6 +58,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     const recentMemos = getRecentMemos();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showPageDeleteConfirm, setShowPageDeleteConfirm] = useState(false);
+    const [showPasteConfirm, setShowPasteConfirm] = useState(false);
     const [highlightText, setHighlightText] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -701,6 +704,70 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     </div>
                                 )}
                             </div>
+
+                            {/* Advanced Action Segments (Copy All, Paste All) */}
+                            <div className="flex items-center gap-1.5 ml-1 border-l border-slate-300/30 pl-2">
+                                <button
+                                    onClick={async () => {
+                                        const success = await handleCopyAllPages();
+                                        if (success) {
+                                            setShowCopyToast(true);
+                                            setTimeout(() => setShowCopyToast(false), 2000);
+                                        }
+                                    }}
+                                    className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all shadow-sm border border-indigo-100 active:scale-95"
+                                    title="전체 복사 (모든 페이지)"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                                </button>
+                                
+                                <div className="relative flex items-center">
+                                    <button
+                                        onClick={() => setShowPasteConfirm(true)}
+                                        className="p-2.5 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-all shadow-sm border border-orange-100 active:scale-95"
+                                        title="전체 붙여넣기 (덮어쓰기)"
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                                    </button>
+
+                                    {/* Paste Confirmation Popover */}
+                                    {showPasteConfirm && (
+                                        <>
+                                            <div className="fixed inset-0 z-[1100]" onClick={() => setShowPasteConfirm(false)} />
+                                            <div 
+                                                className="absolute right-0 top-12 z-[1110] bg-white border border-red-100 shadow-2xl rounded-2xl p-3 w-56 animate-in zoom-in-95 fade-in duration-200"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <p className="text-[11px] font-bold text-red-600 mb-2 leading-tight flex items-center gap-1">
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                    전체 붙여넣기 경고
+                                                </p>
+                                                <p className="text-[11px] font-bold text-slate-700 mb-3 leading-tight">
+                                                    현재 문서의 모든 페이지가{'\n'}
+                                                    클립보드 내용으로 <span className="text-red-600 underline">덮어씌워집니다.</span>{'\n'}
+                                                    진행하시겠습니까?
+                                                </p>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={() => setShowPasteConfirm(false)}
+                                                        className="flex-1 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg hover:bg-slate-200 transition-colors"
+                                                    >취소</button>
+                                                    <button 
+                                                        onClick={async () => {
+                                                            const success = await handlePasteAllPages();
+                                                            setShowPasteConfirm(false);
+                                                            if (success) {
+                                                                // Show success toast or similar
+                                                            }
+                                                        }}
+                                                        className="flex-1 py-1.5 bg-red-500 text-white text-[10px] font-bold rounded-lg hover:bg-red-600 shadow-sm transition-colors"
+                                                    >덮어쓰기</button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {/* Mobile Editing Toolbar - Moved to Top */}
@@ -1029,10 +1096,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-blue-600 bg-white shadow-sm rounded-xl hover:bg-blue-50 transition-all border border-blue-100"
                             >수정</button>
                             <button 
-                                onClick={() => {
-                                    setMemoEditor(prev => ({ ...prev, id: null, sectionId: null }));
-                                    if (memoEditor.openedFromMap) setNavigationMapOpen(true);
-                                }}
+                                onClick={() => setMemoEditor(prev => ({ ...prev, id: null, sectionId: null }))}
                                 className="flex-none px-3 py-1.5 text-[10px] md:text-xs font-bold text-slate-500 bg-white shadow-sm rounded-xl hover:bg-red-50 hover:text-red-500 transition-all border border-slate-200"
                             >닫기</button>
                         </div>
@@ -1069,9 +1133,6 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     allTitles: [],
                     activePageIndex: 0
                 });
-                if (memoEditor.openedFromMap) {
-                    setNavigationMapOpen(true);
-                }
             }}
             className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
         >

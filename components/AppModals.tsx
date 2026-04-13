@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AppData, Section, Tab, MemoEditorState } from '../types';
 import ConfirmModal from './ConfirmModal';
-import NavigationMapModal from './NavigationMapModal';
 import SectionMapModal from './SectionMapModal';
 import TagSelectionModal from './TagSelectionModal';
 import AddToCalendarModal from './AddToCalendarModal';
@@ -25,18 +24,16 @@ interface AppModalsProps {
     handleAddPage: () => void;
     handleDeletePage: () => void;
     handleReorderPages: (oldIndex: number, newIndex: number) => void;
+    handleCopyAllPages: () => Promise<boolean>;
+    handlePasteAllPages: () => Promise<boolean>;
     memoSymbols: { label: string; value: string; title: string }[];
-    setNavigationMapOpen: (open: boolean) => void;
     activeTab: Tab;
     tagSelectionContext: { itemId: string; sourceTabId: string; sourceSectionId: string; itemText: string } | null;
     safeData: AppData;
     // Confirm modal
     modal: { isOpen: boolean; title: string; message: string; onConfirm: () => void };
     setModal: React.Dispatch<React.SetStateAction<any>>;
-    // Navigation map
-    navigationMapOpen: boolean;
-    handleNavigateFromMap: (tabId: string, sectionId?: string) => void;
-    handleNavigateAndFocusFromMap: (tabId: string, sectionId: string) => void;
+    handleNavigateTo: (tabId: string, sectionId?: string, itemId?: string) => void;
     // Section map
     sectionMapOpen: boolean;
     setSectionMapOpen: (open: boolean) => void;
@@ -59,7 +56,6 @@ interface AppModalsProps {
     handleConfirmCalendar: (startDate: string, endDate: string, isAllDay: boolean) => void;
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
     handleShowMemo: (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean, pageIndex?: number) => void;
-    handleShowMemoFromMap: (tabId: string, sectionId: string, itemId: string, type?: MemoEditorState['type']) => void;
     searchModalOpen: boolean;
     setSearchModalOpen: (open: boolean) => void;
 }
@@ -72,11 +68,13 @@ const AppModals: React.FC<AppModalsProps> = ({
     handleAddPage,
     handleDeletePage,
     handleReorderPages,
+    handleCopyAllPages,
+    handlePasteAllPages,
     memoSymbols,
-    setNavigationMapOpen, activeTab,
+    activeTab,
     tagSelectionContext, handleOpenTagSelection, safeData,
     modal, setModal,
-    navigationMapOpen, handleNavigateFromMap, handleShowMemoFromMap, handleNavigateAndFocusFromMap,
+    handleNavigateTo,
     sectionMapOpen, setSectionMapOpen, handleNavigateFromSectionMap,
     tagSelectionModalOpen, setTagSelectionModalOpen, handleNavigateFromTag,
     isMobileLayout, lastSectionPos, handleReturnToLastSection, handleOpenSectionMap,
@@ -116,8 +114,9 @@ const AppModals: React.FC<AppModalsProps> = ({
                     handleAddPage={handleAddPage}
                     handleDeletePage={handleDeletePage}
                     onReorderPages={handleReorderPages}
+                    handleCopyAllPages={handleCopyAllPages}
+                    handlePasteAllPages={handlePasteAllPages}
                     memoSymbols={memoSymbols}
-                    setNavigationMapOpen={setNavigationMapOpen}
                     activeTab={activeTab}
                     safeData={safeData}
                     isMobileLayout={isMobileLayout}
@@ -135,15 +134,6 @@ const AppModals: React.FC<AppModalsProps> = ({
                 onCancel={() => setModal((prev: any) => ({ ...prev, isOpen: false }))}
             />
 
-            <NavigationMapModal
-                isOpen={navigationMapOpen}
-                tabs={safeData.tabs}
-                activeTabId={safeData.activeTabId}
-                onClose={() => setNavigationMapOpen(false)}
-                onNavigate={handleNavigateFromMap}
-                onShowItemMemo={handleShowMemoFromMap}
-                onNavigateAndFocus={handleNavigateAndFocusFromMap}
-            />
 
             <SectionMapModal
                 isOpen={sectionMapOpen}
@@ -175,7 +165,7 @@ const AppModals: React.FC<AppModalsProps> = ({
                 isOpen={searchModalOpen}
                 onClose={() => setSearchModalOpen(false)}
                 safeData={safeData}
-                handleNavigate={handleNavigateFromMap}
+                handleNavigate={handleNavigateTo}
                 handleShowMemo={handleShowMemo}
                 currentTabId={activeTab.id}
             />

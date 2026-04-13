@@ -5,7 +5,6 @@ import { ParkingInfo } from '../types';
 
 interface HeaderProps {
   onAddSection: () => void;
-  onOpenNavigationMap: () => void;
   onNavigateToInbox?: () => void;
   isBookmarkView?: boolean;
   onToggleBookmarkView?: () => void;
@@ -21,7 +20,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({
   onAddSection,
-  onOpenNavigationMap,
   onNavigateToInbox,
   isBookmarkView,
   onToggleBookmarkView,
@@ -90,13 +88,6 @@ const Header: React.FC<HeaderProps> = ({
                   북마크
                 </button>
               )}
-              <button
-                onClick={onOpenNavigationMap}
-                className="px-2.5 sm:px-3 h-8 sm:h-9 bg-white hover:bg-slate-50 text-slate-700 text-[10px] sm:text-xs font-bold rounded-lg border border-slate-200 transition-all shadow-sm flex items-center justify-center"
-                title="목차"
-              >
-                목차
-              </button>
 
               <button
                 onClick={onAddSection}
