@@ -483,6 +483,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     font-size: 15px;
                     line-height: 28px;
                 }
+                .pl-5 { padding-left: 1.25rem !important; }
+                .-indent-5 { text-indent: -1.25rem !important; }
             `}</style>
             {currentItem && (
                 <>
@@ -903,14 +905,22 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         <div className="memo-editor-mirror">
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
                                 const isLargeBullet = line.startsWith('●');
-                                // Filter out bullets for display
-                                const filteredLine = line;
+                                const isNormalBullet = line.startsWith('•');
+                                const isDashBullet = line.startsWith('- ');
+                                const isStarBullet = line.startsWith('* ');
+                                const isBullet = isLargeBullet || isNormalBullet || isDashBullet || isStarBullet;
+
+                                let displayLine = line;
+                                if (isDashBullet || isStarBullet) {
+                                    displayLine = '• ' + line.substring(2);
+                                }
+
                                 return (
                                     <div 
                                         key={idx} 
-                                        className={`min-h-[28px] ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
+                                        className={`min-h-[28px] ${isBullet ? 'pl-5 -indent-5' : ''} ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
                                     >
-                                        {filteredLine}
+                                        {displayLine}
                                     </div>
                                 );
                             })}
@@ -927,8 +937,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 }));
                             }}
                             onKeyDown={(e) => {
-                                // Hyphen + Space shortcut for bullet (•)
-                                if (e.key === ' ' && !e.nativeEvent.isComposing) {
+                                // Hyphen/Star + Space shortcut for bullet (•)
+                                if (e.key === ' ') {
                                     const textarea = e.currentTarget;
                                     const start = textarea.selectionStart;
                                     const value = textarea.value;
@@ -938,7 +948,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                     const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
                                     const currentLinePrefix = value.substring(lineStart, start);
                                     
-                                    if (currentLinePrefix === '-') {
+                                    if (currentLinePrefix === '-' || currentLinePrefix === '*') {
                                         e.preventDefault();
                                         const newValue = value.substring(0, start - 1) + '• ' + value.substring(start);
                                         setMemoEditor(prev => ({ ...prev, value: newValue }));

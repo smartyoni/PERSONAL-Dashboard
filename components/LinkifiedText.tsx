@@ -66,6 +66,9 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
           const h3Match = line.match(/^###\s+(.*)/);
           const isLargeBullet = line.startsWith('●');
           const isNormalBullet = line.startsWith('•');
+          const isDashBullet = line.startsWith('- ');
+          const isStarBullet = line.startsWith('* ');
+          const isBullet = isLargeBullet || isNormalBullet || isDashBullet || isStarBullet;
           
           let displayLine = line;
           let headerLevel = 0;
@@ -79,6 +82,9 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
           } else if (h3Match) {
               displayLine = h3Match[1];
               headerLevel = 3;
+          } else if (isDashBullet || isStarBullet) {
+              // Transform - or * to • for consistent display
+              displayLine = '• ' + line.substring(2);
           } else if (isLargeBullet || isNormalBullet) {
               displayLine = line;
           }
@@ -123,7 +129,9 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
           } else if (headerLevel === 3) {
               lineClassName += "text-lg font-bold text-slate-700 mt-4 mb-1 font-serif";
           } else if (isLargeBullet) {
-              lineClassName += "font-bold " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
+              lineClassName += "font-bold pl-5 -indent-5 " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
+          } else if (isBullet) {
+              lineClassName += "pl-5 -indent-5 " + textColorClass;
           } else {
               lineClassName += textColorClass;
           }
