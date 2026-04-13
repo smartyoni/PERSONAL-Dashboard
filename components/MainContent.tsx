@@ -50,7 +50,6 @@ interface MainContentProps {
     lastSectionBeforeInbox: { tabId: string; sectionId: string } | null;
     handleReturnFromInbox: () => void;
     handleGoToInbox: (tabId: string, sectionId: string) => void;
-    setTagSelectionModalOpen: (open: boolean) => void;
     focusQuickAddSectionId: string | null;
     setFocusQuickAddSectionId: (id: string | null) => void;
     isOnline: boolean;
@@ -97,7 +96,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleTodoManagementChange,
     handleTodoManagement2Change,
     handleTodoManagement3Change,
-    setTagSelectionModalOpen, focusQuickAddSectionId, setFocusQuickAddSectionId,
+    focusQuickAddSectionId, setFocusQuickAddSectionId,
     isOnline,
     onOpenSearch,
     onTocNavigate,
@@ -168,7 +167,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                             isBookmarkTab={true}
                                             tabColorBg={'bg-sky-100'}
                                             onCrossSectionDrop={handleCrossBookmarkSectionDrop}
-                                            onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                             onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                             isMobileLayout={isMobileLayout}
                                         />
@@ -282,7 +280,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                         tabColorBg={activeTabColorConfig.bgLight}
                                                         onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                         onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
-                                                        onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                                         onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                                         isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
                                                         onReturnFromInbox={handleReturnFromInbox}
@@ -322,7 +319,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     tabColorBg={activeTabColorConfig.bgLight}
                                                     initialQuickAddValue={sharedTextForInbox}
                                                     onQuickAddValuePopulated={handleClearSharedText}
-                                                    onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                                     onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: activeTab.inboxSection.id, sourceTabId: activeTab.id })}
                                                     autoFocusQuickAdd={focusQuickAddSectionId === activeTab.inboxSection.id}
                                                     onClearFocus={() => setFocusQuickAddSectionId(null)}
@@ -472,7 +468,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     tabColorBg={activeTabColorConfig.bgLight}
                                                     onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                     onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
-                                                    onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                                     onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                                     isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
                                                     onReturnFromInbox={handleReturnFromInbox}
@@ -508,7 +503,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                     tabColorBg={activeTabColorConfig.bgLight}
                                                     onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                     onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
-                                                    onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                                     onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                                     isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
                                                     onReturnFromInbox={handleReturnFromInbox}
@@ -593,7 +587,6 @@ const MainContent: React.FC<MainContentProps> = ({
                                                         tabColorBg={activeTabColorConfig.bgLight}
                                                         onCrossSectionDrop={(draggedId, srcId, tgtId, tgtItem) => handleCrossSectionItemDrop(draggedId, srcId, tgtId, activeTab.id, activeTab.id, tgtItem)}
                                                         onGoToInbox={() => handleGoToInbox(activeTab.id, section.id)}
-                                                        onItemDoubleClick={() => setTagSelectionModalOpen(true)}
                                                         onItemTagClick={(itemId, itemText) => handleOpenTagSelection({ itemId, itemText, sourceSectionId: section.id, sourceTabId: activeTab.id })}
                                                         isReturnVisible={lastSectionBeforeInbox?.tabId === activeTab.id && lastSectionBeforeInbox?.sectionId === section.id}
                                                         onReturnFromInbox={handleReturnFromInbox}

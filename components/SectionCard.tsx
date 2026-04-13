@@ -35,7 +35,6 @@ interface SectionCardProps {
   onReturnFromInbox?: () => void;
   isReturnVisible?: boolean;
   isBookmarkTab?: boolean;
-  onItemDoubleClick?: (itemId: string) => void;
   onItemTagClick?: (itemId: string, itemText: string) => void;
   autoFocusQuickAdd?: boolean;
   onClearFocus?: () => void;
@@ -70,7 +69,6 @@ const SectionCard: React.FC<SectionCardProps> = ({
   onReturnFromInbox,
   isReturnVisible = false,
   isBookmarkTab = false,
-  onItemDoubleClick,
   onItemTagClick,
   autoFocusQuickAdd,
   onClearFocus,
@@ -568,8 +566,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   onDragOver={(e) => onItemDragOver(e, item.id)}
                   onDrop={(e) => onItemDrop(e, item.id)}
                   onDragEnd={onItemDragEnd}
-                  onDoubleClickItem={() => onItemDoubleClick?.(item.id)}
-                  onTagClick={() => onItemTagClick?.(item.id, item.text)}
+                   onItemTagClick={() => onItemTagClick?.(item.id, item.text)}
                 />
               </div>
             ))}

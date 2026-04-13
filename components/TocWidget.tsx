@@ -37,19 +37,12 @@ const TocWidget: React.FC<TocWidgetProps> = ({
   onNavigate,
   onNavigateAndFocus,
 }) => {
-  const [expandedTabIds, setExpandedTabIds] = useState<Set<string>>(
-    new Set()
-  );
+  const [expandedTabId, setExpandedTabId] = useState<string | null>(null);
 
   const mainTabId = tabs[0]?.id;
 
   const toggleTab = (tabId: string) => {
-    setExpandedTabIds(prev => {
-      const next = new Set(prev);
-      if (next.has(tabId)) next.delete(tabId);
-      else next.add(tabId);
-      return next;
-    });
+    setExpandedTabId(prev => (prev === tabId ? null : tabId));
   };
 
   const buildDisplaySections = (tab: Tab): DisplaySection[] => {
@@ -159,7 +152,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
           </div>
         ) : (
           tabs.map(tab => {
-            const isExpanded = expandedTabIds.has(tab.id);
+            const isExpanded = expandedTabId === tab.id;
             const isActive = tab.id === activeTabId;
             const displaySections = buildDisplaySections(tab);
 

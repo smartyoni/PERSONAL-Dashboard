@@ -28,27 +28,11 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
     const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
     const [tempTitle, setTempTitle] = React.useState("");
-    const [expandedPages, setExpandedPages] = React.useState<Record<number, boolean>>(() => {
-        // Default the active page to expanded
-        if (memoEditor.activePageIndex !== null) {
-            return { [memoEditor.activePageIndex]: true };
-        }
-        return {};
-    });
-
-    React.useEffect(() => {
-        // Auto-expand the newly active page if it hasn't been set yet
-        setExpandedPages(prev => {
-            if (memoEditor.activePageIndex !== null && prev[memoEditor.activePageIndex] === undefined) {
-                return { ...prev, [memoEditor.activePageIndex]: true };
-            }
-            return prev;
-        });
-    }, [memoEditor.activePageIndex]);
+    const [expandedPageIndex, setExpandedPageIndex] = React.useState<number | null>(null);
 
     const toggleExpand = (idx: number, e: React.MouseEvent) => {
         e.stopPropagation();
-        setExpandedPages(prev => ({ ...prev, [idx]: !prev[idx] }));
+        setExpandedPageIndex(prev => (prev === idx ? null : idx));
     };
 
     // 1. 모든 페이지의 헤더(#) 와 굵은 불렛(●) 추출
@@ -280,7 +264,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                             className="p-1 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
                                         >
                                             <svg 
-                                                className={`w-4 h-4 transition-transform duration-200 ${expandedPages[idx] ? 'rotate-180' : ''}`} 
+                                                className={`w-4 h-4 transition-transform duration-200 ${expandedPageIndex === idx ? 'rotate-180' : ''}`} 
                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                             >
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -290,7 +274,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                 </div>
 
                                 {/* 2. Internal Headings */}
-                                {expandedPages[idx] && allHeadings[idx]?.length > 0 && (
+                                {expandedPageIndex === idx && allHeadings[idx]?.length > 0 && (
                                     <div className="mt-1 space-y-0.5 border-l border-slate-100 ml-4">
                                         {allHeadings[idx].map((heading, hIdx) => {
                                             const subIndex = String(hIdx + 1).padStart(2, '0');

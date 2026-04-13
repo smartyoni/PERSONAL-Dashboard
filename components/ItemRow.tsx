@@ -19,8 +19,6 @@ interface ItemRowProps {
   onAddToCalendar?: () => void;
   onEditingChange?: (isEditing: boolean) => void;
   isBookmark?: boolean; // 추가
-  onUpdateUrl?: (newUrl: string) => void; // 추가
-  onDoubleClickItem?: () => void;
   onToggleLock?: () => void; // 추가
   dragState: DragState;
   onDragStart: (e: React.DragEvent) => void;
@@ -44,7 +42,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onEditingChange,
   isBookmark = false,
   onUpdateUrl,
-  onDoubleClickItem,
   onToggleLock,
   dragState,
   onDragStart,
@@ -148,10 +145,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
       <div className="flex-1 min-w-0 pl-2">
         <div
           className={`leading-5 font-serif ${isBookmark ? 'text-base font-bold text-slate-800 cursor-pointer hover:underline decoration-cyan-400' : 'text-[16px] font-medium text-slate-700 cursor-pointer hover:text-blue-600'}`}
-          onDoubleClick={(e) => {
-            e.stopPropagation();
-            onDoubleClickItem?.();
-          }}
           onClick={(e) => {
             if (isBookmark) {
               if (item.url) {

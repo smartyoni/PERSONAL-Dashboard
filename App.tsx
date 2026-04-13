@@ -246,7 +246,7 @@ const App: React.FC = () => {
         highlightedItemId={highlightedItemId}
         activeTabColorConfig={activeTabColorConfig}
         lastSectionBeforeInbox={lastSectionBeforeInbox} handleReturnFromInbox={handleReturnFromInbox}
-        handleGoToInbox={handleGoToInbox} setTagSelectionModalOpen={setTagSelectionModalOpen}
+        handleGoToInbox={handleGoToInbox}
         focusQuickAddSectionId={focusQuickAddSectionId} setFocusQuickAddSectionId={setFocusQuickAddSectionId}
         isOnline={isOnline}
         onOpenSearch={() => setSearchModalOpen(true)}

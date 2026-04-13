@@ -131,8 +131,6 @@ export const useNavigation = (
             );
             
             setTagSelectionContext(null);
-        } else {
-            handleNavigateTo(tabId, sectionId);
         }
         setTagSelectionModalOpen(false);
     };
