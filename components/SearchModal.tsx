@@ -36,7 +36,9 @@ const SearchModal: React.FC<SearchModalProps> = ({
     const searchableItems = useMemo(() => {
         const items: SearchResult[] = [];
         
-        safeData.tabs.forEach(tab => {
+        safeData.tabs.forEach((tab, tabIdx) => {
+            const isBaseTab = tabIdx === 0;
+
             // Tab result
             items.push({
                 id: tab.id,
@@ -46,13 +48,66 @@ const SearchModal: React.FC<SearchModalProps> = ({
                 tabId: tab.id
             });
 
+            // Index Inbox Section
+            if (tab.inboxSection) {
+                const section = tab.inboxSection;
+                const pathPrefix = isBaseTab ? '인박스' : `${tab.name} > 인박스`;
+                
+                section.items.forEach(item => {
+                    items.push({
+                        id: item.id,
+                        type: 'item',
+                        title: item.text,
+                        breadcrumb: pathPrefix,
+                        tabId: tab.id,
+                        sectionId: section.id,
+                        itemId: item.id,
+                        memoType: 'section'
+                    });
+
+                    // Inbox memo
+                    const memoValue = tab.memos[item.id];
+                    if (memoValue) {
+                        const pages = memoValue.split('\n===page-break===\n');
+                        pages.forEach((page, idx) => {
+                            let pageTitle = '';
+                            let content = page;
+                            const sepIdx = page.indexOf(TITLE_SEPARATOR);
+                            if (sepIdx !== -1) {
+                                pageTitle = page.substring(0, sepIdx).replace(/<[^>]+>/g, '').trim();
+                                content = page.substring(sepIdx + TITLE_SEPARATOR.length);
+                            }
+
+                            const resultTitle = isBaseTab 
+                                ? `${item.text} > ${pageTitle || '메모'}`
+                                : (pageTitle || item.text);
+
+                            items.push({
+                                id: `${item.id}-page-${idx}`,
+                                type: 'memo-page',
+                                title: resultTitle + (pages.length > 1 ? ` (${idx + 1}P)` : ''),
+                                content: content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' '),
+                                breadcrumb: pathPrefix,
+                                tabId: tab.id,
+                                sectionId: section.id,
+                                itemId: item.id,
+                                pageIndex: idx,
+                                memoType: 'section'
+                            });
+                        });
+                    }
+                });
+            }
+
             tab.sections.forEach(section => {
+                const pathPrefix = isBaseTab ? section.title : `${tab.name} > ${section.title}`;
+                
                 // Section result
                 items.push({
                     id: section.id,
                     type: 'section',
                     title: section.title,
-                    breadcrumb: `${tab.name} > ${section.title}`,
+                    breadcrumb: pathPrefix,
                     tabId: tab.id,
                     sectionId: section.id,
                     memoType: 'section'
@@ -64,7 +119,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
                         id: item.id,
                         type: 'item',
                         title: item.text,
-                        breadcrumb: `${tab.name} > ${section.title}`,
+                        breadcrumb: pathPrefix,
                         tabId: tab.id,
                         sectionId: section.id,
                         itemId: item.id,
@@ -76,76 +131,104 @@ const SearchModal: React.FC<SearchModalProps> = ({
                     if (memoValue) {
                         const pages = memoValue.split('\n===page-break===\n');
                         pages.forEach((page, idx) => {
-                            let title = item.text;
+                            let pageTitle = '';
                             let content = page;
 
                             // Split title and content if separator exists
                             const sepIdx = page.indexOf(TITLE_SEPARATOR);
                             if (sepIdx !== -1) {
-                                const pageTitle = page.substring(0, sepIdx).replace(/<[^>]+>/g, '').trim();
-                                if (pageTitle) title = `${item.text} > ${pageTitle}`;
+                                pageTitle = page.substring(0, sepIdx).replace(/<[^>]+>/g, '').trim();
                                 content = page.substring(sepIdx + TITLE_SEPARATOR.length);
                             }
+
+                            const resultTitle = isBaseTab 
+                                ? `${item.text} > ${pageTitle || '메모'}`
+                                : (pageTitle || item.text);
 
                             items.push({
                                 id: `${item.id}-page-${idx}`,
                                 type: 'memo-page',
-                                title: title + (pages.length > 1 ? ` (${idx + 1}P)` : ''),
+                                title: resultTitle + (pages.length > 1 ? ` (${idx + 1}P)` : ''),
                                 content: content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' '),
-                                breadcrumb: `${tab.name} > ${section.title}`,
+                                breadcrumb: pathPrefix,
                                 tabId: tab.id,
                                 sectionId: section.id,
                                 itemId: item.id,
-                                pageIndex: idx
+                                pageIndex: idx,
+                                memoType: 'section'
                             });
                         });
                     }
                 });
             });
 
-            // Indexing Special Sections (Parking, TodoManagement)
-            const addSpecialItems = (list: any[], memos: any, breadcrumbPrefix: string, type: MemoEditorState['type']) => {
-                list?.forEach(item => {
-                    items.push({
-                        id: item.id,
-                        type: 'item',
-                        title: item.text,
-                        breadcrumb: `${tab.name} > ${breadcrumbPrefix}`,
-                        tabId: tab.id,
-                        memoType: type
-                    });
-                    const m = memos?.[item.id];
-                    if (m) {
+            // Indexing Special Sections (Parking, TodoManagement 1, 2, 3)
+            const indexSpecialInfo = (info: any, baseBreadcrumb: string, typePrefix: string) => {
+                if (!info) return;
+                
+                const categories = [
+                    { items: info.checklistItems || info.category1Items, memos: info.checklistMemos || info.category1Memos, title: info.category1Title || '업무루틴', type: (typePrefix === 'parking' ? 'checklist' : `${typePrefix}Cat1`) },
+                    { items: info.shoppingListItems || info.category2Items, memos: info.shoppingListMemos || info.category2Memos, title: info.category2Title || '쇼핑', type: (typePrefix === 'parking' ? 'shopping' : `${typePrefix}Cat2`) },
+                    { items: info.remindersItems || info.category3Items, memos: info.remindersMemos || info.category3Memos, title: info.category3Title || '챙길것', type: (typePrefix === 'parking' ? 'reminders' : `${typePrefix}Cat3`) },
+                    { items: info.todoItems || info.category4Items, memos: info.todoMemos || info.category4Memos, title: info.category4Title || '할일', type: (typePrefix === 'parking' ? 'todo' : `${typePrefix}Cat4`) },
+                    { items: info.category5Items, memos: info.category5Memos, title: info.category5Title || '항목 5', type: (typePrefix === 'parking' ? 'parkingCat5' : `${typePrefix}Cat5`) }
+                ];
+
+                categories.forEach(cat => {
+                    if (!cat.items || cat.items.length === 0) return;
+                    
+                    const catPath = isBaseTab ? `${baseBreadcrumb} > ${cat.title}` : `${tab.name} > ${baseBreadcrumb} > ${cat.title}`;
+
+                    cat.items.forEach((item: any) => {
                         items.push({
-                            id: `${item.id}-memo`,
-                            type: 'memo-page',
-                            title: item.text + ' (메모)',
-                            content: m,
-                            breadcrumb: `${tab.name} > ${breadcrumbPrefix}`,
+                            id: item.id,
+                            type: 'item',
+                            title: item.text,
+                            breadcrumb: catPath,
                             tabId: tab.id,
+                            sectionId: cat.type,
                             itemId: item.id,
-                            memoType: type
+                            memoType: cat.type as any
                         });
-                    }
+
+                        const m = cat.memos?.[item.id];
+                        if (m) {
+                            const pages = m.split('\n===page-break===\n');
+                            pages.forEach((page: string, idx: number) => {
+                                let pageTitle = '';
+                                let content = page;
+                                const sepIdx = page.indexOf(TITLE_SEPARATOR);
+                                if (sepIdx !== -1) {
+                                    pageTitle = page.substring(0, sepIdx).replace(/<[^>]+>/g, '').trim();
+                                    content = page.substring(sepIdx + TITLE_SEPARATOR.length);
+                                }
+
+                                const resultTitle = isBaseTab 
+                                    ? `${item.text} > ${pageTitle || '메모'}`
+                                    : (pageTitle || item.text);
+
+                                items.push({
+                                    id: `${item.id}-page-${idx}`,
+                                    type: 'memo-page',
+                                    title: resultTitle + (pages.length > 1 ? ` (${idx + 1}P)` : ''),
+                                    content: content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' '),
+                                    breadcrumb: catPath,
+                                    tabId: tab.id,
+                                    sectionId: cat.type,
+                                    itemId: item.id,
+                                    pageIndex: idx,
+                                    memoType: cat.type as any
+                                });
+                            });
+                        }
+                    });
                 });
             };
 
-            if (tab.parkingInfo) {
-                const p = tab.parkingInfo;
-                addSpecialItems(p.checklistItems, p.checklistMemos, '주차 > 업무루틴', 'checklist');
-                addSpecialItems(p.shoppingListItems, p.shoppingListMemos, '주차 > 쇼핑', 'shopping');
-                addSpecialItems(p.remindersItems, p.remindersMemos, '주차 > 챙길것', 'reminders');
-                addSpecialItems(p.todoItems, p.todoMemos, '주차 > 할일', 'todo');
-            }
-
-            if (tab.todoManagementInfo) {
-                const t = tab.todoManagementInfo;
-                addSpecialItems(t.category1Items, t.category1Memos, `할일관리 > ${t.category1Title}`, 'todoCat1');
-                addSpecialItems(t.category2Items, t.category2Memos, `할일관리 > ${t.category2Title}`, 'todoCat2');
-                addSpecialItems(t.category3Items, t.category3Memos, `할일관리 > ${t.category3Title}`, 'todoCat3');
-                addSpecialItems(t.category4Items, t.category4Memos, `할일관리 > ${t.category4Title}`, 'todoCat4');
-                addSpecialItems(t.category5Items, t.category5Memos, `할일관리 > ${t.category5Title}`, 'todoCat5');
-            }
+            if (tab.parkingInfo) indexSpecialInfo(tab.parkingInfo, '주차', 'parking');
+            if (tab.todoManagementInfo) indexSpecialInfo(tab.todoManagementInfo, '개인', 'todo');
+            if (tab.todoManagementInfo2) indexSpecialInfo(tab.todoManagementInfo2, '만드는것', 'todo2');
+            if (tab.todoManagementInfo3) indexSpecialInfo(tab.todoManagementInfo3, '업무', 'todo3');
         });
 
         return items;
@@ -158,7 +241,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
             item.title.toLowerCase().includes(q) || 
             (item.content && item.content.toLowerCase().includes(q)) ||
             item.breadcrumb.toLowerCase().includes(q)
-        ).slice(0, 20); // Limit results for performance
+        ).slice(0, 30); // Limit results for performance
     }, [searchableItems, query]);
 
     useEffect(() => {
@@ -192,19 +275,27 @@ const SearchModal: React.FC<SearchModalProps> = ({
 
     const onSelect = (result: SearchResult) => {
         onClose();
-        if (result.type === 'item') {
+        
+        // 1. 네비게이션
+        if (result.type === 'tab') {
+            handleNavigate(result.id);
+        } else if (result.type === 'section') {
+            handleNavigate(result.tabId, result.id);
+        } else if (result.type === 'item') {
             handleNavigate(result.tabId, result.sectionId, result.id);
-            // 메모 상세 열기
-            handleShowMemo(result.id, result.memoType || 'section', result.sectionId, undefined, result.tabId, false, 0);
+            
+            // 2. 메모 상세 열기
+            setTimeout(() => {
+                handleShowMemo(result.id, result.memoType || 'section', result.sectionId, undefined, result.tabId, false, 0);
+            }, 200);
         } else if (result.type === 'memo-page') {
             // 네비게이션 및 스크롤
             handleNavigate(result.tabId, result.sectionId, result.itemId);
-            // 메모 상세 열기 (특정 페이지) - itemId가 반드시 존재함
-            handleShowMemo(result.itemId!, result.memoType || 'section', result.sectionId, undefined, result.tabId, false, result.pageIndex);
-        } else if (result.type === 'section') {
-            handleNavigate(result.tabId, result.id);
-        } else if (result.type === 'tab') {
-            handleNavigate(result.id);
+            
+            // 2. 메모 상세 열기 (특정 페이지)
+            setTimeout(() => {
+                handleShowMemo(result.itemId!, result.memoType || 'section', result.sectionId, undefined, result.tabId, false, result.pageIndex);
+            }, 200);
         }
     };
 

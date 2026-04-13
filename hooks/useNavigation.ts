@@ -143,6 +143,24 @@ export const useNavigation = (
     };
 
     return {
+        sectionMapOpen,
+        setSectionMapOpen,
+        tagSelectionModalOpen,
+        setTagSelectionModalOpen,
+        searchModalOpen,
+        setSearchModalOpen,
+        lastSectionPos,
+        setLastSectionPos,
+        lastSectionBeforeInbox,
+        setLastSectionBeforeInbox,
+        highlightedSectionId,
+        setHighlightedSectionId,
+        highlightedItemId,
+        setHighlightedItemId,
+        focusQuickAddSectionId,
+        setFocusQuickAddSectionId,
+        tagSelectionContext,
+        setTagSelectionContext,
         handleNavigateTo,
         handleNavigateToInbox,
         handleGoToInbox,
@@ -151,7 +169,6 @@ export const useNavigation = (
         handleNavigateFromSectionMap,
         handleNavigateFromTag,
         handleOpenTagSelection,
-        handleReturnToLastSection,
-        tagSelectionContext
+        handleReturnToLastSection
     };
 };
