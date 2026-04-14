@@ -121,7 +121,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
             });
           }
           
-          let lineClassName = `whitespace-pre-wrap min-h-[1.5em] text-base `;
+          let lineClassName = `whitespace-pre-wrap min-h-[24px] leading-6 text-sm `;
           
           if (headerLevel === 1) {
               lineClassName += "font-black text-pink-500 font-serif";

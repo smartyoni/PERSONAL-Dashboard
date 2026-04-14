@@ -427,61 +427,119 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     animation: pulse-subtle 3s infinite ease-in-out;
                 }
                 .memo-editor-textarea {
+                    display: block;
                     width: 100%;
                     height: 100%;
                     padding: 0 1.5rem 1.5rem 1.5rem;
-                    border: none;
+                    border: 0;
+                    margin: 0;
                     outline: none;
-                    font-size: 16px;
-                    line-height: 28px;
+                    font-size: 14px;
+                    line-height: 24px;
                     font-family: 'Noto Serif KR', serif;
                     font-weight: 700;
                     -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-variant-ligatures: none;
+                    font-kerning: none;
+                    text-rendering: optimizeSpeed;
+                    letter-spacing: 0px !important;
+                    word-spacing: 0px !important;
                     resize: none;
                     background: transparent;
                     white-space: pre-wrap;
                     word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    word-break: break-all;
                     color: transparent;
                     caret-color: #334155;
                     position: relative;
                     z-index: 20;
+                    box-sizing: border-box;
+                    overflow-y: auto;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .memo-editor-textarea::selection {
+                    background: rgba(59, 130, 246, 0.25);
+                    color: transparent;
+                }
+                .memo-editor-textarea::-moz-selection {
+                    background: rgba(59, 130, 246, 0.25);
+                    color: transparent;
+                }
+                .memo-editor-textarea::-webkit-scrollbar {
+                    display: none;
                 }
                 .memo-editor-mirror {
+                    display: block;
                     position: absolute;
                     top: 0;
                     left: 0;
                     width: 100%;
                     min-height: 100%;
                     padding: 0 1.5rem 1.5rem 1.5rem;
-                    font-size: 16px;
-                    line-height: 28px;
+                    border: 0;
+                    margin: 0;
+                    font-size: 14px;
+                    line-height: 24px;
                     font-family: 'Noto Serif KR', serif;
                     font-weight: 700;
                     -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-variant-ligatures: none;
+                    font-kerning: none;
+                    text-rendering: optimizeSpeed;
+                    letter-spacing: 0px !important;
+                    word-spacing: 0px !important;
                     white-space: pre-wrap;
                     word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    word-break: break-all;
                     color: #334155;
                     pointer-events: none;
                     z-index: 10;
+                    box-sizing: border-box;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .memo-editor-mirror::-webkit-scrollbar {
+                    display: none;
                 }
                 .prose p, .prose li, .prose div {
-                    line-height: 28px;
-                    min-height: 28px;
-                    font-size: 16px;
+                    line-height: 24px;
+                    min-height: 24px;
+                    font-size: 14px;
                     font-family: 'Noto Serif KR', serif;
                     font-weight: 700;
                     -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-variant-ligatures: none;
+                    font-kerning: none;
+                    text-rendering: optimizeSpeed;
+                    letter-spacing: 0px;
                 }
                 .prose h1, .prose h2, .prose h3, .prose h4 {
                     font-family: 'Noto Serif KR', serif !important;
+                    font-size: 14px !important;
                     -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    font-variant-ligatures: none;
+                    font-kerning: none;
+                    text-rendering: optimizeSpeed;
+                    letter-spacing: 0px;
                 }
                 .prose ul, .prose ol {
                     padding-left: 1.25rem !important;
                 }
                 .memo-editor-view {
-                    font-size: 16px;
-                    line-height: 28px;
+                    font-size: 14px;
+                    line-height: 24px;
+                    font-variant-ligatures: none;
+                    font-kerning: none;
+                    text-rendering: optimizeSpeed;
                 }
                 .pl-5 { padding-left: 1.25rem !important; }
                 .-indent-5 { text-indent: -1.25rem !important; }
@@ -912,13 +970,13 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 const isHeader3 = trimmed.startsWith('### ');
                                 const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
 
-                                let lineClass = "whitespace-pre-wrap min-h-[28px] ";
-                                if (isHeader1) lineClass += "text-base font-black text-pink-500 font-serif";
-                                else if (isHeader2) lineClass += "text-base font-bold text-blue-500 font-serif";
-                                else if (isHeader3) lineClass += "text-base font-bold text-slate-700 font-serif";
-                                else if (isBold) lineClass += "text-base font-black text-slate-900";
-                                else if (isBullet) lineClass += "text-base font-bold text-slate-900 pl-5 -indent-5";
-                                else lineClass += "text-base text-slate-700";
+                                let lineClass = "whitespace-pre-wrap min-h-[24px] ";
+                                if (isHeader1) lineClass += "text-sm font-black text-pink-500 font-serif";
+                                else if (isHeader2) lineClass += "text-sm font-bold text-blue-500 font-serif";
+                                else if (isHeader3) lineClass += "text-sm font-bold text-slate-700 font-serif";
+                                else if (isBold) lineClass += "text-sm font-black text-slate-900";
+                                else if (isBullet) lineClass += "text-sm font-bold text-slate-900 pl-5 -indent-5";
+                                else lineClass += "text-sm text-slate-700";
 
                                 if (isDivider) {
                                     return <hr key={idx} className="border-t-2 border-emerald-400/60 my-3 relative z-0" />;
