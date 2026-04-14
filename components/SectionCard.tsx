@@ -514,6 +514,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   onChange={(e) => setInboxDraftText(e.target.value)}
                   onBlur={handleInboxSave}
                   className="w-full h-auto bg-transparent border-none focus:outline-none resize-none text-emerald-900 caret-emerald-600 z-10 font-serif text-[15px] leading-relaxed p-0 m-0 overflow-hidden"
+                  style={{ fontFamily: 'inherit' }}
                   placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
                   onKeyDown={(e) => {
                     // Hyphen + Space shortcut for bullet (•)
