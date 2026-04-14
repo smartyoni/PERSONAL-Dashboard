@@ -429,7 +429,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     display: block;
                     width: 100%;
                     height: 100%;
-                    padding: 0 1.5rem 1.5rem 1.5rem;
+                    padding: 0 24px 24px 24px;
                     border: 0;
                     margin: 0;
                     outline: none;
@@ -458,6 +458,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     overflow-y: auto;
                     scrollbar-width: none;
                     -ms-overflow-style: none;
+                    vertical-align: top;
                 }
                 .memo-editor-textarea::selection {
                     background: rgba(59, 130, 246, 0.25);
@@ -477,7 +478,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     left: 0;
                     width: 100%;
                     min-height: 100%;
-                    padding: 0 1.5rem 1.5rem 1.5rem;
+                    padding: 0 24px 24px 24px;
                     border: 0;
                     margin: 0;
                     font-size: 14px;
@@ -501,6 +502,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     box-sizing: border-box;
                     scrollbar-width: none;
                     -ms-overflow-style: none;
+                    vertical-align: top;
                 }
                 .memo-editor-mirror::-webkit-scrollbar {
                     display: none;
@@ -970,12 +972,12 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
 
                                 let lineClass = "whitespace-pre-wrap min-h-[24px] ";
-                                if (isHeader1) lineClass += "text-sm font-black text-pink-500 font-serif";
-                                else if (isHeader2) lineClass += "text-sm font-bold text-blue-500 font-serif";
-                                else if (isHeader3) lineClass += "text-sm font-bold text-slate-700 font-serif";
-                                else if (isBold) lineClass += "text-sm font-black text-slate-900";
-                                else if (isBullet) lineClass += "text-sm font-bold text-slate-900"; // No lateral shifting
-                                else lineClass += "text-sm text-slate-700";
+                                if (isHeader1) lineClass += "text-[14px] font-bold text-pink-500 font-serif";
+                                else if (isHeader2) lineClass += "text-[14px] font-bold text-blue-500 font-serif";
+                                else if (isHeader3) lineClass += "text-[14px] font-bold text-slate-700 font-serif";
+                                else if (isBold) lineClass += "text-[14px] font-bold text-slate-900";
+                                else if (isBullet) lineClass += "text-[14px] font-bold text-slate-900"; // No lateral shifting
+                                else lineClass += "text-[14px] text-slate-700";
 
                                 if (isDivider) {
                                     return <hr key={idx} className="border-t-2 border-emerald-400/60 my-3 relative z-0" />;
@@ -1060,8 +1062,10 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             }}
                             style={{ 
                                 paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px',
-                                paddingLeft: '1.5rem',
-                                paddingRight: '1.5rem'
+                                paddingLeft: '24px',
+                                paddingRight: '24px',
+                                height: 'auto', // Allow auto-height sync
+                                minHeight: '100%'
                             }}
                         />
                     </div>
