@@ -432,7 +432,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     padding: 0 1.5rem 1.5rem 1.5rem;
                     border: none;
                     outline: none;
-                    font-size: 15px;
+                    font-size: 16px;
                     line-height: 28px;
                     font-family: 'Noto Serif KR', serif;
                     font-weight: 700;
@@ -453,7 +453,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     width: 100%;
                     min-height: 100%;
                     padding: 0 1.5rem 1.5rem 1.5rem;
-                    font-size: 15px;
+                    font-size: 16px;
                     line-height: 28px;
                     font-family: 'Noto Serif KR', serif;
                     font-weight: 700;
@@ -464,23 +464,23 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     pointer-events: none;
                     z-index: 10;
                 }
-                .prose p, .prose li, .prose div, .prose h1, .prose h2, .prose h3, .prose h4 {
-                    margin-top: 0px !important;
-                    margin-bottom: 0px !important;
-                    line-height: 28px !important;
+                .prose p, .prose li, .prose div {
+                    line-height: 28px;
                     min-height: 28px;
-                    font-size: 15px !important;
+                    font-size: 16px;
+                    font-family: 'Noto Serif KR', serif;
+                    font-weight: 700;
+                    -webkit-font-smoothing: antialiased;
+                }
+                .prose h1, .prose h2, .prose h3, .prose h4 {
                     font-family: 'Noto Serif KR', serif !important;
-                    font-weight: 700 !important;
                     -webkit-font-smoothing: antialiased;
                 }
                 .prose ul, .prose ol {
-                    margin-top: 0px !important;
-                    margin-bottom: 0px !important;
                     padding-left: 1.25rem !important;
                 }
                 .memo-editor-view {
-                    font-size: 15px;
+                    font-size: 16px;
                     line-height: 28px;
                 }
                 .pl-5 { padding-left: 1.25rem !important; }
@@ -905,19 +905,24 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         <div className="memo-editor-mirror">
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
                                 const trimmed = line.trim();
+                                const isDivider = /^(\s*)(---|---|___|\*\*\*|---divider---)\s*$/.test(line);
                                 const isBullet = trimmed.startsWith('●') || trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('* ');
                                 const isHeader1 = trimmed.startsWith('# ');
                                 const isHeader2 = trimmed.startsWith('## ');
                                 const isHeader3 = trimmed.startsWith('### ');
                                 const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
 
-                                let lineClass = "min-h-[28px] ";
-                                if (isHeader1) lineClass += "font-black text-slate-900 text-xl";
-                                else if (isHeader2) lineClass += "font-black text-slate-900 text-lg";
-                                else if (isHeader3) lineClass += "font-bold text-slate-900 text-base";
-                                else if (isBold) lineClass += "font-black text-slate-900";
-                                else if (isBullet) lineClass += "font-bold text-slate-900 pl-5 -indent-5";
-                                else lineClass += "text-slate-700"; // Non-formatted text is solid in mirror
+                                let lineClass = "whitespace-pre-wrap min-h-[28px] ";
+                                if (isHeader1) lineClass += "text-base font-black text-pink-500 font-serif";
+                                else if (isHeader2) lineClass += "text-base font-bold text-blue-500 font-serif";
+                                else if (isHeader3) lineClass += "text-base font-bold text-slate-700 font-serif";
+                                else if (isBold) lineClass += "text-base font-black text-slate-900";
+                                else if (isBullet) lineClass += "text-base font-bold text-slate-900 pl-5 -indent-5";
+                                else lineClass += "text-base text-slate-700";
+
+                                if (isDivider) {
+                                    return <hr key={idx} className="border-t-2 border-emerald-400/60 my-3 relative z-0" />;
+                                }
 
                                 let displayLine = line;
                                 if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
@@ -943,25 +948,54 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 }));
                             }}
                             onKeyDown={(e) => {
+                                const textarea = e.currentTarget;
+                                const { selectionStart, selectionEnd, value } = textarea;
+
+                                // Tab -> Indent (4 spaces)
+                                if (e.key === 'Tab') {
+                                    e.preventDefault();
+                                    const newValue = value.substring(0, selectionStart) + '    ' + value.substring(selectionEnd);
+                                    setMemoEditor(prev => ({ ...prev, value: newValue }));
+                                    requestAnimationFrame(() => {
+                                        textarea.selectionStart = textarea.selectionEnd = selectionStart + 4;
+                                    });
+                                    return;
+                                }
+
+                                // Shift + Enter -> Outdent (remove 4 spaces from start of line)
+                                if (e.key === 'Enter' && e.shiftKey) {
+                                    e.preventDefault();
+                                    const lastNewLine = value.lastIndexOf('\n', selectionStart - 1);
+                                    const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
+                                    
+                                    // Check if line starts with at least 4 spaces
+                                    if (value.substring(lineStart, lineStart + 4) === '    ') {
+                                        const newValue = value.substring(0, lineStart) + value.substring(lineStart + 4);
+                                        setMemoEditor(prev => ({ ...prev, value: newValue }));
+                                        
+                                        requestAnimationFrame(() => {
+                                            const newPos = Math.max(lineStart, selectionStart - 4);
+                                            textarea.selectionStart = textarea.selectionEnd = newPos;
+                                        });
+                                    }
+                                    return;
+                                }
+
                                 // Hyphen/Star + Space shortcut for bullet (•)
                                 if (e.key === ' ') {
-                                    const textarea = e.currentTarget;
-                                    const start = textarea.selectionStart;
-                                    const value = textarea.value;
-                                    
                                     // Get current line start
-                                    const lastNewLine = value.lastIndexOf('\n', start - 1);
+                                    const lastNewLine = value.lastIndexOf('\n', selectionStart - 1);
                                     const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
-                                    const currentLinePrefix = value.substring(lineStart, start);
+                                    const currentLinePrefix = value.substring(lineStart, selectionStart);
                                     
                                     if (currentLinePrefix === '-' || currentLinePrefix === '*') {
                                         e.preventDefault();
-                                        const newValue = value.substring(0, start - 1) + '• ' + value.substring(start);
+                                        const newValue = value.substring(0, selectionStart - 1) + '• ' + value.substring(selectionStart);
                                         setMemoEditor(prev => ({ ...prev, value: newValue }));
                                         
                                         // Restore cursor position after state update
                                         requestAnimationFrame(() => {
-                                            textarea.selectionStart = textarea.selectionEnd = start + 1;
+                                            textarea.selectionStart = textarea.selectionEnd = selectionStart + 1;
                                         });
                                         return;
                                     }

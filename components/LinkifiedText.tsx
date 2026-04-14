@@ -121,14 +121,14 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
             });
           }
           
-          let lineClassName = `whitespace-pre-wrap min-h-[1.5em] `;
+          let lineClassName = `whitespace-pre-wrap min-h-[1.5em] text-base `;
           
           if (headerLevel === 1) {
-              lineClassName += "text-2xl font-black text-slate-900 mt-6 mb-3 border-b-2 border-slate-100 pb-1 font-serif";
+              lineClassName += "font-black text-pink-500 font-serif";
           } else if (headerLevel === 2) {
-              lineClassName += "text-xl font-bold text-slate-800 mt-5 mb-2 font-serif";
+              lineClassName += "font-bold text-blue-500 font-serif";
           } else if (headerLevel === 3) {
-              lineClassName += "text-lg font-bold text-slate-700 mt-4 mb-1 font-serif";
+              lineClassName += "font-bold text-slate-700 font-serif";
           } else if (isBold) {
               lineClassName += "font-black " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
           } else if (isLargeBullet) {

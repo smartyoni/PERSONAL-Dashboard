@@ -296,7 +296,11 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                                     <span className="text-[10px] text-slate-300 group-hover:text-slate-400 flex-shrink-0">
                                                         ○
                                                     </span>
-                                                    <span className={`font-serif truncate min-w-0 flex-1 ${heading.level === 1 ? 'text-[13px] font-bold text-slate-700' : 'text-[12px]'}`}>
+                                                    <span className={`font-serif truncate min-w-0 flex-1 ${
+                                                        heading.level === 1 ? 'text-[13px] font-bold text-pink-500' : 
+                                                        heading.level === 2 ? 'text-[12px] text-blue-500' : 
+                                                        'text-[12px]'
+                                                    }`}>
                                                         {heading.text}
                                                     </span>
                                                 </div>
