@@ -31,50 +31,69 @@
       font-weight: 700;
     }
 
+    /* Custom Scrollbar Styles - More Aggressive Specificity */
     .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
+      width: 6px !important;
     }
 
-    .compact-scrollbar::-webkit-scrollbar {
-      width: 4px;
+    .compact-scrollbar::-webkit-scrollbar,
+    textarea.compact-scrollbar::-webkit-scrollbar {
+      width: 3px !important;
     }
 
     .wide-scrollbar::-webkit-scrollbar {
-      width: 9px;
+      width: 9px !important;
     }
 
     .custom-scrollbar::-webkit-scrollbar-button,
     .compact-scrollbar::-webkit-scrollbar-button,
+    textarea.compact-scrollbar::-webkit-scrollbar-button,
     .wide-scrollbar::-webkit-scrollbar-button {
-      display: none;
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track,
     .wide-scrollbar::-webkit-scrollbar-track,
-    .compact-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
+    .compact-scrollbar::-webkit-scrollbar-track,
+    textarea.compact-scrollbar::-webkit-scrollbar-track {
+      background: transparent !important;
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb,
     .wide-scrollbar::-webkit-scrollbar-thumb {
-      background: #94A3B8;
-      border-radius: 10px;
-      transition: background 0.2s ease;
+      background: #94A3B8 !important;
+      border-radius: 10px !important;
+      border: none !important;
     }
 
-    .compact-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.5);
-      border-radius: 10px;
-      transition: background 0.2s ease;
+    .compact-scrollbar::-webkit-scrollbar-thumb,
+    textarea.compact-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.5) !important;
+      border-radius: 10px !important;
+      border: none !important;
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb:hover,
     .wide-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #64748B;
+      background: #64748B !important;
     }
 
-    .compact-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 116, 139, 0.7);
+    .compact-scrollbar::-webkit-scrollbar-thumb:hover,
+    textarea.compact-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7) !important;
+    }
+
+    /* Standard scrollbar properties for modern browsers */
+    .custom-scrollbar, .wide-scrollbar {
+      scrollbar-width: thin !important;
+      scrollbar-color: #94A3B8 transparent !important;
+    }
+
+    .compact-scrollbar, textarea.compact-scrollbar {
+      scrollbar-width: thin !important;
+      scrollbar-color: rgba(148, 163, 184, 0.5) transparent !important;
     }
 
     /* Tiptap Editor Styles */
