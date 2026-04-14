@@ -43,6 +43,12 @@
       width: 9px;
     }
 
+    .custom-scrollbar::-webkit-scrollbar-button,
+    .compact-scrollbar::-webkit-scrollbar-button,
+    .wide-scrollbar::-webkit-scrollbar-button {
+      display: none;
+    }
+
     .custom-scrollbar::-webkit-scrollbar-track,
     .wide-scrollbar::-webkit-scrollbar-track,
     .compact-scrollbar::-webkit-scrollbar-track {
@@ -50,17 +56,25 @@
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb,
-    .wide-scrollbar::-webkit-scrollbar-thumb,
-    .compact-scrollbar::-webkit-scrollbar-thumb {
+    .wide-scrollbar::-webkit-scrollbar-thumb {
       background: #94A3B8;
       border-radius: 10px;
       transition: background 0.2s ease;
     }
 
+    .compact-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.5);
+      border-radius: 10px;
+      transition: background 0.2s ease;
+    }
+
     .custom-scrollbar::-webkit-scrollbar-thumb:hover,
-    .wide-scrollbar::-webkit-scrollbar-thumb:hover,
-    .compact-scrollbar::-webkit-scrollbar-thumb:hover {
+    .wide-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #64748B;
+    }
+
+    .compact-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
     }
 
     /* Tiptap Editor Styles */
