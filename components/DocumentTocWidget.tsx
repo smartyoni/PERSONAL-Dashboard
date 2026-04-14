@@ -251,7 +251,7 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                     ) : (
                                         <span 
                                             onClick={() => onChangePage(idx)}
-                                            className={`font-serif text-[15px] flex-1 truncate min-w-0 cursor-pointer ${isActive ? 'font-bold text-emerald-600' : 'font-medium'}`}
+                                            className={`font-serif text-[15px] flex-1 truncate min-w-0 cursor-pointer ${isActive ? 'font-black text-emerald-600' : 'font-bold'}`}
                                         >
                                             {title || `Page ${idx + 1}`}
                                         </span>
@@ -296,10 +296,10 @@ const DocumentTocWidget: React.FC<DocumentTocWidgetProps> = ({
                                                     <span className="text-[10px] text-slate-300 group-hover:text-slate-400 flex-shrink-0">
                                                         ○
                                                     </span>
-                                                    <span className={`font-serif truncate min-w-0 flex-1 ${
-                                                        heading.level === 1 ? 'text-[13px] font-bold text-pink-500' : 
-                                                        heading.level === 2 ? 'text-[12px] text-blue-500' : 
-                                                        'text-[12px]'
+                                                    <span className={`font-serif truncate min-w-0 flex-1 font-bold ${
+                                                        heading.level === 1 ? 'text-[13px] text-pink-600' : 
+                                                        heading.level === 2 ? 'text-[12px] text-blue-600' : 
+                                                        'text-[12px] text-slate-700'
                                                     }`}>
                                                         {heading.text}
                                                     </span>
