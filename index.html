@@ -35,24 +35,31 @@
       width: 6px;
     }
 
+    .compact-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+
     .wide-scrollbar::-webkit-scrollbar {
       width: 9px;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track,
-    .wide-scrollbar::-webkit-scrollbar-track {
+    .wide-scrollbar::-webkit-scrollbar-track,
+    .compact-scrollbar::-webkit-scrollbar-track {
       background: transparent;
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb,
-    .wide-scrollbar::-webkit-scrollbar-thumb {
+    .wide-scrollbar::-webkit-scrollbar-thumb,
+    .compact-scrollbar::-webkit-scrollbar-thumb {
       background: #94A3B8;
       border-radius: 10px;
       transition: background 0.2s ease;
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb:hover,
-    .wide-scrollbar::-webkit-scrollbar-thumb:hover {
+    .wide-scrollbar::-webkit-scrollbar-thumb:hover,
+    .compact-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #64748B;
     }
 

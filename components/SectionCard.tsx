@@ -466,14 +466,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
         }}
       >
         {isInboxSection ? (
-          <div className="h-full p-4 font-serif">
+          <div className={`h-full font-serif ${isInboxEditing ? '' : 'p-4'}`}>
             {isInboxEditing ? (
               <div className="relative w-full h-full text-[15px] leading-[1.5]">
                 {/* Mirror Layer for real-time formatting feedback */}
                 <div 
                   className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-0 overflow-hidden"
                   aria-hidden="true"
-                  style={{ padding: '0px' }}
+                  style={{ padding: '1rem' }}
                 >
                   {(inboxDraftText || '').split('\n').map((line, idx) => {
                     const trimmed = line.trim();
@@ -504,7 +504,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   value={inboxDraftText}
                   onChange={(e) => setInboxDraftText(e.target.value)}
                   onBlur={handleInboxSave}
-                  className="absolute inset-0 w-full h-full bg-transparent border-none focus:outline-none resize-none text-transparent caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-0 m-0 overflow-y-auto custom-scrollbar"
+                  className="absolute inset-0 w-full h-full bg-transparent border-none focus:outline-none resize-none text-transparent caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-4 m-0 overflow-y-auto compact-scrollbar"
                   placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
                   onKeyDown={(e) => {
                     // Hyphen + Space shortcut for bullet (•)
