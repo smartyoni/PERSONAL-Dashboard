@@ -475,12 +475,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
         }}
       >
         {isInboxSection ? (
-          <div className={`h-full font-serif overflow-y-auto compact-scrollbar ${isInboxEditing ? 'pr-2' : 'p-4'}`}>
+          <div className={`h-full font-serif overflow-y-auto compact-scrollbar p-0`}>
             {isInboxEditing ? (
-              <div className="relative w-full min-h-full">
+              <div className="relative w-full min-h-full p-4">
                 {/* Mirror Layer for real-time formatting feedback */}
                 <div 
-                  className="absolute top-0 left-0 w-full h-auto pointer-events-none whitespace-pre-wrap break-words text-transparent z-0 overflow-hidden"
+                  className="absolute top-0 left-0 w-full h-auto pointer-events-none whitespace-pre-wrap break-words text-transparent z-0 overflow-hidden hidden"
                   aria-hidden="true"
                   style={{ padding: '1rem' }}
                 >
@@ -513,7 +513,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   value={inboxDraftText}
                   onChange={(e) => setInboxDraftText(e.target.value)}
                   onBlur={handleInboxSave}
-                  className="absolute top-0 left-0 w-full h-auto bg-transparent border-none focus:outline-none resize-none text-transparent caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-4 m-0 overflow-hidden"
+                  className="w-full h-auto bg-transparent border-none focus:outline-none resize-none text-emerald-900 caret-emerald-600 z-10 font-serif text-[15px] leading-relaxed p-0 m-0 overflow-hidden"
                   placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
                   onKeyDown={(e) => {
                     // Hyphen + Space shortcut for bullet (•)
@@ -539,7 +539,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
               </div>
             ) : (
               <div 
-                className="w-full h-full cursor-text overflow-x-hidden"
+                className="w-full h-full cursor-text overflow-x-hidden p-4"
                 title="더블클릭하여 편집"
               >
                 {section.items.length > 0 ? (
