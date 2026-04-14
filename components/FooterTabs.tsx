@@ -13,8 +13,6 @@ interface FooterTabsProps {
   onDeleteTab: (id: string) => void;
   onToggleLockTab: (id: string) => void;
   onReorderTabs: (fromIndex: number, toIndex: number) => void;
-  onNavigateToInbox: () => void;
-  hasInbox: boolean;
   isBookmarkView: boolean;
   onToggleBookmarkView: () => void;
   isMobileLayout?: boolean;
@@ -48,8 +46,6 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
   onDeleteTab,
   onToggleLockTab,
   onReorderTabs,
-  onNavigateToInbox,
-  hasInbox,
   isBookmarkView,
   onToggleBookmarkView,
   isMobileLayout,
@@ -184,15 +180,13 @@ const FooterTabs: React.FC<FooterTabsProps> = ({
       {/* 1. Specialized Utilities Pill (Desktop Only) */}
       {!isMobileLayout && (
         <div className="flex items-center gap-1 bg-white/80 backdrop-blur-xl border border-white/20 p-1.5 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] pointer-events-auto">
-          {hasInbox && (
-            <button
-              onClick={onNavigateToInbox}
-              className="flex items-center justify-center w-9 h-9 text-lg hover:bg-slate-200/50 rounded-full transition-all active:scale-90"
-              title="메인 인박스"
-            >
-              📥
-            </button>
-          )}
+          <button
+            onClick={onOpenToc}
+            className="flex items-center justify-center w-9 h-9 text-lg hover:bg-slate-200/50 rounded-full transition-all active:scale-90"
+            title="전체 목차"
+          >
+            📊
+          </button>
           <button
             onClick={onToggleBookmarkView}
             className={`flex items-center justify-center w-9 h-9 text-lg rounded-full transition-all active:scale-90 ${

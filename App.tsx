@@ -334,8 +334,6 @@ const App: React.FC = () => {
           onSelectTab={handleSelectTab} onAddTab={handleAddTab}
           onRenameTab={handleRenameTab} onDeleteTab={handleDeleteTab}
           onToggleLockTab={handleToggleLockTab} onReorderTabs={handleReorderTabs}
-          onNavigateToInbox={handleNavigateToInbox}
-          hasInbox={!!safeData.tabs[0]?.inboxSection}
           isBookmarkView={isBookmarkView} onToggleBookmarkView={handleToggleBookmarkView}
           isMobileLayout={isMobileLayout}
           onNavigateToSection={handleNavigateTo}

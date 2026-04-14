@@ -37,7 +37,7 @@ export const useMemoEditor = (
     activeTab: Tab,
     memoEditor: MemoEditorState,
     setMemoEditor: React.Dispatch<React.SetStateAction<MemoEditorState>>,
-    memoTextareaRef: React.RefObject<HTMLDivElement>,
+    memoTextareaRef: React.RefObject<HTMLTextAreaElement | HTMLDivElement>,
     setModal: React.Dispatch<React.SetStateAction<ConfirmModal>>
 ) => {
     const handleShowMemo = (id: string, type?: MemoEditorState['type'], sectionId?: string | null, initialValue?: string, tabId?: string | null, openedFromMap?: boolean, pageIndex?: number) => {

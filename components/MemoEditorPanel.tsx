@@ -134,8 +134,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
     // Sync state when entering edit mode or changing page
     useEffect(() => {
         if ((memoEditor.isEditing && !prevIsEditing.current) || (memoEditor.isEditing && memoEditor.activePageIndex !== prevActivePage.current)) {
-            // No longer splitting metadata, just use the raw value
-            setMemoEditor(prev => ({ ...prev, value: prev.value }));
+            // Already synced via parent state, no need for redundant update
         }
         prevIsEditing.current = memoEditor.isEditing;
         prevActivePage.current = memoEditor.activePageIndex;
@@ -960,11 +959,11 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
             {memoEditor.isEditing ? (
                 <div className="flex flex-col flex-1 overflow-hidden relative">
                     <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative">
-                        <div className="memo-editor-mirror">
+                        <div className="memo-editor-mirror" style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}>
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
                                 const trimmed = line.trim();
                                 const isDivider = /^(\s*)(---|---|___|\*\*\*|---divider---)\s*$/.test(line);
-                                const isBullet = trimmed.startsWith('●') || trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('* ');
+                                const isBullet = /^(\s*)(●|•|-|\*)\s+/.test(line);
                                 const isHeader1 = trimmed.startsWith('# ');
                                 const isHeader2 = trimmed.startsWith('## ');
                                 const isHeader3 = trimmed.startsWith('### ');
@@ -975,21 +974,17 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 else if (isHeader2) lineClass += "text-sm font-bold text-blue-500 font-serif";
                                 else if (isHeader3) lineClass += "text-sm font-bold text-slate-700 font-serif";
                                 else if (isBold) lineClass += "text-sm font-black text-slate-900";
-                                else if (isBullet) lineClass += "text-sm font-bold text-slate-900 pl-5 -indent-5";
+                                else if (isBullet) lineClass += "text-sm font-bold text-slate-900"; // No lateral shifting
                                 else lineClass += "text-sm text-slate-700";
 
                                 if (isDivider) {
                                     return <hr key={idx} className="border-t-2 border-emerald-400/60 my-3 relative z-0" />;
                                 }
 
-                                let displayLine = line;
-                                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-                                    displayLine = '• ' + line.substring(2);
-                                }
-
+                                // DO NOT replace characters during editing to ensure character-width alignment
                                 return (
                                     <div key={idx} className={lineClass}>
-                                        {displayLine || ' '}
+                                        {line || ' '}
                                     </div>
                                 );
                             })}
@@ -1065,7 +1060,8 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                             }}
                             style={{ 
                                 paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px',
-                                paddingLeft: '1.5rem' // Standard symmetry
+                                paddingLeft: '1.5rem',
+                                paddingRight: '1.5rem'
                             }}
                         />
                     </div>
