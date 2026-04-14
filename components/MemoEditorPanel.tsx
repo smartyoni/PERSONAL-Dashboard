@@ -970,12 +970,14 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 const isHeader2 = trimmed.startsWith('## ');
                                 const isHeader3 = trimmed.startsWith('### ');
                                 const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
+                                const isStrikethrough = trimmed.startsWith('~~') && trimmed.endsWith('~~');
 
                                 let lineClass = "whitespace-pre-wrap min-h-[24px] ";
                                 if (isHeader1) lineClass += "text-[14px] font-bold text-pink-500 font-serif";
                                 else if (isHeader2) lineClass += "text-[14px] font-bold text-blue-500 font-serif";
                                 else if (isHeader3) lineClass += "text-[14px] font-bold text-slate-700 font-serif";
                                 else if (isBold) lineClass += "text-[14px] font-bold text-slate-900";
+                                else if (isStrikethrough) lineClass += "text-[14px] line-through text-slate-500 opacity-70";
                                 else if (isBullet) lineClass += "text-[14px] font-bold text-slate-900"; // No lateral shifting
                                 else lineClass += "text-[14px] text-slate-700";
 

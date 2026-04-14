@@ -71,6 +71,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
           const isBullet = isLargeBullet || isNormalBullet || isDashBullet || isStarBullet;
           
           const isBold = line.trim().startsWith('**') && line.trim().endsWith('**');
+          const isStrikethrough = line.trim().startsWith('~~') && line.trim().endsWith('~~');
           
           let displayLine = line;
           let headerLevel = 0;
@@ -85,6 +86,8 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
               displayLine = h3Match[1];
               headerLevel = 3;
           } else if (isBold) {
+              displayLine = line.trim().substring(2, line.trim().length - 2);
+          } else if (isStrikethrough) {
               displayLine = line.trim().substring(2, line.trim().length - 2);
           } else if (isDashBullet || isStarBullet) {
               // Transform - or * to • for consistent display
@@ -131,6 +134,8 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
               lineClassName += "font-bold text-slate-700 font-serif";
           } else if (isBold) {
               lineClassName += "font-black " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
+          } else if (isStrikethrough) {
+              lineClassName += "line-through opacity-60 " + textColorClass;
           } else if (isLargeBullet) {
               lineClassName += "font-bold pl-5 -indent-5 " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
           } else if (isBullet) {
