@@ -485,12 +485,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
                     const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
                     
                     let lineClass = "min-h-[1.5em] font-serif ";
-                    if (isHeader1) lineClass += "font-black text-emerald-900/40 text-xl"; 
-                    else if (isHeader2) lineClass += "font-black text-emerald-900/40 text-lg";
-                    else if (isHeader3) lineClass += "font-bold text-emerald-900/40 text-base";
-                    else if (isBold) lineClass += "font-black text-emerald-900/40";
-                    else if (isBullet) lineClass += "font-bold text-emerald-900/40 pl-5 -indent-5";
-                    else lineClass += "text-transparent"; 
+                    if (isHeader1) lineClass += "font-black text-emerald-900 text-xl"; 
+                    else if (isHeader2) lineClass += "font-black text-emerald-900 text-lg";
+                    else if (isHeader3) lineClass += "font-bold text-emerald-900 text-base";
+                    else if (isBold) lineClass += "font-black text-emerald-900";
+                    else if (isBullet) lineClass += "font-bold text-emerald-900 pl-5 -indent-5";
+                    else lineClass += "text-emerald-900/80"; 
 
                     return (
                       <div key={idx} className={lineClass}>
@@ -504,7 +504,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   value={inboxDraftText}
                   onChange={(e) => setInboxDraftText(e.target.value)}
                   onBlur={handleInboxSave}
-                  className="absolute inset-0 w-full h-full bg-transparent border-none focus:outline-none resize-none text-emerald-900/90 caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-0 m-0 overflow-y-auto custom-scrollbar"
+                  className="absolute inset-0 w-full h-full bg-transparent border-none focus:outline-none resize-none text-transparent caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-0 m-0 overflow-y-auto custom-scrollbar"
                   placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
                   onKeyDown={(e) => {
                     // Hyphen + Space shortcut for bullet (•)
