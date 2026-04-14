@@ -31,27 +31,25 @@
       font-weight: 700;
     }
 
-    /* Custom Scrollbar Styles - More Aggressive Specificity */
+    /* Custom Scrollbar Styles - Enhanced for Windows/Chrome */
+    *::-webkit-scrollbar-button {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px !important;
     }
 
     .compact-scrollbar::-webkit-scrollbar,
-    textarea.compact-scrollbar::-webkit-scrollbar {
-      width: 3px !important;
+    textarea.compact-scrollbar::-webkit-scrollbar,
+    * .compact-scrollbar::-webkit-scrollbar {
+      width: 2px !important;
     }
 
     .wide-scrollbar::-webkit-scrollbar {
       width: 9px !important;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-button,
-    .compact-scrollbar::-webkit-scrollbar-button,
-    textarea.compact-scrollbar::-webkit-scrollbar-button,
-    .wide-scrollbar::-webkit-scrollbar-button {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track,
@@ -70,7 +68,7 @@
 
     .compact-scrollbar::-webkit-scrollbar-thumb,
     textarea.compact-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.5) !important;
+      background: rgba(100, 116, 139, 0.6) !important;
       border-radius: 10px !important;
       border: none !important;
     }
@@ -82,18 +80,18 @@
 
     .compact-scrollbar::-webkit-scrollbar-thumb:hover,
     textarea.compact-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 116, 139, 0.7) !important;
+      background: rgba(100, 116, 139, 0.8) !important;
     }
 
-    /* Standard scrollbar properties for modern browsers */
-    .custom-scrollbar, .wide-scrollbar {
+    /* Standard scrollbar properties */
+    .custom-scrollbar {
       scrollbar-width: thin !important;
       scrollbar-color: #94A3B8 transparent !important;
     }
 
-    .compact-scrollbar, textarea.compact-scrollbar {
+    .compact-scrollbar {
       scrollbar-width: thin !important;
-      scrollbar-color: rgba(148, 163, 184, 0.5) transparent !important;
+      scrollbar-color: rgba(100, 116, 139, 0.6) transparent !important;
     }
 
     /* Tiptap Editor Styles */

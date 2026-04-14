@@ -456,7 +456,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
       )}
 
       <div
-        className={`relative overflow-y-auto custom-scrollbar overflow-x-hidden pr-0 transition-colors flex-1 ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60' : ''}`}
+        className={`relative overflow-y-auto custom-scrollbar overflow-x-hidden transition-colors flex-1 ${isInboxSection ? 'pr-0 -mr-3 px-3' : 'pr-0'} ${dragState.draggedItemId && dragState.sourceSectionId !== section.id ? 'bg-blue-50/60' : ''}`}
         style={{
           backgroundColor: isInboxSection ? '#ecfdf5' : (bgIndex % 2 === 0 ? '#fffbeb' : '#f0fdf4'),
           backgroundImage: isInboxSection ? 'none' : `
@@ -475,7 +475,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
         }}
       >
         {isInboxSection ? (
-          <div className={`h-full font-serif overflow-y-auto compact-scrollbar ${isInboxEditing ? '' : 'p-4'}`}>
+          <div className={`h-full font-serif overflow-y-auto compact-scrollbar ${isInboxEditing ? 'pr-2' : 'p-4'}`}>
             {isInboxEditing ? (
               <div className="relative w-full min-h-full">
                 {/* Mirror Layer for real-time formatting feedback */}
