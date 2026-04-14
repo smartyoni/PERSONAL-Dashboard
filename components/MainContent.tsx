@@ -248,7 +248,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 3. 상세 화면 (MemoEditorPanel) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
+                                        <div data-section-id="memo-editor" className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm"}>
                                             <MemoEditorPanel
                                                 memoEditor={memoEditor}
                                                 setMemoEditor={setMemoEditor}
@@ -279,7 +279,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                         </div>
 
                                         {/* 4. 문서 목차 (Document ToC) */}
-                                        <div className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
+                                        <div data-section-id="document-toc" className={isMobileLayout ? "hidden" : "h-[calc(100vh-160px)] min-w-0"}>
                                             <DocumentTocWidget
                                                 memoEditor={memoEditor}
                                                 onChangePage={handleChangePage}

@@ -25,6 +25,7 @@ interface VirtualSection {
   emoji: string;
   itemCount: number;
   isVirtual: true;
+  categories?: string[]; // 추가: 하위 항목박스 타이틀
 }
 
 type DisplaySection =
@@ -47,7 +48,10 @@ const TocWidget: React.FC<TocWidgetProps> = ({
 
   const buildDisplaySections = (tab: Tab): DisplaySection[] => {
     const isMainTab = tab.id === mainTabId;
-    const isSubTab = tab.name === '업무게시판' || tab.name === '개인게시판'; // MainContent와 동일한 로직 
+    const isSubTab = tab.name === '업무게시판' || tab.name === '개인게시판' || tab.id === tabs[1]?.id; // MainContent와 동일한 로직 
+    const isDailyTab = tab.name === '일일게시판';
+    const isSpecialTab = isMainTab || isSubTab || isDailyTab;
+
     const result: DisplaySection[] = [];
 
     if (isMainTab) {
@@ -58,13 +62,8 @@ const TocWidget: React.FC<TocWidgetProps> = ({
       });
     }
 
-    // 인박스
-    if (tab.inboxSection) {
-      result.push({ section: tab.inboxSection, isInbox: true, isVirtual: false });
-    }
-
-    // 할일관리 1 (메인탭 또는 서브탭)
-    if (isMainTab || isSubTab) {
+    // 1. 할일관리 1 (메인탭 또는 특수탭 공통)
+    if (isSpecialTab) {
       const todo1Count =
         (tab.todoManagementInfo.category1Items?.length ?? 0) +
         (tab.todoManagementInfo.category2Items?.length ?? 0) +
@@ -72,21 +71,26 @@ const TocWidget: React.FC<TocWidgetProps> = ({
         (tab.todoManagementInfo.category4Items?.length ?? 0) +
         (tab.todoManagementInfo.category5Items?.length ?? 0);
       
+      const categories: string[] = [];
+      if (tab.todoManagementInfo.category1Title) categories.push(tab.todoManagementInfo.category1Title);
+      if (tab.todoManagementInfo.category2Title) categories.push(tab.todoManagementInfo.category2Title);
+      if (tab.todoManagementInfo.category3Title) categories.push(tab.todoManagementInfo.category3Title);
+
       result.push({
         isVirtual: true,
         virtual: {
-          id: isSubTab ? 'sub-todo-widget-1' : 'todo-widget-1',
-          title: tab.todoManagementInfo.title || (isSubTab ? '업무 1' : '업무'),
+          id: (isSubTab || isDailyTab) ? 'sub-todo-widget-1' : 'todo-widget-1',
+          title: tab.todoManagementInfo.title || '업무 1',
           emoji: '📋',
           itemCount: todo1Count,
           isVirtual: true,
+          categories,
         },
       });
     }
 
-    // 서브탭 전용: 할일관리 2, 3
+    // 2. 할일관리 2 (서브탭 전 전용 - 컬럼 2)
     if (isSubTab) {
-      // 할일관리 2
       const todo2Count =
         (tab.todoManagementInfo2.category1Items?.length ?? 0) +
         (tab.todoManagementInfo2.category2Items?.length ?? 0) +
@@ -94,6 +98,11 @@ const TocWidget: React.FC<TocWidgetProps> = ({
         (tab.todoManagementInfo2.category4Items?.length ?? 0) +
         (tab.todoManagementInfo2.category5Items?.length ?? 0);
       
+      const categories2: string[] = [];
+      if (tab.todoManagementInfo2.category1Title) categories2.push(tab.todoManagementInfo2.category1Title);
+      if (tab.todoManagementInfo2.category2Title) categories2.push(tab.todoManagementInfo2.category2Title);
+      if (tab.todoManagementInfo2.category3Title) categories2.push(tab.todoManagementInfo2.category3Title);
+
       result.push({
         isVirtual: true,
         virtual: {
@@ -102,30 +111,17 @@ const TocWidget: React.FC<TocWidgetProps> = ({
           emoji: '📋',
           itemCount: todo2Count,
           isVirtual: true,
-        },
-      });
-
-      // 할일관리 3
-      const todo3Count =
-        (tab.todoManagementInfo3.category1Items?.length ?? 0) +
-        (tab.todoManagementInfo3.category2Items?.length ?? 0) +
-        (tab.todoManagementInfo3.category3Items?.length ?? 0) +
-        (tab.todoManagementInfo3.category4Items?.length ?? 0) +
-        (tab.todoManagementInfo3.category5Items?.length ?? 0);
-      
-      result.push({
-        isVirtual: true,
-        virtual: {
-          id: 'sub-todo-widget-3',
-          title: tab.todoManagementInfo3.title || '업무 3',
-          emoji: '📋',
-          itemCount: todo3Count,
-          isVirtual: true,
+          categories: categories2,
         },
       });
     }
 
-    // 일반 섹션들
+    // 3. 인박스 (컬럼 3 - 공통)
+    if (tab.inboxSection) {
+      result.push({ section: tab.inboxSection, isInbox: true, isVirtual: false });
+    }
+
+    // 기타 일반 섹션들 (목록 하단)
     for (const s of tab.sections) {
       result.push({ section: s, isInbox: false, isVirtual: false });
     }
@@ -192,10 +188,10 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                 <div
                   style={{
                     maxHeight: isExpanded
-                      ? `${displaySections.length * 40 + 20}px`
+                      ? `2000px`
                       : '0px',
                     overflow: 'hidden',
-                    transition: 'max-height 0.2s ease-out',
+                    transition: 'max-height 0.3s ease-in-out',
                   }}
                   className="bg-white"
                 >
@@ -211,29 +207,54 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                         if (item.isVirtual) {
                           const v = item.virtual;
                           return (
-                            <div key={v.id} className="relative flex items-center group pl-8 py-0.5 border-b border-slate-50 last:border-b-0">
-                              <button
-                                onClick={() => onNavigate(tab.id, v.id)}
-                                className="flex-1 text-left px-2 py-1.5 hover:bg-slate-50 transition-all flex items-center gap-2 min-w-0"
-                                title={v.title}
-                              >
-                                <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
-                                  {displayNumber}
-                                </span>
-                                <span className="text-[13px] font-bold text-slate-500 truncate flex-1 italic opacity-80">
-                                  {v.title}
-                                </span>
-                                <span className="text-[10px] text-slate-300 flex-shrink-0">
-                                  {v.itemCount}
-                                </span>
-                              </button>
-                              <button
-                                onClick={() => onNavigateAndFocus(tab.id, v.id)}
-                                className="ml-1 p-1 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 rounded transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 text-xs"
-                                title="이동 후 입력하기"
-                              >
-                                🚀
-                              </button>
+                            <div key={v.id} className="border-b border-slate-50 last:border-b-0">
+                              <div className="relative flex items-center group pl-8 py-0.5">
+                                <button
+                                  onClick={() => onNavigate(tab.id, v.id)}
+                                  className="flex-1 text-left px-2 py-1.5 hover:bg-slate-50 transition-all flex items-center gap-2 min-w-0"
+                                  title={v.title}
+                                >
+                                  <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
+                                    {displayNumber}
+                                  </span>
+                                  <span className="text-[13px] font-bold text-sky-500 truncate flex-1 italic opacity-80">
+                                    {v.title}
+                                  </span>
+                                  <span className="text-[10px] text-slate-300 flex-shrink-0">
+                                    {v.itemCount}
+                                  </span>
+                                </button>
+                                <button
+                                  onClick={() => onNavigateAndFocus(tab.id, v.id)}
+                                  className="ml-1 p-1 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 rounded transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 text-xs"
+                                  title="이동 후 입력하기"
+                                >
+                                  🚀
+                                </button>
+                              </div>
+
+                              {/* 추가: 하위 항목박스(카테고리) 표시 */}
+                              {v.categories && v.categories.length > 0 && (
+                                <div className="pb-1">
+                                  {v.categories.map((catTitle, cIndex) => (
+                                    <button
+                                      key={`${v.id}-cat-${cIndex}`}
+                                      onClick={() => onNavigate(tab.id, v.id)}
+                                      className="w-full text-left pl-14 py-1 pr-4 hover:bg-slate-50 transition-all flex items-center gap-2 group/cat"
+                                    >
+                                      <span className="text-[9px] font-serif italic text-slate-300 flex-shrink-0 w-6">
+                                        L{cIndex + 1}
+                                      </span>
+                                      <span className="text-[12px] font-medium text-emerald-500 truncate flex-1 hover:text-emerald-700 transition-colors">
+                                        {catTitle}
+                                      </span>
+                                      <span className="text-[10px] opacity-0 group-hover/cat:opacity-100 text-slate-300 transform transition-transform group-hover/cat:translate-x-1">
+                                        →
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           );
                         } else {
@@ -249,7 +270,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                                 <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
                                   {displayNumber}
                                 </span>
-                                <span className="text-[13px] font-bold text-slate-600 truncate flex-1">
+                                <span className="text-[13px] font-bold text-sky-500 truncate flex-1">
                                   {section.title}
                                 </span>
                                 {section.isLocked && (
