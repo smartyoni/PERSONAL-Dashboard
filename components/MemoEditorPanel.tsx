@@ -904,23 +904,30 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                     <div className="flex-1 w-full overflow-y-auto custom-scrollbar relative">
                         <div className="memo-editor-mirror">
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
-                                const isLargeBullet = line.startsWith('●');
-                                const isNormalBullet = line.startsWith('•');
-                                const isDashBullet = line.startsWith('- ');
-                                const isStarBullet = line.startsWith('* ');
-                                const isBullet = isLargeBullet || isNormalBullet || isDashBullet || isStarBullet;
+                                const trimmed = line.trim();
+                                const isBullet = trimmed.startsWith('●') || trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('* ');
+                                const isHeader1 = trimmed.startsWith('# ');
+                                const isHeader2 = trimmed.startsWith('## ');
+                                const isHeader3 = trimmed.startsWith('### ');
+                                const isHeader = isHeader1 || isHeader2 || isHeader3;
+                                const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
+
+                                let lineClass = "min-h-[28px] ";
+                                if (isHeader1) lineClass += "font-black text-slate-900/40 text-xl";
+                                else if (isHeader2) lineClass += "font-black text-slate-900/40 text-lg";
+                                else if (isHeader3) lineClass += "font-bold text-slate-900/40 text-base";
+                                else if (isBold) lineClass += "font-black text-slate-900";
+                                else if (isBullet) lineClass += "font-bold text-slate-900 pl-5 -indent-5";
+                                else lineClass += "text-slate-700/20"; // Non-formatted text is transparent-ish in mirror
 
                                 let displayLine = line;
-                                if (isDashBullet || isStarBullet) {
+                                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                                     displayLine = '• ' + line.substring(2);
                                 }
 
                                 return (
-                                    <div 
-                                        key={idx} 
-                                        className={`min-h-[28px] ${isBullet ? 'pl-5 -indent-5' : ''} ${isLargeBullet ? 'font-bold text-slate-900' : 'text-slate-700'}`}
-                                    >
-                                        {displayLine}
+                                    <div key={idx} className={lineClass}>
+                                        {displayLine || ' '}
                                     </div>
                                 );
                             })}

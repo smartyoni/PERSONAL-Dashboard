@@ -476,13 +476,24 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   style={{ padding: '0px' }}
                 >
                   {(inboxDraftText || '').split('\n').map((line, idx) => {
-                    const isBullet = line.trim().startsWith('●') || line.trim().startsWith('•');
-                    const isHeader = line.trim().startsWith('#');
+                    const trimmed = line.trim();
+                    const isBullet = trimmed.startsWith('●') || trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('* ');
+                    const isHeader1 = trimmed.startsWith('# ');
+                    const isHeader2 = trimmed.startsWith('## ');
+                    const isHeader3 = trimmed.startsWith('### ');
+                    const isHeader = isHeader1 || isHeader2 || isHeader3;
+                    const isBold = trimmed.startsWith('**') && trimmed.endsWith('**');
+                    
+                    let lineClass = "min-h-[1.5em] font-serif ";
+                    if (isHeader1) lineClass += "font-black text-emerald-900/40 text-xl"; 
+                    else if (isHeader2) lineClass += "font-black text-emerald-900/40 text-lg";
+                    else if (isHeader3) lineClass += "font-bold text-emerald-900/40 text-base";
+                    else if (isBold) lineClass += "font-black text-emerald-900/40";
+                    else if (isBullet) lineClass += "font-bold text-emerald-900/40 pl-5 -indent-5";
+                    else lineClass += "text-transparent"; 
+
                     return (
-                      <div 
-                        key={idx} 
-                        className={`min-h-[1.5em] ${isHeader ? 'font-black text-emerald-950/40' : isBullet ? 'font-bold text-emerald-950' : ''}`}
-                      >
+                      <div key={idx} className={lineClass}>
                         {line || ' '}
                       </div>
                     );

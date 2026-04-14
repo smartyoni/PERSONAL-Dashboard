@@ -70,6 +70,8 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
           const isStarBullet = line.startsWith('* ');
           const isBullet = isLargeBullet || isNormalBullet || isDashBullet || isStarBullet;
           
+          const isBold = line.trim().startsWith('**') && line.trim().endsWith('**');
+          
           let displayLine = line;
           let headerLevel = 0;
 
@@ -82,6 +84,8 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
           } else if (h3Match) {
               displayLine = h3Match[1];
               headerLevel = 3;
+          } else if (isBold) {
+              displayLine = line.trim().substring(2, line.trim().length - 2);
           } else if (isDashBullet || isStarBullet) {
               // Transform - or * to • for consistent display
               displayLine = '• ' + line.substring(2);
@@ -117,10 +121,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
             });
           }
           
-          let lineClassName = `whitespace-pre-wrap `;
-          if (line.trim() !== '') {
-              lineClassName += `min-h-[1.25em] `;
-          }
+          let lineClassName = `whitespace-pre-wrap min-h-[1.5em] `;
           
           if (headerLevel === 1) {
               lineClassName += "text-2xl font-black text-slate-900 mt-6 mb-3 border-b-2 border-slate-100 pb-1 font-serif";
@@ -128,6 +129,8 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
               lineClassName += "text-xl font-bold text-slate-800 mt-5 mb-2 font-serif";
           } else if (headerLevel === 3) {
               lineClassName += "text-lg font-bold text-slate-700 mt-4 mb-1 font-serif";
+          } else if (isBold) {
+              lineClassName += "font-black " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
           } else if (isLargeBullet) {
               lineClassName += "font-bold pl-5 -indent-5 " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
           } else if (isBullet) {
@@ -142,7 +145,7 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
                 id={`memo-line-${lIdx}`}
                 className={lineClassName}
             >
-              {finalLineContent}
+              {finalLineContent || '\u00A0'}
             </div>
           );
         })}
