@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Section, DragState, ListItem } from '../types';
 import EditableText from './EditableText';
 import LinkifiedText from './LinkifiedText';
@@ -131,6 +131,15 @@ const SectionCard: React.FC<SectionCardProps> = ({
   const handleTitleChange = (newTitle: string) => {
     onUpdateSection({ ...section, title: newTitle });
   };
+
+  // 자동 높이 조절 로직: 상세 화면과 동일하게 구현하여 스크롤 주체를 부모로 넘김
+  useLayoutEffect(() => {
+    if (isInboxSection && isInboxEditing && inboxInputRef.current) {
+      const textarea = inboxInputRef.current;
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [inboxDraftText, isInboxEditing, isInboxSection]);
 
   const handleQuickAdd = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -466,12 +475,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
         }}
       >
         {isInboxSection ? (
-          <div className={`h-full font-serif ${isInboxEditing ? '' : 'p-4'}`}>
+          <div className={`h-full font-serif overflow-y-auto compact-scrollbar ${isInboxEditing ? '' : 'p-4'}`}>
             {isInboxEditing ? (
-              <div className="relative w-full h-full text-[15px] leading-[1.5]">
+              <div className="relative w-full min-h-full">
                 {/* Mirror Layer for real-time formatting feedback */}
                 <div 
-                  className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words text-transparent z-0 overflow-hidden"
+                  className="absolute top-0 left-0 w-full h-auto pointer-events-none whitespace-pre-wrap break-words text-transparent z-0 overflow-hidden"
                   aria-hidden="true"
                   style={{ padding: '1rem' }}
                 >
@@ -504,7 +513,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
                   value={inboxDraftText}
                   onChange={(e) => setInboxDraftText(e.target.value)}
                   onBlur={handleInboxSave}
-                  className="absolute inset-0 w-full h-full bg-transparent border-none focus:outline-none resize-none text-transparent caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-4 m-0 overflow-y-auto compact-scrollbar"
+                  className="absolute top-0 left-0 w-full h-auto bg-transparent border-none focus:outline-none resize-none text-transparent caret-emerald-600 z-10 font-serif text-[15px] leading-[1.5] p-4 m-0 overflow-hidden"
                   placeholder="내용을 입력하세요 (더블클릭으로 편집)..."
                   onKeyDown={(e) => {
                     // Hyphen + Space shortcut for bullet (•)
