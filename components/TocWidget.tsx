@@ -217,7 +217,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                                   <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
                                     {displayNumber}
                                   </span>
-                                  <span className="text-[13px] font-bold text-sky-500 truncate flex-1 italic opacity-80">
+                                  <span className="text-[14px] font-bold text-orange-700 truncate flex-1 italic opacity-95">
                                     {v.title}
                                   </span>
                                   <span className="text-[10px] text-slate-300 flex-shrink-0">
@@ -245,7 +245,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                                       <span className="text-[9px] font-serif italic text-slate-300 flex-shrink-0 w-6">
                                         L{cIndex + 1}
                                       </span>
-                                      <span className="text-[12px] font-medium text-emerald-500 truncate flex-1 hover:text-emerald-700 transition-colors">
+                                      <span className="text-[13px] font-bold text-emerald-700 truncate flex-1 hover:text-emerald-900 transition-colors">
                                         {catTitle}
                                       </span>
                                       <span className="text-[10px] opacity-0 group-hover/cat:opacity-100 text-slate-300 transform transition-transform group-hover/cat:translate-x-1">
@@ -270,7 +270,7 @@ const TocWidget: React.FC<TocWidgetProps> = ({
                                 <span className="text-[10px] font-serif italic text-slate-300 flex-shrink-0 w-10">
                                   {displayNumber}
                                 </span>
-                                <span className="text-[13px] font-bold text-sky-500 truncate flex-1">
+                                <span className="text-[14px] font-bold text-orange-700 truncate flex-1">
                                   {section.title}
                                 </span>
                                 {section.isLocked && (
