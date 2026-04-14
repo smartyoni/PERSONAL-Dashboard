@@ -87,7 +87,7 @@ export const useSectionManagement = (
 
         updateData({
             ...safeData,
-            tabs: safeData.tabs.map(t => t.id === safeData.activeTabId
+            tabs: safeData.tabs.map((t, idx) => idx === 0
                 ? {
                     ...t,
                     inboxSection: updated,
