@@ -16,7 +16,7 @@ const App: React.FC = () => {
   // Core state & effects
   const {
     data, loading, error, updateData, safeData,
-    syncStatus,
+    syncStatus, triggerSave,
     sharedTextForInbox, handleClearSharedText,
     isOnline, isMobileLayout,
     modal, setModal,
@@ -273,6 +273,7 @@ const App: React.FC = () => {
         memoSymbols={memoSymbols}
         handleMoveItem={handleMoveItem}
         syncStatus={syncStatus}
+        onSave={triggerSave}
         onOpenItemMemoAtPage={(itemId, pageIndex, highlightText) => {
           // 1. 일반 섹션 탐색
           const allSections = [activeTab.inboxSection, ...activeTab.sections];

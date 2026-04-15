@@ -7,10 +7,22 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event
+// Activate event - clear old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Service Worker activated');
-  self.clients.claim();
+  console.log('[SW] Service Worker activating...');
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          console.log('[SW] Clearing old cache:', cacheName);
+          return caches.delete(cacheName);
+        })
+      );
+    }).then(() => {
+      console.log('[SW] Caches cleared, claiming clients...');
+      return self.clients.claim();
+    })
+  );
 });
 
 // Fetch event - handle share-target POST requests

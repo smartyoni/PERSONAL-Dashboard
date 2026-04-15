@@ -10,6 +10,7 @@ interface UseFirestoreSyncReturn {
   error: Error | null;
   syncStatus: SyncStatus;
   updateData: (newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => void;
+  triggerSave: (customData?: AppData) => Promise<void>;
 }
 
 export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
@@ -21,8 +22,8 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
   // 로컬 업데이트 및 저장 상태 관리
   const isRemoteUpdate = useRef(false);
   const isSavingInProgress = useRef(false);
-  const pendingDataRef = useRef<AppData | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedDataRef = useRef<string>(''); // 데이터 변경 감지용 (JSON string)
+  const retryCount = useRef(0);
 
   // 초기 데이터 로드 및 실시간 동기화
   useEffect(() => {
@@ -30,35 +31,47 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
 
     async function initialize() {
       try {
+        console.log('[Sync] Initializing Firestore...');
         const firestoreData = await fetchWorkspaceData();
 
         if (firestoreData && firestoreData.tabs.length > 0) {
           setData(firestoreData);
+          lastSavedDataRef.current = JSON.stringify(firestoreData);
         } else {
+          console.log('[Sync] No data found, saving default...');
           await saveWorkspaceData(defaultData);
           setData(defaultData);
+          lastSavedDataRef.current = JSON.stringify(defaultData);
         }
 
         unsubscribe = subscribeToWorkspace(
           (updatedData) => {
-            // 로컬에서 저장 중이면 스냅샷은 동기화하지 않음 (저장 후 어차피 스냅샷이 올 것이므로)
-            if (isSavingInProgress.current || syncStatus === 'pending') return;
+            // 로컬에서 저장 중이면 스냅샷은 동기화하지 않음
+            if (isSavingInProgress.current) return;
 
+            const remoteString = JSON.stringify(updatedData);
+            // 현재 로컬 데이터와 원격 데이터가 같으면 업데이트 무시 (불필요한 리렌더링 방지)
+            if (remoteString === JSON.stringify(data)) return;
+
+            console.log('[Sync] Remote update received');
             isRemoteUpdate.current = true;
             setData(updatedData);
+            lastSavedDataRef.current = remoteString;
+            setSyncStatus('synced');
 
             setTimeout(() => {
               isRemoteUpdate.current = false;
-            }, 0);
+            }, 50);
           },
           (err) => {
-            console.error('Firestore subscription error:', err);
+            console.error('[Sync] Subscription error:', err);
             setError(err as Error);
           }
         );
 
         setLoading(false);
       } catch (err) {
+        console.error('[Sync] Initialization failed:', err);
         setError(err as Error);
         setLoading(false);
       }
@@ -68,46 +81,65 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
 
     return () => {
       if (unsubscribe) unsubscribe();
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
   }, []);
 
   // 실제 저장을 수행하는 내부 함수
   const performSave = async (dataToSave: AppData) => {
     if (isSavingInProgress.current) {
-        pendingDataRef.current = dataToSave;
+        console.log('[Sync] Save already in progress, skipping');
+        return;
+    }
+
+    const currentString = JSON.stringify(dataToSave);
+    if (currentString === lastSavedDataRef.current) {
+        console.log('[Sync] No changes detected, save skipped');
+        setSyncStatus('synced');
         return;
     }
 
     try {
         isSavingInProgress.current = true;
         setSyncStatus('saving');
+        console.log('[Sync] Saving to Firestore...');
         
-        await saveWorkspaceData(dataToSave);
+        const startTime = Date.now();
         
+        // 15초 타임아웃 적용 (Promise.race)
+        await Promise.race([
+          saveWorkspaceData(dataToSave),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 15000))
+        ]);
+        
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`[Sync] Saved successfully in ${duration}s`);
+        
+        lastSavedDataRef.current = currentString;
         setSyncStatus('synced');
         isSavingInProgress.current = false;
-
-        // 저장하는 동안 들어온 최신 데이터가 있다면 연쇄적으로 저장
-        if (pendingDataRef.current) {
-            const nextData = pendingDataRef.current;
-            pendingDataRef.current = null;
-            // 1초 정도의 최소 간격을 두어 Firestore 속도 제한(1 write/sec) 준수
-            setTimeout(() => performSave(nextData), 1000);
-        }
+        retryCount.current = 0;
     } catch (err: any) {
-        console.error('Failed to save to Firestore:', err);
+        console.error('[Sync] Save failed:', err);
         setError(err);
         setSyncStatus('error');
         isSavingInProgress.current = false;
         
-        // 재시도 로직 (필요 시)
-        if (err.code === 'resource-exhausted') {
-            console.warn('Resource exhausted. retrying in 5s...');
-            setTimeout(() => performSave(dataToSave), 5000);
+        // Resource exhausted (too many writes) 발생 시 지수 백오프 재시도
+        if (err.code === 'resource-exhausted' || err.message === 'Save timeout') {
+            const delay = Math.min(Math.pow(2, retryCount.current) * 1000, 30000);
+            retryCount.current += 1;
+            console.warn(`[Sync] Retrying in ${delay/1000}s... (Attempt ${retryCount.current})`);
+            setTimeout(() => performSave(dataToSave), delay);
         }
     }
   };
+
+  // 수동 저장 트리거 함수
+  const triggerSave = useCallback(async (customData?: AppData) => {
+    const dataToSave = customData || data;
+    if (!dataToSave) return;
+    await performSave(dataToSave);
+  }, [data]);
 
   // 데이터 업데이트 함수: 로컬 상태만 즉시 업데이트
   const updateData = useCallback((newDataOrUpdater: AppData | ((prev: AppData) => AppData)) => {
@@ -119,27 +151,16 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
             ? newDataOrUpdater(currentData) 
             : newDataOrUpdater;
         
-        // 데이터가 실제로 변경되었는지 확인하면 더 좋지만 일단 저장 대상으로 설정
+        // 실제 변경이 있는지 확인
+        if (JSON.stringify(resolvedData) !== lastSavedDataRef.current) {
+            setSyncStatus('pending'); // 'pending' 은 "저장 필요" 상태를 의미
+        } else {
+            setSyncStatus('synced');
+        }
+        
         return resolvedData;
     });
-    setSyncStatus('pending');
   }, [defaultData]);
 
-  // 로컬 변경사항 감지 및 디바운스된 저장 처리
-  useEffect(() => {
-    if (!data || isRemoteUpdate.current || loading) return;
-
-    // 저장 타이머 리셋
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-
-    saveTimeoutRef.current = setTimeout(() => {
-        performSave(data);
-    }, 2000); // 디바운스 2초로 상향 조정
-
-    return () => {
-        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, [data, loading]);
-
-  return { data, loading, error, syncStatus, updateData };
+  return { data, loading, error, syncStatus, updateData, triggerSave };
 }

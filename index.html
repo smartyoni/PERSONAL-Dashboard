@@ -146,30 +146,53 @@
   <div id="root"></div>
   <script type="module" src="./index.tsx"></script>
 
-  <!-- Service Worker 등록 -->
+  <!-- Service Worker 등록 및 초기화 로직 -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // 현재 경로에 따라 서비스 워커 경로 결정 (GitHub Pages vs Firebase/Local)
         const isListPage = window.location.pathname.includes('/PERSONAL-Dashboard/');
         const swPath = isListPage ? '/PERSONAL-Dashboard/sw.js' : '/sw.js';
         const scope = isListPage ? '/PERSONAL-Dashboard/' : '/';
 
-        console.log('[PWA] Service Worker 시도:', swPath, 'Scope:', scope);
+        // 이전 버전의 잘못된 서비스 워커(Workbox 등) 강제 해제 및 캐시 정리
+        async function resetServiceWorker() {
+          try {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+              await registration.unregister();
+              console.log('[PWA] Legacy SW unregistered:', registration.scope);
+            }
+            
+            const cacheNames = await caches.keys();
+            for (let name of cacheNames) {
+              await caches.delete(name);
+              console.log('[PWA] Cache cleared:', name);
+            }
+          } catch (err) {
+            console.error('[PWA] Reset failed:', err);
+          }
+        }
 
+        // 서비스 워커 등록
         navigator.serviceWorker.register(swPath, { scope })
           .then((registration) => {
-            console.log('[PWA] Service Worker 등록 완료:', registration.scope);
-          }).catch((error) => {
-            console.error('[PWA] Service Worker 등록 실패:', error);
+            console.log('[PWA] Service Worker registered:', registration.scope);
             
-            // 등록 실패 시 (특히 Workbox 관련 에러 해결을 위해) 기존 워커 해제 시도
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-              for(let registration of registrations) {
-                registration.unregister();
-                console.log('[PWA] 기존 워커 해제됨');
+            // 업데이트 감지 시 자동 갱신
+            registration.onupdatefound = () => {
+              const installingWorker = registration.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] New version available, reloading...');
+                    window.location.reload();
+                  }
+                };
               }
-            });
+            };
+          }).catch((error) => {
+            console.error('[PWA] SW registration failed:', error);
+            resetServiceWorker(); // 실패 시 초기화 시도
           });
       });
     }

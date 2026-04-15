@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, MapIcon, InboxIcon, SearchIcon } from './Icons';
+import { PlusIcon, MapIcon, InboxIcon, SearchIcon, CloudIcon, SaveIcon } from './Icons';
 import { ParkingInfo } from '../types';
 
 interface HeaderProps {
@@ -17,6 +17,7 @@ interface HeaderProps {
   onParkingChange?: (newInfo: ParkingInfo) => void;
   onOpenSearch?: () => void;
   syncStatus?: 'synced' | 'pending' | 'saving' | 'error';
+  onSave?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -27,7 +28,8 @@ const Header: React.FC<HeaderProps> = ({
   parkingInfo,
   onParkingChange,
   onOpenSearch,
-  syncStatus = 'synced'
+  syncStatus = 'synced',
+  onSave
 }) => {
   const [dateTime, setDateTime] = useState('');
 
@@ -40,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const statusLabels = {
       synced: '저장됨',
-      pending: '변경됨',
+      pending: '저장 필요',
       saving: '저장 중...',
       error: '저장 오류'
   };
@@ -73,10 +75,44 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-3">
             <p className="hidden md:block text-red-600 font-medium whitespace-nowrap text-xs sm:text-sm">{dateTime}</p>
             
-            {/* Sync Status Indicator */}
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 shadow-sm transition-all duration-300">
-                <div className={`w-2 h-2 rounded-full ${statusColors[syncStatus]}`}></div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{statusLabels[syncStatus]}</span>
+            {/* Sync Status Indicator & Save Button */}
+            <div className="flex items-center gap-1 sm:gap-2">
+                <div 
+                    className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:py-0.5 rounded-full border shadow-sm transition-all duration-300 ${
+                        syncStatus === 'pending' ? 'bg-amber-50 border-amber-200' : 'bg-slate-100 border-slate-200'
+                    }`}
+                    title={statusLabels[syncStatus]}
+                >
+                    <div className={`w-2 h-2 rounded-full ${statusColors[syncStatus]}`}></div>
+                    <span className={`text-[10px] font-bold uppercase tracking-tight ${
+                        syncStatus === 'pending' ? 'text-amber-700' : 'text-slate-500'
+                    }`}>
+                        {statusLabels[syncStatus]}
+                    </span>
+                </div>
+
+                {onSave && (
+                    <button
+                        onClick={onSave}
+                        disabled={syncStatus === 'saving'}
+                        className={`flex items-center gap-1 px-3 h-8 sm:h-9 rounded-lg font-bold text-[11px] sm:text-xs transition-all shadow-sm border ${
+                            syncStatus === 'pending'
+                                ? 'bg-indigo-600 text-white border-indigo-700 hover:bg-indigo-700 active:scale-95'
+                                : 'bg-white text-slate-500 border-slate-200 opacity-60'
+                        }`}
+                        title="전체 데이터 저장 (Ctrl+S)"
+                    >
+                        {syncStatus === 'saving' ? (
+                            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <CloudIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        )}
+                        <span>저장하기</span>
+                        {syncStatus === 'pending' && (
+                            <span className="flex h-1.5 w-1.5 rounded-full bg-red-400 absolute top-0 right-0 -mr-0.5 -mt-0.5 animate-ping" />
+                        )}
+                    </button>
+                )}
             </div>
 
             <div className="flex bg-slate-200/50 p-1 rounded-xl items-center gap-1 shadow-inner ml-1 sm:ml-2 md:inline-flex hidden">

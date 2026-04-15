@@ -175,7 +175,7 @@ const defaultData: AppData = (() => {
 })();
 
 export const useAppState = () => {
-    const { data, loading, error, syncStatus, updateData } = useFirestoreSync(defaultData);
+    const { data, loading, error, syncStatus, updateData, triggerSave } = useFirestoreSync(defaultData);
 
     // 공유 텍스트
     const [sharedTextForInbox, setSharedTextForInbox] = useState<string>('');
@@ -361,6 +361,31 @@ export const useAppState = () => {
         return () => query.removeEventListener('change', handler);
     }, []);
 
+    // 페이지 가시성 변경 시 자동 체크포인트 저장 (백그라운드 전환 시)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                console.log('[App] Page hidden, triggering checkpoint save...');
+                triggerSave();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [triggerSave]);
+
+    // Ctrl+S 수동 저장 단축키
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                console.log('[App] Ctrl+S shortcut, triggering checkpoint save...');
+                triggerSave();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [triggerSave]);
+
     // 확인 모달
     const [modal, setModal] = useState<{
         isOpen: boolean; title: string; message: string; onConfirm: () => void;
@@ -389,6 +414,16 @@ export const useAppState = () => {
             }
         }
     }, [memoEditor.isEditing]);
+
+    // 메모 편집 종료 시 자동 체크포인트 저장
+    const prevIsEditing = useRef(memoEditor.isEditing);
+    useEffect(() => {
+        if (prevIsEditing.current && !memoEditor.isEditing) {
+            console.log('[App] Memo editing closed, triggering checkpoint save...');
+            triggerSave();
+        }
+        prevIsEditing.current = memoEditor.isEditing;
+    }, [memoEditor.isEditing, triggerSave]);
 
     // Google Calendar
     const googleCalendar = useGoogleCalendar();
@@ -450,7 +485,7 @@ export const useAppState = () => {
 
     return {
         data, loading, error, updateData, safeData,
-        syncStatus,
+        syncStatus, triggerSave,
         sharedTextForInbox, handleClearSharedText,
         isOnline, isMobileLayout,
         modal, setModal,
