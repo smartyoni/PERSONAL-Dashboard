@@ -175,7 +175,7 @@ const defaultData: AppData = (() => {
 })();
 
 export const useAppState = () => {
-    const { data, loading, error, updateData } = useFirestoreSync(defaultData);
+    const { data, loading, error, syncStatus, updateData } = useFirestoreSync(defaultData);
 
     // 공유 텍스트
     const [sharedTextForInbox, setSharedTextForInbox] = useState<string>('');
@@ -450,6 +450,7 @@ export const useAppState = () => {
 
     return {
         data, loading, error, updateData, safeData,
+        syncStatus,
         sharedTextForInbox, handleClearSharedText,
         isOnline, isMobileLayout,
         modal, setModal,

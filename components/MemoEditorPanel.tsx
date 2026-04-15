@@ -964,7 +964,7 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                         <div className="memo-editor-mirror" style={{ paddingBottom: keyboardHeight > 0 ? `${64 + keyboardHeight}px` : '48px' }}>
                             {(memoEditor.value || '').split('\n').map((line, idx) => {
                                 const trimmed = line.trim();
-                                const isDivider = /^(\s*)(---|---|___|\*\*\*|---divider---)\s*$/.test(line);
+                                const isDivider = /^(\---|---|___|\*\*\*|---divider---)\s*$/.test(trimmed);
                                 const isBullet = /^(\s*)(●|•|-|\*)\s+/.test(line);
                                 const isHeader1 = trimmed.startsWith('# ');
                                 const isHeader2 = trimmed.startsWith('## ');
@@ -978,17 +978,17 @@ const MemoEditorPanel: React.FC<MemoEditorPanelProps> = ({
                                 else if (isHeader3) lineClass += "text-[14px] font-bold text-slate-700 font-serif";
                                 else if (isBold) lineClass += "text-[14px] font-bold text-slate-900";
                                 else if (isStrikethrough) lineClass += "text-[14px] line-through text-slate-500 opacity-70";
-                                else if (isBullet) lineClass += "text-[14px] font-bold text-slate-900"; // No lateral shifting
+                                else if (isBullet) lineClass += "text-[14px] font-bold text-slate-900"; 
                                 else lineClass += "text-[14px] text-slate-700";
 
                                 if (isDivider) {
                                     return <hr key={idx} className="border-t-2 border-emerald-400/60 my-3 relative z-0" />;
                                 }
 
-                                // DO NOT replace characters during editing to ensure character-width alignment
+                                // Structural changes (padding/flex) are disabled in editor to ensure cursor accuracy.
                                 return (
                                     <div key={idx} className={lineClass}>
-                                        {line || ' '}
+                                        {line || '\u00A0'}
                                     </div>
                                 );
                             })}

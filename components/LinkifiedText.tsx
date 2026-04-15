@@ -57,24 +57,30 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
             );
           }
 
-          // Linkify the line
-          const linkified = linkifyText(line);
+          // 1. Detect leading spaces (tabs)
+          const spaceMatch = line.match(/^(\s+)/);
+          const leadingSpaces = spaceMatch ? spaceMatch[1] : '';
+          const indentLevel = Math.floor(leadingSpaces.length / 4);
+          const tabPadding = indentLevel > 0 ? `${indentLevel * 1.25}rem` : undefined;
+          const textAfterTabs = line.substring(leadingSpaces.length);
+
+          // 2. Identify markdown elements in the text after tabs
+          const h1Match = textAfterTabs.match(/^#\s+(.*)/);
+          const h2Match = textAfterTabs.match(/^##\s+(.*)/);
+          const h3Match = textAfterTabs.match(/^###\s+(.*)/);
           
-          // Header & Bullet & Bold handling
-          const h1Match = line.match(/^#\s+(.*)/);
-          const h2Match = line.match(/^##\s+(.*)/);
-          const h3Match = line.match(/^###\s+(.*)/);
-          const isLargeBullet = line.startsWith('●');
-          const isNormalBullet = line.startsWith('•');
-          const isDashBullet = line.startsWith('- ');
-          const isStarBullet = line.startsWith('* ');
+          const isLargeBullet = textAfterTabs.startsWith('●');
+          const isNormalBullet = textAfterTabs.startsWith('•');
+          const isDashBullet = textAfterTabs.startsWith('- ');
+          const isStarBullet = textAfterTabs.startsWith('* ');
           const isBullet = isLargeBullet || isNormalBullet || isDashBullet || isStarBullet;
           
-          const isBold = line.trim().startsWith('**') && line.trim().endsWith('**');
-          const isStrikethrough = line.trim().startsWith('~~') && line.trim().endsWith('~~');
+          const isBold = textAfterTabs.trim().startsWith('**') && textAfterTabs.trim().endsWith('**');
+          const isStrikethrough = textAfterTabs.trim().startsWith('~~') && textAfterTabs.trim().endsWith('~~');
           
-          let displayLine = line;
+          let displayLine = textAfterTabs;
           let headerLevel = 0;
+          let bulletSymbol = '';
 
           if (h1Match) {
               displayLine = h1Match[1];
@@ -86,17 +92,18 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
               displayLine = h3Match[1];
               headerLevel = 3;
           } else if (isBold) {
-              displayLine = line.trim().substring(2, line.trim().length - 2);
+              displayLine = textAfterTabs.trim().substring(2, textAfterTabs.trim().length - 2);
           } else if (isStrikethrough) {
-              displayLine = line.trim().substring(2, line.trim().length - 2);
+              displayLine = textAfterTabs.trim().substring(2, textAfterTabs.trim().length - 2);
           } else if (isDashBullet || isStarBullet) {
-              // Transform - or * to • for consistent display
-              displayLine = '• ' + line.substring(2);
+              bulletSymbol = '•';
+              displayLine = textAfterTabs.substring(2);
           } else if (isLargeBullet || isNormalBullet) {
-              displayLine = line;
+              bulletSymbol = textAfterTabs.substring(0, 1);
+              displayLine = textAfterTabs.substring(1).trim();
           }
 
-          // Linkify the filtered line instead
+          // Linkify the filtered line
           const filteredLinkified = linkifyText(displayLine);
 
           // Highlight logic
@@ -136,10 +143,6 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
               lineClassName += "font-black " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
           } else if (isStrikethrough) {
               lineClassName += "line-through opacity-60 " + textColorClass;
-          } else if (isLargeBullet) {
-              lineClassName += "font-bold pl-5 -indent-5 " + (textColorClass.includes('emerald') ? 'text-emerald-950' : 'text-slate-900');
-          } else if (isBullet) {
-              lineClassName += "pl-5 -indent-5 " + textColorClass;
           } else {
               lineClassName += textColorClass;
           }
@@ -149,8 +152,16 @@ const LinkifiedText: React.FC<LinkifiedTextProps> = ({
                 key={lIdx} 
                 id={`memo-line-${lIdx}`}
                 className={lineClassName}
+                style={{ paddingLeft: tabPadding }}
             >
-              {finalLineContent || '\u00A0'}
+              {isBullet ? (
+                <div className="flex items-start">
+                  <span className="flex-none w-5 text-center mr-1 select-none font-bold">{bulletSymbol}</span>
+                  <div className="flex-1">{finalLineContent || '\u00A0'}</div>
+                </div>
+              ) : (
+                finalLineContent || '\u00A0'
+              )}
             </div>
           );
         })}

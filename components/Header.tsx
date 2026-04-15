@@ -16,6 +16,7 @@ interface HeaderProps {
   parkingInfo?: ParkingInfo;
   onParkingChange?: (newInfo: ParkingInfo) => void;
   onOpenSearch?: () => void;
+  syncStatus?: 'synced' | 'pending' | 'saving' | 'error';
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -25,9 +26,24 @@ const Header: React.FC<HeaderProps> = ({
   onToggleBookmarkView,
   parkingInfo,
   onParkingChange,
-  onOpenSearch
+  onOpenSearch,
+  syncStatus = 'synced'
 }) => {
   const [dateTime, setDateTime] = useState('');
+
+  const statusColors = {
+    synced: 'bg-emerald-500',
+    pending: 'bg-amber-400',
+    saving: 'bg-blue-500 animate-pulse',
+    error: 'bg-rose-500'
+  };
+
+  const statusLabels = {
+      synced: '저장됨',
+      pending: '변경됨',
+      saving: '저장 중...',
+      error: '저장 오류'
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -56,6 +72,12 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mt-1">
           <div className="flex items-center gap-3">
             <p className="hidden md:block text-red-600 font-medium whitespace-nowrap text-xs sm:text-sm">{dateTime}</p>
+            
+            {/* Sync Status Indicator */}
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 shadow-sm transition-all duration-300">
+                <div className={`w-2 h-2 rounded-full ${statusColors[syncStatus]}`}></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{statusLabels[syncStatus]}</span>
+            </div>
 
             <div className="flex bg-slate-200/50 p-1 rounded-xl items-center gap-1 shadow-inner ml-1 sm:ml-2 md:inline-flex hidden">
               {onOpenSearch && (

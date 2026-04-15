@@ -77,6 +77,7 @@ interface MainContentProps {
     handlePasteAllPages: () => Promise<boolean>;
     memoSymbols: { label: string; value: string; title: string }[];
     handleMoveItem: (itemId: string, sourceTabId: string, sourceSectionId: string, targetTabId: string, targetSectionId: string, switchTab?: boolean) => void;
+    syncStatus: 'synced' | 'pending' | 'saving' | 'error';
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -109,6 +110,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleReorderPages,
     handleCopyAllPages, handlePasteAllPages,
     memoSymbols, handleMoveItem,
+    syncStatus,
 }) => {
     const isSubTab = activeTab.id === safeData.tabs[1]?.id || activeTab.name === '업무게시판' || activeTab.name === '개인게시판';
     const isBookmarkTab = activeTab.id === 'bookmarks';
@@ -140,6 +142,7 @@ const MainContent: React.FC<MainContentProps> = ({
                             parkingInfo={activeTab.parkingInfo}
                             onParkingChange={handleParkingChange}
                             onOpenSearch={onOpenSearch}
+                            syncStatus={syncStatus}
                         />
                     </div>
 
