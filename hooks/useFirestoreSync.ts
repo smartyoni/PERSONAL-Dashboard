@@ -135,10 +135,14 @@ export function useFirestoreSync(defaultData: AppData): UseFirestoreSyncReturn {
   };
 
   // 수동 저장 트리거 함수
-  const triggerSave = useCallback(async (customData?: AppData) => {
-    const dataToSave = customData || data;
-    if (!dataToSave) return;
-    await performSave(dataToSave);
+  const triggerSave = useCallback(async (customData?: AppData | any) => {
+    // customData가 React Event 등 비정상적인 객체인 경우 무시하고 현재 data 사용
+    const actualData = (customData && typeof customData === 'object' && 'tabs' in customData) 
+      ? customData as AppData 
+      : data;
+      
+    if (!actualData) return;
+    await performSave(actualData);
   }, [data]);
 
   // 데이터 업데이트 함수: 로컬 상태만 즉시 업데이트

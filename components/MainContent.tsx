@@ -145,7 +145,7 @@ const MainContent: React.FC<MainContentProps> = ({
                             onParkingChange={handleParkingChange}
                             onOpenSearch={onOpenSearch}
                             syncStatus={syncStatus}
-                            onSave={onSave}
+                            onSave={() => onSave()}
                         />
                     </div>
 
